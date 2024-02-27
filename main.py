@@ -10,6 +10,7 @@ from selenium import webdriver
 
 import logging
 
+
 import time
 
 MAX_CHARS = 1000
@@ -91,6 +92,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import nest_asyncio
 nest_asyncio.apply()
 
+
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Process some instructions.")
@@ -106,6 +108,7 @@ if __name__ == "__main__":
     
     # Set logging level
     logging.basicConfig(level=args.log_level)
+
     
     args = parser.parse_args()
     with open(args.file_path, 'r') as file:
@@ -117,9 +120,9 @@ if __name__ == "__main__":
         driver = webdriver.Firefox()
         
     if args.local:
-        llm = HuggingFaceLLM(model_name=args.llm_model, auth_token=args.hf_token)
+        llm = HuggingFaceLLM(model_name=args.llm_model)
         
-        embedder = HuggingFaceEmbedding(model_name=args.embed_model, auth_token=args.hf_token)
+        embedder = HuggingFaceEmbedding(model_name=args.embed_model)
     else:
         llm = HuggingFaceInferenceAPI(
             model_name=args.llm_model, token=args.hf_token
@@ -130,6 +133,8 @@ if __name__ == "__main__":
     action_engine = ActionEngine(llm, embedder)
         
     for instruction in instructions:
+        logging.info(f"Processing instruction: {instruction}")
+        logging.debug(f"Current page source: {driver.page_source}")
         code = action_engine.get_action(instruction, driver.page_source)
         # Process each instruction here
         try:
@@ -145,6 +150,7 @@ if __name__ == "__main__":
             
         except Exception as e:
             logging.error(f"Error executing code: {e}")
+            logging.debug(f"Code: {code}")
             
     time.sleep(10)
     driver.quit()
