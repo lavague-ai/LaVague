@@ -42,7 +42,7 @@ You will need a Hugging Face Hub Token to use the ``Nous-Hermes-2-Mixtral-8x7B-D
 
 You can try LaVague in the following Colab notebook:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/your-repo/LaVague/blob/main/notebooks/LaVague_Demo.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dhuynh95/LaVague/blob/main/LaVague.ipynb)
 
 ## Roadmap
 
