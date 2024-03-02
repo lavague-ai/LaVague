@@ -15,6 +15,47 @@ driver = webdriver.Firefox()
 
 HTML:
 <!DOCTYPE html>
+<html>
+<head>
+    <title>Mock Search Page</title>
+</head>
+<body>
+    <h1>Search Page Example</h1>
+    <input id="searchBar" type="text" placeholder="Type here to search...">
+    <button id="searchButton">Search</button>
+    <script>
+        document.getElementById('searchButton').onclick = function() {{
+            var searchText = document.getElementById('searchBar').value;
+            alert("Searching for: " + searchText);
+        }};
+    </script>
+</body>
+</html>
+
+Query: Click on the search bar 'Type here to search...', type 'selenium', and press the 'Enter' key
+
+Completion:
+```python
+# Let's proceed step by step.
+# First we need to identify the component first, then we can click on it.
+
+# Based on the HTML, the link can be uniquely identified using the ID "searchBar"
+# Let's use this ID with Selenium to identify the link
+search_bar = driver.find_element(By.XPATH, "//*[@id='searchBar']")
+
+search_bar.click()
+
+# Now we can type the asked input
+search_bar.send_keys("selenium")
+
+# Finally we can press the 'Enter' key
+search_bar.send_keys(Keys.ENTER)
+```
+
+---
+
+HTML:
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,25 +66,31 @@ HTML:
     <div id="links">
         <a href="#link1" id="link1">Link 1</a>
         <br>
-        <a href="#link2" id="link2">Link 2</a>
+        <a href="#link2" class="link">Link 2</a>
         <br>
-        <a href="https://www.example.com" id="link3">External Link</a>
     </div>
 </body>
 </html>
 
-Query: Click on the title 'External Link'
+Query: Click on the title Link 1 and then click on the title Link 2
 
-Completion: 
+Completion:
 ```python
 # Let's proceed step by step.
-# First we need to identify the component first, then we can click on it.
+# First we need to identify the first component, then we can click on it. Then we can identify the second component and click on it.
 
-# Based on the HTML, the link can be uniquely identified using the ID "link3"
+# Based on the HTML, the first link the link can be uniquely identified using the ID "link1"
 # Let's use this ID with Selenium to identify the link
-link_to_click = driver.find_element(By.ID, "link3")
+link_to_click = driver.find_element(By.XPATH, "//*[@id='link1']")
 
 # Then we click on the link
+link_to_click.click()
+
+# The other link can be uniquely identified using the class "link"
+# Let's use this class to identify the link
+link_to_click = driver.find_element(By.XPATH, "//*[@class='link']")
+
+# Click on the element found
 link_to_click.click()
 ```
 
@@ -53,7 +100,7 @@ HTML:
 
 Query: Go on Llama Index Docs website
 
-Completion: 
+Completion:
 ```python
 # Let's proceed step by step.
 # We need to go to the website of 'Llama Index Docs'
@@ -97,7 +144,7 @@ HTML:
 
 Query: Select the text inside the third paragraph
 
-Completion: 
+Completion:
 ```python
 # Let's proceed step by step.
 
@@ -108,12 +155,12 @@ js_script = """
     // This part depends on the specific HTML, here is the identified ID "para3"
     var para = document.getElementById('para3');
     // The rest is standard
-    if (document.body.createTextRange) {{ 
+    if (document.body.createTextRange) {{
         var range = document.body.createTextRange();
         range.moveToElementText(para);
         range.select();
     }} else if (window.getSelection) {{
-        var selection = window.getSelection();        
+        var selection = window.getSelection();
         var range = document.createRange();
         range.selectNodeContents(para);
         selection.removeAllRanges();
@@ -131,7 +178,7 @@ HTML:
 
 Query: Scroll up a bit
 
-Completion: 
+Completion:
 ```python
 # Let's proceed step by step.
 # We don't need to use the HTML data as this is a stateless operation.
@@ -168,14 +215,14 @@ HTML:
 
 Query: Click on the Button 'First Button'
 
-Completion: 
+Completion:
 ```python
 # Let's proceed step by step.
 # First we need to identify the button first, then we can click on it.
 
 # Based on the HTML provided, we need to devise the best strategy to select the button.
 # The action button can be identified using the class name "action-btn"
-action_button = driver.find_element(By.CLASS_NAME, 'action-btn')
+action_button = driver.find_element(By.XPATH, "//*[@class='action-btn']")
 
 # Then we can click on it
 action_button.click()
@@ -186,6 +233,6 @@ action_button.click()
 HTML:
 {context_str}
 Query: {query_str}
-Completion: 
+Completion:
 ```python
 # Let's proceed step by step.
