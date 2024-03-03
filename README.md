@@ -38,7 +38,7 @@ LaVague is built on open-source projects and leverages open-sources models, eith
 **Pre-requisites**: To have a fast and low-cost experience, we will use [Hugging Face Inference for PRO users](https://huggingface.co/blog/inference-pro). 
 You can swap the call to the ``Nous-Hermes-2-Mixtral-8x7B-DPO`` model available on Inference API with a small local model, but it might be more involved and require fine-tuning.
 
-You will need a Hugging Face Hub Token to use the ``Nous-Hermes-2-Mixtral-8x7B-DPO`` model from the . You can get one by signing up on the [Hugging Face Hub](https://huggingface.co/join).
+You will need a Hugging Face Hub Token to use the ``Nous-Hermes-2-Mixtral-8x7B-DPO`` model from the Hub. You can get one by signing up on the [Hugging Face Hub](https://huggingface.co/join).
 
 You can try LaVague in the following Colab notebook:
 
