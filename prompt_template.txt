@@ -97,38 +97,6 @@ link_to_click.click()
 ---
 
 HTML:
-
-Query: Go on Llama Index Docs website
-
-Completion:
-```python
-# Let's proceed step by step.
-# We need to go to the website of 'Llama Index Docs'
-# To do so, we have to first get the URL of the website and then navigate to it
-
-# First let's use SerpApi to get the URL of the website
-from serpapi import GoogleSearch
-import os
-
-# We assume that the API key is stored in the environment variable "SERPAPI_KEY
-params = {{
-"q": "Llama Index Docs",
-"google_domain": "google.com",
-"api_key": os.environ["SERPAPI_KEY"]
-}}
-
-# We do a search on Google and get the first result
-search = GoogleSearch(params)
-results = search.get_dict()
-url = results["organic_results"][0]["link"]
-
-# Then we can navigate to the website using Selenium
-driver.get(url)
-```
-
----
-
-HTML:
 <!DOCTYPE html>
 <html>
 <head>
