@@ -5,7 +5,7 @@
 </div>
 <div align="center">
   <h2>See LaVague in Action</h2>
-  <p>Here are examples to show how LaVague can execute natural instructions on a browser to automate interactions with website:</p>
+  <p>Here are examples to show how LaVague can execute natural instructions on a browser to automate interactions with a website:</p>
   <figure>
     <img src="static/lavague_hf-speedup.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
     <figcaption>LaVague interacting with Hugging Face's website.</figcaption>
@@ -30,15 +30,11 @@ LaVague is built on open-source projects and leverages open-sources models, eith
 
 - **Natural Language Processing**: Understands instructions in natural language to perform browser interactions.
 - **Selenium Integration**: Seamlessly integrates with Selenium for automating web browsers.
-- **Open-Source**: Built on open-source projects such as transformers and llama-index, and leverages open-sources models, either locally or remote, to ensure the transparency of the agent and ensures that it is aligned with users' interests. 
-- **Advanced AI techniques**: Uses a local embedding (``bge-small-en-v1.5``) to first perform RAG to extract the most relevant HTML pieces to feed the LLM answering the query, as directly dropping the full HTML code would not fit in context. Then leverages Few-shot learning and Chain of Thought to elicit the most relevant Selenium code to perform the action without having to finetune the LLM (``Nous-Hermes-2-Mixtral-8x7B-DPO``) for code generation.
+- **Open-Source**: Built on open-source projects such as transformers and llama-index, and leverages open-source models, either locally or remote, to ensure the transparency of the agent and ensures that it is aligned with users' interests.
+- **Local models for privacy and control**: Supports local models like ``Gemma-7b`` so that users can fully control their AI assistant and have privacy guarantees.
+- **Advanced AI techniques**: Uses a local embedding (``bge-small-en-v1.5``) first to perform RAG to extract the most relevant HTML pieces to feed the LLM answering the query, as directly dropping the full HTML code would not fit in context. Then leverages Few-shot learning and Chain of Thought to elicit the most relevant Selenium code to perform the action without having to finetune the LLM (``Nous-Hermes-2-Mixtral-8x7B-DPO``) for code generation.
 
 ## Getting Started
-
-**Pre-requisites**: To have a fast and low-cost experience, we will use [Hugging Face Inference for PRO users](https://huggingface.co/blog/inference-pro). 
-You can swap the call to the ``Nous-Hermes-2-Mixtral-8x7B-DPO`` model available on Inference API with a small local model, but it might be more involved and require fine-tuning.
-
-You will need a Hugging Face Hub Token to use the ``Nous-Hermes-2-Mixtral-8x7B-DPO`` model from the Hub. You can get one by signing up on the [Hugging Face Hub](https://huggingface.co/join).
 
 You can try LaVague in the following Colab notebook:
 
@@ -48,9 +44,9 @@ You can try LaVague in the following Colab notebook:
 
 This is an early project but could grow to democratize transparent and aligned AI models to undertake actions for the sake of users on the internet.
 We see the following key areas to explore:
-- Fine-tune a smaller model like a ``gemma-7b-it`` to be expert in Text2Action and run locally (current tests failed) 
+- Fine-tune local models like a ``gemma-7b-it`` to be expert in Text2Action 
 - Improve retrieval to make sure only relevant pieces of code are used for code generation
-- Support other browser engines or even other automation frameworks
+- Support other browser engines (playwright) or even other automation frameworks
 
 ## Contributing
 
