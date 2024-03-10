@@ -51,4 +51,4 @@ We see the following key areas to explore:
 
 ## Community & Contributing
 
-If you are interested by this project, want to ask questions, contribute, or have proposals, please come on our [Discord](https://discord.gg/E3AsewGA) to chat!
+If you are interested by this project, want to ask questions, contribute, or have proposals, please come on our [Discord](https://discord.gg/SDxn9KpqX9) to chat!
