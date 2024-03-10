@@ -10,11 +10,11 @@
   <h2>See LaVague in Action</h2>
   <p>Here are examples to show how LaVague can execute natural instructions on a browser to automate interactions with a website:</p>
   <figure>
-    <img src="static/lavague_hf-speedup.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
+    <img src="static/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
     <figcaption>LaVague interacting with Hugging Face's website.</figcaption>
   </figure>
   <figure>
-    <img src="static/lavague_irs.gif" alt="LaVague Workflow Example">
+    <img src="static/irs_lavague.gif" alt="LaVague Workflow Example">
     <figcaption>LaVague interacting with the IRS's website.</figcaption>
   </figure>
 </div>
