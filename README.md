@@ -2,7 +2,9 @@
   <img src="static/logo.png" alt="LaVague Logo">
   <h1>🌊 Welcome to LaVague</h1>
   <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
-  [![](https://dcbadge.vercel.app/api/server/SDxn9KpqX9?compact=true&style=flat)](https://discord.gg/SDxn9KpqX9)
+  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
+    <img src="https://dcbadge.vercel.app/api/server/SDxn9KpqX9?compact=true&style=flat" alt="Join our Discord server!">
+  </a>
 </div>
 <div align="center">
   <h2>See LaVague in Action</h2>
