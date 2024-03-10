@@ -2,6 +2,9 @@
   <img src="static/logo.png" alt="LaVague Logo">
   <h1>🌊 Welcome to LaVague</h1>
   <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
+  <a href="https://discord.gg/yourServerInviteCode" target="_blank">
+        <img src="https://dcbadge.vercel.app/api/server/1216089456134586388?compact=true&style=flat" alt="Discord Server Badge">
+    </a>
 </div>
 <div align="center">
   <h2>See LaVague in Action</h2>
@@ -48,6 +51,6 @@ We see the following key areas to explore:
 - Improve retrieval to make sure only relevant pieces of code are used for code generation
 - Support other browser engines (playwright) or even other automation frameworks
 
-## Contributing
+## Community & Contributing
 
-This is a one-man project done during a hackathon for now, so if you are interested please ping me on [Twitter](https://twitter.com/dhuynh95)!
+If you are interested by this project, want to ask questions, contribute, or have proposals, please come on our [Discord](https://discord.gg/E3AsewGA) to chat!
