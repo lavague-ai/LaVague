@@ -1,6 +1,6 @@
 # LaVague Guide for Contributors 🌊
 
-Thanks for your interest in our project! We really appreciate all contributions, from bug reports, suggestions to helping us build new features. This support is vital in helping us build an awesome tool!
+Thanks for your interest in the project! We really appreciate all contributions, from bug reports, to suggestions to helping us build new features. Your support is vital in helping us build an awesome tool!
 
 In this guide, we'll outline how you can contribute to the project.
 
@@ -12,7 +12,7 @@ We track bugs using [GitHub issues](https://github.com/lavague-ai/LaVague/issues
 
 You can report a bug by opening a [new issue](https://github.com/lavague-ai/LaVague/issues/new/choose) using the 'bug report' template.
 
-Please check that your bug has not already been reported before submitting a bug report and include as many details as possible ito help us catch these bugs faster!
+Please check that your bug has not already been reported before submitting a bug report and include as many details as possible to help us fix bugs faster!
 
 ## Suggesting new features
 
@@ -49,7 +49,7 @@ When submitting a PR, please:
 
 - Use a descriptive title
 - [Link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to the issue you were working on in the PR
-- Add any relevant information to the description that you think may help the maintainers review your code
+- Add any relevant information to the description that you could help us review your code
 - [Rebase your branch](https://docs.github.com/en/get-started/using-git/about-git-rebase) against the latest version of `main`.
 - **Coming soon** Check your branch passes all GitHub actions pass.
 
@@ -59,4 +59,4 @@ If you need any help or want to discuss the feature you are working on more befo
 
 ## License
 
-Note all contributions made to this project are subject to the project's [Apache 2.0 License](https://github.com/lavague-ai/LaVague/blob/main/LICENSE) 
+Note that all contributions made to this project are subject to the project's [Apache 2.0 License](https://github.com/lavague-ai/LaVague/blob/main/LICENSE) 
