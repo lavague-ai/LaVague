@@ -53,4 +53,6 @@ We see the following key areas to explore:
 
 ## Community & Contributing
 
-If you are interested by this project, want to ask questions, contribute, or have proposals, please come on our [Discord](https://discord.gg/SDxn9KpqX9) to chat!
+We would love your help in making La Vague a reality. Please check out our [contributing guide](./contributing.md) to see how you can get involved!
+
+Please also join our [Discord](https://discord.gg/SDxn9KpqX9) community where we can chat about the project further!
