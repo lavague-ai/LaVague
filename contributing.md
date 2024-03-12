@@ -30,7 +30,7 @@ If one of these interests you, or you see another unassigned issue that you'd li
 
 If you would like to work on a feature that is not listed in our GitHub issues, let us know by creating a new issue and waiting for us to validate it with the 'accepted' label.
 
-### Setting up your local environment **full details coming soon**
+### Setting up your local environment (full dev environment set up instructions coming soon)
 
 First of all, you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
 
@@ -55,7 +55,7 @@ When submitting a PR, please:
 
 If you need any help or want to discuss the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
 
-### Contributing to the documentation **coming soon**
+### Contributing to the documentation (coming soon)
 
 ## License
 
