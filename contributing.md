@@ -53,7 +53,7 @@ When submitting a PR, please:
 - [Rebase your branch](https://docs.github.com/en/get-started/using-git/about-git-rebase) against the latest version of `main`.
 - **Coming soon** Check your branch passes all GitHub actions pass.
 
-If you need any help or want to discuss the feature you are working on more before submitting, reach out to us on Discord!
+If you need any help or want to discuss the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
 
 ### Contributing to the documentation **coming soon**
 

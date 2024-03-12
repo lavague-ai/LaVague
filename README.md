@@ -53,6 +53,8 @@ We see the following key areas to explore:
 
 ## Community & Contributing
 
-We would love your help in making La Vague a reality. Please check out our [contributing guide](./contributing.md) to see how you can get involved!
+We would love your help in making La Vague a reality. 
+
+Please check out our [contributing guide](./contributing.md) to see how you can get involved!
 
 Please also join our [Discord](https://discord.gg/SDxn9KpqX9) community where we can chat about the project further!
