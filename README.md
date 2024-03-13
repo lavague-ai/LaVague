@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="static/logo.png" alt="LaVague Logo">
+  <img src="static/logo.png" width=259px: alt="LaVague Logo">
   <h1>🌊 Welcome to LaVague</h1>
   <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
   <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
@@ -50,6 +50,8 @@ We see the following key areas to explore:
 - Fine-tune local models like a ``gemma-7b-it`` to be expert in Text2Action 
 - Improve retrieval to make sure only relevant pieces of code are used for code generation
 - Support other browser engines (playwright) or even other automation frameworks
+
+Keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
 ## Community & Contributing
 
