@@ -27,7 +27,7 @@
     <img src="static/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
     <figcaption><b>LaVague interacting with Hugging Face's website.</b></figcaption>
   </figure>
-  <br/>
+  <br><br>
 
   
   <figure>
