@@ -54,3 +54,9 @@ We see the following key areas to explore:
 ## Community & Contributing
 
 If you are interested by this project, want to ask questions, contribute, or have proposals, please come on our [Discord](https://discord.gg/SDxn9KpqX9) to chat!
+
+### Set up your dev environment
+
+Install the chrome browser and driver on linux with ```bash install-dependencies.sh```. You will need admin privileges if you're missing system dependencies.
+
+Set up a development environment by running the following command in a virtual environment: ```pip install -e .[dev]```
