@@ -1,9 +1,11 @@
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![Forks][forks-shield]][forks-url]
-[![Contributors][contributors-shield]][contributors-url]
-[![Apache License][license-shield]][license-url]
-<br/><br/>
+<p align="center">
+  <a href="https://github.com/lavague-ai/LaVague/stargazers"><img src="https://img.shields.io/github/stars/lavague-ai/LaVague.svg?style=for-the-badge" alt="Stargazers"></a>
+  <a href="https://github.com/lavague-ai/LaVague/issues"><img src="https://img.shields.io/github/issues/lavague-ai/LaVague.svg?style=for-the-badge" alt="Issues"></a>
+  <a href="https://github.com/lavague-ai/LaVague/network/members"><img src="https://img.shields.io/github/forks/lavague-ai/LaVague.svg?style=for-the-badge" alt="Forks"></a>
+  <a href="https://github.com/lavague-ai/LaVague/graphs/contributors"><img src="https://img.shields.io/github/contributors/lavague-ai/LaVague.svg?style=for-the-badge" alt="Contributors"></a>
+  <a href="https://github.com/lavague-ai/LaVague/blob/master/LICENSE.md"><img src="https://img.shields.io/github/license/lavague-ai/LaVague.svg?style=for-the-badge" alt="Apache License"></a>
+</p>
+</br>
 
 <div align="center">
   <img src="static/logo.png" width=140px: alt="LaVague Logo">
@@ -23,13 +25,14 @@
   <p>Here are examples to show how LaVague can execute natural instructions on a browser to automate interactions with a website:</p>
   <figure>
     <img src="static/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
-    <figcaption>LaVague interacting with Hugging Face's website.</figcaption>
+    <figcaption><b>LaVague interacting with Hugging Face's website.</b></figcaption>
   </figure>
   <br/>
+
   
   <figure>
     <img src="static/irs_lavague.gif" alt="LaVague Workflow Example">
-    <figcaption>LaVague interacting with the IRS's website.</figcaption>
+    <figcaption><b>LaVague interacting with the IRS's website.</b></figcaption>
   </figure>
 </div>
 <br/>
@@ -75,15 +78,3 @@ We would love your help in making La Vague a reality.
 Please check out our [contributing guide](./contributing.md) to see how you can get involved!
 
 Please also join our [Discord](https://discord.gg/SDxn9KpqX9) community where we can chat about the project further!
-
-[contributors-shield]: https://img.shields.io/github/contributors/lavague-ai/LaVague.svg?style=for-the-badge
-[contributors-url]: https://github.com/lavague-ai/LaVague/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/lavague-ai/LaVague.svg?style=for-the-badge
-[forks-url]: https://github.com/lavague-ai/LaVague/network/members
-[stars-shield]: https://img.shields.io/github/stars/lavague-ai/LaVague.svg?style=for-the-badge
-[stars-url]: https://github.com/lavague-ai/LaVague/stargazers
-[issues-shield]: https://img.shields.io/github/issues/lavague-ai/LaVague.svg?style=for-the-badge
-[issues-url]: https://github.com/lavague-ai/LaVague/issues
-[license-shield]: https://img.shields.io/github/license/lavague-ai/LaVague.svg?style=for-the-badge
-[license-url]: https://github.com/lavague-ai/LaVague/blob/master/LICENSE.md
-[linkedin-shield]: https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&colorB=555
