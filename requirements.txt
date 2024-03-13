@@ -2,6 +2,8 @@ llama_index
 llama-index-embeddings-huggingface
 llama-index-llms-huggingface 
 llama-index-retrievers-bm25
+llama-index-embeddings-azure-openai
+llama-index-llms-azure-openai
 tree-sitter
 tree-sitter-languages
 nest_asyncio
