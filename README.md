@@ -1,23 +1,38 @@
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![Forks][forks-shield]][forks-url]
+[![Contributors][contributors-shield]][contributors-url]
+[![Apache License][license-shield]][license-url]
+<br/><br/>
+
 <div align="center">
-  <img src="static/logo.png" width=259px: alt="LaVague Logo">
-  <h1>🌊 Welcome to LaVague</h1>
-  <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
-  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
+  <img src="static/logo.png" width=140px: alt="LaVague Logo">
+  <h1>Welcome to LaVague</h1>
+
+<h4 align="center">
+ <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
     <img src="https://dcbadge.vercel.app/api/server/SDxn9KpqX9?compact=true&style=flat" alt="Join our Discord server!">
   </a>
+</h4>
+  <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
+<h1></h1>
+
 </div>
-<div align="center">
+<div>
   <h2>See LaVague in Action</h2>
   <p>Here are examples to show how LaVague can execute natural instructions on a browser to automate interactions with a website:</p>
   <figure>
     <img src="static/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
     <figcaption>LaVague interacting with Hugging Face's website.</figcaption>
   </figure>
+  <br/>
+  
   <figure>
     <img src="static/irs_lavague.gif" alt="LaVague Workflow Example">
     <figcaption>LaVague interacting with the IRS's website.</figcaption>
   </figure>
 </div>
+<br/>
 
 ## Motivations
 
@@ -60,3 +75,15 @@ We would love your help in making La Vague a reality.
 Please check out our [contributing guide](./contributing.md) to see how you can get involved!
 
 Please also join our [Discord](https://discord.gg/SDxn9KpqX9) community where we can chat about the project further!
+
+[contributors-shield]: https://img.shields.io/github/contributors/lavague-ai/LaVague.svg?style=for-the-badge
+[contributors-url]: https://github.com/lavague-ai/LaVague/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/lavague-ai/LaVague.svg?style=for-the-badge
+[forks-url]: https://github.com/lavague-ai/LaVague/network/members
+[stars-shield]: https://img.shields.io/github/stars/lavague-ai/LaVague.svg?style=for-the-badge
+[stars-url]: https://github.com/lavague-ai/LaVague/stargazers
+[issues-shield]: https://img.shields.io/github/issues/lavague-ai/LaVague.svg?style=for-the-badge
+[issues-url]: https://github.com/lavague-ai/LaVague/issues
+[license-shield]: https://img.shields.io/github/license/lavague-ai/LaVague.svg?style=for-the-badge
+[license-url]: https://github.com/lavague-ai/LaVague/blob/master/LICENSE.md
+[linkedin-shield]: https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&colorB=555
