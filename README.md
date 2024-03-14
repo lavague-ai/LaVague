@@ -41,7 +41,7 @@ LaVague is built on open-source projects and leverages open-sources models, eith
 
 You can try LaVague in the following Colab notebook:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dhuynh95/LaVague/blob/main/LaVague.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dhuynh95/LaVague/blob/main/examples/gradio-demo.ipynb)
 
 ## Roadmap
 
