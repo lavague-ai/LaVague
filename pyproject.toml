@@ -46,7 +46,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff", "ipykernel", "gradio"]
+dev = ["ruff", "ipykernel"]
 
 [project.urls]
 "Homepage" = "https://mithrilsecurity.io"
