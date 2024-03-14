@@ -40,7 +40,9 @@ dependencies = [
   "selenium",
   "google-search-results",
   "bitsandbytes",
-  "python-dotenv"
+  "python-dotenv",
+  "accelerate",
+  "bitsandbytes"
 ]
 
 [project.optional-dependencies]

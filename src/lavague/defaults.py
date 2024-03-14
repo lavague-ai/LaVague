@@ -15,19 +15,19 @@ DEFAULT_LLM = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
 DEFAULT_MAX_NEW_TOKENS = 512
 HF_TOKEN = os.environ["HF_TOKEN"]
 
-DEFAULT_QUANTIZATION_CONFIG = BitsAndBytesConfig(
-load_in_4bit=True,
-bnb_4bit_use_double_quant=True,
-bnb_4bit_quant_type="nf4",
-bnb_4bit_compute_dtype=torch.bfloat16
-)
+# DEFAULT_QUANTIZATION_CONFIG = BitsAndBytesConfig(
+# load_in_4bit=True,
+# bnb_4bit_use_double_quant=True,
+# bnb_4bit_quant_type="nf4",
+# bnb_4bit_compute_dtype=torch.bfloat16
+# )
 
 class DefaultEmbedder(HuggingFaceEmbedding):
 	def __init__(self, model_name=DEFAULT_EMBED_MODEL, device="cuda"):
 		super().__init__(model_name, device)
 
 class DefaultLocalLLM(HuggingFaceLLM):
-	def __init__(self, model_name=DEFAULT_LOCAL_LLM, max_new_tokens=DEFAULT_MAX_NEW_TOKENS, quantization_config=DEFAULT_QUANTIZATION_CONFIG):
+	def __init__(self, model_name=DEFAULT_LOCAL_LLM, max_new_tokens=DEFAULT_MAX_NEW_TOKENS, quantization_config=None):
 		tokenizer = AutoTokenizer.from_pretrained(model_name)
 		model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", quantization_config=quantization_config)
 
@@ -38,6 +38,8 @@ class DefaultLocalLLM(HuggingFaceLLM):
 # Monkey patch because stream_complete is not implemented in the current version of llama_index
 def stream_complete(self, prompt: str, **kwargs):
 	def gen():
+		# patch the patch, on some versions the caller tries to pass the formatted keyword, which doesn't exist
+		kwargs.pop("formatted", None)
 		text = ""
 		for x in self._sync_client.text_generation(
 				prompt, **{**{"max_new_tokens": self.num_output, "stream": True}, **kwargs}
