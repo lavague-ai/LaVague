@@ -36,6 +36,7 @@ class DefaultLocalLLM(HuggingFaceLLM):
 		super().__init__(model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens, stopping_ids=stop_token_id)
 
 # Monkey patch because stream_complete is not implemented in the current version of llama_index
+# BROKEN FOR NOW : TOFIX
 def stream_complete(self, prompt: str, **kwargs):
 	def gen():
 		# patch the patch, on some versions the caller tries to pass the formatted keyword, which doesn't exist

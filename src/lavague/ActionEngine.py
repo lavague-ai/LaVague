@@ -38,6 +38,7 @@ class ActionEngine:
 
         return index
 
+    # WARNING: streaming is broken for now
     def get_query_engine(self, state):
         html = state
         index = self._get_index(html)
@@ -47,7 +48,8 @@ class ActionEngine:
             similarity_top_k=K,
         )
 
-        response_synthesizer = get_response_synthesizer(streaming=True, llm=self.llm)
+        # No streaming for now
+        response_synthesizer = get_response_synthesizer(streaming=False, llm=self.llm)
 
         # assemble query engine
         query_engine = RetrieverQueryEngine(
