@@ -31,9 +31,7 @@ class DefaultLocalLLM(HuggingFaceLLM):
 		tokenizer = AutoTokenizer.from_pretrained(model_name)
 		model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", quantization_config=quantization_config)
 
-		# We will stop generation as soon as the model outputs the end of Markdown to make inference faster
-		stop_token_id = [tokenizer.convert_tokens_to_ids("```"), tokenizer.convert_tokens_to_ids("``")]
-		super().__init__(model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens, stopping_ids=stop_token_id)
+		super().__init__(model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens)
 
 # Monkey patch because stream_complete is not implemented in the current version of llama_index
 # BROKEN FOR NOW : TOFIX

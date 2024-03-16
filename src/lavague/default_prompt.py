@@ -203,7 +203,5 @@ HTML:
 {context_str}
 Query: {query_str}
 Completion:
-```python
-# Let's proceed step by step.
 
 '''
