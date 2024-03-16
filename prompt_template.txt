@@ -181,7 +181,7 @@ HTML:
 </html>
 
 
-Query: Click on the Button 'First Button'
+Query: Click on the Button 'Action Button'
 
 Completion:
 ```python
