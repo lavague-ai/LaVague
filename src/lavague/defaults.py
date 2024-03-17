@@ -13,7 +13,7 @@ DEFAULT_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
 DEFAULT_LOCAL_LLM = "HuggingFaceH4/zephyr-7b-gemma-v0.1"
 DEFAULT_LLM = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
 DEFAULT_MAX_NEW_TOKENS = 512
-HF_TOKEN = os.environ["HF_TOKEN"]
+HF_TOKEN = os.getenv("HF_TOKEN", "")
 
 # DEFAULT_QUANTIZATION_CONFIG = BitsAndBytesConfig(
 # load_in_4bit=True,
