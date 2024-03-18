@@ -36,8 +36,8 @@ class DefaultLocalLLM(HuggingFaceLLM):
 		model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", quantization_config=quantization_config)
 
 		super().__init__(model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens)
+
 # Monkey patch because stream_complete is not implemented in the current version of llama_index
-# BROKEN FOR NOW : TOFIX
 def stream_complete(self, prompt: str, **kwargs):
 	def gen():
 		# patch the patch, on some versions the caller tries to pass the formatted keyword, which doesn't exist
