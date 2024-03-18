@@ -12,8 +12,10 @@ from llama_index.llms.huggingface import HuggingFaceInferenceAPI
 import re
 from lavague.ActionEngine import ActionEngine
 
-# Function to ensure Hugging Face API Token is available
+# enter your HF token
 HF_TOKEN = ""
+
+# location where we find chrome and chromedriver folders
 WEBDRIVE_PATH = ""
 MAX_CHARS = 1500
 
@@ -23,8 +25,8 @@ def init_webdriver():
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--window-size=1600,900')
-    chrome_options.binary_location = WEBDRIVE_PATH + "chrome-linux64/chrome"
-    webdriver_service = Service(WEBDRIVE_PATH + "chromedriver-linux64/chromedriver")
+    chrome_options.binary_location = WEBDRIVE_PATH + "/chrome-linux64/chrome"
+    webdriver_service = Service(WEBDRIVE_PATH + "/chromedriver-linux64/chromedriver")
     driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
     return driver
 
