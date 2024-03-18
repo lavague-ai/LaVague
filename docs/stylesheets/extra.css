@@ -1,0 +1,108 @@
+/* MKDOCS CSS */
+
+/* Color chart */
+	/* Oxford blue: #142540
+	Blue Yonder: #647693
+	Light Steel Blue: #B3C6E5
+	Orange Yellow: #F0BA2D
+	Black: #000000 */
+
+/****** Tweaking the navigation sections style only on Desktop ******/
+
+@media screen and (min-width: 1200px) {
+
+	/* rules to style all level 0 navigation titles */
+	nav[data-md-level="0"]>ul>li>.md-nav__link {
+		font-weight: bold;
+		text-transform: uppercase;
+	}
+
+	/* rules to style level 2 collapsible sections titles */
+	nav[data-md-level="1"]>ul>li.md-nav__item--nested>label.md-nav__link {
+		font-weight: bold;
+	}
+}
+
+/* To add css style to only Jupyter notebooks:
+	-> put ''.jp-RenderedHTMLCommon' before new rule 
+	source css: https://github.com/jupyterlab/jupyterlab/blob/3d07723da5543c8bfb4f509f00b95f75789d38c7/packages/rendermime/style/index.css#L341
+	*/
+
+/******* light mode *******/
+
+/* customizing links color */
+[data-md-color-scheme="default"] .jp-RenderedHTMLCommon a {
+	color: #5385d5;
+}
+
+/* customizing the text color in '>' notes */
+[data-md-color-scheme="default"] .jp-RenderedHTMLCommon blockquote {
+	color: #57595b;
+}
+
+/******* dark mode *******/
+
+/* customizing links color */
+[data-md-color-scheme="slate"] .jp-RenderedHTMLCommon a {
+	color: #F0BA2D;
+}
+
+/* customizing the text color in '>' notes */
+[data-md-color-scheme="slate"] .jp-RenderedHTMLCommon blockquote {
+	color: #c5c7ca;
+	background: #c5c7ca0e;
+}
+
+/******* Adding admonitions *******/
+
+.jp-RenderedHTMLCommon .admonition {
+	padding: .1em .5em;
+	margin-bottom: 1em;
+  }
+  .jp-RenderedHTMLCommon .admonition-title {
+	font-weight: bold;
+}
+.jp-RenderedHTMLCommon .admonition.note,
+.jp-RenderedHTMLCommon .admonition.info,
+.jp-RenderedHTMLCommon .admonition.important,
+.jp-RenderedHTMLCommon .admonition.todo,
+.jp-RenderedHTMLCommon .admonition.versionadded,
+.jp-RenderedHTMLCommon .admonition.tip,
+.jp-RenderedHTMLCommon .admonition.hint,
+.jp-RenderedHTMLCommon .admonition.versionchanged,
+.jp-RenderedHTMLCommon .admonition.deprecated,
+.jp-RenderedHTMLCommon .admonition.error,
+.jp-RenderedHTMLCommon .admonition.danger,
+.jp-RenderedHTMLCommon .admonition.caution {
+	background: #f0b92d11;
+}
+
+/* ****** Adding custom admonitions ******/
+
+.jp-RenderedHTMLCommon .warning,
+.jp-RenderedHTMLCommon .note,
+.jp-RenderedHTMLCommon .danger,
+.jp-RenderedHTMLCommon .tip,
+.jp-RenderedHTMLCommon .info {
+	background: #f0b92d11;
+}
+
+
+/******* Rules aligning colab_button to the right *******/
+
+#colab_button {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start; /* Vertical align title and colab img to the start of the flex container */
+}
+
+#colab_button h1 {
+	margin: 0;
+}
+	
+#colab_button a {
+	margin-left: auto; /* Push the colab img element to the right */
+	margin-top: 0.67em;
+	margin-bottom: 0.67em;
+	margin-right: 0;
+}
