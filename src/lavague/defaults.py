@@ -2,6 +2,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.huggingface import HuggingFaceLLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from llama_index.llms.huggingface import HuggingFaceInferenceAPI
+from llama_index.llms.azure_openai import AzureOpenAI
 from llama_index.core.base.llms.types import CompletionResponse
 from dotenv import load_dotenv
 import os
@@ -14,6 +15,9 @@ DEFAULT_LOCAL_LLM = "HuggingFaceH4/zephyr-7b-gemma-v0.1"
 DEFAULT_LLM = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
 DEFAULT_MAX_NEW_TOKENS = 512
 HF_TOKEN = os.getenv("HF_TOKEN", "")
+API_KEY = os.getenv("AZURE_OPENAI_TOKEN", "")
+AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "")
+DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "")
 
 # DEFAULT_QUANTIZATION_CONFIG = BitsAndBytesConfig(
 # load_in_4bit=True,
@@ -32,7 +36,6 @@ class DefaultLocalLLM(HuggingFaceLLM):
 		model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", quantization_config=quantization_config)
 
 		super().__init__(model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens)
-
 # Monkey patch because stream_complete is not implemented in the current version of llama_index
 # BROKEN FOR NOW : TOFIX
 def stream_complete(self, prompt: str, **kwargs):
@@ -48,6 +51,10 @@ def stream_complete(self, prompt: str, **kwargs):
 	return gen()
 
 HuggingFaceInferenceAPI.stream_complete = stream_complete
+
+class AzureOpenAILLM(AzureOpenAI):
+	def __init__(self, model="", deployment_name=DEPLOYMENT_NAME, api_key=API_KEY, azure_endpoint=AZURE_ENDPOINT, api_version=""):
+		super().__init__(model=model, deployment_name=deployment_name, api_key=api_key, azure_endpoint=azure_endpoint, api_version=api_version, temperature=0.0)
 
 class DefaultLLM(HuggingFaceInferenceAPI):
 	def __init__(self, model_name = DEFAULT_LLM, token=HF_TOKEN, num_output=DEFAULT_MAX_NEW_TOKENS):
