@@ -6,16 +6,17 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core import get_response_synthesizer
 from llama_index.core import PromptTemplate
 from .defaults import DefaultLLM, DefaultEmbedder
-from .default_prompt import DEFAULT_PROMPT
+from .prompts import DEFAULT_PROMPT
 
 MAX_CHARS = 1500
 K = 3
 
+
 class ActionEngine:
-    def __init__(self, llm=None, embedding=None):
-        if (llm is None):
+    def __init__(self, llm=None, embedding=None, prompt=DEFAULT_PROMPT):
+        if llm is None:
             llm = DefaultLLM()
-        if (embedding is None):
+        if embedding is None:
             embedding = DefaultEmbedder()
 
         self.llm = llm
@@ -38,7 +39,7 @@ class ActionEngine:
 
         return index
 
-    def get_query_engine(self, state):
+    def get_query_engine(self, state, prompt=DEFAULT_PROMPT):
         html = state
         index = self._get_index(html)
 
@@ -55,7 +56,7 @@ class ActionEngine:
             response_synthesizer=response_synthesizer,
         )
 
-        prompt_template = PromptTemplate(DEFAULT_PROMPT)
+        prompt_template = PromptTemplate(prompt)
 
         query_engine.update_prompts(
             {"response_synthesizer:text_qa_template": prompt_template}
