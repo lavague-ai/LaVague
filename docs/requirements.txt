@@ -157,10 +157,6 @@ urllib3
     # via requests
 watchdog
     # via mkdocs
-webencoding
-    # via
-    #   bleach
-    #   tinycss2
 zipp
     # via
     #   importlib-metadata
