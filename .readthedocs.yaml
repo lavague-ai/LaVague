@@ -15,9 +15,9 @@ build:
     # rust: "1.64"
     # golang: "1.19"
 
-# Build documentation in the "docs/" directory with Sphinx
-sphinx:
-  configuration: docs/conf.py
+mkdocs:
+  configuration: mkdocs.yml
+  fail_on_warning: true
 
 # Optionally build your docs in additional formats such as PDF and ePub
 # formats:
