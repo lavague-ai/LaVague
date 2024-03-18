@@ -57,6 +57,7 @@ theme:
 plugins:
   - search
   - mkdocs-jupyter
+    theme: dark
 
 # Customization
 extra:
