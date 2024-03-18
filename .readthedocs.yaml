@@ -1,0 +1,21 @@
+version: 2
+
+submodules:
+  include: all
+
+build:
+  os: "ubuntu-20.04"
+  tools:
+    python: "3.10"
+  apt_packages:
+  - cmake
+
+mkdocs:
+  configuration: mkdocs.yml
+  fail_on_warning: true
+
+python:
+    install:
+    - requirements: docs/requirements.txt
+    - method: pip
+      path: client
