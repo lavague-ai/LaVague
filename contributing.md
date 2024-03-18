@@ -30,15 +30,36 @@ If one of these interests you, or you see another unassigned issue that you'd li
 
 If you would like to work on a feature that is not listed in our GitHub issues, let us know by creating a new issue and waiting for us to validate it with the 'accepted' label.
 
-### Setting up your local environment (full dev environment set up instructions coming soon)
+### Setting up your local environment
 
-First of all, you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
+Firstly, you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
+
+You can create a local dev environment, by creating and activating a virtual Python environment:
+
+```
+python -m venv env .
+source env/bin/activate
+```
 
 You'll then need to clone your forked repository using git:
 
 ```
 git clone https://github.com/<username>/LaVague.git
 cd LaVague
+```
+
+We then need to download the Chrome driver which is necessary for interfacing with the Chrome browser with Selenium. You can do this by running our dependencies script:
+
+```
+bash install-dependencies.sh
+```
+
+> For instructions on how to install a driver for a different browser or instructions for downloading drivers on a different OS, [see the Selenium documentation](https://selenium-python.readthedocs.io/installation.html#drivers)
+
+Finally you can install the LaVague package locally in "editable" mode with the following command:
+
+```
+pip install -e .[dev]
 ```
 
 ### Pull requests
