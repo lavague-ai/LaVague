@@ -1,7 +1,7 @@
 FROM nvidia/cuda:12.3.2-devel-ubuntu20.04
 
-WORKDIR /root
-COPY ./ /root
+WORKDIR /app
+COPY ./ /app
 
 ENV DEBIAN_FRONTEND noninteractive
 
