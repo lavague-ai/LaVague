@@ -1,0 +1,106 @@
+# Website Info
+site_name: LaVague
+site_url: https://github.com/lavague-ai/LaVague
+site_author: Mithril Security
+
+# Repository
+repo_name: lavague-ai/LaVague
+repo_url: https://github.com/lavague-ai/LaVague
+
+# Configuration
+theme:
+  name: material
+  custom_dir: docs/material_theme_customization
+  features:
+    - navigation.instant
+    - search.highlight
+    - content.tabs.link
+    - navigation.sections
+    - navigation.indexes
+    - navigation.expand
+    
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  theme:
+  palette:
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  icon:
+    admonition:
+      note: material/pencil-circle
+      abstract: material/list-box-outline
+      info: material/information-outline
+      tip: material/fire
+      success: material/check
+      question: material/help-circle
+      warning: material/alert
+      failure: material/window-close
+      danger: material/lightning-bolt-circle
+      bug: material/shield-bug
+      example: material/test-tube
+      quote: material/format-quote-close
+
+#Plugins
+plugins:
+  - search
+  - mkdocs-jupyter
+
+# Customization
+extra:
+  homepage: https://mithrilsecurity.io
+  social:
+    - icon: fontawesome/brands/discord
+      link: https://discord.com/invite/TxEHagpWd4
+    - icon: fontawesome/brands/github
+      link: https://github.com/mithril-security/
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/mithril-security-company/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/mithrilsecurity
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - "https://code.jquery.com/jquery-3.3.1.min.js"
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.critic
+
+
+# Documentation tree
+nav:
+- 🏠 Home: 'index.md'
+
+- 🚀 Getting Started: 
+  - Quick tour: 'docs/get-started/quick-tour.ipynb'
+
+- ⚡ Advanced:
+  - Architecture: 'docs/get-started/architecture.md'
+# - 🛠️ Client API reference: 'lavague/client.html'
+
+- 🤗 Contributing: 
+  - Contributors-guide: "docs/contributing/contributing.md"
