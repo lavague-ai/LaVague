@@ -15,14 +15,7 @@ mkdocs:
   configuration: mkdocs.yml
   fail_on_warning: true
 
-# Optionally build your docs in additional formats such as PDF and ePub
-# formats:
-#    - pdf
-#    - epub
-
 python:
     install:
     - requirements: docs/requirements.txt
     - method: pip
-      path: client
-
