@@ -30,6 +30,7 @@
 	[data-md-color-scheme="slate"] h2, 
 	[data-md-color-scheme="slate"] h3, 
 	[data-md-color-scheme="slate"] h4, 
+	[data-md-color-scheme="slate"] li, 
 	[data-md-color-scheme="slate"] code, 
 	[data-md-color-scheme="slate"] .jp-InputPrompt {
 	  /* Custom properties for dark mode */
