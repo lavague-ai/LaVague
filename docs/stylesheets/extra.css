@@ -30,30 +30,29 @@
 
 /******* light mode *******/
 
-/* customizing links color */
-[data-md-color-scheme="default"] .jp-RenderedHTMLCommon a {
-	color: #5385d5;
+/* Targeting the main notebook content for dark mode */
+.jp-Notebook.jp-mod-dark {
+    background-color: #1e2129;
 }
 
-/* customizing the text color in '>' notes */
-[data-md-color-scheme="default"] .jp-RenderedHTMLCommon blockquote {
-	color: #57595b;
+/* Setting paragraph text color to white in dark mode */
+.jp-Notebook.jp-mod-dark p {
+    color: white;
 }
 
-/******* dark mode *******/
-
-/* customizing the text color in '>' notes */
-[data-md-color-scheme="slate"] .jp-RenderedHTMLCommon blockquote {
-	color: #c5c7ca;
-	background: #c5c7ca0e;
+/* Setting all headings color to white in dark mode */
+.jp-Notebook.jp-mod-dark h1,
+.jp-Notebook.jp-mod-dark h2,
+.jp-Notebook.jp-mod-dark h3,
+.jp-Notebook.jp-mod-dark h4,
+.jp-Notebook.jp-mod-dark h5,
+.jp-Notebook.jp-mod-dark h6 {
+    color: white;
 }
 
-/******* dark mode notebook fix *******/
-
-/* customizing links color */
-[data-md-color-scheme="slate"] .jp-Notebook {
-	color: white;
-	background: #1e2129
+/* Setting all output text color to white in dark mode */
+.jp-Notebook.jp-mod-dark .jp-OutputArea-output {
+    color: white;
 }
 
 /******* Adding admonitions *******/
