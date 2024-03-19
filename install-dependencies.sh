@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# If you want to use the examples, you should run this script in your $HOME, so that they can find chrome and chromedriver.
+# You can also move them there after the install
+
 set -e
 
 # install chromium and chrome-driver
