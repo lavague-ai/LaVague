@@ -97,8 +97,9 @@ nav:
 
 - 🚀 Getting Started: 
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
-  - Architecture: 'docs/get-started/architecture.md'
 
+- ⚡ Advanced:
+  - Architecture: 'docs/get-started/architecture.md'
 # - 🛠️ Client API reference: 'lavague/client.html'
 
 - 🤗 Contributing: 
