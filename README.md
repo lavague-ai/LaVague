@@ -15,7 +15,7 @@
  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
     <img src="https://img.shields.io/badge/discord-000000?style=for-the-badge&colorB=555" alt="Join our Discord server!">
   </a>
-  <a href="https://lavague.readthedocs.io/en/docs-launch/"><img src="https://img.shields.io/badge/docs-000000?style=for-the-badge&colorB=07f" alt="Docs"></a>
+  <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/docs-000000?style=for-the-badge&colorB=07f" alt="Docs"></a>
 </h4>
   <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
 <h1></h1>
