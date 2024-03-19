@@ -42,15 +42,18 @@
 
 /******* dark mode *******/
 
-/* customizing links color */
-[data-md-color-scheme="slate"] .jp-RenderedHTMLCommon a {
-	color: #F0BA2D;
-}
-
 /* customizing the text color in '>' notes */
 [data-md-color-scheme="slate"] .jp-RenderedHTMLCommon blockquote {
 	color: #c5c7ca;
 	background: #c5c7ca0e;
+}
+
+/******* dark mode notebook fix *******/
+
+/* customizing links color */
+[data-md-color-scheme="slate"] .jp-Notebook {
+	color: white;
+	background: #1e2129
 }
 
 /******* Adding admonitions *******/
