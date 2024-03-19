@@ -23,37 +23,29 @@
 	}
 }
 
-/* To add css style to only Jupyter notebooks:
-	-> put ''.jp-RenderedHTMLCommon' before new rule 
-	source css: https://github.com/jupyterlab/jupyterlab/blob/3d07723da5543c8bfb4f509f00b95f75789d38c7/packages/rendermime/style/index.css#L341
-	*/
-
-/******* light mode *******/
-
-/* Targeting the main notebook content for dark mode */
-.jp-Notebook.jp-mod-dark {
-    background-color: #1e2129;
-}
-
-/* Setting paragraph text color to white in dark mode */
-.jp-Notebook.jp-mod-dark p {
-    color: white;
-}
-
-/* Setting all headings color to white in dark mode */
-.jp-Notebook.jp-mod-dark h1,
-.jp-Notebook.jp-mod-dark h2,
-.jp-Notebook.jp-mod-dark h3,
-.jp-Notebook.jp-mod-dark h4,
-.jp-Notebook.jp-mod-dark h5,
-.jp-Notebook.jp-mod-dark h6 {
-    color: white;
-}
-
-/* Setting all output text color to white in dark mode */
-.jp-Notebook.jp-mod-dark .jp-OutputArea-output {
-    color: white;
-}
+@media screen {
+	[data-md-color-scheme="slate"] .jp-Notebook, 
+	[data-md-color-scheme="slate"] p, 
+	[data-md-color-scheme="slate"] h1, 
+	[data-md-color-scheme="slate"] h2, 
+	[data-md-color-scheme="slate"] h3, 
+	[data-md-color-scheme="slate"] h4, 
+	[data-md-color-scheme="slate"] code, 
+	[data-md-color-scheme="slate"] .jp-InputPrompt {
+	  /* Custom properties for dark mode */
+	  color: #ffffff !important;
+	  background-color: #1e2129 !important;
+	  /* Other styles as needed */
+	}
+  
+	[data-md-color-scheme="slate"] .md-typeset pre {
+	  background: #272a35 !important;
+	}
+  
+	[data-md-color-scheme="slate"] .jupyter-wrapper {
+	  --jp-border-width: 0 !important;
+	}
+  }
 
 /******* Adding admonitions *******/
 
