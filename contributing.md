@@ -76,7 +76,45 @@ When submitting a PR, please:
 
 If you need any help or want to discuss the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
 
-### Contributing to the documentation (coming soon)
+### Contributing to the documentation
+
+To contribute to the documentation, firstly you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
+
+You'll then need to clone your forked repository using git:
+
+```
+git clone https://github.com/<username>/LaVague.git
+cd LaVague
+```
+
+#### Adding to the documentation
+
+If you want to create a new page or section, you should define this in the `mkdocs.yml` file in the `nav` section.
+
+You should place your file or section into a relevantly named folder within the `docs/docs` folder.
+
+#### How to test your updates:
+
+Firstly, from the root of the repo, create a virtual environment and install the documentation requirements:
+
+```
+python -m venv my-env .
+source my-env/bin/activate
+pip install -r docs/requirements.txt
+```
+
+Next, you can load a preview of the documentation in the browser with the following command:
+```
+mkdocs serve --strict
+```
+
+Please check in your browser that all looks correct before submitting your proposed updates to us.
+
+#### Submitting your proposed changes
+
+You can then submit your proposed additions for review, by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
+
+If you have any issues with this process or with testing your changes, send us a message on our [Discord `support` channel](https://discord.gg/SDxn9KpqX9)).
 
 ## License
 

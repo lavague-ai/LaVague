@@ -1,7 +1,3 @@
----
-description: "Contribute to the LaVague project: set up your dev environment, submit bug reports, contribute to the code etc."
----
-
 # LaVague Guide for Contributors 🌊
 
 Thanks for your interest in the project! We really appreciate all contributions, from bug reports, to suggestions to helping us build new features. Your support is vital in helping us build an awesome tool!
@@ -34,15 +30,36 @@ If one of these interests you, or you see another unassigned issue that you'd li
 
 If you would like to work on a feature that is not listed in our GitHub issues, let us know by creating a new issue and waiting for us to validate it with the 'accepted' label.
 
-### Setting up your local environment (full dev environment set up instructions coming soon)
+### Setting up your local environment
 
-First of all, you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
+Firstly, you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
+
+You can create a local dev environment, by creating and activating a virtual Python environment:
+
+```
+python -m venv env .
+source env/bin/activate
+```
 
 You'll then need to clone your forked repository using git:
 
 ```
 git clone https://github.com/<username>/LaVague.git
 cd LaVague
+```
+
+We then need to download the Chrome driver which is necessary for interfacing with the Chrome browser with Selenium. You can do this by running our dependencies script:
+
+```
+bash install-dependencies.sh
+```
+
+> For instructions on how to install a driver for a different browser or instructions for downloading drivers on a different OS, [see the Selenium documentation](https://selenium-python.readthedocs.io/installation.html#drivers)
+
+Finally you can install the LaVague package locally in "editable" mode with the following command:
+
+```
+pip install -e .[dev]
 ```
 
 ### Pull requests
@@ -59,7 +76,45 @@ When submitting a PR, please:
 
 If you need any help or want to discuss the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
 
-### Contributing to the documentation (coming soon)
+### Contributing to the documentation
+
+To contribute to the documentation, firstly you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
+
+You'll then need to clone your forked repository using git:
+
+```
+git clone https://github.com/<username>/LaVague.git
+cd LaVague
+```
+
+#### Adding to the documentation
+
+If you want to create a new page or section, you should define this in the `mkdocs.yml` file in the `nav` section.
+
+You should place your file or section into a relevantly named folder within the `docs/docs` folder.
+
+#### How to test your updates:
+
+Firstly, from the root of the repo, create a virtual environment and install the documentation requirements:
+
+```
+python -m venv my-env .
+source my-env/bin/activate
+pip install -r docs/requirements.txt
+```
+
+Next, you can load a preview of the documentation in the browser with the following command:
+```
+mkdocs serve --strict
+```
+
+Please check in your browser that all looks correct before submitting your proposed updates to us.
+
+#### Submitting your proposed changes
+
+You can then submit your proposed additions for review, by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
+
+If you have any issues with this process or with testing your changes, send us a message on our [Discord `support` channel](https://discord.gg/SDxn9KpqX9)).
 
 ## License
 
