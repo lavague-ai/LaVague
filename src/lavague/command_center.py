@@ -3,9 +3,12 @@ import gradio as gr
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By # import used by generated selenium code
-from selenium.webdriver.common.keys import Keys # import used by generated selenium code
+from selenium.webdriver.common.by import By  # import used by generated selenium code
+from selenium.webdriver.common.keys import (
+    Keys,
+)  # import used by generated selenium code
 from .action_engine import ActionEngine
+
 
 class CommandCenter:
     """
@@ -19,7 +22,7 @@ class CommandCenter:
         actionEngine (`ActionEngine`):
             The action engine, with streaming enabled
     """
-    
+
     title = """
     <div align="center">
     <h1>🌊 Welcome to LaVague</h1>
@@ -39,7 +42,7 @@ class CommandCenter:
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # Ensure GUI is off
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--window-size=1600,900") # Size of screenshots
+        chrome_options.add_argument("--window-size=1600,900")  # Size of screenshots
         if chromePath is not None:
             chrome_options.binary_location = chromePath
         webdriver_service = Service(chromedriverPath)
@@ -54,6 +57,7 @@ class CommandCenter:
             # This function is supposed to fetch and return the image from the URL.
             # Placeholder function: replace with actual image fetching logic.
             return "screenshot.png"
+
         return process_url
 
     def __process_instruction(self):
@@ -64,7 +68,9 @@ class CommandCenter:
             query_engine = self.actionEngine.get_query_engine(state)
             streaming_response = query_engine.query(query)
 
-            source_nodes = streaming_response.get_formatted_sources(self.actionEngine.max_chars_pc)
+            source_nodes = streaming_response.get_formatted_sources(
+                self.actionEngine.max_chars_pc
+            )
 
             response = ""
 
@@ -72,13 +78,14 @@ class CommandCenter:
                 # do something with text as they arrive.
                 response += text
                 yield response, source_nodes
+
         return process_instructions
 
     def __exec_code(self):
         def exec_code(code, full_code):
             code = self.actionEngine.cleaning_function(code)
             html = self.driver.page_source
-            driver = self.driver # define driver for exec
+            driver = self.driver  # define driver for exec
             try:
                 exec(code)
                 output = "Successful code execution"
@@ -88,6 +95,7 @@ class CommandCenter:
                 output = f"Error in code execution: {str(e)}"
                 status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
             return output, code, html, status, full_code
+
         return exec_code
 
     def __update_image_display(self):
@@ -95,17 +103,13 @@ class CommandCenter:
             self.driver.save_screenshot("screenshot.png")
             url = self.driver.current_url
             return "screenshot.png", url
+
         return update_image_display
 
     def __show_processing_message(self):
         return lambda: "Processing..."
 
-    def run(
-        self,
-        base_url: str,
-        instructions: List[str],
-        server_port: int = 7860
-    ):
+    def run(self, base_url: str, instructions: List[str], server_port: int = 7860):
         """
         Launch the gradio demo
 

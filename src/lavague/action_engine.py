@@ -10,10 +10,11 @@ from llama_index.core.service_context_elements.llm_predictor import LLMPredictor
 from llama_index.core.embeddings.utils import EmbedType
 import re
 
-def extract_first_python_code(markdown_text):
+
+def extract_first_python_code(markdown_text: str):
     # Pattern to match the first ```python ``` code block
     pattern = r"```python(.*?)```"
-    
+
     # Using re.DOTALL to make '.' match also newlines
     match = re.search(pattern, markdown_text, re.DOTALL)
     if match:
@@ -43,15 +44,16 @@ class ActionEngine:
             A chunk can't be larger than max_chars_pc
         streaming (`bool`)
     """
+
     def __init__(
         self,
         llm: LLMPredictorType,
         embedding: EmbedType,
-        prompt,
+        prompt: str,
         cleaning_function: Callable[[str], Optional[str]] = extract_first_python_code,
         top_k: int = 3,
         max_chars_pc: int = 1500,
-        streaming: bool = True
+        streaming: bool = True,
     ):
         self.llm = llm
         self.embedding = embedding
@@ -84,7 +86,7 @@ class ActionEngine:
 
         Args:
             state (`str`): The initial html page
-        
+
         Return:
             `RetrieverQueryEngine`
         """
@@ -92,11 +94,12 @@ class ActionEngine:
         index = self._get_index(html)
 
         retriever = BM25Retriever.from_defaults(
-            index=index,
-            similarity_top_k=self.top_k
+            index=index, similarity_top_k=self.top_k
         )
 
-        response_synthesizer = get_response_synthesizer(streaming=self.streaming, llm=self.llm)
+        response_synthesizer = get_response_synthesizer(
+            streaming=self.streaming, llm=self.llm
+        )
 
         # assemble query engine
         query_engine = RetrieverQueryEngine(
@@ -112,20 +115,22 @@ class ActionEngine:
 
         return query_engine
 
-    def get_action(self, query, html):
+    def get_action(self, query: str, html: str):
         """
         Generate the code from a query and an html page, only works if streaming=False
 
         Args:
             query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
             html (`str`): The html page
-        
+
         Return:
             (`str`, `str`): The generated code, and the sources which were used
         """
         query_engine = self.get_query_engine(html, streaming=False)
         response = query_engine.query(query)
-        source_nodes = response.get_formatted_sources(self.max_chars_pc) # HTML sources with which the code was generated
+        source_nodes = response.get_formatted_sources(
+            self.max_chars_pc
+        )  # HTML sources with which the code was generated
         code = response.response
         code = self.cleaning_function(code)
         return code, source_nodes

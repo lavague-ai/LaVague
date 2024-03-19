@@ -5,8 +5,15 @@ import os.path
 
 homedir = os.path.expanduser("~")
 
+# To use AzureOpenAILLM you need to deploy your own gpt model on the azure-openai platform
+# Then you should either pass or define AZURE_OPENAI_TOKEN, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT_NAME
+
 commandCenter = CommandCenter(
-    ActionEngine(AzureOpenAILLM(), DefaultEmbedder(), DEFAULT_PROMPT),
+    ActionEngine(
+        AzureOpenAILLM(model="gpt-4", api_version="2023-05-15"),
+        DefaultEmbedder(),
+        DEFAULT_PROMPT,
+    ),
     chromePath=f"{homedir}/chrome-linux64/chrome",
     chromedriverPath=f"{homedir}/chromedriver-linux64/chromedriver",
 )

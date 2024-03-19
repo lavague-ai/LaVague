@@ -14,21 +14,22 @@ DEFAULT_LOCAL_LLM = "HuggingFaceH4/zephyr-7b-gemma-v0.1"
 HUGGINGFACE_API_LLM = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
 DEFAULT_MAX_NEW_TOKENS = 512
 HF_TOKEN = os.getenv("HF_TOKEN", "")
-OPENAI_KEY = os.getenv("AZURE_OPENAI_TOKEN", "")
-AZURE_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "")
-DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "")
+AZURE_OPENAI_TOKEN = os.getenv("AZURE_OPENAI_TOKEN", "")
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "")
+AZURE_OPENAI_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "")
 
 
 class DefaultEmbedder(HuggingFaceEmbedding):
-    def __init__(self, model_name=DEFAULT_EMBED_MODEL, device="cuda"):
+    def __init__(self, model_name: str = DEFAULT_EMBED_MODEL, device: str = "cuda"):
         super().__init__(model_name, device)
+
 
 class DefaultLocalLLM(HuggingFaceLLM):
     def __init__(
         self,
-        model_name=DEFAULT_LOCAL_LLM,
-        max_new_tokens=DEFAULT_MAX_NEW_TOKENS,
-        quantization_config=None,
+        model_name: str = DEFAULT_LOCAL_LLM,
+        max_new_tokens: str = DEFAULT_MAX_NEW_TOKENS,
+        quantization_config: dict = None,
     ):
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = AutoModelForCausalLM.from_pretrained(
@@ -61,11 +62,11 @@ HuggingFaceInferenceAPI.stream_complete = stream_complete
 class AzureOpenAILLM(AzureOpenAI):
     def __init__(
         self,
+        api_version: str,
         model="gpt-3.5-turbo",
-        deployment_name=DEPLOYMENT_NAME,
-        api_key=OPENAI_KEY,
-        azure_endpoint=AZURE_ENDPOINT,
-        api_version="",
+        deployment_name: str = AZURE_OPENAI_DEPLOYMENT_NAME,
+        api_key: str = AZURE_OPENAI_TOKEN,
+        azure_endpoint: str = AZURE_OPENAI_ENDPOINT,
     ):
         super().__init__(
             model=model,
@@ -79,6 +80,9 @@ class AzureOpenAILLM(AzureOpenAI):
 
 class HuggingfaceApiLLM(HuggingFaceInferenceAPI):
     def __init__(
-        self, model_name=HUGGINGFACE_API_LLM, token=HF_TOKEN, num_output=DEFAULT_MAX_NEW_TOKENS
+        self,
+        model_name: str = HUGGINGFACE_API_LLM,
+        token: str = HF_TOKEN,
+        num_output: str = DEFAULT_MAX_NEW_TOKENS,
     ):
         super().__init__(model_name=model_name, token=token, num_output=num_output)
