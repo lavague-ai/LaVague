@@ -1,3 +1,4 @@
+DEFAULT_PROMPT = '''
 Your goal is to write Selenium code to answer queries.
 
 Your answer must be a Python markdown only.
@@ -181,7 +182,7 @@ HTML:
 </html>
 
 
-Query: Click on the Button 'Action Button'
+Query: Click on the Button 'First Button'
 
 Completion:
 ```python
@@ -202,5 +203,5 @@ HTML:
 {context_str}
 Query: {query_str}
 Completion:
-```python
-# Let's proceed step by step.
+
+'''
