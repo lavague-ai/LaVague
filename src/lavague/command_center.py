@@ -1,3 +1,4 @@
+from typing import Optional, List
 import gradio as gr
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -5,9 +6,20 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By # import used by generated selenium code
 from selenium.webdriver.common.keys import Keys # import used by generated selenium code
 from .action_engine import ActionEngine
-import re
 
 class CommandCenter:
+    """
+    CommandCenter allows you to launch a gradio demo powered by selenium and the ActionEngine
+
+    Args:
+        chromedriverPath(`str`):
+            The path of the chromedriver executable
+        chromePath (`Optional[str]`):
+            The path of the chrome executable, if not specified, PATH will be used
+        actionEngine (`ActionEngine`):
+            The action engine, with streaming enabled
+    """
+    
     title = """
     <div align="center">
     <h1>🌊 Welcome to LaVague</h1>
@@ -17,9 +29,9 @@ class CommandCenter:
 
     def __init__(
         self,
-        actionEngine=ActionEngine(),
-        chromePath=None,
-        chromedriverPath=None,
+        actionEngine: ActionEngine,
+        chromedriverPath: str,
+        chromePath: Optional[str] = None,
     ):
         self.actionEngine = actionEngine
 
@@ -30,8 +42,7 @@ class CommandCenter:
         chrome_options.add_argument("--window-size=1600,900") # Size of screenshots
         if chromePath is not None:
             chrome_options.binary_location = chromePath
-        if chromedriverPath is not None:
-            webdriver_service = Service(chromedriverPath)
+        webdriver_service = Service(chromedriverPath)
         self.driver = webdriver.Chrome(
             service=webdriver_service, options=chrome_options
         )
@@ -45,7 +56,7 @@ class CommandCenter:
             return "screenshot.png"
         return process_url
 
-    def __process_instruction(self, max_tokens):
+    def __process_instruction(self):
         def process_instructions(query, url_input):
             if url_input != self.driver.current_url:
                 self.driver.get(url_input)
@@ -53,7 +64,7 @@ class CommandCenter:
             query_engine = self.actionEngine.get_query_engine(state)
             streaming_response = query_engine.query(query)
 
-            source_nodes = streaming_response.get_formatted_sources(max_tokens)
+            source_nodes = streaming_response.get_formatted_sources(self.actionEngine.max_chars_pc)
 
             response = ""
 
@@ -63,22 +74,9 @@ class CommandCenter:
                 yield response, source_nodes
         return process_instructions
 
-    def __extract_first_python_code(self, markdown_text):
-        # Pattern to match the first ```python ``` code block
-        pattern = r"```python(.*?)```"
-
-        # Using re.DOTALL to make '.' match also newlines
-        match = re.search(pattern, markdown_text, re.DOTALL)
-        if match:
-            # Return the first matched group, which is the code inside the ```python ```
-            return match.group(1).strip()
-        else:
-            # Return None if no match is found
-            return None
-
     def __exec_code(self):
         def exec_code(code, full_code):
-            code = self.__extract_first_python_code(code)
+            code = self.actionEngine.cleaning_function(code)
             html = self.driver.page_source
             driver = self.driver # define driver for exec
             try:
@@ -102,7 +100,20 @@ class CommandCenter:
     def __show_processing_message(self):
         return lambda: "Processing..."
 
-    def run(self, base_url, instructions, max_tokens=1500):
+    def run(
+        self,
+        base_url: str,
+        instructions: List[str],
+        server_port: int = 7860
+    ):
+        """
+        Launch the gradio demo
+
+        Args:
+            base_url (`str`): the url placeholder
+            instructions (List[`str`]): List of default instructions
+            max_tokens
+        """
         with gr.Blocks() as demo:
             with gr.Tab("LaVague"):
                 with gr.Row():
@@ -165,7 +176,7 @@ class CommandCenter:
             text_area.submit(
                 self.__show_processing_message(), outputs=[status_html]
             ).then(
-                self.__process_instruction(max_tokens),
+                self.__process_instruction(),
                 inputs=[text_area, url_input],
                 outputs=[code_display, source_display],
             ).then(
@@ -177,4 +188,4 @@ class CommandCenter:
                 inputs=[],
                 outputs=[image_display, url_input],
             )
-        demo.launch(share=True, debug=True)
+        demo.launch(server_port=server_port, share=True, debug=True)
