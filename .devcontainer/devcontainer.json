@@ -1,0 +1,32 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.241.1/containers/ubuntu
+{
+	"name": "Ubuntu",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"remoteUser": "vscode",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/LaVague,type=bind",
+	"workspaceFolder": "/home/vscode/LaVague",
+	"customizations": {
+        "settings": {
+            "terminal.integrated.profiles.linux": {
+                "zsh": {
+                    "path": "/usr/bin/zsh"
+                }
+            },
+            "terminal.integrated.defaultProfile.linux": "zsh"
+        },
+		"vscode": {
+			"extensions": [
+				"tamasfe.even-better-toml",
+				"ms-python.python",
+				"ms-toolsai.jupyter"
+			]
+		}
+	},
+	"containerEnv": {
+		"SHELL": "/usr/bin/zsh"
+	}
+}
