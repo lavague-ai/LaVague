@@ -1,4 +1,4 @@
-<link rel="icon" href="https://blindai.mithrilsecurity.io/en/latest/assets/logo.png">
+<link rel="icon" href="https://raw.githubusercontent.com/lavague-ai/lavague/main/docs/assets/logo.png">
 
 <%!
     from pdoc.html_helpers import minify_css

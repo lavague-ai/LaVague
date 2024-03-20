@@ -100,7 +100,9 @@ nav:
 
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
-# - 🛠️ Client API reference: 'lavague/client.html'
 
 - 🤗 Contributing: 
   - Contributors' guide: "docs/contributing/contributing.md"
+
+- 🛠️ API reference:
+  - API reference home: 'docs/lavague/index.html'

@@ -9,6 +9,11 @@
 
   .flex {
 	display: flex !important;
+	background-color: #f0f0f0 !important;
+  }
+
+  .name {
+	background-color: #f0f0f0 !important;
   }
   body {
 	line-height: 1.5em;
@@ -77,11 +82,11 @@
 	padding: .2em 0;
   }
   a {
-	color: #b3c6e5;
+	color: black;
 	text-decoration: none;
   }
   a:hover {
-	color: #647693;
+	color: #0077ff;
   }
   .title code {
 	font-weight: bold;
@@ -90,7 +95,7 @@
 	margin-top: 2em;
   }
   .ident {
-	color: #f0ba2d;
+	color: ##0077ff;
   }
   pre code {
 	background: transparent;
@@ -321,8 +326,8 @@
 	  display: flex;
 	  flex-direction: row-reverse;
 	  justify-content: flex-end;
-	  background: #202023;
-	  color: #ffffff;
+	  background: white;
+	  color: black;
 	}
 	.toc ul ul,
 	#index ul {
