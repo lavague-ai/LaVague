@@ -100,7 +100,12 @@ nav:
 
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
-# - 🛠️ Client API reference: 'lavague/client.html'
 
 - 🤗 Contributing: 
   - Contributors' guide: "docs/contributing/contributing.md"
+
+- 🛠️ Client API reference:
+  - ActionEngine: 'lavague/action_engine.html'
+  - CommandCenter: 'lavague/command_center.html'
+  - Defaults: 'lavague/defaults.html'
+  - Prompts: 'lavague/prompts.html'
