@@ -98,6 +98,10 @@ nav:
 - 🚀 Getting Started: 
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
 
+- 🤝 Integrations: 
+  - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
+  - Local inference: 'docs/integrations/local-inference.ipynb'
+
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
 
