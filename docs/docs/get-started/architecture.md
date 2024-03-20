@@ -2,11 +2,11 @@
 
 ![architecture](../../assets/architecture-lavague.png)
 
-### Command Center
+### Command Center ✅
 
 The Command Center is responsible for orchestrating the whole LaVague automation process: taking user input or configurations, pulling information from the Browser, making the relevant calls to the Action Engine, and executing the actions on the Browser.
 
-This could come in various forms, but is currently available as a Python module (**coming very soon!**): `LaVague.CommandCenter`.
+This could come in various forms, but is currently available as a Python module: `LaVague.CommandCenter`.
 
 ### Browser ✅
 
