@@ -2,4 +2,5 @@ mkdocs
 markdown-include
 mkdocs-material
 mkdocs-jupyter
-llama_index
+lavague
+gradio
