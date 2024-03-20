@@ -15,8 +15,7 @@ homedir = os.path.expanduser("~")
 
 model_id = "HuggingFaceH4/zephyr-7b-gemma-v0.1"
 
-quantization_config = BitsAndBytesConfig(
-load_in_8bit=True)
+quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto", quantization_config=quantization_config)
@@ -30,7 +29,9 @@ stop_token_id = [tokenizer.convert_tokens_to_ids("---"), tokenizer.convert_token
 llm = HuggingFaceLLM(model=model, tokenizer=tokenizer, max_new_tokens=1024,
                      stopping_ids=stop_token_id, model_kwargs=model_kwargs)
 
+# We needed to steer the model more with a more explicit prompt
 prompt_template = GEMMA_PROMPT
+
 cleaning_function = lambda code: code.split("```")[0]
 commandCenter = CommandCenter(
     ActionEngine(
