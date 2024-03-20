@@ -97,6 +97,7 @@ nav:
 
 - 🚀 Getting Started: 
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
+  - Installation & set-up: 'docs/get-started/setting-up-la-vague.md' 
 
 - 🤝 Integrations: 
   - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
