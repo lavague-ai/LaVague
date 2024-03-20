@@ -67,3 +67,6 @@ dev = ["ruff", "ipykernel"]
 "Homepage" = "https://mithrilsecurity.io"
 "Bug Reports" = "https://github.com/lavague-ai/LaVague/issues"
 "Source" = "https://github.com/lavague-ai/LaVague/"
+
+[project.scripts]
+lavague-build = "lavague:build"

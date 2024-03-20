@@ -56,4 +56,5 @@ docs/_build/
 #env
 .env
 test.ipynb
-test.ipynb
+
+tests/*.py

@@ -1,6 +1,5 @@
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import os
-from llama_index.llms.openai import OpenAI
 
 def get_driver():
     from selenium import webdriver
@@ -30,6 +29,8 @@ class DefaultEmbedder(HuggingFaceEmbedding):
     def __init__(self, model_name=DEFAULT_EMBED_MODEL, device="cuda"):
         super().__init__(model_name, device)
 
+from llama_index.llms.openai import OpenAI
+
 class DefaultLLM(OpenAI):
     def __init__(self):
         max_new_tokens = 512
@@ -38,3 +39,4 @@ class DefaultLLM(OpenAI):
             raise ValueError("OPENAI_API_KEY environment variable is not set")
         else:
             super().__init__(api_key=api_key, max_tokens=max_new_tokens)
+            
