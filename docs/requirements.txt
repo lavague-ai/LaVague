@@ -249,3 +249,4 @@ zipp==3.18.1
     # via
     #   importlib-metadata
     #   importlib-resources
+llama_index
