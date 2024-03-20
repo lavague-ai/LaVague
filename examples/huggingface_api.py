@@ -8,7 +8,7 @@ homedir = os.path.expanduser("~")
 # You can either passe your HF_TOKEN as a parameter to HugginfaceApiLLM() or define it in the environment
 
 commandCenter = CommandCenter(
-    ActionEngine(HuggingfaceApiLLM(), DefaultEmbedder(), DEFAULT_PROMPT),
+    ActionEngine(HuggingfaceApiLLM(), DefaultEmbedder()),
     chromePath=f"{homedir}/chrome-linux64/chrome",
     chromedriverPath=f"{homedir}/chromedriver-linux64/chromedriver",
 )

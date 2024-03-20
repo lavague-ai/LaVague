@@ -8,6 +8,7 @@ from llama_index.core import get_response_synthesizer
 from llama_index.core import PromptTemplate
 from llama_index.core.service_context_elements.llm_predictor import LLMPredictorType
 from llama_index.core.embeddings.utils import EmbedType
+from .prompts import DEFAULT_PROMPT
 import re
 
 
@@ -49,7 +50,7 @@ class ActionEngine:
         self,
         llm: LLMPredictorType,
         embedding: EmbedType,
-        prompt: str,
+        prompt_template: str = DEFAULT_PROMPT, 
         cleaning_function: Callable[[str], Optional[str]] = extract_first_python_code,
         top_k: int = 3,
         max_chars_pc: int = 1500,
@@ -57,7 +58,7 @@ class ActionEngine:
     ):
         self.llm = llm
         self.embedding = embedding
-        self.prompt = prompt
+        self.prompt_template = prompt_template
         self.cleaning_function = cleaning_function
         self.top_k = top_k
         self.max_chars_pc = max_chars_pc
@@ -107,7 +108,7 @@ class ActionEngine:
             response_synthesizer=response_synthesizer,
         )
 
-        prompt_template = PromptTemplate(self.prompt)
+        prompt_template = PromptTemplate(self.prompt_template)
 
         query_engine.update_prompts(
             {"response_synthesizer:text_qa_template": prompt_template}
