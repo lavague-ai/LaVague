@@ -116,7 +116,7 @@ class ActionEngine:
 
         return query_engine
 
-    def get_action(self, query: str, html: str):
+    def get_action(self, query: str, html: str) -> str:
         """
         Generate the code from a query and an html page, only works if streaming=False
 
@@ -127,7 +127,7 @@ class ActionEngine:
         Return:
             (`str`, `str`): The generated code, and the sources which were used
         """
-        query_engine = self.get_query_engine(html, streaming=False)
+        query_engine = self.get_query_engine(html)
         response = query_engine.query(query)
         source_nodes = response.get_formatted_sources(
             self.max_chars_pc
