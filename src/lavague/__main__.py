@@ -5,6 +5,8 @@ from pathlib import Path
 from tqdm import tqdm
 import inspect
 
+from .telemetry import send_telemetry
+
 def import_from_path(path):
     # Convert the path to a Python module path
     module_name = Path(path).stem
@@ -83,7 +85,6 @@ if __name__ == "__main__":
                     file.write(output)
                     break
             output += "\n" + template_code.format(instruction=instruction, code=code).strip()
-            
         
         print(f"Saving output to {output_fn}")
         with open(output_fn, "w") as file:
