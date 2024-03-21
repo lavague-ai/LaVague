@@ -9,7 +9,7 @@ model_id = "HuggingFaceH4/zephyr-7b-gemma-v0.1"
 class LLM(HuggingFaceLLM):
     def __init__(self):
         tokenizer = AutoTokenizer.from_pretrained(model_id)
-        model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto")
+        model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto", quantization_config=quantization_config)
 
         model_kwargs = {
             "temperature": 0.0,
