@@ -26,3 +26,12 @@ def load_action_engine(path, streaming):
     action_engine = ActionEngine(llm, embedder, prompt_template, cleaning_function, streaming=streaming)
     
     return action_engine, get_driver
+
+def load_instructions(path):
+    with open(path, "r") as file:
+        instructions = file.readlines()
+        
+        base_url = instructions[0].strip()
+        instructions = [instruction.strip() for instruction in instructions[1:]]
+        
+    return base_url, instructions
