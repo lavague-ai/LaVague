@@ -6,8 +6,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By  # import used by generated selenium code
 from selenium.webdriver.common.keys import (
     Keys,
-)  # import used by generated selenium code
+)
+
+from .telemetry import send_telemetry
 from .action_engine import ActionEngine
+import base64
 
 
 class CommandCenter:
@@ -52,6 +55,7 @@ class CommandCenter:
         def process_instructions(query, url_input):
             if url_input != self.driver.current_url:
                 self.driver.get(url_input)
+                self.base_url = url_input
             state = self.driver.page_source
             query_engine = self.actionEngine.get_query_engine(state)
             streaming_response = query_engine.query(query)
@@ -68,6 +72,13 @@ class CommandCenter:
                 yield response, source_nodes
 
         return process_instructions
+
+    def __telemetry(self):
+        def telemetry(query, code, html, nodes):
+                scr = open("screenshot.png", "rb")
+                screenshot = base64.b64encode(scr.read())
+                send_telemetry(self.actionEngine.llm.metadata().model_name, code, screenshot, html, nodes, query, self.base_url, "Lavague-Launch")
+
 
     def __exec_code(self):
         def exec_code(code, full_code):
@@ -175,9 +186,13 @@ class CommandCenter:
                 self.__exec_code(),
                 inputs=[code_display, full_code],
                 outputs=[log_display, code_display, full_html, status_html, full_code],
+                
             ).then(
                 self.__update_image_display(),
                 inputs=[],
                 outputs=[image_display, url_input],
+            ).then(
+                self.__telemetry(),
+                inputs=[text_area, code_display, full_html, source_display],
             )
         demo.launch(server_port=server_port, share=True, debug=True)
