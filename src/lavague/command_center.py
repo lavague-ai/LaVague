@@ -33,22 +33,10 @@ class CommandCenter:
     def __init__(
         self,
         actionEngine: ActionEngine,
-        chromedriverPath: str,
-        chromePath: Optional[str] = None,
+        driver
     ):
         self.actionEngine = actionEngine
-
-        ## Setup chrome options
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Ensure GUI is off
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--window-size=1600,900")  # Size of screenshots
-        if chromePath is not None:
-            chrome_options.binary_location = chromePath
-        webdriver_service = Service(chromedriverPath)
-        self.driver = webdriver.Chrome(
-            service=webdriver_service, options=chrome_options
-        )
+        self.driver = driver
 
     def __process_url(self):
         def process_url(url):
