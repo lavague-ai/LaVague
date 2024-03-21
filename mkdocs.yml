@@ -98,7 +98,6 @@ nav:
 - 🚀 Getting Started: 
   - Installation & set-up: 'docs/get-started/setting-up-la-vague.md'
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
-  - LaVague Docker image: 'docs/get-started/lavague-docker-application.md'
 
 - 🤝 Integrations: 
   - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
