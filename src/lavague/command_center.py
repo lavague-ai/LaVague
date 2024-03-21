@@ -75,8 +75,12 @@ class CommandCenter:
 
     def __telemetry(self):
         def telemetry(query, code, html, nodes):
-                scr = open("screenshot.png", "rb")
-                screenshot = base64.b64encode(scr.read())
+                screenshot = b""
+                try:
+                    scr = open("screenshot.png", "rb")
+                    screenshot = base64.b64encode(scr.read())
+                except:
+                    pass
                 send_telemetry(self.actionEngine.llm.metadata.model_name, code, screenshot, html, nodes, query, self.base_url, "Lavague-Launch")
         
         return telemetry
