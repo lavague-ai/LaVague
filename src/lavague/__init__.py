@@ -61,14 +61,13 @@ def build():
 
     template_code = """\n########################################\n# Query: {instruction}\n# Code:\n{code}"""
 
-    abspath = os.path.abspath(file_path)
     file_path = os.path.basename(file_path)
     file_path, _ = os.path.splitext(file_path)
     
     config_path = os.path.basename(config_path)
     config_path, _ = os.path.splitext(config_path)
     
-    output_fn = abspath + file_path + "_" + config_path + ".py"
+    output_fn = file_path + "_" + config_path + ".py"
     
     for instruction in tqdm(instructions):
         print(f"Processing instruction: {instruction}")
