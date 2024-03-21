@@ -1,61 +1,48 @@
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.huggingface import HuggingFaceLLM
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from llama_index.llms.huggingface import HuggingFaceInferenceAPI
 from llama_index.llms.azure_openai import AzureOpenAI
-from llama_index.core.base.llms.types import CompletionResponse
 from dotenv import load_dotenv
 
 load_dotenv()
 
 DEFAULT_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
 DEFAULT_LOCAL_LLM = "HuggingFaceH4/zephyr-7b-gemma-v0.1"
-HUGGINGFACE_API_LLM = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
 DEFAULT_MAX_NEW_TOKENS = 512
 
 class DefaultEmbedder(HuggingFaceEmbedding):
     def __init__(self, model_name: str = DEFAULT_EMBED_MODEL, device: str = "cuda"):
         super().__init__(model_name, device)
 
+from llama_index.llms.openai import OpenAI
+import os
 
-class DefaultLocalLLM(HuggingFaceLLM):
-    def __init__(
-        self,
-        model_name: str = DEFAULT_LOCAL_LLM,
-        max_new_tokens: str = DEFAULT_MAX_NEW_TOKENS,
-        quantization_config: dict = None,
-    ):
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name, device_map="auto", quantization_config=quantization_config
-        )
+class DefaultLLM(OpenAI):
+    def __init__(self):
+        max_new_tokens = 512
+        api_key = os.getenv("OPENAI_API_KEY")
+        if api_key is None:
+            raise ValueError("OPENAI_API_KEY environment variable is not set")
+        else:
+            super().__init__(api_key=api_key, max_tokens=max_new_tokens)
+            
 
-        super().__init__(
-            model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens
-        )
-
-
-# Monkey patch because stream_complete is not implemented in the current version of llama_index
-def stream_complete(self, prompt: str, **kwargs):
-    def gen():
-        # patch the patch, on some versions the caller tries to pass the formatted keyword, which doesn't exist
-        kwargs.pop("formatted", None)
-        text = ""
-        for x in self._sync_client.text_generation(
-            prompt, **{**{"max_new_tokens": self.num_output, "stream": True}, **kwargs}
-        ):
-            text += x
-            yield CompletionResponse(text=text, delta=x)
-
-    return gen()
-
-HuggingFaceInferenceAPI.stream_complete = stream_complete
-
-class HuggingfaceApiLLM(HuggingFaceInferenceAPI):
-    def __init__(
-        self,
-        token: str,
-        model_name: str = HUGGINGFACE_API_LLM,
-        num_output: str = DEFAULT_MAX_NEW_TOKENS,
-    ):
-        super().__init__(model_name=model_name, token=token, num_output=num_output)
+def default_get_driver():
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.keys import Keys
+    import os.path
+    
+    chrome_options = Options()
+    chrome_options.add_argument("--headless") # Ensure GUI is off
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--window-size=1600,900")
+    
+    homedir = os.path.expanduser("~")
+    chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
+    webdriver_service = Service(f"{homedir}/chromedriver-linux64/chromedriver")
+    
+    driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+    return driver
