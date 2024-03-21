@@ -101,7 +101,7 @@ nav:
 
 - 🤝 Integrations: 
   - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
-  - Local inference: 'docs/integrations/local-inference.ipynb'
+  - HuggingFace API: 'docs/integrations/hugging-face-api.ipynb'
 
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
