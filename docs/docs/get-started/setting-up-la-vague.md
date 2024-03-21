@@ -1,19 +1,9 @@
 
-# How to set-up & run LaVague
+# Installation & set up
 
-## Quick tour in Google Colab
+In this section, we're going to walk you through how you can install and set up LaVague locally with or without our dev environment.
 
-If you just want to test out LaVague without having to install anything locally, you can run our [Quick Tour notebook with Google Colab](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour.ipynb).
-
-## Testing Azure OpenAI script with Docker **Coming soon 🚧 **
-
-We also prepared an example using Azure OpenAI with Docker in the `examples` folder. To run this example, you need to do the following:
-
-1) Update the `examples/azure-openai/.env file with your OpenAI config details
-2) Move to the azure-openai directory:`cd examples/azure-openai/`
-3) Build the docker image: `docker build -t lavague-azure .`
-4) Run your image: `docker run -d -p 8000:8000 -e AZURE_API_KEY=your_api_key -e AZURE_API_ENDPOINT=your_endpoint lavague-azure`
-5) Now you can go to localhost:8000 to interact with the LaVague demo.
+> If you just want to test out LaVague without having to install anything locally, you can run our [Quick Tour notebook with Google Colab](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour.ipynb).
 
 ## Step 1: Preparing your environment
 
