@@ -96,12 +96,15 @@ nav:
 - 🏠 Home: 'index.md'
 
 - 🚀 Getting Started: 
+  - Installation & set-up: 'docs/get-started/setting-up-la-vague.md'
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
-  - Installation & set-up: 'docs/get-started/setting-up-la-vague.md' 
+  - LaVague Docker image: 'docs/get-started/lavague-docker-application.md'
 
 - 🤝 Integrations: 
   - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
   - HuggingFace API: 'docs/integrations/hugging-face-api.ipynb'
+  - OpenAI: 'docs/integrations/openai.ipynb'
+  - Local: 'docs/integrations/local.ipynb'
 
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'

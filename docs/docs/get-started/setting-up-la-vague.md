@@ -1,7 +1,7 @@
 
 # Installation & set up
 
-In this section, we're going to walk you through how you can install and set up LaVague locally with or without our dev environment.
+In this section, we're going to walk you through how you can install and set up LaVague locally.
 
 > If you just want to test out LaVague without having to install anything locally, you can run our [Quick Tour notebook with Google Colab](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour.ipynb).
 
@@ -9,7 +9,9 @@ In this section, we're going to walk you through how you can install and set up 
 
 LaVague currently supports only Selenium as a web automation tool, which requires users to first install a webdriver to interface with the chosen browser (Chrome, Firefox, etc.).
 
-In this guide we will walk you through two installation options: either can either run LaVague within [our pre-configured dev container](#run-lavague-with-our-dev-container) which will handle the webdriver installation for you, or you can do this [installation manually](#installing-the-webdriver-locally).
+In this guide, we will walk you through two installation options: 
+- Either you can either run LaVague within [our pre-configured dev container](#run-lavague-with-our-dev-container) which will handle the webdriver installation for you
+- Or you can do this webdriver [installation manually](#installing-the-webdriver-locally)
 
 ### Running LaVague with our Dev container
 
