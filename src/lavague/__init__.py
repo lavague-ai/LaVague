@@ -1,4 +1,5 @@
 
+from .telemetry import send_telemetry
 from .utils import load_action_engine, load_instructions
 from .command_center import CommandCenter
 
@@ -87,7 +88,8 @@ def build():
                 file.write(output)
                 break
         output += "\n" + template_code.format(instruction=instruction, code=code).strip()
-        
+        send_telemetry(action_engine.llm.metadata.model_name, code, b"", html, source_nodes, instruction, base_url, "Lavague-build")  
+
     print(f"Saving output to {output_fn}")
     with open(output_fn, "w") as file:
         file.write(output)
