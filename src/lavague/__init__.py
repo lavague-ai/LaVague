@@ -9,6 +9,10 @@ from pathlib import Path
 from tqdm import tqdm
 import inspect
 
+import warnings
+warnings.filterwarnings("ignore")
+
+
 def import_from_path(path):
     # Convert the path to a Python module path
     module_name = Path(path).stem

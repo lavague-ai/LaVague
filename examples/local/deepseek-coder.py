@@ -4,7 +4,7 @@ from llama_index.llms.huggingface import HuggingFaceLLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 quantization_config = BitsAndBytesConfig(load_in_4bit=True)
-model_id = "HuggingFaceH4/zephyr-7b-gemma-v0.1"
+model_id = "deepseek-ai/deepseek-coder-6.7b-instruct"
 
 class LLM(HuggingFaceLLM):
     def __init__(self):
