@@ -99,7 +99,7 @@ nav:
   - Installation & set-up: 'docs/get-started/setting-up-la-vague.md'
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
   - Customization: 'docs/get-started/customization.md'
-  - Docker: 'docks/get-started/getting-started-docker.md'
+  - Docker: 'docs/get-started/get-started-docker.md'
 
 - 🤝 Integrations: 
   - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
