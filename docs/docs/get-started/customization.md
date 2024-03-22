@@ -2,9 +2,11 @@
 
 In the [quick tour](./quick-tour.ipynb), we saw how to use LaVague with our default config file for OpenAI - we also provide default config files for several other [integrations](../integrations/azure-openai.ipynb). In this guide, we will show you how you can modify these config files or create your own for customized use cases.
 
+## Python config file
+
 ### Customizable elements
 
-In the configuration file, we can customize the following 5 elements:
+In the Python configuration file, we can customize the following 5 elements:
 
 - `llm`: The `LlamaIndex` LLM to be used to generate the automation code by the `ActionEngine`
 - `embedder`: A `LlamaIndex` embedding model to be used by the `ActionEngine` to perform RAG to extract the most relevant HTML source code pieces to feed the LLM answering the query
@@ -35,3 +37,22 @@ Our default values are:
 - [prompt_template](https://github.com/lavague-ai/LaVague/blob/main/src/lavague/prompts.py)
 - [get_driver](https://github.com/lavague-ai/LaVague/blob/cb66a8de9e1210c95ef34df35254ce6875aa69eb/src/lavague/defaults.py#L29)
 - [cleaning_function](https://github.com/lavague-ai/LaVague/blob/cb66a8de9e1210c95ef34df35254ce6875aa69eb/src/lavague/action_engine.py#L15)
+
+## Text instructions file
+
+### Custom URL and instructions
+
+When we use the CLI commands, we also provide a instuctions file to the `file_path` option: 
+`lavague-launch --file_path hf.txt --config_path custom_file.py`
+
+Let's take a look at the default `hf.txt` file we provide:
+
+![instructions default file](../../assets/default-instructions.png)
+
+This first line of this text file should also contain the URL of the website you wish to perform automated actions on, you can change this to any website you like.
+
+Any lines after this are the instructions. Again, you can change these to whatever you like.
+
+With `lavague-launch`, these instructions will appear as clickable suggestions in the interactive Gradio demo. We provide three instructions in our default file, but you can provide more or less instructions if you like.
+
+With `lavague-build`, the code generated can be executed to perform the instructions you provide in your instructions file.
