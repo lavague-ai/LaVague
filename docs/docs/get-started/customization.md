@@ -7,7 +7,7 @@ In the [quick tour](./quick-tour.ipynb), we saw how to use LaVague with our defa
 In the configuration file, we can customize the following 5 elements:
 
 - `llm`: The `LlamaIndex` LLM to be used to generate the automation code by the `ActionEngine`
-- `embedder`: A `LlamaIndex` embedding model to be used by the `ActionEngine` to 
+- `embedder`: A `LlamaIndex` embedding model to be used by the `ActionEngine` to perform RAG to extract the most relevant HTML source code pieces to feed the LLM answering the query
 - `prompt_template`: The prompt template to be used to query the LLM to generate the relevant automation code
 - `cleaning_function`: A function used to clean the LLM output to ensure it is code ready to be executed by the `CommandCenter`
 - `get_driver`: A `selenium.webdriver` to be used to execute our Selenium automation code
