@@ -4,12 +4,13 @@ In the [quick tour](./quick-tour.ipynb), we saw how to use LaVague with our defa
 
 ### Customizable elements
 
-In the configuration file, we can customize the following 5 elements, the first four of which are then sent to the `ActionEngine` module which handles AI operations:
-    - llm: The `LlamaIndex` LLM to be used to generate the automation code by the `ActionEngine`
-    - embedder: A `LlamaIndex` embedding model to be used by the `ActionEngine` to 
-    - prompt_template: The prompt template to be used to query the LLM to generate the relevant automation code
-    - cleaning_function: A function used to clean the LLM output to ensure it is code ready to be executed by the `CommandCenter`
-    - get_driver: A `selenium.webdriver` to be used to execute our Selenium automation code
+In the configuration file, we can customize the following 5 elements:
+
+- llm: The `LlamaIndex` LLM to be used to generate the automation code by the `ActionEngine`
+- embedder: A `LlamaIndex` embedding model to be used by the `ActionEngine` to 
+- prompt_template: The prompt template to be used to query the LLM to generate the relevant automation code
+- cleaning_function: A function used to clean the LLM output to ensure it is code ready to be executed by the `CommandCenter`
+- get_driver: A `selenium.webdriver` to be used to execute our Selenium automation code
 
 In the `openai.py` default config file, we only provide a new `llm` value, meaning all other values will use our defaults.
 
@@ -28,6 +29,7 @@ You can go ahead and customize one of our default config files by adding new val
 ### Default values
 
 Our default values are:
+
 - LLM: `HuggingFaceH4/zephyr-7b-gemma-v0.1`
 - embedder: `BAAI/bge-small-en-v1.5`
 - [prompt_template](https://github.com/lavague-ai/LaVague/blob/main/src/lavague/prompts.py)
