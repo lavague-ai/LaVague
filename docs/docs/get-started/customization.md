@@ -13,11 +13,11 @@ In the configuration file, we can customize the following 5 elements, the first 
 
 In the `openai.py` default config file, we only provide a new `llm` value, meaning all other values will use our defaults.
 
-![default-openai](../../assets/openai-default.py)
+![default-openai](../../assets/openai-default.png)
 
 Meanwhile, for our local `DeepSeek Coder` integration, we also provide a custom prompt and cleaning function, required for good performance with this integration.
 
-![default-local](../../assets/local-default.py)
+![default-local](../../assets/local-default.png)
 
 ### Using your custom config file
 
