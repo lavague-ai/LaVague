@@ -40,10 +40,12 @@ class CommandCenter:
     ):
         self.actionEngine = actionEngine
         self.driver = driver
+        self.base_url = ""
 
     def __process_url(self):
         def process_url(url):
             self.driver.get(url)
+            self.base_url = url_input
             self.driver.save_screenshot("screenshot.png")
             # This function is supposed to fetch and return the image from the URL.
             # Placeholder function: replace with actual image fetching logic.
