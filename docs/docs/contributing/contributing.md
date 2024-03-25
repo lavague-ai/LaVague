@@ -26,9 +26,11 @@ Please provide as much information as possible: the behavior you want, why, and 
 
 You can see the features we're looking for help on by selecting the ['help wanted' label in our listed issues](https://github.com/lavague-ai/LaVague/labels/help%20wanted).
 
-If one of these interests you, or you see another unassigned issue that you'd like to work on, let us know in the #contribute Discord channel or by commenting in the issue!
+If one of these interests you, or you see another unassigned issue that you'd like to work on, let us know in the #contribute Discord channel or by commenting in the issue! 
 
 If you would like to work on a feature that is not listed in our GitHub issues, let us know by creating a new issue and waiting for us to validate it with the 'accepted' label.
+
+⚠️ To avoid having duplicate people working on the same feature, please await confirmation from someone from our internal team before going ahead with work on a feature! We will give issues a 'contributor assigned' label when we have found a contributor for a feature.
 
 ### Setting up your local environment
 
@@ -48,15 +50,9 @@ git clone https://github.com/<username>/LaVague.git
 cd LaVague
 ```
 
-We then need to download the Chrome driver which is necessary for interfacing with the Chrome browser with Selenium. You can do this by running our dependencies script:
+You can then follow the [installation instructions](./docs/docs/get-started/setting-up-la-vague.md) to set up your dev environment.
 
-```
-bash install-dependencies.sh
-```
-
-> For instructions on how to install a driver for a different browser or instructions for downloading drivers on a different OS, [see the Selenium documentation](https://selenium-python.readthedocs.io/installation.html#drivers)
-
-Finally you can install the LaVague package locally in "editable" mode with the following command:
+You can install the LaVague package locally in "editable" mode with the following command:
 
 ```
 pip install -e .[dev]
@@ -74,7 +70,9 @@ When submitting a PR, please:
 - [Rebase your branch](https://docs.github.com/en/get-started/using-git/about-git-rebase) against the latest version of `main`.
 - **Coming soon** Check your branch passes all GitHub actions pass.
 
-If you need any help or want to discuss the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
+If you want any help or guidance on developing the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
+
+⚠️ Note, we aim to merge as many PRs as possible but we cannot guarantee to merge PRs and they are subject to our review process.
 
 ### Contributing to the documentation
 
