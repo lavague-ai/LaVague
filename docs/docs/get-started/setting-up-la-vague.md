@@ -16,6 +16,7 @@ In this guide, we will walk you through two installation options:
 ### Running LaVague with our Dev container (Docker integration 🐋)
 
 ⚠️ Pre-requisites:
+
 - 🐋 Docker: Ensure Docker is installed and running on your machine. Docker is used to create and manage your development container
 - Visual Studio Code
 - Visual Studio Code's Remote - Containers Extension: You can download this extension by searching for it within the Extensions view
