@@ -10,8 +10,8 @@ In this section, we're going to walk you through how you can install and set up 
 LaVague currently supports only Selenium as a web automation tool, which requires users to first install a webdriver to interface with the chosen browser (Chrome, Firefox, etc.).
 
 In this guide, we will walk you through two installation options: 
-- Either you can either run LaVague within [our pre-configured dev container](#run-lavague-with-our-dev-container) which will handle the webdriver installation for you
-- Or you can do this webdriver [installation manually](#installing-the-webdriver-locally)
+- We recommend you run LaVague within [our pre-configured dev container](#run-lavague-with-our-dev-container) which will handle the webdriver installation for you
+- Alternatively, you can do the webdriver [installation manually](#installing-the-webdriver-locally)
 
 ### Running LaVague with our Dev container (Docker integration 🐋)
 
@@ -81,6 +81,10 @@ Finally, you can install the latest version of the code on `main`, run the follo
 git clone https://github.com/lavague-ai/LaVague.git
 pip install -e LaVague
 ```
+
+### 🚨 Disclaimer
+
+This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
 
 ## Conclusions
 

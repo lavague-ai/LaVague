@@ -66,6 +66,7 @@ You can try LaVague in the following Colab notebook:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/docs/docs/get-started/quick-tour.ipynb)
 
+
 ## 🗺️ Roadmap
 
 This is an early project but could grow to democratize transparent and aligned AI models to undertake actions for the sake of users on the internet.
@@ -85,8 +86,6 @@ Please check out our [contributing guide](./contributing.md) to see how you can 
 
 If you are interested by this project, want to ask questions, contribute, or have proposals, please come on our [Discord](https://discord.gg/SDxn9KpqX9) to chat!
 
-### Set up your dev environment
+### 🚨 Disclaimer
 
-Install the chrome browser and driver on linux with ```bash install-dependencies.sh```. You will need admin privileges if you're missing system dependencies.
-
-Set up a development environment by running the following command in a virtual environment: ```pip install -e .[dev]```
+This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
