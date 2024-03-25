@@ -50,7 +50,7 @@ git clone https://github.com/<username>/LaVague.git
 cd LaVague
 ```
 
-You can then follow the [installation instructions](./docs/docs/get-started/setting-up-la-vague.md) to set up your dev environment.
+You can then follow the [installation instructions](https://docs.lavague.ai/en/latest/docs/get-started/setting-up-la-vague/) to set up your dev environment.
 
 You can install the LaVague package locally in "editable" mode with the following command:
 
