@@ -27,9 +27,9 @@ To open the project in our dev container you need to:
 2. Click on the blue "><" icon in the bottom left corner, then select "Reopen in Container" in the drop-down menu that then appears.
 
 VS Code will then build the container based on the Dockerfile and devcontainer.json files in the .devcontainer folder. This process might take a few minutes the first time you run it.
-```
 
 3. Your container will by default launch within your `LaVague` repo. You can therefore install LaVague in editable mode with the following command:
+
 ```
 pip install -e .
 ```
