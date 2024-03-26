@@ -35,5 +35,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa && apt-get install -y python3.10
 
 USER $USERNAME
 
+WORKDIR /home/$USERNAME
+
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
 && python3.10 -m pip install virtualenv
