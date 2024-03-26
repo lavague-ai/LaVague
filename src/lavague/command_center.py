@@ -41,6 +41,7 @@ class CommandCenter:
         self.actionEngine = actionEngine
         self.driver = driver
         self.base_url = ""
+        self.success = False
 
     def __process_url(self):
         def process_url(url):
@@ -83,7 +84,7 @@ class CommandCenter:
                     screenshot = base64.b64encode(scr.read())
                 except:
                     pass
-                send_telemetry(self.actionEngine.llm.metadata.model_name, code, screenshot, html, nodes, query, self.base_url, "Lavague-Launch")
+                send_telemetry(self.actionEngine.llm.metadata.model_name, code, screenshot, html, nodes, query, self.base_url, "Lavague-Launch", self.success)
         
         return telemetry
 
@@ -97,10 +98,12 @@ class CommandCenter:
                 exec(code)
                 output = "Successful code execution"
                 status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
+                self.success = True
                 full_code += code
             except Exception as e:
                 output = f"Error in code execution: {str(e)}"
                 status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
+                self.success = False
             return output, code, html, status, full_code
 
         return exec_code

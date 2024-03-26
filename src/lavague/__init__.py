@@ -73,6 +73,8 @@ def build():
     config_path, _ = os.path.splitext(config_path)
     
     output_fn = file_path + "_" + config_path + ".py"
+
+    success = False
     
     for instruction in tqdm(instructions):
         print(f"Processing instruction: {instruction}")
@@ -80,15 +82,17 @@ def build():
         code, source_nodes = action_engine.get_action(instruction, html)
         try:
             exec(code)
+            success = True
         except Exception as e:
             print(f"Error in code execution: {code}")
             print("Error:", e)
             print(f"Saving output to {output_fn}")
+            success = False
             with open(output_fn, "w") as file:
                 file.write(output)
                 break
         output += "\n" + template_code.format(instruction=instruction, code=code).strip()
-        send_telemetry(action_engine.llm.metadata.model_name, code, b"", html, source_nodes, instruction, base_url, "Lavague-build")  
+        send_telemetry(action_engine.llm.metadata.model_name, code, b"", html, source_nodes, instruction, base_url, "Lavague-build", success)  
 
     print(f"Saving output to {output_fn}")
     with open(output_fn, "w") as file:
