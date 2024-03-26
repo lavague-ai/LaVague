@@ -38,4 +38,8 @@ USER $USERNAME
 WORKDIR /home/$USERNAME
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
-&& python3.10 -m pip install virtualenv
+&& python3.10 -m pip install virtualenv \
+&& python3.10 -m pip install llama-index-llms-azure-openai
+
+# fix path problem
+ENV PATH="/home/vscode/.local/bin:${PATH}"
