@@ -54,9 +54,9 @@ WORKDIR /home/$USERNAME
 # Copy the necessary files into the Docker image
 COPY config.py /home/$USERNAME/config.py
 COPY instructions.txt /home/$USERNAME/instructions.txt
-COPY exec.sh /home/$USERNAME/exec.sh
+COPY entrypoint.sh /home/$USERNAME/entrypoint.sh
 
-RUN sudo chmod 755 /home/$USERNAME/exec.sh
+RUN sudo chmod 755 /home/$USERNAME/entrypoint.sh
 
 # fix path problem
 ENV PATH="/home/vscode/.local/bin:${PATH}"
