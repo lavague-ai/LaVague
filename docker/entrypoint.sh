@@ -1,7 +1,10 @@
 #!/usr/bin/bash
 
-# Execute your lavague-launch command
-lavague-launch --file_path instructions.txt --config_path config.py
+echo "Received command: $@"
+echo "Navigating to /home/vscode/lavague-files"
 
-# Keep the container running
-tail -f /dev/null
+cd /home/vscode/lavague-files || exit
+
+echo "Current directory: $(pwd)"
+echo "Executing command: $@"
+eval "$@"
