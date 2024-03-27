@@ -52,8 +52,6 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
 WORKDIR /home/$USERNAME
 
 # Copy the necessary files into the Docker image
-COPY config.py /home/$USERNAME/config.py
-COPY instructions.txt /home/$USERNAME/instructions.txt
 COPY entrypoint.sh /home/$USERNAME/entrypoint.sh
 
 RUN sudo chmod 755 /home/$USERNAME/entrypoint.sh
