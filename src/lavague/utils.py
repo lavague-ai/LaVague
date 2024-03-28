@@ -1,6 +1,6 @@
 from .action_engine import ActionEngine, extract_first_python_code
-from .defaults import default_get_driver, DefaultEmbedder, DefaultLLM
-from .prompts import DEFAULT_PROMPT
+from .defaults import default_get_driver, DefaultEmbedder, DefaultLLM, get_playwright_driver
+from .prompts import DEFAULT_PROMPT, DEFAULT_PLAYWRIGHT_PROMPT
 
 import importlib.util
 from pathlib import Path
@@ -13,14 +13,17 @@ def import_from_path(path):
     spec.loader.exec_module(module)
     return module
 
-def load_action_engine(path, streaming):
+def load_action_engine(path, streaming, use_playwright=False):
 
     config_module = import_from_path(path)
     get_driver = getattr(config_module, "get_driver", default_get_driver)
+    prompt_template= getattr(config_module, "prompt_template", DEFAULT_PROMPT)
     llm = getattr(config_module, "LLM", DefaultLLM)()
     embedder = getattr(config_module, "Embedder", DefaultEmbedder)()
     
-    prompt_template= getattr(config_module, "prompt_template", DEFAULT_PROMPT)
+    if use_playwright:
+        get_driver = getattr(config_module, "get_driver", get_playwright_driver)
+        prompt_template = getattr(config_module, "prompt_template", DEFAULT_PLAYWRIGHT_PROMPT)
     cleaning_function = getattr(config_module, "cleaning_function", extract_first_python_code)
 
     action_engine = ActionEngine(llm, embedder, prompt_template, cleaning_function, streaming=streaming)

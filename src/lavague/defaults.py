@@ -46,3 +46,10 @@ def default_get_driver():
     
     driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
     return driver
+
+async def get_playwright_driver():
+    from playwright.async_api import async_playwright
+    p = await async_playwright().__aenter__()
+    browser = await p.chromium.launch()
+    page = await browser.new_page()
+    return page

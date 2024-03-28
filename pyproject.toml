@@ -71,3 +71,4 @@ dev = ["ruff", "ipykernel"]
 [project.scripts]
 lavague-build = "lavague:build"
 lavague-launch = "lavague:launch"
+lavague-build-playwright = "lavague:build_playwright"
