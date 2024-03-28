@@ -19,6 +19,7 @@ This information helps us monitor the performance of LaVague and what features a
 If you want to turn off telemetry, you can set the `TELEMETRY_VAR` environment variable to`NONE`:
 
 If you are running LaVague locally you can persistenly set this variable for your environment before running LaVague with the following steps:
+
 - Add `TELEMETRY_VAR=NONE` to your ~/.bashrc, ~/.bash_profile, or ~/.profile file (which file you have depends on your shell and its configuration)
 - Use `souce ~/.bashrc (or .bash_profile or .profile) to apply your modifications without having to log out and back in
 
@@ -36,6 +37,7 @@ For our Docker, you can add the variable environment as part of your docker run 
 If you would like to help us monitor LaVague further to improve our project, you can set this variable to "HIGH", using the methods listed in the previous section, but switching `NONE` to `HIGH `.
 
 The `HIGH` telemetry option will record the default logged information, plus:
+
 - The code produced by the LLM
 - A screenshot of the website before the action runs
 - The HTML source code o the website
