@@ -2,7 +2,7 @@
 
 LaVague has three possible telemetry modes: `HIGH`, `LOW` and `NONE`
 
-### Default telemetry
+### 📈 Default telemetry
 
 By default, LaVague is set to `LOW` telemetry mode, which records some basic anonymous values to help us improve the product:
 
@@ -14,7 +14,7 @@ By default, LaVague is set to `LOW` telemetry mode, which records some basic ano
 
 This information helps us monitor the performance of LaVague and what features are most interesting to develop in the future.
 
-## Turn off all telemetry
+## 🚫 Turn off all telemetry
 
 If you want to turn off telemetry, you can set the `TELEMETRY_VAR` environment variable to`NONE`:
 
@@ -32,7 +32,7 @@ os.environ['TELEMETRY_VAR'] = "NONE"
 For our Docker, you can add the variable environment as part of your docker run command:
 `docker run -e TELEMETRY_VAR=NONE [REST OF DOCKER RUN COMMAND]`
 
-### Contribute more data
+### 🤗 Contribute more data
 
 If you would like to help us monitor LaVague further to improve our project, you can set this variable to "HIGH", using the methods listed in the previous section, but switching `NONE` to `HIGH `.
 
