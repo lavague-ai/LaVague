@@ -108,6 +108,7 @@ nav:
 
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
+  - Telemetry: 'docs/advanced/telemetry.md'
 
 - 🤗 Contributing: 
   - Contributors' guide: "docs/contributing/contributing.md"
