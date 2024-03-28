@@ -1,7 +1,6 @@
-
 from .telemetry import send_telemetry
 from .utils import load_action_engine, load_instructions
-from .command_center import CommandCenter
+from .command_center import GradioDemo
 
 import os
 import argparse
@@ -11,6 +10,7 @@ from tqdm import tqdm
 import inspect
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 
@@ -22,65 +22,70 @@ def import_from_path(path):
     spec.loader.exec_module(module)
     return module
 
+
 def build():
-    parser = argparse.ArgumentParser(description='Process a file.')
+    parser = argparse.ArgumentParser(description="Process a file.")
 
     # Add the arguments
-    parser.add_argument('--file_path',
-                    type=str,
-                    required=True,
-                    help='the path to the file')
+    parser.add_argument(
+        "--file_path", type=str, required=True, help="the path to the file"
+    )
 
-    parser.add_argument('--config_path',
-                    type=str,
-                    required=True,
-                    help='the path to the Python config file')
+    parser.add_argument(
+        "--config_path",
+        type=str,
+        required=True,
+        help="the path to the Python config file",
+    )
     # Execute the parse_args() method
     args = parser.parse_args()
-    
+
     file_path = args.file_path
     config_path = args.config_path
-    
+
     # Load the action engine and driver from config file
-    action_engine, get_driver = load_action_engine(config_path, streaming=False)
-    
-    driver = get_driver()
-    
+    action_engine, get_driver = load_action_engine(config_path)
+
+    abstractDriver = get_driver()
+
     # Gets the original source code of the get_driver method
     source_code = inspect.getsource(get_driver)
 
     # Split the source code into lines and remove the first line (method definition)
     source_code_lines = source_code.splitlines()[1:]
     source_code_lines = [line.strip() for line in source_code_lines[:-1]]
-    
+
     # Execute the import lines
-    import_lines = [line for line in source_code_lines if line.startswith("from") or line.startswith("import")] 
+    import_lines = [
+        line
+        for line in source_code_lines
+        if line.startswith("from") or line.startswith("import")
+    ]
     exec("\n".join(import_lines))
 
     output = "\n".join(source_code_lines)
-    
+
     base_url, instructions = load_instructions(file_path)
 
-    driver.get(base_url)
+    abstractDriver.goTo(base_url)
     output += f"\ndriver.get('{base_url.strip()}')\n"
 
     template_code = """\n########################################\n# Query: {instruction}\n# Code:\n{code}"""
 
     file_path = os.path.basename(file_path)
     file_path, _ = os.path.splitext(file_path)
-    
+
     config_path = os.path.basename(config_path)
     config_path, _ = os.path.splitext(config_path)
-    
-    output_fn = file_path + "_" + config_path + ".py"
 
-    success = False
-    
+    output_fn = file_path + "_" + config_path + "_gen.py"
+
     for instruction in tqdm(instructions):
         print(f"Processing instruction: {instruction}")
-        html = driver.page_source
+        html = abstractDriver.getHtml()
         code, source_nodes = action_engine.get_action(instruction, html)
         try:
+            driver = abstractDriver.getDriver()  # define driver for exec
             exec(code)
             success = True
         except Exception as e:
@@ -91,40 +96,53 @@ def build():
             with open(output_fn, "w") as file:
                 file.write(output)
                 break
-        output += "\n" + template_code.format(instruction=instruction, code=code).strip()
-        send_telemetry(action_engine.llm.metadata.model_name, code, "", html, source_nodes, instruction, base_url, "Lavague-build", success)  
+        output += (
+            "\n" + template_code.format(instruction=instruction, code=code).strip()
+        )
+        send_telemetry(
+            action_engine.llm.metadata.model_name,
+            code,
+            b"",
+            html,
+            source_nodes,
+            instruction,
+            base_url,
+            "Lavague-build",
+            success,
+        )
 
     print(f"Saving output to {output_fn}")
     with open(output_fn, "w") as file:
         file.write(output)
-            
+
+
 def launch():
-    parser = argparse.ArgumentParser(description='Process a file.')
+    parser = argparse.ArgumentParser(description="Process a file.")
 
     # Add the arguments
-    parser.add_argument('--file_path',
-                    type=str,
-                    required=True,
-                    help='the path to the file')
+    parser.add_argument(
+        "--file_path", type=str, required=True, help="the path to the file"
+    )
 
-    parser.add_argument('--config_path',
-                    type=str,
-                    required=True,
-                    help='the path to the Python config file')
+    parser.add_argument(
+        "--config_path",
+        type=str,
+        required=True,
+        help="the path to the Python config file",
+    )
     # Execute the parse_args() method
     args = parser.parse_args()
-    
+
     file_path = args.file_path
     config_path = args.config_path
-    
+
     # Load the action engine and driver setup function from config file
-    action_engine, get_driver = load_action_engine(config_path, streaming=True)
-    
+    action_engine, get_driver = load_action_engine(config_path)
+
     # Initialize the driver
     driver = get_driver()
-    
-    command_center = CommandCenter(action_engine, driver)
+
+    command_center = GradioDemo(action_engine, driver)
 
     base_url, instructions = load_instructions(file_path)
-        
     command_center.run(base_url, instructions)
