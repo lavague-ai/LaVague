@@ -1,6 +1,6 @@
 
 from .telemetry import send_telemetry
-from .utils import load_action_engine, load_instructions
+from .utils import load_action_engine, load_instructions, convert_to_executable_code
 from .command_center import CommandCenter
 
 import os
@@ -26,19 +26,6 @@ def import_from_path(path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
-def convert_to_executable_code(func_code):
-    # Indent the provided code properly
-    indented_code = '\n'.join(['    ' + line for line in func_code.strip().split('\n')])
-
-    # Define a wrapper function and place the provided code inside it
-    wrapper_code = f'''
-import asyncio
-async def wrapper_func():
-{indented_code}
-asyncio.run(wrapper_func())
-    '''
-    return wrapper_code
 
 
 def build():
@@ -177,7 +164,7 @@ def build_playwright():
         source_code_lines = [line.strip() for line in source_code_lines[:-1]]
         
         # Execute the import lines
-        import_lines = [line for line in source_code_lines if line.startswith("from") or line.startswith("import")] 
+        import_lines = [line for line in source_code_lines if line.startswith("from") or line.startswith("import")]
         exec(convert_to_executable_code("\n".join(import_lines)))
 
         output = "\n".join(source_code_lines)

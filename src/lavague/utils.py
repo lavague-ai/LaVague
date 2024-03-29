@@ -38,3 +38,40 @@ def load_instructions(path):
         instructions = [instruction.strip() for instruction in instructions[1:]]
         
     return base_url, instructions
+
+def get_indented_code(code):
+    lines = code.split('\n')
+    lines = [line.strip() for line in lines]
+    lines = [line for line in lines if line]
+
+    fixed_lines = []
+    indentation_level = 1
+
+    for line in lines:
+        if line.endswith(':'):
+            indentation_level = 1
+            fixed_lines.append('    ' * indentation_level + line)
+            indentation_level += 1
+        else:
+            fixed_lines.append('    ' * indentation_level + line)
+            # Try and except will have one lines, so we need to decrease the indentation level
+            indentation_level = 1
+
+    # Join the lines with newline characters
+    fixed_code = '\n'.join(fixed_lines)
+
+    return fixed_code
+
+def convert_to_executable_code(func_code):
+    # Indent the provided code properly
+    indented_code = get_indented_code(func_code)
+    print("indented_code --> ", indented_code)
+
+    # Define a wrapper function and place the provided code inside it
+    wrapper_code = f'''
+import asyncio
+async def wrapper_func():
+{indented_code}
+asyncio.run(wrapper_func())
+    '''
+    return wrapper_code
