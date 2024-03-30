@@ -1,6 +1,6 @@
 
 from .telemetry import send_telemetry
-from .utils import load_action_engine, load_instructions, convert_to_executable_code
+from .utils import load_action_engine, load_instructions, wrap_code_in_async_function
 from .command_center import CommandCenter
 
 import os
@@ -165,7 +165,7 @@ def build_playwright():
         
         # Execute the import lines
         import_lines = [line for line in source_code_lines if line.startswith("from") or line.startswith("import")]
-        exec(convert_to_executable_code("\n".join(import_lines)))
+        exec(wrap_code_in_async_function("\n".join(import_lines)))
 
         output = "\n".join(source_code_lines)
         
@@ -191,7 +191,7 @@ def build_playwright():
             code, source_nodes = action_engine.get_action(instruction, html)
             try:
                 full_code = output + '\n' + code
-                full_exec_code = convert_to_executable_code(full_code)
+                full_exec_code = wrap_code_in_async_function(full_code)
                 print(f"Executing code:\n {full_exec_code}")
                 exec(full_exec_code)
             except Exception as e:
