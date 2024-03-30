@@ -51,7 +51,7 @@ async def get_playwright_driver():
     try:
         from playwright.async_api import async_playwright
     except (ImportError, ModuleNotFoundError) as error:
-        raise ImportError("Please install playwright using `pip install pytest-playwright` and then `playwright install` to install the necessary browser drivers") from error
+        raise ImportError("Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers") from error
     p = await async_playwright().__aenter__()
     browser = await p.chromium.launch()
     page = await browser.new_page()
