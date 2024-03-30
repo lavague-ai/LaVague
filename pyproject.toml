@@ -62,6 +62,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["ruff", "ipykernel"]
+playwright = ["playwright==1.42.0"]
 
 [project.urls]
 "Homepage" = "https://mithrilsecurity.io"
