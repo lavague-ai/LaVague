@@ -8,7 +8,8 @@ In this section, we're going to walk you through how you can install and set up 
 
 To start using LaVague, we need to install a webdriver and store it in our home directory, so that LaVague can interact with the browser in our environment. We will then also need to install the LaVague package.
 
-We provide two key installation options: 
+We provide two key installation options:
+
 - Setting up LaVague with [our pre-configured dev container](#dev-container-setup-docker-integration-🐋)
 - Setting up LaVague in your environment [with our installation script](#local-setup)
 
