@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Generator
+from typing import Callable, Optional, Generator, Tuple
 from abc import ABC, abstractmethod
 from llama_index.core import Document
 from llama_index.core.node_parser import CodeSplitter
@@ -10,16 +10,41 @@ from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from .prompts import DEFAULT_PROMPT
+import requests
 import re
 
 
 class BaseActionEngine(ABC):
+    """
+    Abstract class for ActionEngine
+    """
+
     @abstractmethod
     def get_action(self, query: str, html: str) -> str:
+        """
+        Generate the code from a query and an html page, and clean it to extract the code
+
+        Args:
+            query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
+            html (`str`): The html page
+
+        Return:
+            `str`: The generated code
+        """
         pass
 
     @abstractmethod
     def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
+        """
+        Generate the code with streaming from a query and an html page (without cleaning)
+
+        Args:
+            query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
+            html (`str`): The html page
+
+        Return:
+            `str`: The generated code
+        """
         pass
 
 
@@ -128,45 +153,20 @@ class LocalActionEngine(BaseActionEngine):
         return query_engine
 
     def get_action(self, query: str, html: str) -> str:
-        """
-        Generate the code from a query and an html page
-
-        Args:
-            query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
-            html (`str`): The html page
-
-        Return:
-            (`str`, `str`): The generated code, and the sources which were used
-        """
         query_engine = self.get_query_engine(html, streaming=False)
         response = query_engine.query(query)
-        source_nodes = response.get_formatted_sources(
-            self.max_chars_pc
-        )  # HTML sources with which the code was generated
         code = response.response
         code = self.cleaning_function(code)
-        return code, source_nodes
+        return code
 
     def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
-        """
-        Generate the code with streaming from a query and an html page
-
-        Args:
-            query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
-            html (`str`): The html page
-
-        Return:
-            (`str`, `str`): The generated code, and the sources which were used
-        """
         query_engine = self.get_query_engine(html, streaming=True)
         streaming_response = query_engine.query(query)
-        source_nodes = streaming_response.get_formatted_sources(
-            self.max_chars_pc
-        )  # HTML sources with which the code was generated
         response = ""
         for text in streaming_response.response_gen:
             response += text
-            yield response, source_nodes
+            yield response
+
 
 
 class RemoteActionEngine(BaseActionEngine):
