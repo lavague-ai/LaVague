@@ -13,7 +13,7 @@
 
 <h4 align="center">
  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
-    <img src="https://img.shields.io/badge/discord-000000?style=for-the-badge&colorB=555" height='35px' alt="Join our Discord server!">
+    <img src="https://img.shields.io/badge/discord-000000?style=for-the-badge&colorB=555"  alt="Join our Discord server!">
   </a>
   <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/docs-000000?style=for-the-badge&colorB=07f" height='35px' alt="Docs"></a>
 </h4>
@@ -34,10 +34,6 @@ Here's an examples to show how LaVague can execute natural lanaguge instructions
 </div>
 
 ## 🚀 Getting Started
-
-### Try LaVague with our hosted solution
-
-Want to test out LaVague without any local set-up? You can [try our hosted HuggingFace Gradio](https://huggingface.co/spaces/lavague-ai/lavague)!
 
 ### Running LaVague Locally or in Google Colab
 
