@@ -43,3 +43,6 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
 
 # fix path problem
 ENV PATH="/home/vscode/.local/bin:${PATH}"
+
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
