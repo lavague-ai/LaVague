@@ -83,7 +83,7 @@ def build():
     for instruction in tqdm(instructions):
         print(f"Processing instruction: {instruction}")
         html = abstractDriver.getHtml()
-        code, source_nodes = action_engine.get_action(instruction, html)
+        code = action_engine.get_action(instruction, html)
         try:
             driver = abstractDriver.getDriver()  # define driver for exec
             exec(code)
@@ -104,7 +104,6 @@ def build():
             code,
             b"",
             html,
-            source_nodes,
             instruction,
             base_url,
             "Lavague-build",

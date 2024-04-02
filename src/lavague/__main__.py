@@ -81,7 +81,7 @@ if __name__ == "__main__":
         for instruction in tqdm(instructions):
             print(f"Processing instruction: {instruction}")
             html = driver.page_source
-            code, source_nodes = action_engine.get_action(instruction, html)
+            code = action_engine.get_action(instruction, html)
             try:
                 exec(code)
             except Exception as e:
