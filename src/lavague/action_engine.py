@@ -62,9 +62,9 @@ def extract_first_python_code(markdown_text: str):
         return None
 
 
-class LocalActionEngine(BaseActionEngine):
+class ActionEngine(BaseActionEngine):
     """
-    LocalActionEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
+    ActionEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
 
     Args:
         llm (`LLMPredictorType`):

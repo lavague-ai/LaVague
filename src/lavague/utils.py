@@ -1,6 +1,6 @@
 from .action_engine import (
     BaseActionEngine,
-    LocalActionEngine,
+    ActionEngine,
     extract_first_python_code,
 )
 from .driver import AbstractDriver
@@ -38,7 +38,7 @@ def load_action_engine(
         config_module, "cleaning_function", extract_first_python_code
     )
 
-    action_engine = LocalActionEngine(llm, embedder, prompt_template, cleaning_function)
+    action_engine = ActionEngine(llm, embedder, prompt_template, cleaning_function)
 
     return action_engine, get_driver
 
