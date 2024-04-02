@@ -42,6 +42,7 @@ dependencies = [
   "llama-index-legacy==0.9.48",
   "llama-index-llms-azure-openai==0.1.5",
   "llama-index-llms-huggingface==0.1.4",
+  "llama-index-llms-litellm==0.1.4",
   "llama-index-llms-openai==0.1.9",
   "llama-index-multi-modal-llms-openai==0.1.4",
   "llama-index-program-openai==0.1.4",
