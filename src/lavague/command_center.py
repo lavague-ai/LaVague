@@ -61,12 +61,15 @@ class GradioDemo(CommandCenter):
             if url_input != self.driver.getUrl():
                 self.driver.goTo(url_input)
             state = self.driver.getHtml()
-            yield from self.actionEngine.get_action_streaming(query, state)
-
+            response = ""
+            for text in self.actionEngine.get_action_streaming(query, state):
+            # do something with text as they arrive.
+                response += text
+                yield response
         return process_instructions_impl
 
     def __telemetry(self):
-        def telemetry(query, code, html, nodes):
+        def telemetry(query, code, html):
             screenshot = b""
             try:
                 scr = open("screenshot.png", "rb")
@@ -78,7 +81,6 @@ class GradioDemo(CommandCenter):
                 code,
                 screenshot,
                 html,
-                nodes,
                 query,
                 self.driver.getUrl(),
                 "Lavague-Launch",
@@ -163,13 +165,6 @@ class GradioDemo(CommandCenter):
                 with gr.Row():
                     with gr.Column():
                         log_display = gr.Textbox(interactive=False, lines=20)
-                    with gr.Column():
-                        source_display = gr.Code(
-                            language="html",
-                            label="Retrieved nodes",
-                            interactive=False,
-                            lines=20,
-                        )
                 with gr.Row():
                     with gr.Accordion(label="Full HTML", open=False):
                         full_html = gr.Code(
@@ -190,7 +185,7 @@ class GradioDemo(CommandCenter):
             ).then(
                 self.process_instructions(),
                 inputs=[text_area, url_input],
-                outputs=[code_display, source_display],
+                outputs=[code_display],
             ).then(
                 self.__exec_code(),
                 inputs=[code_display, full_code],
@@ -201,6 +196,6 @@ class GradioDemo(CommandCenter):
                 outputs=[image_display, url_input],
             ).then(
                 self.__telemetry(),
-                inputs=[text_area, code_display, full_html, source_display],
+                inputs=[text_area, code_display, full_html],
             )
         demo.launch(server_port=server_port, share=True, debug=True)
