@@ -35,9 +35,22 @@ Here's an examples to show how LaVague can execute natural lanaguge instructions
 
 ## 🚀 Getting Started
 
-### Running LaVague Locally or in Google Colab
+### Running LaVague in your local env
 
-To get started locally or in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
+You can get started with `LaVague` in 2 steps:
+
+1. Install LaVague & dependencies
+```
+wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&
+sudo bash setup.sh
+```
+
+2. Run your LaVague command!
+```
+lavague-build --file_path tests/hf.txt --config_file examples/api/openai.py
+```
+
+For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
 
 ## 🙋 Contributing
 
