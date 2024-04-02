@@ -13,9 +13,9 @@
 
 <h4 align="center">
  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
-    <img src="https://img.shields.io/badge/discord-000000?style=for-the-badge&colorB=555" height='40px' alt="Join our Discord server!">
+    <img src="https://img.shields.io/badge/discord-000000?style=for-the-badge&colorB=555" height='35px' alt="Join our Discord server!">
   </a>
-  <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/docs-000000?style=for-the-badge&colorB=07f" height='40px' alt="Docs"></a>
+  <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/docs-000000?style=for-the-badge&colorB=07f" height='35px' alt="Docs"></a>
 </h4>
   <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
 <h1></h1>
