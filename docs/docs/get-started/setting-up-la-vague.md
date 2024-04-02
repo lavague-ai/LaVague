@@ -47,5 +47,3 @@ This project executes LLM-generated code using `exec`. This is not considered a 
 ## Conclusions
 
 You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.ipynb) or [integration pages](../integrations/hugging-face-api.ipynb).
-
-> Note that these example scripts may come with additional requirements, such as inputting an API key into the script before they will run successfully. Please check the comments in the script you want to test before running in.
