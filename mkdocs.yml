@@ -100,17 +100,19 @@ nav:
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
   - Customization: 'docs/get-started/customization.md'
 
-- 🤝 Integrations: 
+- 🤝 Integrations:
+  - Overview: 'docs/integrations/home.md'
   - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
   - HuggingFace API: 'docs/integrations/hugging-face-api.ipynb'
   - OpenAI: 'docs/integrations/openai.ipynb'
   - Local: 'docs/integrations/local-inference.ipynb'
+  - Litellm: 'docs/integrations/litellm.ipynb'
 
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
   - Telemetry: 'docs/advanced/telemetry.md'
 
-- 🤗 Contributing: 
+- 🤗 Contributing:
   - Contributors' guide: "docs/contributing/contributing.md"
 
 - 🛠️ API reference:
