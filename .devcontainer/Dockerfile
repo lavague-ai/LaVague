@@ -32,6 +32,8 @@ RUN rm chrome-linux64.zip chromedriver-linux64.zip
 
 # We need python3.10 to build the project
 RUN add-apt-repository ppa:deadsnakes/ppa && apt-get install -y python3.10
+COPY .devcontainer/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 USER $USERNAME
 
@@ -43,6 +45,3 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
 
 # fix path problem
 ENV PATH="/home/vscode/.local/bin:${PATH}"
-
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
