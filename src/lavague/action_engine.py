@@ -164,21 +164,3 @@ class ActionEngine(BaseActionEngine):
         streaming_response = query_engine.query(query)
         for text in streaming_response.response_gen:
             yield text
-
-
-
-class RemoteActionEngine(BaseActionEngine):
-    """
-    RemoteActionEngine leverages our remote server to generate the code as quickly as possible
-    """
-
-    def __init__(self, url="https://lavague.mithrilsecurity.io"):
-        self.url = url
-
-    def get_action(self, query: str, html: str) -> str:
-        response = requests.get(self.url + "/query", params={"query": query, "html": html})
-        return response.content
-
-    def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
-        with requests.get(self.url + "/query_streaming", params={"query": query, "html": html}, stream=True) as res:
-            yield from res

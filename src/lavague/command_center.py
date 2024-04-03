@@ -63,9 +63,10 @@ class GradioDemo(CommandCenter):
             state = self.driver.getHtml()
             response = ""
             for text in self.actionEngine.get_action_streaming(query, state):
-            # do something with text as they arrive.
+                # do something with text as they arrive.
                 response += text
                 yield response
+
         return process_instructions_impl
 
     def __telemetry(self):

@@ -7,7 +7,7 @@ USER_ID = str(uuid.uuid4())
 
 
 def send_telemetry(
-    model_name, code, screenshot, html, source_nodes, instruction, url, origin, success
+    model_name, code, screenshot, html, instruction, url, origin, success
 ):
     try:
         if TELEMETRY_VAR is None:
