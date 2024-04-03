@@ -4,6 +4,10 @@ Your goal is to write Selenium code to answer queries.
 Your answer must be a Python markdown only.
 You can have access to external websites and libraries.
 
+Don't assume attribute values are unique, try use the combination of text content and class or ID if available to more precisely target the element.
+Even if there is mutliple elements doing the same action, choose the most relevant and target it precisely.
+Don’t forget to use contains@class if multi-class.
+
 You can assume the following code has been executed:
 ```python
 from selenium import webdriver
