@@ -1,29 +1,36 @@
 from typing import Optional, List
+from abc import ABC, abstractmethod
 import gradio as gr
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By  # import used by generated selenium code
 from selenium.webdriver.common.keys import (
     Keys,
 )
 
 from .telemetry import send_telemetry
-from .action_engine import ActionEngine
+from .action_engine import BaseActionEngine
+from .driver import AbstractDriver
 import base64
 
 
-class CommandCenter:
+class CommandCenter(ABC):
+    @abstractmethod
+    def init_driver():
+        pass
+
+    @abstractmethod
+    def process_instructions():
+        pass
+
+
+class GradioDemo(CommandCenter):
     """
     CommandCenter allows you to launch a gradio demo powered by selenium and the ActionEngine
 
     Args:
-        chromedriverPath(`str`):
-            The path of the chromedriver executable
-        chromePath (`Optional[str]`):
-            The path of the chrome executable, if not specified, PATH will be used
-        actionEngine (`ActionEngine`):
+        actionEngine (`BaseActionEngine`):
             The action engine, with streaming enabled
+        driver (`AbstractDriver`):
+            The driver
     """
 
     title = """
@@ -33,67 +40,61 @@ class CommandCenter:
     </div>
     """
 
-    def __init__(
-        self,
-        actionEngine: ActionEngine,
-        driver
-    ):
+    def __init__(self, actionEngine: BaseActionEngine, driver: AbstractDriver):
         self.actionEngine = actionEngine
         self.driver = driver
         self.base_url = ""
         self.success = False
 
-    def __process_url(self):
-        def process_url(url):
-            self.driver.get(url)
-            self.base_url = url
-            self.driver.save_screenshot("screenshot.png")
+    def init_driver(self):
+        def init_driver_impl(url):
+            self.driver.goTo(url)
+            self.driver.getScreenshot("screenshot.png")
             # This function is supposed to fetch and return the image from the URL.
             # Placeholder function: replace with actual image fetching logic.
             return "screenshot.png"
 
-        return process_url
+        return init_driver_impl
 
-    def __process_instruction(self):
-        def process_instructions(query, url_input):
-            if url_input != self.driver.current_url:
-                self.driver.get(url_input)
-                self.base_url = url_input
-            state = self.driver.page_source
-            query_engine = self.actionEngine.get_query_engine(state)
-            streaming_response = query_engine.query(query)
-
-            source_nodes = streaming_response.get_formatted_sources(
-                self.actionEngine.max_chars_pc
-            )
-
+    def process_instructions(self):
+        def process_instructions_impl(query, url_input):
+            if url_input != self.driver.getUrl():
+                self.driver.goTo(url_input)
+            state = self.driver.getHtml()
             response = ""
-
-            for text in streaming_response.response_gen:
+            for text in self.actionEngine.get_action_streaming(query, state):
                 # do something with text as they arrive.
                 response += text
-                yield response, source_nodes
+                yield response
 
-        return process_instructions
+        return process_instructions_impl
 
     def __telemetry(self):
-        def telemetry(query, code, html, nodes):
-                screenshot = b""
-                try:
-                    scr = open("screenshot.png", "rb")
-                    screenshot = base64.b64encode(scr.read())
-                except:
-                    pass
-                send_telemetry(self.actionEngine.llm.metadata.model_name, code, screenshot, html, nodes, query, self.base_url, "Lavague-Launch", self.success)
-        
-        return telemetry
+        def telemetry(query, code, html):
+            screenshot = b""
+            try:
+                scr = open("screenshot.png", "rb")
+                screenshot = base64.b64encode(scr.read())
+            except:
+                pass
+            send_telemetry(
+                self.actionEngine.llm.metadata.model_name,
+                code,
+                screenshot,
+                html,
+                query,
+                self.driver.getUrl(),
+                "Lavague-Launch",
+                self.success,
+            )
 
+        return telemetry
 
     def __exec_code(self):
         def exec_code(code, full_code):
             code = self.actionEngine.cleaning_function(code)
-            html = self.driver.page_source
-            driver = self.driver  # define driver for exec
+            html = self.driver.getHtml()
+            driver = self.driver.getDriver()  # define driver for exec
             try:
                 exec(code)
                 output = "Successful code execution"
@@ -110,8 +111,8 @@ class CommandCenter:
 
     def __update_image_display(self):
         def update_image_display():
-            self.driver.save_screenshot("screenshot.png")
-            url = self.driver.current_url
+            self.driver.getScreenshot("screenshot.png")
+            url = self.driver.getUrl()
             return "screenshot.png", url
 
         return update_image_display
@@ -165,13 +166,6 @@ class CommandCenter:
                 with gr.Row():
                     with gr.Column():
                         log_display = gr.Textbox(interactive=False, lines=20)
-                    with gr.Column():
-                        source_display = gr.Code(
-                            language="html",
-                            label="Retrieved nodes",
-                            interactive=False,
-                            lines=20,
-                        )
                 with gr.Row():
                     with gr.Accordion(label="Full HTML", open=False):
                         full_html = gr.Code(
@@ -183,27 +177,26 @@ class CommandCenter:
 
             # Linking components
             url_input.submit(
-                self.__process_url(),
+                self.init_driver(),
                 inputs=[url_input],
                 outputs=[image_display],
             )
             text_area.submit(
                 self.__show_processing_message(), outputs=[status_html]
             ).then(
-                self.__process_instruction(),
+                self.process_instructions(),
                 inputs=[text_area, url_input],
-                outputs=[code_display, source_display],
+                outputs=[code_display],
             ).then(
                 self.__exec_code(),
                 inputs=[code_display, full_code],
                 outputs=[log_display, code_display, full_html, status_html, full_code],
-                
             ).then(
                 self.__update_image_display(),
                 inputs=[],
                 outputs=[image_display, url_input],
             ).then(
                 self.__telemetry(),
-                inputs=[text_area, code_display, full_html, source_display],
+                inputs=[text_area, code_display, full_html],
             )
         demo.launch(server_port=server_port, share=True, debug=True)
