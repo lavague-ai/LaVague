@@ -63,7 +63,7 @@ We would love your help in making La Vague a reality.
 To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
 
 1) 📢 We outline tasks on our [`backlog`](https://github.com/orgs/lavague-ai/projects/1/views/3): we recommend you check out issues with the [`help-wanted`](https://github.com/lavague-ai/LaVague/labels/help%20wanted) labels & [`good first issue`](https://github.com/lavague-ai/LaVague/labels/good%20first%20issue) labels
-2) 🙋‍♀️ If you are intersting in working on one of these tasks, comment on the issue! 
+2) 🙋‍♀️ If you are interested in working on one of these tasks, comment on the issue! 
 3) 🤝 We will discuss with you and assign you the task with a [`community assigned`](https://github.com/lavague-ai/LaVague/labels/community-assigned) label 
 4) 💬 We will then be available to discuss this task with you
 5) ⬆️ You should submit your work as a PR
