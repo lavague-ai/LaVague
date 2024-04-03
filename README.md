@@ -17,7 +17,7 @@
   </a>
   <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/docs-000000?style=for-the-badge&colorB=07f" height='35px' alt="Docs"></a>
 </h4>
-  <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
+  <p>Copilot for devs to automate automation</p>
 <h1></h1>
 </div>
 
