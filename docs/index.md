@@ -1,48 +1,72 @@
 ---
-description: "Automate menial tasks with AI with LaVague, generating web automation pipelines from natural language queries"
+description: "Automate automation with LaVague, generating web automation pipelines from natural language queries"
 ---
 
-## What is LaVague?
+## 🏄‍♀️  What is LaVague?
 
-LaVague is an open-source Large Action Model framework designed to automate automation, with a first focus on browser automation. 
+LaVague is an open-source project designed to automate automation for devs! By turning natural language queries into Python code leveraging Selenium, LaVague is designed to make it easy for users to automate express web workflows and execute them on a browser.
 
-LaVague leverages AI to generate web automation pipelines from natural language queries and execute them on a browser. It is built on open-source projects and leverages open-sources models, either locally or remote, to ensure the transparency of the agent and ensures that it is aligned with users' interests.
+### LaVague in Action
 
-## Getting started
+Here's an examples to show how LaVague can execute natural lanaguge instructions on a browser to automate interactions with a website:
 
-- See how to get started with LaVague in our [Quick tour](./docs/get-started/quick-tour.ipynb)
-- Learn more about LaVague's [architecture](./docs/get-started/architecture.md)
-- See how you can [contribute](./docs/contributing/contributing.md) to the project!
+<div>
+  <figure>
+    <img src="static/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
+    <figcaption><b>LaVague interacting with Hugging Face's website.</b></figcaption>
+  </figure>
+  <br><br>
+</div>
+
+## 🚀 Getting Started
+
+### Running LaVague in your local env
+
+You can get started with `LaVague` in 2 steps:
+
+1. Install LaVague & dependencies
+```
+wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&
+sudo bash setup.sh
+```
+
+2. Run your LaVague command!
+```
+lavague-build --file_path tests/hf.txt --config_file examples/api/openai.py
+```
+
+For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
+
+## 🙋 Contributing
+
+We would love your help in making La Vague a reality. 
+
+To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
+
+1) 📢 We outline tasks on our [`backlog`](https://github.com/orgs/lavague-ai/projects/1/views/3): we recommend you check out issues with the [`help-wanted`](https://github.com/lavague-ai/LaVague/labels/help%20wanted) labels & [`good first issue`](https://github.com/lavague-ai/LaVague/labels/good%20first%20issue) labels
+2) 🙋‍♀️ If you are intersting in working on one of these tasks, comment on the issue! 
+3) 🤝 We will discuss with you and assign you the task with a [`community assigned`](https://github.com/lavague-ai/LaVague/labels/community-assigned) label 
+4) 💬 We will then be available to discuss this task with you
+5) ⬆️ You should submit your work as a PR
+6) ✅ We will review & merge your code or request changes/give feedback
+
+Please check out our [`contributing guide`](./contributing.md) for a more detailed guide.
+
+If you want to ask questions, contribute, or have proposals, please come on our [`Discord`](https://discord.gg/SDxn9KpqX9) to chat!
+
 
 ## ✨ Features
 
 - **Natural Language Processing**: Understands instructions in natural language to perform browser interactions.
 - **Selenium Integration**: Seamlessly integrates with Selenium for automating web browsers.
-- **Open-Source**: Built on open-source projects such as transformers and llama-index, and leverages open-source models, either locally or remote, to ensure the transparency of the agent and ensures that it is aligned with users' interests.
-- **Local models for privacy and control**: Supports local models like `Gemma-7b` so that users can fully control their AI assistant and have privacy guarantees.
-- **Advanced AI techniques**: Uses a local embedding (`bge-small-en-v1.5`) first to perform RAG to extract the most relevant HTML pieces to feed the LLM answering the query, as directly dropping the full HTML code would not fit in context. Then leverages Few-shot learning and Chain of Thought to elicit the most relevant Selenium code to perform the action without having to finetune the LLM (`Nous-Hermes-2-Mixtral-8x7B-DPO`) for code generation.
-
+- **Open-Source**: Built on open-source projects such as transformers and llama-index, and compatible with open-source models, either locally or remote, to ensure the transparency of the agent and ensures that it is aligned with users' interests.
+- **Local models for privacy and control**: Supports local models like ``Gemma-7b`` so that users can fully control their AI assistant and have privacy guarantees.
+- **Advanced AI techniques**: Uses a local embedding (``bge-small-en-v1.5``) first to perform RAG to extract the most relevant HTML pieces to feed the LLM answering the query. Then leverages Few-shot learning and Chain of Thought to elicit the most relevant Selenium code to perform the action without having to finetune the LLM for code generation.
 
 ## 🗺️ Roadmap
 
-This is an early project but could grow to democratize transparent and aligned AI models to undertake actions for the sake of users on the internet.
-
-We see the following key areas to explore:
-
-- Fine-tune local models like a `gemma-7b-it` to be expert in Text2Action
-- Improve retrieval to make sure only relevant pieces of code are used for code generation
-0 Support other browser engines (playwright) or even other automation frameworks
-
-Keep up to date with our project backlog[ here](https://github.com/orgs/lavague-ai/projects/1/views/2).
+TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
 ### 🚨 Disclaimer
 
 This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
-
-## 🙋 Get involved & support
-
-We would love your help in making La Vague a reality.
-
-Please check out our [contributing guide](./docs/contributing//contributing.md) to see how you can get involved!
-
-If you are interested in this project, want to ask questions or need support, please come talk to us on our[ Discord](https://discord.gg/SDxn9KpqX9) server!

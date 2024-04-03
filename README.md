@@ -21,7 +21,11 @@
 <h1></h1>
 </div>
 
-## 🏄‍♀️ See LaVague in Action
+## 🏄‍♀️  What is LaVague?
+
+LaVague is an open-source project designed to automate automation for devs! By turning natural language queries into Python code leveraging Selenium, LaVague is designed to make it easy for users to automate express web workflows and execute them on a browser.
+
+### LaVague in Action
 
 Here's an examples to show how LaVague can execute natural lanaguge instructions on a browser to automate interactions with a website:
 
@@ -69,13 +73,6 @@ Please check out our [`contributing guide`](./contributing.md) for a more detail
 
 If you want to ask questions, contribute, or have proposals, please come on our [`Discord`](https://discord.gg/SDxn9KpqX9) to chat!
 
-## 🎯 Motivations
-
-LaVague is an open-source project designed to automate menial tasks on behalf of its users. Many of these tasks are repetitive, time-consuming, and require little to no cognitive effort. By automating these tasks, LaVague aims to free up time for more meaningful endeavors, allowing users to focus on what truly matters to them.
-
-By providing an engine turning natural language queries into Selenium code, LaVague is designed to make it easy for users or other AIs to automate easily express web workflows and execute them on a browser.
-
-One of the key usages we see is to automate tasks that are personal to users and require them to be logged in, for instance automating the process of paying bills, filling out forms or pulling data from specific websites. 
 
 ## ✨ Features
 
@@ -87,9 +84,7 @@ One of the key usages we see is to automate tasks that are personal to users and
 
 ## 🗺️ Roadmap
 
-This is an early project but could grow to democratize transparent and aligned AI models to undertake actions for the sake of users on the internet.
-
-Keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
+TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
 ### 🚨 Disclaimer
 
