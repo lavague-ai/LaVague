@@ -1,10 +1,13 @@
 from lavague.prompts import GEMMA_PROMPT
 from transformers import BitsAndBytesConfig
 from llama_index.llms.huggingface import HuggingFaceLLM
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 quantization_config = BitsAndBytesConfig(load_in_4bit=True)
 model_id = "deepseek-ai/deepseek-coder-6.7b-instruct"
+LOCAL_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
+
 
 class LLM(HuggingFaceLLM):
     def __init__(self):
@@ -24,6 +27,10 @@ class LLM(HuggingFaceLLM):
             stopping_ids=stop_token_id, model_kwargs=model_kwargs
         )
 
+class Embedder(HuggingFaceEmbedding):
+    def __init__(self, model_name: str = LOCAL_EMBED_MODEL, device: str = "cuda"):
+        super().__init__(model_name, device)
+        
 # We needed to steer the model more with a more explicit prompt so we use a custom prompt
 prompt_template = GEMMA_PROMPT
 

@@ -1,9 +1,11 @@
 from llama_index.core.base.llms.types import CompletionResponse
 from llama_index.llms.huggingface import HuggingFaceInferenceAPI
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import os
 
 DEFAULT_MAX_NEW_TOKENS = 512
 HUGGINGFACE_API_LLM = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
+LOCAL_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
 
 # Monkey patch because stream_complete is not implemented in the current version of llama_index
 def stream_complete(self, prompt: str, **kwargs):
@@ -28,3 +30,7 @@ class LLM(HuggingFaceInferenceAPI):
             raise ValueError("HF_TOKEN environment variable is not set")
         else:
             super().__init__(model_name=HUGGINGFACE_API_LLM, token=token, num_output=DEFAULT_MAX_NEW_TOKENS)
+
+class Embedder(HuggingFaceEmbedding):
+    def __init__(self, model_name: str = LOCAL_EMBED_MODEL, device: str = "cuda"):
+        super().__init__(model_name, device)
