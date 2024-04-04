@@ -1,0 +1,6 @@
+url: https://huggingface.co/
+
+instructions:
+  - Click on the Datasets item on the menu, between Models and Spaces
+  - Click on the search bar 'Filter by name', type 'The Stack', and press 'Enter'
+  - Scroll by 500 pixels
