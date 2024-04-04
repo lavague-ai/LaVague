@@ -55,7 +55,7 @@ To avoid having multiple people working on the same things & being unable to mer
 
 6) ✅ We will review & merge your code or request changes/give feedback
 
-Please check out our [`contributing guide`](./contributing.md) for a more detailed guide.
+Please check out our [`contributing guide`](docs/contributing/contributing.md) for a more detailed guide.
 
 If you want to ask questions, contribute, or have proposals, please come on our [`Discord`](https://discord.gg/SDxn9KpqX9) to chat!
 
