@@ -1,16 +1,16 @@
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from .driver import SeleniumDriver
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DEFAULT_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
+DEFAULT_EMBED_MODEL = "text-embedding-3-large"
 
 
-class DefaultEmbedder(HuggingFaceEmbedding):
-    def __init__(self, model_name: str = DEFAULT_EMBED_MODEL, device: str = "cuda"):
-        super().__init__(model_name, device)
+class DefaultEmbedder(OpenAIEmbedding):
+    def __init__(self, model=DEFAULT_EMBED_MODEL):
+        super().__init__(model=model)
 
 
 from llama_index.llms.openai import OpenAI
