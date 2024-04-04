@@ -51,7 +51,7 @@ sudo bash setup.sh
 
 2. Run your LaVague command!
 ```
-lavague-build --file_path tests/hf.txt --config_file examples/api/openai.py
+lavague-build --file_path tests/hf.txt --config_file examples/api/openai_api.py
 ```
 
 For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
