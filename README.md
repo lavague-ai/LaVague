@@ -23,7 +23,7 @@
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an open-source project designed to automate automation for devs! By turning natural language queries into Python code leveraging Selenium, LaVague is designed to make it easy for users to automate express web workflows and execute them on a browser.
+LaVague is an **open-source** project designed to automate automation for devs! We use **advanced AI techniques** to turn **natural language instructions** into Python code leveraging **Selenium**. LaVague is designed to make it easy for users to **automate express web workflows** and execute them on a browser.
 
 ### LaVague in Action
 
@@ -73,7 +73,6 @@ Please check out our [`contributing guide`](./contributing.md) for a more detail
 
 If you want to ask questions, contribute, or have proposals, please come on our [`Discord`](https://discord.gg/SDxn9KpqX9) to chat!
 
-
 ## ✨ Features
 
 - **Natural Language Processing**: Understands instructions in natural language to perform browser interactions.
@@ -81,6 +80,7 @@ If you want to ask questions, contribute, or have proposals, please come on our 
 - **Open-Source**: Built on open-source projects such as transformers and llama-index, and compatible with open-source models, either locally or remote, to ensure the transparency of the agent and ensures that it is aligned with users' interests.
 - **Local models for privacy and control**: Supports local models like ``Gemma-7b`` so that users can fully control their AI assistant and have privacy guarantees.
 - **Advanced AI techniques**: Uses a local embedding (``bge-small-en-v1.5``) first to perform RAG to extract the most relevant HTML pieces to feed the LLM answering the query. Then leverages Few-shot learning and Chain of Thought to elicit the most relevant Selenium code to perform the action without having to finetune the LLM for code generation.
+
 
 ## 🗺️ Roadmap
 
