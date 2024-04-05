@@ -18,8 +18,12 @@ wget https://storage.googleapis.com/chrome-for-testing-public/122.0.6261.94/linu
 unzip chrome-linux64.zip
 unzip chromedriver-linux64.zip
 rm chrome-linux64.zip chromedriver-linux64.zip
+
 mv chrome-linux64/ ~/
+mv ~/chrome-linux64/ ~/chrome-testing
 mv chromedriver-linux64/ ~/
+mv ~/chromedriver-linux64 ~/chromedriver-testing
+
 
 # Install LaVague from main of GitHub repo
 git clone https://github.com/lavague-ai/LaVague.git

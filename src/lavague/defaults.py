@@ -41,8 +41,9 @@ def default_get_driver() -> SeleniumDriver:
     chrome_options.add_argument("--window-size=1600,900")
 
     homedir = os.path.expanduser("~")
-    chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
-    webdriver_service = Service(f"{homedir}/chromedriver-linux64/chromedriver")
+    # Uncomment if Chromium/Google Chrome is installed via our script
+    # chrome_options.binary_location = f"{homedir}/chrome-testing/chrome"
+    webdriver_service = Service(f"{homedir}/chromedriver-testing/chromedriver")
 
     driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
     return SeleniumDriver(driver)

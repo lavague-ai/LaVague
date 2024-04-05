@@ -14,9 +14,13 @@ We provide two key installation options:
 
 ### Local setup
 
-To set-up LaVague in your local environment, you can run our `setup.sh` script:
+To set-up LaVague in your local linux environment, you can run our `setup.sh` script:
 
 `sudo bash setup.sh`
+
+To set-up LaVague in your local macos environment, you can run our `setup-macos.sh` script:
+
+`sudo bash setup-macos.sh`
 
 This will perform all necessary steps to set-up LaVague.
 
