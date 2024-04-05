@@ -102,7 +102,7 @@ def build():
         send_telemetry(
             action_engine.llm.metadata.model_name,
             code,
-            b"",
+            "",
             html,
             instruction,
             base_url,
