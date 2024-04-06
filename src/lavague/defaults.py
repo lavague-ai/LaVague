@@ -35,15 +35,28 @@ def default_get_driver() -> SeleniumDriver:
     from selenium.webdriver.common.keys import Keys
     import os.path
 
+    # Paths to the chromedriver files
+    path_linux = f"{homedir}/chromedriver-mac-x64/chromedriver"
+    path_testing = f"{homedir}/chromedriver-testing/chromedriver"
+
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Ensure GUI is off
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--window-size=1600,900")
 
     homedir = os.path.expanduser("~")
-    # Uncomment if Chromium/Google Chrome is installed via our script
-    # chrome_options.binary_location = f"{homedir}/chrome-testing/chrome"
-    webdriver_service = Service(f"{homedir}/chromedriver-testing/chromedriver")
+    # Comment out binary location if Chromium/Google Chrome is already installed
+    if os.path.exists(path_linux):
+        chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
+        webdriver_service = Service(f"{homedir}/chromedriver-linux64/chromedriver")
+    elif os.path.exists(path_testing):
+        chrome_options.binary_location = f"{homedir}/chrome-testing/chrome"
+        webdriver_service = Service(f"{homedir}/chromedriver-testing/chromedriver")
+    else:
+        raise FileNotFoundError("Neither chromedriver file exists.")
+
+
+
 
     driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
     return SeleniumDriver(driver)
