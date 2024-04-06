@@ -23,7 +23,9 @@
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an **open-source** project designed to automate automation for devs! We use **advanced AI techniques** to turn **natural language instructions** into Python code leveraging **Selenium**. LaVague is designed to make it easy for users to **automate express web workflows** and execute them on a browser.
+LaVague is an **open-source** project designed to automate automation for devs! 
+
+We use **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to turn **natural language instructions** into Python code leveraging **Selenium**. LaVague is designed to make it easy for users to **automate express web workflows** and execute them on a browser.
 
 ### LaVague in Action
 
@@ -50,6 +52,13 @@ sudo bash setup.sh
 ```
 
 2. Run your LaVague command!
+
+You can either `launch` an interactive demo, where LaVague will execute and show you the results of the automation code it generates for your instruction.
+```
+lavague-launch --file_path tests/hf.txt --config_file examples/api/openai_api.py
+```
+
+Or you can use the `lavague-build` to directly get the Python code leveraging Selenium in a file, which you can then inspect & execute locally.
 ```
 lavague-build --file_path tests/hf.txt --config_file examples/api/openai_api.py
 ```
@@ -72,15 +81,6 @@ To avoid having multiple people working on the same things & being unable to mer
 Please check out our [`contributing guide`](./contributing.md) for a more detailed guide.
 
 If you want to ask questions, contribute, or have proposals, please come on our [`Discord`](https://discord.gg/SDxn9KpqX9) to chat!
-
-## ✨ Features
-
-- **Natural Language Processing**: Understands instructions in natural language to perform browser interactions.
-- **Selenium Integration**: Seamlessly integrates with Selenium for automating web browsers.
-- **Open-Source**: Built on open-source projects such as transformers and llama-index, and compatible with open-source models, either locally or remote, to ensure the transparency of the agent and ensures that it is aligned with users' interests.
-- **Local models for privacy and control**: Supports local models like ``Gemma-7b`` so that users can fully control their AI assistant and have privacy guarantees.
-- **Advanced AI techniques**: Uses a local embedding (``bge-small-en-v1.5``) first to perform RAG to extract the most relevant HTML pieces to feed the LLM answering the query. Then leverages Few-shot learning and Chain of Thought to elicit the most relevant Selenium code to perform the action without having to finetune the LLM for code generation.
-
 
 ## 🗺️ Roadmap
 
