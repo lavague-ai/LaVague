@@ -1,18 +1,37 @@
+import IPython
 from .telemetry import send_telemetry
-from .utils import load_action_engine, load_instructions
+from .utils import load_action_engine, load_default_action_engine, load_instructions
 from .command_center import GradioDemo
 
 import os
+import requests
 import argparse
 import importlib.util
+from IPython.core.magic import register_line_magic
 from pathlib import Path
 from tqdm import tqdm
 import inspect
-
 import warnings
 
 warnings.filterwarnings("ignore")
 
+try:
+    @register_line_magic
+    def lavague_exec(line: str):
+        global engine
+        global driver
+        
+        if 'engine' not in globals():
+            engine = load_default_action_engine()
+        html: str = driver.page_source
+        code: str = engine.get_action(line, html)
+        print(type(line))
+        try:
+            r = requests.post('http://127.0.0.1:8081/push', json={'data' : code})
+        except:
+            pass
+except:
+    pass
 
 def import_from_path(path):
     # Convert the path to a Python module path
@@ -21,7 +40,6 @@ def import_from_path(path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
 
 def build():
     parser = argparse.ArgumentParser(description="Process a file.")
@@ -113,7 +131,6 @@ def build():
     print(f"Saving output to {output_fn}")
     with open(output_fn, "w") as file:
         file.write(output)
-
 
 def launch():
     parser = argparse.ArgumentParser(description="Process a file.")

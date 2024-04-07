@@ -55,6 +55,7 @@ dependencies = [
   "google-search-results==2.4.2",
   "python-dotenv==1.0.1",
   "gradio==4.21.0",
+  "ipython",
 ]
 
 [project.optional-dependencies]
@@ -68,5 +69,6 @@ huggingface = ["llama-index-embeddings-huggingface==0.1.4", "llama-index-llms-hu
 "Source" = "https://github.com/lavague-ai/LaVague/"
 
 [project.scripts]
+lavague-exec = "lavague:exec_code"
 lavague-build = "lavague:build"
 lavague-launch = "lavague:launch"

@@ -25,6 +25,10 @@ def import_from_path(path):
     return module
 
 
+def load_default_action_engine():
+    action_engine = ActionEngine(DefaultLLM(), DefaultEmbedder(), DEFAULT_PROMPT, extract_first_python_code)
+    return action_engine
+
 def load_action_engine(
     path: str,
 ) -> Tuple[BaseActionEngine, Callable[[], AbstractDriver]]:
