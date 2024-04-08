@@ -1,20 +1,19 @@
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from .driver import SeleniumDriver
+from .action_engine import ActionEngine
+from .prompts import DEFAULT_PROMPT
+import os
+from typing import Optional
 from dotenv import load_dotenv
+import re
 
 load_dotenv()
 
-DEFAULT_EMBED_MODEL = "text-embedding-3-large"
-
 
 class DefaultEmbedder(OpenAIEmbedding):
-    def __init__(self, model=DEFAULT_EMBED_MODEL):
+    def __init__(self, model="text-embedding-3-large"):
         super().__init__(model=model)
-
-
-from llama_index.llms.openai import OpenAI
-import os
 
 
 class DefaultLLM(OpenAI):
@@ -25,6 +24,24 @@ class DefaultLLM(OpenAI):
             raise ValueError("OPENAI_API_KEY environment variable is not set")
         else:
             super().__init__(api_key=api_key, max_tokens=max_new_tokens)
+
+class DefaultActionEngine(ActionEngine):
+    def __init__(self):
+        super().__init__(DefaultLLM(), DefaultEmbedder(), DEFAULT_PROMPT, default_python_code_extractor)
+
+
+def default_python_code_extractor(markdown_text: str) -> Optional[str]:
+    # Pattern to match the first ```python ``` code block
+    pattern = r"```python(.*?)```"
+
+    # Using re.DOTALL to make '.' match also newlines
+    match = re.search(pattern, markdown_text, re.DOTALL)
+    if match:
+        # Return the first matched group, which is the code inside the ```python ```
+        return match.group(1).strip()
+    else:
+        # Return None if no match is found
+        return None
 
 
 def default_get_driver() -> SeleniumDriver:

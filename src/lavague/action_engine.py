@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Generator, Tuple
+from typing import Callable, Optional, Generator
 from abc import ABC, abstractmethod
 from llama_index.core import Document
 from llama_index.core.node_parser import CodeSplitter
@@ -10,8 +10,7 @@ from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from .prompts import DEFAULT_PROMPT
-import requests
-import re
+from .defaults import default_python_code_extractor
 
 
 class BaseActionEngine(ABC):
@@ -48,20 +47,6 @@ class BaseActionEngine(ABC):
         pass
 
 
-def extract_first_python_code(markdown_text: str):
-    # Pattern to match the first ```python ``` code block
-    pattern = r"```python(.*?)```"
-
-    # Using re.DOTALL to make '.' match also newlines
-    match = re.search(pattern, markdown_text, re.DOTALL)
-    if match:
-        # Return the first matched group, which is the code inside the ```python ```
-        return match.group(1).strip()
-    else:
-        # Return None if no match is found
-        return None
-
-
 class ActionEngine(BaseActionEngine):
     """
     ActionEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
@@ -86,7 +71,9 @@ class ActionEngine(BaseActionEngine):
         llm: BaseLLM,
         embedder: BaseEmbedding,
         prompt_template: str = DEFAULT_PROMPT,
-        cleaning_function: Callable[[str], Optional[str]] = extract_first_python_code,
+        cleaning_function: Callable[
+            [str], Optional[str]
+        ] = default_python_code_extractor,
         top_k: int = 3,
         max_chars_pc: int = 1500,
     ):

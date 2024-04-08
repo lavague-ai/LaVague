@@ -1,47 +1,95 @@
-from typing import Tuple, List
+from __future__ import annotations
+from typing import List, Callable, Optional
 from pydantic import BaseModel
 import click
 import yaml
+import importlib.util
+from pathlib import Path
+from llama_index.core.base.llms.base import BaseLLM
+from llama_index.core.base.embeddings.base import BaseEmbedding
+from .defaults import (
+    default_get_driver,
+    DefaultLLM,
+    DefaultEmbedder,
+    default_python_code_extractor,
+)
+from .prompts import DEFAULT_PROMPT
+from .driver import AbstractDriver
+from .action_engine import ActionEngine
+from .command_center import GradioDemo
+
+
+def load_imports():
+    """These imports are expensive, so we load them after the arguments parsing, so that the cli is fast for --help and basic errors"""
+
+
+class Config:
+    def __init__(
+        self,
+        llm: BaseLLM,
+        embedder: BaseEmbedding,
+        get_driver: Callable[[], AbstractDriver],
+        prompt_template: str,
+        cleaning_function: Callable[[str], Optional[str]],
+    ):
+        self.llm = llm
+        self.embedder = embedder
+        self.get_driver = get_driver
+        self.prompt_template = prompt_template
+        self.cleaning_function = cleaning_function
+
+    def from_path(path: str) -> Config:
+        # Convert the path to a Python module path
+        module_name = Path(path).stem
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        llm = getattr(module, "LLM", DefaultLLM)()
+        embedder = getattr(module, "Embedder", DefaultEmbedder)()
+        get_driver = getattr(module, "get_driver", default_get_driver)
+        prompt_template = getattr(module, "prompt_template", DEFAULT_PROMPT)
+        cleaning_function = getattr(
+            module, "cleaning_function", default_python_code_extractor
+        )
+        return Config(llm, embedder, get_driver, prompt_template, cleaning_function)
+
+    def make_action_engine(self) -> ActionEngine:
+        return ActionEngine(
+            self.llm, self.embedder, self.prompt_template, self.cleaning_function
+        )
+
 
 class Instructions(BaseModel):
     url: str
     instructions: List[str]
 
+    def from_path(path: Path) -> Instructions:
+        with open(path, "r") as file:
+            config = yaml.safe_load(file)
+        return Instructions(**config)
 
-def load_imports():
-    """These imports are expensive, so we do them after the arguments parsing, so that the cli is smooth"""
-    from .telemetry import send_telemetry
-    from .utils import load_action_engine, load_instructions
-    from .command_center import GradioDemo
-
-def load_instructions(path) -> Instructions:
-    with open(path, "r") as file:
-        config = yaml.safe_load(file)
-    return Instructions(**config)
 
 @click.group()
-
 @click.option(
     "--instructions",
     "-i",
     type=click.Path(exists=True),
     required=True,
 )
-
 @click.option(
     "--config",
     "-c",
     type=click.Path(exists=True),
     required=True,
 )
-
 @click.pass_context
 def main(ctx, instructions, config):
     """Copilot for devs to automate automation"""
     ctx.ensure_object(dict)
-    ctx.obj["instructions"] = load_instructions(instructions)
-    ctx.obj["config"] = config
+    ctx.obj["instructions"] = Instructions.from_path(instructions)
+    ctx.obj["config"] = Config.from_path(config)
     load_imports()
+
 
 @main.command()
 @click.pass_context
@@ -49,11 +97,18 @@ def build(ctx):
     """Generate a python script that can run the successive actions in one go."""
     pass
 
+
 @main.command()
 @click.pass_context
 def launch(ctx):
     """Launch a gradio demo of lavague"""
-    pass
+    config: Config = ctx.obj["config"]
+    instructions: Instructions = ctx.obj["instructions"]
+    action_engine = config.make_action_engine()
+    driver = config.get_driver()
+    command_center = GradioDemo(action_engine, driver)
+    command_center.run(instructions.url, instructions.instructions)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main(obj={})
