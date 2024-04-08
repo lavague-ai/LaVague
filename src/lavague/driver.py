@@ -23,6 +23,10 @@ class AbstractDriver(ABC):
     def getScreenshot(self, url: str, filename: str) -> None:
         pass
 
+    @abstractmethod
+    def destroy(self) -> None:
+        pass
+
 
 class SeleniumDriver(AbstractDriver):
     def __init__(self, driver: WebDriver):
@@ -42,3 +46,6 @@ class SeleniumDriver(AbstractDriver):
 
     def getScreenshot(self, filename: str) -> None:
         self.driver.save_screenshot(filename)
+
+    def destroy(self) -> None:
+        self.driver.quit()
