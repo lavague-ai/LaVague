@@ -51,15 +51,10 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
 
 WORKDIR /home/$USERNAME
 
-# Copy the necessary files into the Docker image
-COPY entrypoint.sh /home/$USERNAME/entrypoint.sh
-
-RUN sudo chmod 755 /home/$USERNAME/entrypoint.sh
-
 # fix path problem
 ENV PATH="/home/vscode/.local/bin:${PATH}"
 
 # Modify the ENTRYPOINT to execute the lavague-launch command and keep the container running
-COPY entrypoint.sh /home/$USERNAME/entrypoint.sh
+COPY --chown=$USERNAME:$USERNAME entrypoint.sh /home/$USERNAME/entrypoint.sh
 RUN sudo chmod +x /home/$USERNAME/entrypoint.sh
 ENTRYPOINT ["/home/vscode/entrypoint.sh"]

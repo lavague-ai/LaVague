@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-chown -R 1000:1000 /home/vscode/lavague-files
+sudo chmod o+w /home/vscode/lavague-files
 cd /home/vscode/lavague-files || exit
 
 case $1 in

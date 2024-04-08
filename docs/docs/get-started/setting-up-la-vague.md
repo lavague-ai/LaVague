@@ -37,7 +37,7 @@ To use LaVague with our docker image you will first need to:
 
 2. Use `docker run` with the LaVague command of your choice:
 
-`docker run --user $(id -u):$(id -g) -v /home/$USER/LaVague/lavague-files:/home/vscode/lavague-files -e OPENAI_API_KEY=[YOUR_OPENAI_API_KEY] lavagueai/lavague:latest build`
+`docker run -v /home/$USER/LaVague/lavague-files:/home/vscode/lavague-files -e OPENAI_API_KEY=[YOUR_OPENAI_API_KEY] lavagueai/lavague:latest build`
 
 ⚠️ Make sure to replace the `[YOUR_OPENAI_API_KEY]` placeholder with your OpenAI API key.
 
