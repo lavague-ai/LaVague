@@ -54,7 +54,7 @@ WORKDIR /home/$USERNAME
 # fix path problem
 ENV PATH="/home/vscode/.local/bin:${PATH}"
 
-# Modify the ENTRYPOINT to execute the lavague-launch command and keep the container running
+# COPY and make entrypoint.sh executable and launch container with this script running
 COPY --chown=$USERNAME:$USERNAME entrypoint.sh /home/$USERNAME/entrypoint.sh
 RUN sudo chmod +x /home/$USERNAME/entrypoint.sh
 ENTRYPOINT ["/home/vscode/entrypoint.sh"]

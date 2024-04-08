@@ -22,7 +22,7 @@ While we provide this default Docker image using the OpenAI API, you can build a
 
 ### Docker config files
 
-Our Docker image works with our CLI `lavague-launch --file_path instructions.txt --config_path config.py` under the hood. We provide default files using the OpenAI API with GPT3.5 but different integrations can be achieved by modifying these config files:
+Our Docker image works with our CLI `lavague --i instructions.txt -c config.py launch` under the hood. We provide default files using the OpenAI API with GPT3.5 but different integrations can be achieved by modifying these config files:
 
 - The `instructions.txt` file: The first line should contain the website URL you wish to perform actions on and the following lines include the default clickable instruction suggestions you wish to appear in the resulting Gradio demo
 ![instructions-default](../../assets/openai-default.png)

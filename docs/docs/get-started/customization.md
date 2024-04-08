@@ -14,7 +14,7 @@ In the Python configuration file, we can customize the following 5 elements:
 - `cleaning_function`: A function used to clean the LLM output to ensure it is code ready to be executed by the `CommandCenter`
 - `get_driver`: A `selenium.webdriver` to be used to execute our Selenium automation code
 
-In the `openai.py` default config file, we only provide a new `llm` value, meaning all other values will use our defaults.
+In the `openai_api.py` default config file, we only provide a new `llm` value, meaning all other values will use our defaults.
 
 ![default-openai](../../assets/openai-default.png)
 
@@ -26,7 +26,7 @@ Meanwhile, for our local `DeepSeek Coder` integration, we also provide a custom 
 
 You can go ahead and customize one of our default config files by adding new values for any of these elements within the file, or create your own and then provide it as the `config_path` file when using our CLI tool:
 
-`lavague-launch --file_path hf.txt --config_path custom_file.py`
+`lavague -i hf.txt -c custom_file.py launch`
 
 ### Default values
 
@@ -43,7 +43,7 @@ Our default values are:
 ### Custom URL and instructions
 
 When we use the CLI commands, we also provide a instuctions file to the `file_path` option: 
-`lavague-launch --file_path hf.txt --config_path custom_file.py`
+`lavague -i hf.txt -c custom_file.py launch`
 
 Let's take a look at the default `hf.txt` file we provide:
 
@@ -53,6 +53,6 @@ This first line of this text file should also contain the URL of the website you
 
 Any lines after this are the instructions. Again, you can change these to whatever you like.
 
-With `lavague-launch`, these instructions will appear as clickable suggestions in the interactive Gradio demo. We provide three instructions in our default file, but you can provide more or less instructions if you like.
+In `launch` mode, these instructions will appear as clickable suggestions in the interactive Gradio demo. We provide three instructions in our default file, but you can provide more or less instructions if you like.
 
-With `lavague-build`, the code generated can be executed to perform the instructions you provide in your instructions file.
+In `build` mode, the code generated can be executed to perform the instructions you provide in your instructions file.

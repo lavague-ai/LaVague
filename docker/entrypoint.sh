@@ -6,12 +6,12 @@ case $1 in
   launch)
     echo "Launching..."
     # Execute the launch command
-    command="lavague-launch --file_path instructions.txt --config_path config.py"
+    command="lavague -i instructions.txt -c config.py launch"
     ;;
   build)
     echo "Building..."
     # Execute the build command
-    command="lavague-build --file_path instructions.txt --config_path config.py"
+    command="lavague -i instructions.txt -c config.py build"
     ;;
   *)
     echo "Executing custom command {$@}"
