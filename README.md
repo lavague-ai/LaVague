@@ -55,12 +55,12 @@ sudo bash setup.sh
 
 You can either `launch` an interactive demo, where LaVague will execute and show you the results of the automation code it generates for your instruction.
 ```
-lavague-launch --file_path tests/hf.txt --config_file examples/api/openai_api.py
+lavague-launch --file_path tests/hf.txt --config_path examples/api/openai_api.py
 ```
 
 Or you can use the `lavague-build` to directly get the Python code leveraging Selenium in a file, which you can then inspect & execute locally.
 ```
-lavague-build --file_path tests/hf.txt --config_file examples/api/openai_api.py
+lavague-build --file_path tests/hf.txt --config_path examples/api/openai_api.py
 ```
 
 For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
