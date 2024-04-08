@@ -58,4 +58,7 @@ docs/_build/
 .env
 test.ipynb
 
+#virtual environemnt
+env/
+
 tests/*.py

@@ -47,7 +47,7 @@ CHROME_URL="${BASE_URL}/${OS}-${ARCH}/${CHROME_FILENAME}"
 echo $CHROME_URL
 
 
-# Download Chrome and Chromedriver then unzip downloaded files, move to home and clean up
+# Download Chromedriver then unzip downloaded files, move to home and clean up
 wget $DRIVER_URL
 unzip $DRIVER_FILENAME
 mv $DRIVER/ ~/
@@ -55,7 +55,7 @@ mv ~/$DRIVER ~/chromedriver-testing
 rm  $DRIVER_FILENAME
 
 
-# NOTE: Uncomment if Chromium/Google Chrome is not installed in a recognized location
+# Download Chrome binary then unzip downloaded files, move to home and clean up
 wget $CHROME_URL
 unzip $CHROME_FILENAME
 mv $CHROME/ ~/
