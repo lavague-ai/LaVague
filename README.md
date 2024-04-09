@@ -25,11 +25,11 @@
 
 LaVague is an **open-source** project designed to automate automation for devs! 
 
-We use **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to turn **natural language instructions** into Python code leveraging **Selenium**. LaVague is designed to make it easy for users to **automate express web workflows** and execute them on a browser.
+We use **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to turn **natural language instructions** into Python code leveraging **Selenium**. LaVague is designed to make it easy for users to **automate web workflows** and execute them on a browser.
 
 ### LaVague in Action
 
-Here's an examples to show how LaVague can execute natural lanaguge instructions on a browser to automate interactions with a website:
+Here's an example to show how LaVague can execute natural language instructions on a browser to automate interactions with a website:
 
 <div>
   <figure>
