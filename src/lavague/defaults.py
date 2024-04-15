@@ -1,7 +1,6 @@
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from .driver import SeleniumDriver
-from .action_engine import ActionEngine
 from .prompts import DEFAULT_PROMPT
 import os
 from typing import Optional
@@ -25,10 +24,6 @@ class DefaultLLM(OpenAI):
         else:
             super().__init__(api_key=api_key, max_tokens=max_new_tokens)
 
-class DefaultActionEngine(ActionEngine):
-    def __init__(self):
-        super().__init__(DefaultLLM(), DefaultEmbedder(), DEFAULT_PROMPT, default_python_code_extractor)
-
 
 def default_python_code_extractor(markdown_text: str) -> Optional[str]:
     # Pattern to match the first ```python ``` code block
@@ -42,7 +37,6 @@ def default_python_code_extractor(markdown_text: str) -> Optional[str]:
     else:
         # Return None if no match is found
         return None
-
 
 def default_get_driver() -> SeleniumDriver:
     from selenium import webdriver
