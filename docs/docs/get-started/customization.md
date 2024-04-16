@@ -26,7 +26,7 @@ Meanwhile, for our local `DeepSeek Coder` integration, we also provide a custom 
 
 You can go ahead and customize one of our default config files by adding new values for any of these elements within the file, or create your own and then provide it as the `config_path` file when using our CLI tool:
 
-`lavague -i hf.txt -c custom_file.py launch`
+`lavague -i hf.yaml -c custom_file.py launch`
 
 ### Default values
 
@@ -38,21 +38,23 @@ Our default values are:
 - [get_driver](https://github.com/lavague-ai/LaVague/blob/cb66a8de9e1210c95ef34df35254ce6875aa69eb/src/lavague/defaults.py#L29)
 - [cleaning_function](https://github.com/lavague-ai/LaVague/blob/cb66a8de9e1210c95ef34df35254ce6875aa69eb/src/lavague/action_engine.py#L15)
 
-## Text instructions file
+## Instructions yaml file
 
 ### Custom URL and instructions
 
-When we use the CLI commands, we also provide a instuctions file to the `file_path` option: 
-`lavague -i hf.txt -c custom_file.py launch`
+When we use the CLI commands, we also provide a instuctions yaml file to the `file_path` option: 
+`lavague -i hf.yaml -c custom_file.py launch`
 
-Let's take a look at the default `hf.txt` file we provide:
+Let's take a look at the default `hf.yaml` file we provide:
 
-![instructions default file](../../assets/default-instructions.png)
+![instructions default file](../../assets/default_instructions.png)
 
-This first line of this text file should also contain the URL of the website you wish to perform automated actions on, you can change this to any website you like.
+The file has two key-pair values defined:
 
-Any lines after this are the instructions. Again, you can change these to whatever you like.
+`url`: Here we place the URL of the website we wish to perform automated actions on. You can change this to any website you like.
 
-In `launch` mode, these instructions will appear as clickable suggestions in the interactive Gradio demo. We provide three instructions in our default file, but you can provide more or less instructions if you like.
+`instructions`: Here we place our instructions. Again, you can change these to whatever you like.
 
-In `build` mode, the code generated can be executed to perform the instructions you provide in your instructions file.
+In `launch` mode, these instructions will appear as individual clickable suggestions in the interactive Gradio demo. We provide three instructions in our default file, but you can provide more or less instructions if you like.
+
+In `build` mode, the code generated can be executed to perform all of the instructions you provide in your instructions file, performing one after the other as a sequence of actions.

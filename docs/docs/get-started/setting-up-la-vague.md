@@ -47,9 +47,9 @@ To use LaVague with our docker image you will first need to:
 
 If you end your docker run command with:
 
-- `build`: it will execute `lavague -i instructions.txt -c config.py build` from the root of your `lavague-files` mounted volume
-- `launch`: it will execute `lavague -i instructions.txt -c config.py launch` from the root of your `lavague-files` mounted volume
-- `a custom command`: it will execute this command, for example, `lavague -i custom_instructions.txt -config_path custom_config.py build`
+- `build`: it will execute `lavague -i instructions.yaml -c config.py build` from the root of your `lavague-files` mounted volume
+- `launch`: it will execute `lavague -i instructions.yaml -c config.py launch` from the root of your `lavague-files` mounted volume
+- `a custom command`: it will execute this command, for example, `lavague -i custom_instructions.yaml -config_path custom_config.py build`
 
 ⚠️ In the latter case, make sure you place the relevant files in your mounted `lavague-files` volume!
 

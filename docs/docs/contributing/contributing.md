@@ -110,7 +110,7 @@ Firstly, from the root of the repo, create a virtual environment and install the
 ```
 python -m venv my-env .
 source my-env/bin/activate
-pip install -r docs/requirements.txt
+pip install -r docs/requirements.yaml
 ```
 
 Next, you can load a preview of the documentation in the browser with the following command:
