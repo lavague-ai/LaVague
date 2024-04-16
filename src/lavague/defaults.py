@@ -38,6 +38,7 @@ def default_python_code_extractor(markdown_text: str) -> Optional[str]:
         # Return None if no match is found
         return None
 
+
 def default_get_driver() -> SeleniumDriver:
     from selenium import webdriver
     from selenium.webdriver.chrome.service import Service
@@ -45,8 +46,6 @@ def default_get_driver() -> SeleniumDriver:
     from selenium.webdriver.chrome.options import Options
     from selenium.webdriver.common.keys import Keys
     import os.path
-
-
 
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Ensure GUI is off
@@ -59,7 +58,7 @@ def default_get_driver() -> SeleniumDriver:
     path_linux = f"{homedir}/chromedriver-linux64/chromedriver"
     path_testing = f"{homedir}/chromedriver-testing/chromedriver"
     path_mac = "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
-    
+
     # To avoid breaking change kept legacy linux64 path
     if os.path.exists(path_linux):
         chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
@@ -71,9 +70,6 @@ def default_get_driver() -> SeleniumDriver:
         webdriver_service = Service(f"{homedir}/chromedriver-testing/chromedriver")
     else:
         raise FileNotFoundError("Neither chromedriver file exists.")
-
-
-
 
     driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
     return SeleniumDriver(driver)

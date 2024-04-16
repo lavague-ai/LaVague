@@ -69,6 +69,4 @@ huggingface = ["llama-index-embeddings-huggingface==0.1.4", "llama-index-llms-hu
 "Source" = "https://github.com/lavague-ai/LaVague/"
 
 [project.scripts]
-lavague-build = "lavague:build"
-lavague-launch = "lavague:launch"
 lavague = "lavague.cli.main:cli"

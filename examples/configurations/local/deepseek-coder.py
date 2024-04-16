@@ -12,7 +12,9 @@ LOCAL_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
 class LLM(HuggingFaceLLM):
     def __init__(self):
         tokenizer = AutoTokenizer.from_pretrained(model_id)
-        model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto", quantization_config=quantization_config)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_id, device_map="auto", quantization_config=quantization_config
+        )
 
         model_kwargs = {
             "temperature": 0.0,
@@ -20,17 +22,25 @@ class LLM(HuggingFaceLLM):
         max_new_tokens = 1024
 
         # We will stop generation as soon as the model outputs the end of Markdown to make inference faster
-        stop_token_id = [tokenizer.convert_tokens_to_ids("---"), tokenizer.convert_tokens_to_ids("```")]
+        stop_token_id = [
+            tokenizer.convert_tokens_to_ids("---"),
+            tokenizer.convert_tokens_to_ids("```"),
+        ]
 
         super().__init__(
-            model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens,
-            stopping_ids=stop_token_id, model_kwargs=model_kwargs
+            model=model,
+            tokenizer=tokenizer,
+            max_new_tokens=max_new_tokens,
+            stopping_ids=stop_token_id,
+            model_kwargs=model_kwargs,
         )
+
 
 class Embedder(HuggingFaceEmbedding):
     def __init__(self, model_name: str = LOCAL_EMBED_MODEL, device: str = "cuda"):
         super().__init__(model_name, device)
-        
+
+
 # We needed to steer the model more with a more explicit prompt so we use a custom prompt
 prompt_template = GEMMA_PROMPT
 

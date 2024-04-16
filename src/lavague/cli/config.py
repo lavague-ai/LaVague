@@ -49,7 +49,13 @@ class Config:
         return Config(llm, embedder, get_driver, prompt_template, cleaning_function)
 
     def make_default_action_engine():
-        return Config(DefaultLLM(), DefaultEmbedder(), DEFAULT_PROMPT, default_get_driver, default_python_code_extractor)
+        return Config(
+            DefaultLLM(),
+            DefaultEmbedder(),
+            DEFAULT_PROMPT,
+            default_get_driver,
+            default_python_code_extractor,
+        )
 
     def make_action_engine(self) -> ActionEngine:
         return ActionEngine(

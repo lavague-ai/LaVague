@@ -1,6 +1,7 @@
 import os
 from llama_index.llms.openai import OpenAI
 
+
 class LLM(OpenAI):
     def __init__(self):
         max_new_tokens = 512
@@ -8,5 +9,6 @@ class LLM(OpenAI):
         if api_key is None:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
         else:
-            super().__init__(api_key=api_key, max_tokens=max_new_tokens, temperature=0.0)
-            
+            super().__init__(
+                api_key=api_key, max_tokens=max_new_tokens, temperature=0.0
+            )

@@ -1,4 +1,5 @@
 import click
+from ..format_utils import extract_code_from_funct, extract_imports_from_lines
 
 
 @click.group()
@@ -54,18 +55,8 @@ def build(ctx):
     abstractDriver = config.get_driver()
     abstractDriver.goTo(instructions.url)
 
-    # Split the source code into lines and remove the first line (method definition)
-    source_code = inspect.getsource(config.get_driver)
-    source_code_lines = source_code.splitlines()[1:]
-    source_code_lines = [line.strip() for line in source_code_lines[:-1]]
-
-    # Execute the import lines
-    import_lines = [
-        line
-        for line in source_code_lines
-        if line.startswith("from") or line.startswith("import")
-    ]
-    exec("\n".join(import_lines))
+    source_code_lines = extract_code_from_funct(config.get_driver)
+    exec(extract_imports_from_lines(source_code_lines))
 
     # Prepare the file
     output_name = build_name(ctx.obj["config"], ctx.obj["instructions"])
