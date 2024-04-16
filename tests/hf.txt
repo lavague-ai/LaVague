@@ -1,4 +1,0 @@
-https://huggingface.co/
-Click on the Datasets item on the menu
-Click on the search bar 'Search models, datasets, users...', type 'lavague-ai', press enter
-Scroll by 500 pixels

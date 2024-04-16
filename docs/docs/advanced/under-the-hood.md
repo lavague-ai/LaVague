@@ -1,8 +1,8 @@
 # LaVague: Under the Hood
 
-## Lavague-build
+## Lavague build
 
-The lavague-build command generates code for your actions and saves them to a file which can then be executed locally.
+The build command generates code for your actions and saves them to a file which can then be executed locally.
 
 > See the code in the `build()` method in init.py
 
@@ -10,17 +10,17 @@ The lavague-build command generates code for your actions and saves them to a fi
 
 1. Parse CLI arguments
 
-2. Configure our actionEngine based on config file (`--config_path` argument): `action_engine, get_driver = load_action_engine(config_path)`
+2. Configure our actionEngine based on config file (`--config` argument): `action_engine, get_driver = load_action_engine(config_path)`
 
     This will set the LLM, the embedding model, the prompt, the cleaning function etc. to be used as specified in the config file - see the customization guide for full details.
 
-3. Load url and instructions from instructions file (--file_path argument): `base_url, instructions = load_instructions(file_path)`
+3. Load url and instructions from instructions file (--instructions argument): `base_url, instructions = load_instructions(file_path)`
 
 ### Key steps for each instruction:
 
 ![execute-instruction-schema](../../assets/execute-instruction.png)
 
-For each instruction in your instructions file (file passed to `--file_path`):
+For each instruction in your instructions file (file passed to `--instructions`):
 
 1. Get current HTML page: `html = abstractDriver.getHtml()`
 
@@ -42,9 +42,9 @@ This is a key method, where we:
 - Query the LLM to get generated coderesponse: `query_engine.query(query)`
 - Apply our cleaning function to the generated code: `code = self.cleaning_function(code)`
 
-## Lavague-launch
+## Lavague launch
 
-The lavague-launch creates a Gradio demo which you can open in your browser to generate and debug/preview actions.
+The `lavague [OPTIONS] launch` command creates a Gradio demo which you can open in your browser to generate and debug/preview actions.
 
 > See the code in the **launch() **method in init.py
 
@@ -52,11 +52,11 @@ The lavague-launch creates a Gradio demo which you can open in your browser to g
 
 1. Parse CLI arguments
 
-2. Configure our actionEngine based on config file (--config_path argument): `action_engine, get_driver = load_action_engine(config_path)`
+2. Configure our actionEngine based on config file (--config argument): `action_engine, get_driver = load_action_engine(config_path)`
 
 3. Initialize a Gradio command_center module with your actionEngine and driver: `command_center = GradioDemo(action_engine, driver)`
 
-4. Load url and instructions from instructions file (--file_path argument): `base_url, instructions = load_instructions(file_path)`
+4. Load url and instructions from instructions file (--instructions argument): `base_url, instructions = load_instructions(file_path)`
 
 5. Run the Gradio: `command_center.run(base_url, instructions)`
 
