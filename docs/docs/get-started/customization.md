@@ -26,7 +26,7 @@ Meanwhile, for our local `DeepSeek Coder` integration, we also provide a custom 
 
 You can go ahead and customize one of our default config files by adding new values for any of these elements within the file, or create your own and then provide it as the `config_path` file when using our CLI tool:
 
-`lavague -i hf.yaml -c custom_file.py launch`
+`lavague -i huggingface.yaml -c custom_file.py launch`
 
 ### Default values
 
@@ -43,9 +43,9 @@ Our default values are:
 ### Custom URL and instructions
 
 When we use the CLI commands, we also provide a instuctions yaml file to the `file_path` option: 
-`lavague -i hf.yaml -c custom_file.py launch`
+`lavague -i huggingface.yaml -c custom_file.py launch`
 
-Let's take a look at the default `hf.yaml` file we provide:
+Let's take a look at the default `huggingface.yaml` file we provide:
 
 ![instructions default file](../../assets/default_instructions.png)
 
