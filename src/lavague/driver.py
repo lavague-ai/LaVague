@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 from selenium.webdriver.remote.webdriver import WebDriver
+from .html_utils import clean_html
 
 
 class AbstractDriver(ABC):
@@ -16,7 +17,12 @@ class AbstractDriver(ABC):
         pass
 
     @abstractmethod
-    def getHtml(self) -> str:
+    def getHtml(self, clean: bool = True) -> str:
+        '''
+        Returns the HTML of the current page.
+        If clean is True, We remove unnecessary tags and attributes from the HTML.
+        Clean HTMLs are easier to process for the LLM.
+        '''
         pass
 
     @abstractmethod
@@ -41,8 +47,9 @@ class SeleniumDriver(AbstractDriver):
     def goTo(self, url: str) -> None:
         self.driver.get(url)
 
-    def getHtml(self) -> str:
-        return self.driver.page_source
+    def getHtml(self, clean: bool = True) -> str:
+        html = self.driver.page_source
+        return clean_html(html) if clean else html
 
     def getScreenshot(self, filename: str) -> None:
         self.driver.save_screenshot(filename)
