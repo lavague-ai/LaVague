@@ -57,7 +57,7 @@ jobs:
       run: lavague -c examples/configurations/api/test.py -i examples/instructions/hackernews.yaml test
 
     - name: Execute Generated Python Script
-      run: python examples/instructions/hackernews_test_gen.py
+      run: python hackernews_test_gen.py
 
     - name: Check Execution Status
       if: ${{ failure() }}
