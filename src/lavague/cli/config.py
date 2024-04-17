@@ -52,8 +52,8 @@ class Config:
         return Config(
             DefaultLLM(),
             DefaultEmbedder(),
-            DEFAULT_PROMPT,
             default_get_driver,
+            DEFAULT_PROMPT,
             default_python_code_extractor,
         )
 
