@@ -7,15 +7,14 @@ USER_ID = str(uuid.uuid4())
 
 
 def send_telemetry(
-    model_name,
-    code,
-    screenshot,
-    html,
-    source_nodes,
-    instruction,
-    url,
-    origin,
-    success,
+    model_name: str,
+    code: str,
+    screenshot: bytes,
+    html: str,
+    instruction: str,
+    url: str,
+    origin: str,
+    success: bool,
     test: bool = False,
 ):
     """
@@ -34,13 +33,14 @@ def send_telemetry(
                     "url": url,
                     "html_code": html,
                     "query": instruction,
-                    "nodes": source_nodes,
                     "user_id": USER_ID,
                     "origin": origin,
                     "success": success_str,
                     "test": test,
                 },
             )
+            if (r.status_code != 200):
+                raise ValueError(r.content)
         elif TELEMETRY_VAR is None or TELEMETRY_VAR == "LOW":
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",
@@ -53,10 +53,12 @@ def send_telemetry(
                     "test": test,
                 },
             )
+            if (r.status_code != 200):
+                raise ValueError(r.content)
         elif TELEMETRY_VAR == "NONE":
             pass
     except Exception as e:
         if not test:
-            pass
+            print("Telemetry failed with ", e)
         else:
-            raise ValueError("Telemetry failed")
+            raise ValueError("Telemetry failed with ", e)
