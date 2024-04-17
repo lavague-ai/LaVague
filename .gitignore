@@ -1,7 +1,7 @@
 chrome*
 examples/*.png
 screenshot.png
-*_gen.py
+*_gen*.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

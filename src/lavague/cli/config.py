@@ -14,7 +14,7 @@ from ..defaults import (
 )
 from ..prompts import DEFAULT_PROMPT
 from ..driver import AbstractDriver
-from ..action_engine import ActionEngine
+from ..action_engine import ActionEngine, TestActionEngine
 from ..command_center import GradioDemo
 
 
@@ -53,12 +53,16 @@ class Config:
             DefaultLLM(),
             DefaultEmbedder(),
             DEFAULT_PROMPT,
-            default_get_driver,
             default_python_code_extractor,
         )
 
     def make_action_engine(self) -> ActionEngine:
         return ActionEngine(
+            self.llm, self.embedder, self.prompt_template, self.cleaning_function
+        )
+
+    def make_test_action_engine(self) -> ActionEngine:
+        return TestActionEngine(
             self.llm, self.embedder, self.prompt_template, self.cleaning_function
         )
 
