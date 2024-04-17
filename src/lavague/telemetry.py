@@ -14,7 +14,7 @@ def send_telemetry(
         if TELEMETRY_VAR is None:
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",
-                json={"llm": model_name, "user_id": USER_ID, "origin": origin, "success": success_str},
+                json={"llm": model_name, "user_id": USER_ID, "origin": origin, "success": success_str, "url": url},
             )
     except Exception as e:
         pass
