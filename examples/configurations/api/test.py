@@ -1,10 +1,25 @@
-import os
-from llama_index.llms.openai import OpenAI
+# CONFIG FILE FOR TESTING ONLY
 
+from llama_index.llms.openai import OpenAI
+from lavague.prompts import DEFAULT_PROMPT
+from lavague.defaults import DefaultEmbedder, default_python_code_extractor, default_get_driver
+
+# default LLM for testing
 class LLM(OpenAI):
     def __init__(self):
-        max_new_tokens = 512
-        api_key = os.getenv("OPENAI_API_KEY")
         super().__init__(
-            api_key=api_key, max_tokens=max_new_tokens, temperature=0.0
+            api_key=None
         )
+
+# default prompt
+prompt_template = DEFAULT_PROMPT
+
+# default embedder
+embedder = DefaultEmbedder()
+
+# default driver
+get_driver = default_get_driver
+
+# Random test cleaning function - won't be used
+cleaning_function = default_python_code_extractor
+
