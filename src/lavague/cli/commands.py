@@ -24,7 +24,7 @@ def launch(ctx):
 
 @cli.command()
 @click.pass_context
-def build(ctx):
+def build(ctx, test: bool = False):
     """Generate a python script that can run the successive actions in one go."""
     from typing import Callable, List
     from tqdm import tqdm
@@ -51,7 +51,10 @@ def build(ctx):
 
     config = Config.from_path(ctx.obj["config"])
     instructions = Instructions.from_yaml(ctx.obj["instructions"])
-    action_engine = config.make_action_engine()
+    if (test):
+        action_engine = config.make_test_action_engine()
+    else:
+        action_engine = config.make_action_engine()
     abstractDriver = config.get_driver()
     abstractDriver.goTo(instructions.url)
 
@@ -94,8 +97,15 @@ def build(ctx):
             instructions.url,
             "Lavague-build",
             success,
+            test,
         )
     abstractDriver.destroy()
     print(f"Saving output to {output_name}")
     with open(output_name, "w") as file:
         file.write(output)
+
+@cli.command()
+@click.pass_context
+def test(ctx):
+    """Does a test run of LaVague build without actually querying model"""
+    ctx.invoke(build, test=True)
