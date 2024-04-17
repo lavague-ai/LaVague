@@ -38,6 +38,7 @@ def send_telemetry(
                     "user_id": USER_ID,
                     "origin": origin,
                     "success": success_str,
+                    "test": test,
                 },
             )
         elif TELEMETRY_VAR is None or TELEMETRY_VAR == "LOW":
@@ -49,6 +50,7 @@ def send_telemetry(
                     "origin": origin,
                     "url": url,
                     "success": success_str,
+                    "test": test,
                 },
             )
         elif TELEMETRY_VAR == "NONE":
