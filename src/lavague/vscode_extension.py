@@ -1,6 +1,5 @@
 from IPython.core.magic import register_line_magic
 import requests
-from .action_engine import ActionEngine
 from .cli.config import Config
 from .prompts import DEFAULT_PROMPT
 
@@ -12,8 +11,7 @@ try:
         global driver
 
         if "engine" not in globals():
-            config = Config.make_default_action_engine()
-            engine_vscode = config.make_action_engine()
+            engine_vscode = Config.make_default_action_engine()
         html: str = driver.page_source
         code_full = ""
         for code in engine_vscode.get_action_streaming(line, html):
