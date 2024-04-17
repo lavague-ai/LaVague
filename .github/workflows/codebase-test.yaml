@@ -1,0 +1,64 @@
+name: Software test & formatting
+
+on:
+  push:
+    paths:
+      - 'src/lavague/**.py'
+      - '.github/setup-driver.sh'
+      - 'examples/configurations/**'
+      - 'examples/instructions/**'
+  pull_request:
+    paths:
+      - 'src/lavague/**.py'
+      - '.github/setup-driver.sh'
+      - 'examples/configurations/**'
+      - 'examples/instructions/**'
+
+jobs:
+  lint:
+    name: Run Ruff Linter
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Ruff
+      run: pip install ruff
+
+    - name: Run Ruff on src/lavague
+      run: ruff src/lavague/
+
+  test:
+    name: Run Installation and Tests
+    runs-on: ubuntu-latest
+    needs: lint  
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10' 
+
+    - name: Install necessary dependencies
+      run: |
+        sudo chmod +x .github/setup-driver.sh
+        .github/setup-driver.sh
+
+    - name: Run Test Command
+      run: lavague -c examples/configurations/api/test.py -i examples/instructions/hackernews.yaml test
+
+    - name: Execute Generated Python Script
+      run: python examples/instructions/hackernews_test_gen.py
+
+    - name: Check Execution Status
+      if: ${{ failure() }}
+      run: echo "Script execution failed" && exit 1
