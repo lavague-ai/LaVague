@@ -51,7 +51,7 @@ def build(ctx, test: bool = False):
 
     config = Config.from_path(ctx.obj["config"])
     instructions = Instructions.from_yaml(ctx.obj["instructions"])
-    if (test):
+    if test:
         action_engine = config.make_test_action_engine()
     else:
         action_engine = config.make_action_engine()
@@ -103,6 +103,7 @@ def build(ctx, test: bool = False):
     print(f"Saving output to {output_name}")
     with open(output_name, "w") as file:
         file.write(output)
+
 
 @cli.command()
 @click.pass_context

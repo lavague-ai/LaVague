@@ -74,5 +74,6 @@ def default_get_driver() -> SeleniumDriver:
     driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
     return SeleniumDriver(driver)
 
+
 def defaultTestCode() -> str:
     return 'driver.execute_script("window.scrollBy(0, 500)")'

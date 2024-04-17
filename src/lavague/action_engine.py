@@ -152,6 +152,7 @@ class ActionEngine(BaseActionEngine):
         for text in streaming_response.response_gen:
             yield text
 
+
 class TestActionEngine(BaseActionEngine):
     """
     TestActionEngine removes any querying and returns a default code - is used to quickly test software
@@ -194,4 +195,3 @@ class TestActionEngine(BaseActionEngine):
 
     def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
         return defaultTestCode()
-

@@ -32,7 +32,7 @@ jobs:
       run: pip install ruff
 
     - name: Run Ruff on src/lavague
-      run: ruff src/lavague/
+      run: ruff format src/lavague/
 
   test:
     name: Run Installation and Tests

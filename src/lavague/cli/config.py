@@ -61,11 +61,12 @@ class Config:
         return ActionEngine(
             self.llm, self.embedder, self.prompt_template, self.cleaning_function
         )
-    
+
     def make_test_action_engine(self) -> ActionEngine:
         return TestActionEngine(
             self.llm, self.embedder, self.prompt_template, self.cleaning_function
         )
+
 
 class Instructions(BaseModel):
     url: str
