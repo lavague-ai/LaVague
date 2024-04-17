@@ -9,7 +9,7 @@ from llama_index.core import get_response_synthesizer
 from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from .prompts import DEFAULT_PROMPT
+from .prompts import SELENIUM_PROMPT
 from .defaults import default_python_code_extractor, defaultTestCode
 
 
@@ -70,7 +70,7 @@ class ActionEngine(BaseActionEngine):
         self,
         llm: BaseLLM,
         embedder: BaseEmbedding,
-        prompt_template: str = DEFAULT_PROMPT,
+        prompt_template: str = SELENIUM_PROMPT,
         cleaning_function: Callable[
             [str], Optional[str]
         ] = default_python_code_extractor,
@@ -176,7 +176,7 @@ class TestActionEngine(BaseActionEngine):
         self,
         llm: None,
         embedder: None,
-        prompt_template: str = DEFAULT_PROMPT,
+        prompt_template: str = SELENIUM_PROMPT,
         cleaning_function: Callable[
             [str], Optional[str]
         ] = default_python_code_extractor,

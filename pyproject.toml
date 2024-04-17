@@ -62,6 +62,7 @@ dependencies = [
 dev = ["ruff", "ipykernel"]
 cuda = ["accelerate==0.28.0", "bitsandbytes==0.42.0"]
 huggingface = ["llama-index-embeddings-huggingface==0.1.4", "llama-index-llms-huggingface==0.1.4"]
+playwright = ["playwright==1.42.0"]
 
 [project.urls]
 "Homepage" = "https://mithrilsecurity.io"

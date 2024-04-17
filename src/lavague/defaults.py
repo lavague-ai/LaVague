@@ -1,7 +1,6 @@
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
-from .driver import SeleniumDriver
-from .prompts import DEFAULT_PROMPT
+from .driver import SeleniumDriver, PlaywrightDriver
 import os
 from typing import Optional
 from dotenv import load_dotenv
@@ -39,7 +38,7 @@ def default_python_code_extractor(markdown_text: str) -> Optional[str]:
         return None
 
 
-def default_get_driver() -> SeleniumDriver:
+def default_get_selenium_driver() -> SeleniumDriver:
     from selenium import webdriver
     from selenium.webdriver.chrome.service import Service
     from selenium.webdriver.common.by import By
@@ -77,3 +76,16 @@ def default_get_driver() -> SeleniumDriver:
 
 def defaultTestCode() -> str:
     return 'driver.execute_script("window.scrollBy(0, 500)")'
+
+
+def default_get_playwright_driver() -> PlaywrightDriver:
+    try:
+        from playwright.sync_api import sync_playwright
+    except (ImportError, ModuleNotFoundError) as error:
+        raise ImportError(
+            "Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers"
+        ) from error
+    p = sync_playwright().__enter__()
+    browser = p.chromium.launch()
+    page = browser.new_page()
+    return PlaywrightDriver(page)
