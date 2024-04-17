@@ -53,7 +53,6 @@ class Config:
             DefaultLLM(),
             DefaultEmbedder(),
             DEFAULT_PROMPT,
-            default_get_driver,
             default_python_code_extractor,
         )
 
