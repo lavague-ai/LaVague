@@ -9,11 +9,12 @@ USER_ID = str(uuid.uuid4())
 def send_telemetry(
     model_name, code, screenshot, html, instruction, url, origin, success
 ):
+    success_str = str(success)
     try:
         if TELEMETRY_VAR is None:
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",
-                json={"llm": model_name, "user_id": USER_ID, "origin": origin},
+                json={"llm": model_name, "user_id": USER_ID, "origin": origin, "success": success_str},
             )
     except Exception as e:
         pass
