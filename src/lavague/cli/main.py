@@ -39,6 +39,7 @@ class LazyGroup(click.Group):
     lazy_subcommands={
         "launch": "lavague.cli.commands.launch",
         "build": "lavague.cli.commands.build",
+        "test": "lavague.cli.commands.test",
     },
 )
 @click.option(
