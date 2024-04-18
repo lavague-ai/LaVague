@@ -15,7 +15,11 @@ try:
         html: str = driver.page_source
         code_full = ""
         try:
-            r = requests.post("http://127.0.0.1:16500/push", data=engine_vscode.get_action_streaming(line, html), stream=True)
+            r = requests.post(
+                "http://127.0.0.1:16500/push",
+                data=engine_vscode.get_action_streaming(line, html),
+                stream=True,
+            )
         except:
             pass
 except:

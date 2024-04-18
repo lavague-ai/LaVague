@@ -39,7 +39,7 @@ def send_telemetry(
                     "test": test,
                 },
             )
-            if (r.status_code != 200):
+            if r.status_code != 200:
                 raise ValueError(r.content)
         elif TELEMETRY_VAR is None or TELEMETRY_VAR == "LOW":
             r = requests.post(
@@ -53,7 +53,7 @@ def send_telemetry(
                     "test": test,
                 },
             )
-            if (r.status_code != 200):
+            if r.status_code != 200:
                 raise ValueError(r.content)
         elif TELEMETRY_VAR == "NONE":
             pass
