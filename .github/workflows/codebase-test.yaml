@@ -7,12 +7,6 @@ on:
       - '.github/setup-driver.sh'
       - 'examples/configurations/**'
       - 'examples/instructions/**'
-  pull_request:
-    paths:
-      - 'src/lavague/**.py'
-      - '.github/setup-driver.sh'
-      - 'examples/configurations/**'
-      - 'examples/instructions/**'
 
 jobs:
   lint:
