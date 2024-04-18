@@ -38,6 +38,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
     import os
     from .config import Config, Instructions
     from ..telemetry import send_telemetry
+    from ..action_engine import TestActionEngine
 
     def build_name(config_path: str, instructions_path: str) -> str:
         instructions_path = os.path.basename(instructions_path)
@@ -57,11 +58,11 @@ def build(ctx, output_file: Optional[str], test: bool = False):
 
     config: Config = Config.from_path(ctx.obj["config"])
     instructions: Instructions = Instructions.from_yaml(ctx.obj["instructions"])
+    abstractDriver = config.get_driver()
     if test:
-        action_engine = config.make_test_action_engine()
+        action_engine = TestActionEngine(abstractDriver.getDummyCode())
     else:
         action_engine = config.make_action_engine()
-    abstractDriver = config.get_driver()
     abstractDriver.goTo(instructions.url)
 
     source_code_lines = extract_code_from_funct(config.get_driver)
@@ -97,7 +98,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             + f"# Query: {instruction}\n# Code:\n{code}".strip()
         )
         send_telemetry(
-            action_engine.llm.metadata.model_name,
+            config.llm.metadata.model_name,
             code,
             "",
             html,

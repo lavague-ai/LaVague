@@ -14,8 +14,7 @@ from ..defaults import (
 )
 from ..prompts import SELENIUM_PROMPT
 from ..driver import AbstractDriver
-from ..action_engine import ActionEngine, TestActionEngine
-from ..command_center import GradioDemo
+from ..action_engine import ActionEngine
 
 
 class Config:
@@ -58,11 +57,6 @@ class Config:
 
     def make_action_engine(self) -> ActionEngine:
         return ActionEngine(
-            self.llm, self.embedder, self.prompt_template, self.cleaning_function
-        )
-
-    def make_test_action_engine(self) -> ActionEngine:
-        return TestActionEngine(
             self.llm, self.embedder, self.prompt_template, self.cleaning_function
         )
 

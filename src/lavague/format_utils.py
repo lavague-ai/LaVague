@@ -2,6 +2,7 @@ from typing import Callable, List
 import inspect
 import re
 
+
 def extract_code_from_funct(funct: Callable) -> List[str]:
     """Extract code lines from a function while removing the first line (function definition) and the last line (return) and correcting indentation"""
     source_code = inspect.getsource(funct)
@@ -19,6 +20,7 @@ def extract_imports_from_lines(lines: List[str]) -> str:
     return "\n".join(
         [line for line in lines if line.startswith("from") or line.startswith("import")]
     )
+
 
 def clean_html(
     html_to_clean: str,
