@@ -48,8 +48,9 @@ jobs:
 
     - name: Install necessary dependencies
       run: |
-        sudo chmod +x .github/setup-driver.sh
-        .github/setup-driver.sh
+        bash setup.sh
+        pip install -e '.[playwright]'
+        playwright install chromium
 
     - name: Run selenium test
       run: lavague -c examples/test-configurations/test_selenium.py -i examples/instructions/hackernews.yaml test

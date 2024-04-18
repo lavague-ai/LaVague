@@ -5,7 +5,7 @@ from lavague.prompts import PLAYWRIGHT_PROMPT
 from lavague.defaults import (
     DefaultEmbedder,
     default_python_code_extractor,
-    default_get_selenium_driver,
+    default_get_playwright_driver,
 )
 
 
@@ -22,7 +22,7 @@ prompt_template = PLAYWRIGHT_PROMPT
 embedder = DefaultEmbedder()
 
 # default driver
-get_driver = default_get_selenium_driver
+get_driver = default_get_playwright_driver
 
 # Random test cleaning function - won't be used
 cleaning_function = default_python_code_extractor
