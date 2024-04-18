@@ -1,0 +1,22 @@
+openai_api:
+  api_key: ${OPENAI_API_KEY}
+
+litellm:
+  model: "gpt-3.5-turbo"
+  default_max_new_tokens: 512
+
+huggingface:
+  auth_token: ${HF_TOKEN}
+  inference:
+    mixtral:
+      default_max_new_tokens: 512
+      api_llm: "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO"
+      local_embed_model: "BAAI/bge-small-en-v1.5"
+
+
+azure_openai:
+  api_key: ${AZURE_OPENAI_KEY}
+  api_version: "2023-05-15"
+  azure_endpoint: ${AZURE_OPENAI_ENDPOINT}
+  model: "gpt-4"
+  deployment_name: ${AZURE_OPENAI_DEPLOYMENT_NAME:-gpt-4-turbo}

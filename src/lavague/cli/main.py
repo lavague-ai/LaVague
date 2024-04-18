@@ -51,7 +51,7 @@ class LazyGroup(click.Group):
     "--config",
     "-c",
     type=click.Path(exists=True),
-    required=True,
+    required=False,
 )
 @click.pass_context
 def cli(ctx, instructions, config):

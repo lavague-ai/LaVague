@@ -5,12 +5,18 @@ from selenium.webdriver.common.by import By  # import used by generated selenium
 from selenium.webdriver.common.keys import (
     Keys,
 )
-
+from .defaults import DefaultLLM, AzureOpenAILLM, HuggingFaceLLM, OpenAILiteLLM
 from .telemetry import send_telemetry
-from .action_engine import BaseActionEngine
+from .action_engine import BaseActionEngine, ActionEngine
 from .driver import AbstractDriver
 import base64
 
+LLM_MODELS = {
+    "OpenAI GPT-3.5": DefaultLLM,
+    "HuggingFace Mixtral-8x7B": HuggingFaceLLM,
+    "OpenAI LiteLLM-GPT-3.5-Turbo": OpenAILiteLLM,
+    "OpenAI GPT-4 (AZURE)": AzureOpenAILLM
+}
 
 class CommandCenter(ABC):
     @abstractmethod
@@ -45,6 +51,7 @@ class GradioDemo(CommandCenter):
         self.driver = driver
         self.base_url = ""
         self.success = False
+        self.input_model_name = None
 
     def init_driver(self):
         def init_driver_impl(url):
@@ -120,6 +127,27 @@ class GradioDemo(CommandCenter):
     def __show_processing_message(self):
         return lambda: "Processing..."
 
+
+    def __set_action_engine(self, actionEngine: ActionEngine):
+        """
+        Set a new ActionEngine object.
+
+        Args:
+            actionEngine (`ActionEngine`): The new action engine to set.
+        """
+        self.actionEngine = actionEngine
+
+    def __on_model_change(self,  model_name):
+        llm_class = LLM_MODELS.get(model_name, None)
+        if llm_class:
+            action_engine = ActionEngine(llm_class(), self.actionEngine.embedder, self.actionEngine.prompt_template, self.actionEngine.cleaning_function)
+            self.__set_action_engine(action_engine)
+        else:
+            raise ValueError(f"Unknown model: {model_name}")
+
+    def set_input_model_name(self, input_model_name: str):
+        self.input_model_name = input_model_name
+
     def run(self, base_url: str, instructions: List[str], server_port: int = 7860):
         """
         Launch the gradio demo
@@ -144,6 +172,24 @@ class GradioDemo(CommandCenter):
                         image_display = gr.Image(label="Browser", interactive=False)
 
                     with gr.Column(scale=3):
+                        if self.input_model_name is None:
+                            model_options = [
+                                "OpenAI GPT-3.5",
+                                "HuggingFace Mixtral-8x7B",
+                                "OpenAI LiteLLM-GPT-3.5-Turbo",
+                                "OpenAI GPT-4 (AZURE)"
+                            ]
+                            initial_model = "OpenAI GPT-3.5"
+
+                            model_dropdown = gr.Dropdown(model_options, value=initial_model, label="Model")
+                            model_dropdown.change(self.__on_model_change, inputs=model_dropdown, outputs=None)
+                        else:
+                            model_input = gr.Textbox(
+                                label="Model",
+                                value=self.input_model_name,
+                                interactive=False
+                            )
+
                         with gr.Accordion(label="Full code", open=False):
                             full_code = gr.Code(
                                 value="", language="python", interactive=False
