@@ -94,7 +94,7 @@ class GradioDemo(CommandCenter):
         def exec_code(code, full_code):
             code = self.actionEngine.cleaning_function(code)
             html = self.driver.getHtml()
-            driver = self.driver.getDriver()  # define driver for exec
+            _, driver = self.driver.getDriver()  # define driver for exec
             try:
                 exec(code)
                 output = "Successful code execution"
