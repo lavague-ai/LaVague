@@ -50,6 +50,7 @@ def send_telemetry(
                     "origin": origin,
                     "url": url,
                     "success": success_str,
+                    "instruction": instruction,
                     "test": test,
                 },
             )
