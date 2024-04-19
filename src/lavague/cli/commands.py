@@ -16,16 +16,15 @@ def launch(ctx):
     from .config import Config, Instructions
     from ..command_center import GradioDemo
 
+    instructions = Instructions.from_yaml(ctx.obj["instructions"])
+
     if ctx.obj.get('config'):
         config = Config.from_path(ctx.obj['config'])
-        instructions = Instructions.from_yaml(ctx.obj["instructions"])
         action_engine = config.make_action_engine()
         driver = config.get_driver()
         input_model_name = ctx.obj['config'].split('/')[-1].split('.')[0]
     else:
-        config = Config.make_default_action_engine()
-        instructions = Instructions.from_yaml(ctx.obj["instructions"])
-        action_engine = config.make_action_engine()
+        action_engine = Config.make_default_action_engine()
         driver = default_get_selenium_driver()
         input_model_name = None
 

@@ -5,14 +5,14 @@ from selenium.webdriver.common.by import By  # import used by generated selenium
 from selenium.webdriver.common.keys import (
     Keys,
 )
-from .defaults import DefaultLLM, AzureOpenAILLM, HuggingFaceLLM, OpenAILiteLLM
+from .llm_models import OpenAILLM, AzureOpenAILLM, HuggingFaceLLM, OpenAILiteLLM
 from .telemetry import send_telemetry
 from .action_engine import BaseActionEngine, ActionEngine
 from .driver import AbstractDriver
 import base64
 
 LLM_MODELS = {
-    "OpenAI GPT-3.5": DefaultLLM,
+    "OpenAI GPT-3.5": OpenAILLM,
     "HuggingFace Mixtral-8x7B": HuggingFaceLLM,
     "OpenAI LiteLLM-GPT-3.5-Turbo": OpenAILiteLLM,
     "OpenAI GPT-4 (AZURE)": AzureOpenAILLM
