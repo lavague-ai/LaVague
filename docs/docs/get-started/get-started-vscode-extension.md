@@ -37,7 +37,7 @@ Now, you can open your first LaVague project:
 <img src="https://github.com/lavague-ai/lavague/blob/main/vscode-assets/command-2.png?raw=true" alt="open new project" width=60%>
 
 - Next you'll be asked to input the URL of the site you wish to perform web actions on.
-<img src="https://github.com/lavague-ai/lavague/blob/main/vscode-assets/URL.webp?raw=true" alt="open new project" width=60%>
+<img src="https://github.com/lavague-ai/lavague/blob/main/vscode-assets/URL.webp?raw=true" alt="add project URL" width=60%>
 
 This will open a new LaVague project.
 
