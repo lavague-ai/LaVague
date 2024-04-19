@@ -32,8 +32,8 @@ You can go ahead and customize one of our default config files by adding new val
 
 Our default values are:
 
-- `LLM`: HuggingFaceH4/zephyr-7b-gemma-v0.1
-- `embedder`: BAAI/bge-small-en-v1.5
+- `LLM`: OpenAI's `GPT3.5`
+- `embedder`: LlamaIndex's default `OpenAIEmbedding`
 - [prompt_template](https://github.com/lavague-ai/LaVague/blob/main/src/lavague/prompts.py)
 - [get_driver](https://github.com/lavague-ai/LaVague/blob/cb66a8de9e1210c95ef34df35254ce6875aa69eb/src/lavague/defaults.py#L29)
 - [cleaning_function](https://github.com/lavague-ai/LaVague/blob/cb66a8de9e1210c95ef34df35254ce6875aa69eb/src/lavague/action_engine.py#L15)
