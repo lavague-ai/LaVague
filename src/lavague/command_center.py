@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By  # import used by generated selenium
 from selenium.webdriver.common.keys import (
     Keys,
 )
-from .llm_models import OpenAILLM, AzureOpenAILLM, HuggingFaceLLM, OpenAILiteLLM
+from .llm_models import OpenAILLM, AzureOpenAILLM, HuggingFaceLLM, OpenAILiteLLM, GroqApiLLM, AnthropicApiLLM
 from .telemetry import send_telemetry
 from .action_engine import BaseActionEngine, ActionEngine
 from .driver import AbstractDriver
@@ -15,7 +15,9 @@ LLM_MODELS = {
     "OpenAI GPT-3.5": OpenAILLM,
     "HuggingFace Mixtral-8x7B": HuggingFaceLLM,
     "OpenAI LiteLLM-GPT-3.5-Turbo": OpenAILiteLLM,
-    "OpenAI GPT-4 (AZURE)": AzureOpenAILLM
+    "OpenAI GPT-4 (AZURE)": AzureOpenAILLM,
+    "Groq Mixtral-8x7B": GroqApiLLM,
+    "Anthropic claude-3-haiku": AnthropicApiLLM
 }
 
 class CommandCenter(ABC):
@@ -173,12 +175,7 @@ class GradioDemo(CommandCenter):
                     with gr.Column(scale=3):
                         with gr.Column(scale=3):
                             if self.input_model_name is None:
-                                model_options = [
-                                    "OpenAI GPT-3.5",
-                                    "HuggingFace Mixtral-8x7B",
-                                    "OpenAI LiteLLM-GPT-3.5-Turbo",
-                                    "OpenAI GPT-4 (AZURE)"
-                                ]
+                                model_options = LLM_MODELS.keys()
                                 initial_model = "OpenAI GPT-3.5"
 
                                 model_dropdown = gr.Dropdown(model_options, value=initial_model, label="Model")

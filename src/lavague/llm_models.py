@@ -3,6 +3,8 @@ from llama_index.llms.azure_openai import AzureOpenAI
 from llama_index.llms.huggingface import HuggingFaceInferenceAPI
 from llama_index.core.base.llms.types import CompletionResponse
 from llama_index.llms.litellm import LiteLLM
+from llama_index.llms.groq import Groq
+from llama_index.llms.anthropic import Anthropic
 
 from .config import get_config
 
@@ -72,3 +74,31 @@ class OpenAILiteLLM(LiteLLM):
             temperature=0.0,
             kwargs=kwargs,
         )
+
+class GroqApiLLM(Groq):
+    def __init__(
+        self,
+        model: str = _config['groq_api']['model'],
+        api_key: str = _config['groq_api']['api_key'],
+    ):
+        if api_key is None:
+            raise ValueError("GROQ_API_KEY environment variable is not set")
+        else:
+            super().__init__(
+                model=model,
+                api_key=api_key,
+            )
+
+class AnthropicApiLLM(Anthropic):
+    def __init__(
+        self,
+        model: str = _config['anthropic_api']['model'],
+        api_key: str = _config['anthropic_api']['api_key'],
+    ):
+        if api_key is None:
+            raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+        else:
+            super().__init__(
+                model=model,
+                api_key=api_key,
+            )

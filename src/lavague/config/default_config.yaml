@@ -20,3 +20,11 @@ azure_openai:
   azure_endpoint: ${AZURE_OPENAI_ENDPOINT}
   model: "gpt-4"
   deployment_name: ${AZURE_OPENAI_DEPLOYMENT_NAME:-gpt-4-turbo}
+
+groq_api:
+  api_key: ${GROQ_API_KEY}
+  model: "mixtral-8x7b-32768" # gemma-7b-it, llama2-70b-4096
+
+anthropic_api:
+  api_key: ${ANTHROPIC_API_KEY}
+  model: "claude-3-haiku-20240307" # claude-3-sonnet-20240229, claude-3-opus-20240229
