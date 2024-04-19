@@ -106,11 +106,11 @@ nav:
   - Overview: 'docs/integrations/home.md'
   - Api:
     - Azure OpenAI: 'docs/integrations/api/azure-openai.ipynb'
-    - HuggingFace: 'docs/integrations/hugging-face-api.ipynb'
-    - OpenAI: 'docs/integrations/openai.ipynb'
-    - Litellm: 'docs/integrations/litellm.ipynb'
+    - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
+    - OpenAI: 'docs/integrations/api/openai.ipynb'
+    - Litellm: 'docs/integrations/api/litellm.ipynb'
   - Local:
-    - DeepSeek Coder: 'docs/integrations/local-inference.ipynb'
+    - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
   
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
