@@ -9,8 +9,8 @@ from llama_index.core import get_response_synthesizer
 from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from .prompts import DEFAULT_PROMPT
-from .defaults import default_python_code_extractor, defaultTestCode
+from .prompts import SELENIUM_PROMPT
+from .defaults import default_python_code_extractor
 
 
 class BaseActionEngine(ABC):
@@ -70,7 +70,7 @@ class ActionEngine(BaseActionEngine):
         self,
         llm: BaseLLM,
         embedder: BaseEmbedding,
-        prompt_template: str = DEFAULT_PROMPT,
+        prompt_template: str = SELENIUM_PROMPT,
         cleaning_function: Callable[
             [str], Optional[str]
         ] = default_python_code_extractor,
@@ -158,40 +158,14 @@ class TestActionEngine(BaseActionEngine):
     TestActionEngine removes any querying and returns a default code - is used to quickly test software
 
     Args:
-        llm (`LLMPredictorType`):
-            The llm that will be used the generate the python code
-        embedding (`EmbedType`):
-            The embedding model to encode the html page and the prompt
-        prompt_template (`str`):
-            The prompt_template given to the llm, later completed by chunks of the html page and the query
-        cleaning_function (`Callable[[str], Optional[str]]`):
-            Function to extract the python code from the llm output
-        top_k (`int`):
-            The top K relevant chunks from the html page will be used in the final query
-        max_chars_pc (`int`):
-            A chunk can't be larger than max_chars_pc
+        dummy_code: (`str`)
     """
 
-    def __init__(
-        self,
-        llm: None,
-        embedder: None,
-        prompt_template: str = DEFAULT_PROMPT,
-        cleaning_function: Callable[
-            [str], Optional[str]
-        ] = default_python_code_extractor,
-        top_k: int = 3,
-        max_chars_pc: int = 1500,
-    ):
-        self.llm = llm
-        self.embedder = embedder
-        self.prompt_template = prompt_template
-        self.cleaning_function = cleaning_function
-        self.top_k = top_k
-        self.max_chars_pc = max_chars_pc
+    def __init__(self, dummy_code: str):
+        self.dummy_code = dummy_code
 
     def get_action(self, query: str, html: str) -> str:
-        return defaultTestCode()
+        return self.dummy_code
 
     def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
-        return defaultTestCode()
+        return self.dummy_code
