@@ -103,12 +103,14 @@ nav:
 
 - 🤝 Integrations:
   - Overview: 'docs/integrations/home.md'
-  - Azure OpenAI: 'docs/integrations/azure-openai.ipynb'
-  - HuggingFace API: 'docs/integrations/hugging-face-api.ipynb'
-  - OpenAI: 'docs/integrations/openai.ipynb'
-  - Local: 'docs/integrations/local-inference.ipynb'
-  - Litellm: 'docs/integrations/litellm.ipynb'
-
+  - Api:
+    - Azure OpenAI: 'docs/integrations/api/azure-openai.ipynb'
+    - HuggingFace: 'docs/integrations/hugging-face-api.ipynb'
+    - OpenAI: 'docs/integrations/openai.ipynb'
+    - Litellm: 'docs/integrations/litellm.ipynb'
+  - Local:
+    - DeepSeek Coder: 'docs/integrations/local-inference.ipynb'
+  
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
   - Telemetry: 'docs/advanced/telemetry.md'
