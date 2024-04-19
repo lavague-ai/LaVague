@@ -1,6 +1,6 @@
 # Customization
 
-In the [quick tour](./quick-tour.ipynb), we saw how to use LaVague with our default config file for OpenAI - we also provide default config files for several other [integrations](../integrations/azure-openai.ipynb). In this guide, we will show you how you can modify these config files or create your own for customized use cases.
+In the [quick tour](./quick-tour.ipynb), we saw how to use LaVague with our default config file for OpenAI - we also provide default config files for several other [integrations](../integrations/api/azure-openai.ipynb). In this guide, we will show you how you can modify these config files or create your own for customized use cases.
 
 ## Python config file
 

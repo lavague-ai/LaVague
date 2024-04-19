@@ -3,7 +3,7 @@
 
 In this section, we're going to walk you through how you can install and set up everything you need to run LaVague locally.
 
-> If you just want to test out LaVague without having to install anything locally, you can run our [Quick Tour notebook with Google Colab](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour.ipynb).
+> If you just want to test out LaVague without having to install anything locally, you can run our [Quick Tour notebook with Google Colab](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb).
 
 To start using LaVague, we need to install a webdriver and store it in our home directory, so that LaVague can interact with the browser in our environment. We will then also need to install the LaVague package.
 
@@ -67,4 +67,4 @@ This project executes LLM-generated code using `exec`. This is not considered a 
 
 ## Conclusions
 
-You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.ipynb) or [integration pages](../integrations/hugging-face-api.ipynb).
+You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.ipynb) or [integration pages](../integrations/api/hugging-face.ipynb).
