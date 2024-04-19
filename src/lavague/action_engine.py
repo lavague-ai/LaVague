@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Generator
+from typing import Callable, Optional, Generator, List
 from abc import ABC, abstractmethod
 from llama_index.core import Document
 from llama_index.core.node_parser import CodeSplitter
@@ -100,6 +100,16 @@ class ActionEngine(BaseActionEngine):
         index = VectorStoreIndex(nodes, embed_model=self.embedder)
 
         return index
+    
+    def _get_retriever(self, html):
+        html = html
+        index = self._get_index(html)
+
+        retriever = BM25Retriever.from_defaults(
+            index=index, similarity_top_k=self.top_k
+        )
+        
+        return retriever
 
     def get_query_engine(
         self, state: str, streaming: bool = True
@@ -115,11 +125,8 @@ class ActionEngine(BaseActionEngine):
             `RetrieverQueryEngine`
         """
         html = state
-        index = self._get_index(html)
 
-        retriever = BM25Retriever.from_defaults(
-            index=index, similarity_top_k=self.top_k
-        )
+        retriever = self._get_retriever(html)
 
         response_synthesizer = get_response_synthesizer(
             streaming=streaming, llm=self.llm
@@ -145,6 +152,29 @@ class ActionEngine(BaseActionEngine):
         code = response.response
         code = self.cleaning_function(code)
         return code
+    
+    def manual_complete(self, context: str, query: str) -> str:
+        prompt = SELENIUM_PROMPT.format(context_str=context, query_str=query)
+
+        response = self.llm.complete(prompt).text
+
+        generated_code = self.cleaning_function(response)
+        return generated_code
+    
+    def get_nodes(self, query: str, html: str) -> List[str]:
+        """
+        Get the nodes from the html page
+
+        Args:
+            html (`str`): The html page
+
+        Return:
+            `List[str]`: The nodes
+        """
+        retriever = self._get_retriever(html)
+        source_nodes = retriever.retrieve(query)
+        source_nodes = [node.text for node in source_nodes]
+        return source_nodes
 
     def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
         query_engine = self.get_query_engine(html, streaming=True)
