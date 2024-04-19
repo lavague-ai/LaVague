@@ -18,11 +18,7 @@ You can generate your automation code and directly preview and test the generate
 Check out what the LaVague VSCode Extension looks like in action:
 
 <div>
-  <figure>
-    <img src="https://raw.githubusercontent.com/lavague-ai/lavague/main/docs/assets/vscode-demo.gif" alt="LaVague VSCode Extension Example">
-    <figcaption><b>LaVague interacting with Hacker News.</b></figcaption>
-  </figure>
-  <br><br>
+    <img src="https://raw.githubusercontent.com/lavague-ai/lavague/main/docs/assets/vscode-demo.gif" alt="LaVague VSCode Extension Example" style="margin-left: 0px;">
 </div>
 
 ### Getting started

@@ -37,6 +37,10 @@ lavague --instructions examples/instructions/huggingface.yaml --config examples/
 
 For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
 
+## 🎭 Playwright integration
+
+If you want to get started with LaVague build using Playwright as your underlying automation tool, see our [Playwright integration guide](./docs/get-started/playwright.md)
+
 ## 🙋 Contributing
 
 We would love your help in making La Vague a reality. 
