@@ -1,4 +1,4 @@
-# Get started: LaVague VSCode Extension
+# Get started: LaVague VSCode Extension **Alpha**
 
 The LaVague VSCode Extension allows you to leverage LaVague directly in VSCode. 
 
@@ -27,7 +27,7 @@ Check out what the LaVague VSCode Extension looks like in action:
 
 ### Getting started
 
-Firstly, you'll need to download the `LaVague` extension from VSCode marketplace.
+Firstly, you'll need to download the [LaVague extension from VSCode marketplace](https://marketplace.visualstudio.com/items?itemName=LaVagueAI.lavague).
 
 Now, you can open your first LaVague project:
 
