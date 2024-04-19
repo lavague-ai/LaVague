@@ -48,14 +48,18 @@ jobs:
 
     - name: Install necessary dependencies
       run: |
-        sudo chmod +x .github/setup-driver.sh
-        .github/setup-driver.sh
+        bash setup.sh
+        pip install -e '.[playwright]'
+        playwright install chromium
 
-    - name: Run Test Command
-      run: lavague -c examples/configurations/api/test.py -i examples/instructions/hackernews.yaml test
+    - name: Run selenium test
+      run: lavague -c examples/test-configurations/test_selenium.py -i examples/instructions/hackernews.yaml test
+    
+    - name: Run playwright test
+      run: lavague -c examples/test-configurations/test_playwright.py -i examples/instructions/hackernews.yaml test
 
-    - name: Execute Generated Python Script
-      run: python hackernews_test_gen.py
+    - name: Execute Generated Python Scripts
+      run: python hackernews_test_selenium_gen.py && python hackernews_test_playwright_gen.py
 
     - name: Check Execution Status
       if: ${{ failure() }}

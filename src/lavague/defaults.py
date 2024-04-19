@@ -1,11 +1,25 @@
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
-from .driver import SeleniumDriver
-from .prompts import DEFAULT_PROMPT
 import os
 from typing import Optional
 from dotenv import load_dotenv
 import re
+
+
+try:
+    from .driver import SeleniumDriver
+
+    SELENIUM_IMPORT = True
+except:
+    SELENIUM_IMPORT = False
+
+try:
+    from .driver import PlaywrightDriver
+
+    PLAYWRIGHT_IMPORT = True
+except:
+    PLAYWRIGHT_IMPORT = False
+
 
 load_dotenv()
 
@@ -39,41 +53,56 @@ def default_python_code_extractor(markdown_text: str) -> Optional[str]:
         return None
 
 
-def default_get_driver() -> SeleniumDriver:
-    from selenium import webdriver
-    from selenium.webdriver.chrome.service import Service
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.common.keys import Keys
-    import os.path
+if SELENIUM_IMPORT:
 
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Ensure GUI is off
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--window-size=1600,900")
+    def default_get_selenium_driver() -> SeleniumDriver:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.common.keys import Keys
+        import os.path
 
-    homedir = os.path.expanduser("~")
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")  # Ensure GUI is off
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--window-size=1600,900")
 
-    # Paths to the chromedriver files
-    path_linux = f"{homedir}/chromedriver-linux64/chromedriver"
-    path_testing = f"{homedir}/chromedriver-testing/chromedriver"
-    path_mac = "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+        homedir = os.path.expanduser("~")
 
-    # To avoid breaking change kept legacy linux64 path
-    if os.path.exists(path_linux):
-        chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
-        webdriver_service = Service(f"{homedir}/chromedriver-linux64/chromedriver")
-    elif os.path.exists(path_testing):
-        if os.path.exists(f"{homedir}/chrome-testing/{path_mac}"):
-            chrome_options.binary_location = f"{homedir}/chrome-testing/{path_mac}"
-        # Can add support here for other chrome binaries with else if statements
-        webdriver_service = Service(f"{homedir}/chromedriver-testing/chromedriver")
-    else:
-        raise FileNotFoundError("Neither chromedriver file exists.")
+        # Paths to the chromedriver files
+        path_linux = f"{homedir}/chromedriver-linux64/chromedriver"
+        path_testing = f"{homedir}/chromedriver-testing/chromedriver"
+        path_mac = (
+            "Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+        )
 
-    driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
-    return SeleniumDriver(driver)
+        # To avoid breaking change kept legacy linux64 path
+        if os.path.exists(path_linux):
+            chrome_options.binary_location = f"{homedir}/chrome-linux64/chrome"
+            webdriver_service = Service(f"{homedir}/chromedriver-linux64/chromedriver")
+        elif os.path.exists(path_testing):
+            if os.path.exists(f"{homedir}/chrome-testing/{path_mac}"):
+                chrome_options.binary_location = f"{homedir}/chrome-testing/{path_mac}"
+            # Can add support here for other chrome binaries with else if statements
+            webdriver_service = Service(f"{homedir}/chromedriver-testing/chromedriver")
+        else:
+            raise FileNotFoundError("Neither chromedriver file exists.")
+
+        driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+        return SeleniumDriver(driver)
 
 
-def defaultTestCode() -> str:
-    return 'driver.execute_script("window.scrollBy(0, 500)")'
+if PLAYWRIGHT_IMPORT:
+
+    def default_get_playwright_driver() -> PlaywrightDriver:
+        try:
+            from playwright.sync_api import sync_playwright
+        except (ImportError, ModuleNotFoundError) as error:
+            raise ImportError(
+                "Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers"
+            ) from error
+        p = sync_playwright().__enter__()
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        return PlaywrightDriver(page)

@@ -1,7 +1,6 @@
 from IPython.core.magic import register_line_magic
 import requests
 from .cli.config import Config
-from .prompts import DEFAULT_PROMPT
 
 try:
 

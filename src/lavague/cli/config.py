@@ -7,15 +7,14 @@ from pathlib import Path
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from ..defaults import (
-    default_get_driver,
+    default_get_selenium_driver,
     DefaultLLM,
     DefaultEmbedder,
     default_python_code_extractor,
 )
-from ..prompts import DEFAULT_PROMPT
+from ..prompts import SELENIUM_PROMPT
 from ..driver import AbstractDriver
-from ..action_engine import ActionEngine, TestActionEngine
-from ..command_center import GradioDemo
+from ..action_engine import ActionEngine
 
 
 class Config:
@@ -41,8 +40,8 @@ class Config:
         spec.loader.exec_module(module)
         llm = getattr(module, "LLM", DefaultLLM)()
         embedder = getattr(module, "Embedder", DefaultEmbedder)()
-        get_driver = getattr(module, "get_driver", default_get_driver)
-        prompt_template = getattr(module, "prompt_template", DEFAULT_PROMPT)
+        get_driver = getattr(module, "get_driver", default_get_selenium_driver)
+        prompt_template = getattr(module, "prompt_template", SELENIUM_PROMPT)
         cleaning_function = getattr(
             module, "cleaning_function", default_python_code_extractor
         )
@@ -52,17 +51,12 @@ class Config:
         return ActionEngine(
             DefaultLLM(),
             DefaultEmbedder(),
-            DEFAULT_PROMPT,
+            SELENIUM_PROMPT,
             default_python_code_extractor,
         )
 
     def make_action_engine(self) -> ActionEngine:
         return ActionEngine(
-            self.llm, self.embedder, self.prompt_template, self.cleaning_function
-        )
-
-    def make_test_action_engine(self) -> ActionEngine:
-        return TestActionEngine(
             self.llm, self.embedder, self.prompt_template, self.cleaning_function
         )
 
