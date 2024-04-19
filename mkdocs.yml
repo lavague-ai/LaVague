@@ -101,7 +101,6 @@ nav:
   - Alpha VSCode extenstion: 'docs/get-started/get-started-vscode-extension.md'
   - Playwright: 'docs/get-started/playwright.md'
   - Customization: 'docs/get-started/customization.md'
-  - Playwright: 'docs/get-started/playwright.md'
 
 - 🤝 Integrations:
   - Overview: 'docs/integrations/home.md'
