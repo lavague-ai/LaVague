@@ -9,7 +9,7 @@ You can generate your automation code and directly preview and test the generate
 
     - A version of VSCode >= 1.80
     - The Jupyter notebooks VSCode extension
-    - To install a webdriver & LaVague: You can install them with the following command: `wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&sudo bash setup.sh`
+    - To install a webdriver & LaVague: You can install them with the following command: `wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh && sudo bash setup.sh`
 
     See the LaVague installation instructions [for more details](https://docs.lavague.ai/en/latest/docs/get-started/setting-up-la-vague/)!
 
@@ -53,6 +53,8 @@ We're now ready to add an instruction for the action we'd like to automate follo
     os.environ['OPENAI_API_KEY'] = ''
     ```
 
-Your automation code will populate the next cell.
+If we now run this cell, our automation code will populate the next cell.
 
 <img src="https://github.com/lavague-ai/lavague/blob/main/vscode-assets/instruction-and-code.png?raw=true" alt="generated code" width=75%>
+
+We can then run this generated code to perform the action on our target URL.
