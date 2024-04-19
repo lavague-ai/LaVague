@@ -36,15 +36,12 @@ Now, you can open your first LaVague project:
 - Type or search and find the 'LaVague: New project' command
 <img src="https://github.com/lavague-ai/lavague/blob/main/vscode-assets/command-2.png?raw=true" alt="open new project" width=60%>
 
+- Next you'll be asked to input the URL of the site you wish to perform web actions on.
+<img src="https://github.com/lavague-ai/lavague/blob/main/vscode-assets/URL.webp?raw=true" alt="open new project" width=60%>
+
 This will open a new LaVague project.
 
-### Adding your URL and instruction
-
-You can add the URL you wish to generate automation code as an argument to `driver.get` in the boilerplate code block.
-
-<img src="https://github.com/lavague-ai/lavague/blob/main/vscode-assets/add-url.png?raw=true" alt="modify URL" width=75%>
-
-If we now run this first block of code, a VSCode window opens displaying our target site.
+### Adding your instruction
 
 We're now ready to add an instruction for the action we'd like to automate following the `%lavague-exec` magic command:
 
