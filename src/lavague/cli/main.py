@@ -51,8 +51,9 @@ class LazyGroup(click.Group):
 @click.option(
     "--config",
     "-c",
+    help="Optional when running with 'launch'; required with 'build'. If provided during launch, the application operates based on the specified model. If not provided, model selection is available.",
     type=click.Path(exists=True),
-    required=True,
+    required=False,
 )
 @click.pass_context
 def cli(ctx, instructions, config):

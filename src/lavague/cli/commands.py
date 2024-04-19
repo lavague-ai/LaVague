@@ -1,6 +1,7 @@
 from typing import Optional
 import click
 from ..format_utils import extract_code_from_funct, extract_imports_from_lines
+from ..defaults import default_get_selenium_driver
 
 
 @click.group()
@@ -15,11 +16,21 @@ def launch(ctx):
     from .config import Config, Instructions
     from ..command_center import GradioDemo
 
-    config = Config.from_path(ctx.obj["config"])
-    instructions = Instructions.from_yaml(ctx.obj["instructions"])
-    action_engine = config.make_action_engine()
-    driver = config.get_driver()
+    if ctx.obj.get('config'):
+        config = Config.from_path(ctx.obj['config'])
+        instructions = Instructions.from_yaml(ctx.obj["instructions"])
+        action_engine = config.make_action_engine()
+        driver = config.get_driver()
+        input_model_name = ctx.obj['config'].split('/')[-1].split('.')[0]
+    else:
+        config = Config.make_default_action_engine()
+        instructions = Instructions.from_yaml(ctx.obj["instructions"])
+        action_engine = config.make_action_engine()
+        driver = default_get_selenium_driver()
+        input_model_name = None
+
     command_center = GradioDemo(action_engine, driver)
+    command_center.set_input_model_name(input_model_name)
     command_center.run(instructions.url, instructions.instructions)
 
 
@@ -39,6 +50,9 @@ def build(ctx, output_file: Optional[str], test: bool = False):
     from .config import Config, Instructions
     from ..telemetry import send_telemetry
     from ..action_engine import TestActionEngine
+
+    if 'config' not in ctx.obj or not ctx.obj['config']:
+        raise click.UsageError("Missing option '--config' / '-c'.")
 
     def build_name(config_path: str, instructions_path: str) -> str:
         instructions_path = os.path.basename(instructions_path)
