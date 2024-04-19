@@ -90,9 +90,9 @@ class ActionEngine(BaseActionEngine):
 
         splitter = CodeSplitter(
             language="html",
-            chunk_lines=40,  # lines per chunk
-            chunk_lines_overlap=200,  # lines overlap between chunks
-            max_chars=self.max_chars_pc,  # max chars per chunk
+            chunk_lines=50,  # lines per chunk
+            chunk_lines_overlap=15,  # lines overlap between chunks
+            max_chars=2000,  # max chars per chunk
         )
         nodes = splitter.get_nodes_from_documents(documents)
         nodes = [node for node in nodes if node.text]
