@@ -10,13 +10,7 @@ LaVague is an **open-source** project designed to automate automation for devs! 
 
 Here's an examples to show how LaVague can execute natural lanaguge instructions on a browser to automate interactions with a website:
 
-<div>
-  <figure>
-    <img src="assets/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
-    <figcaption><b>LaVague interacting with Hugging Face's website.</b></figcaption>
-  </figure>
-  <br><br>
-</div>
+<img src="assets/hf_lavague.gif" alt="LaVague Interaction Example">
 
 ## 🚀 Getting Started
 
