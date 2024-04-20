@@ -5,6 +5,7 @@ import os
 from .action_engine import ActionEngine
 import pandas as pd
 import re
+from tqdm import tqdm
 
 decontaminate_html = lambda x: re.sub(r' backend_node_id="\d+"', '', x)
 
@@ -62,19 +63,30 @@ def inject_backend_node_id(html):
     # Return the modified HTML as a string
     return str(soup)
 
+def contains_backend_node_id(html_content):
+    # Parse the HTML content
+    soup = BeautifulSoup(html_content, 'html.parser')
+    
+    # Search for any tags with the 'backend_node_id' attribute
+    if soup.find(attrs={"backend_node_id": True}):
+        # If any such tags are found, return True
+        return True
+    # If no such tags are found, return False
+    return False
+
 def extract_backend_node_ids(html_content):
     soup = BeautifulSoup(html_content, 'html.parser')
     return set([tag['backend_node_id'] for tag in soup.find_all(attrs={"backend_node_id": True})])
 
-def id_recall(ground_truth_outer_html, context_str):
+def id_recall(ground_truth_outer_html, retrieved_context):
     ground_truth_ids = extract_backend_node_ids(ground_truth_outer_html)
-    context_ids = extract_backend_node_ids(context_str)
+    context_ids = extract_backend_node_ids(retrieved_context)
     recall = len(ground_truth_ids & context_ids) / len(ground_truth_ids)
     return recall
 
-def id_precision(ground_truth_outer_html, context_str):
+def id_precision(ground_truth_outer_html, retrieved_context):
     ground_truth_ids = extract_backend_node_ids(ground_truth_outer_html)
-    context_ids = extract_backend_node_ids(context_str)
+    context_ids = extract_backend_node_ids(retrieved_context)
     precision = len(ground_truth_ids & context_ids) / len(context_ids)
     return precision
 
@@ -91,95 +103,143 @@ def load_html(html, driver):
     # Use the file:/// protocol to load the local HTML file
     driver.get(f"file:///{abs_file_path}")
 
+def get_outer_html(html, driver, code):
+    load_html(html, driver)
+    assignment_code = keep_assignments(code)
+
+        # Split the code into lines and keep only the first assignment
+    assignment_code = assignment_code.split("\n")[0]
+
+    variable_name = return_first_assignment_variables(code)
+    code = f"""from selenium.webdriver.common.by import By
+{assignment_code}
+element = {variable_name}
+outer_html = driver.execute_script("return arguments[0].outerHTML;", element)
+    """.strip()
+    
+    local_scope = {"driver": driver}
+
+    exec(code, globals(), local_scope)
+    outer_html = local_scope["outer_html"]
+    return outer_html
+
 class SeleniumActionEvaluator:
-    def __init__(self, driver, action_engine: ActionEngine, inject_node: bool=True):
+    def __init__(self, driver, action_engine: ActionEngine, inject_node: bool=True, raise_exceptions: bool=False):
         self.driver = driver
         self.action_engine = action_engine
         self.inject_node = inject_node
-    def evaluate(self, query, html, ground_truth_code) -> float:
+        self.raise_exceptions = raise_exceptions
+        
+    def evaluate_retriever(self, query, html, ground_truth_code, return_context: bool=False):
         driver = self.driver
         action_engine = self.action_engine
-
-        html = inject_backend_node_id(html)
-
-        load_html(html, driver)
-
-        assignment_code = keep_assignments(ground_truth_code)
-
-        # Split the code into lines and keep only the first assignment
-        assignment_code = assignment_code.split("\n")[0]
-
         
-        variable_name = return_first_assignment_variables(ground_truth_code)
-        code = f"""from selenium.webdriver.common.by import By
-{assignment_code}
-ground_truth_element = {variable_name}
-ground_truth_outer_html = driver.execute_script("return arguments[0].outerHTML;", ground_truth_element)
-        """.strip()
-        
-        local_scope = {"driver": driver}
-
-        exec(code, globals(), local_scope)
-        ground_truth_outer_html = local_scope["ground_truth_outer_html"]
+        ground_truth_outer_html = get_outer_html(html, driver, ground_truth_code)
 
         source_nodes = action_engine.get_nodes(query, html)
-        context_str = "\n".join(source_nodes)
+        retrieved_context = "\n".join(source_nodes)
 
-        recall_retriever = id_recall(ground_truth_outer_html, context_str)
-        precision_retriever = id_precision(ground_truth_outer_html, context_str)
+        recall_retriever = id_recall(ground_truth_outer_html, retrieved_context)
+        precision_retriever = id_precision(ground_truth_outer_html, retrieved_context)
+        
+        if return_context:
+            return {
+                "ground_truth_outer_html": ground_truth_outer_html,
+                "retrieved_context": retrieved_context,
+                "recall_retriever": recall_retriever,
+                "precision_retriever": precision_retriever
+            }
+        else:
+            return {
+                "recall_retriever": recall_retriever,
+                "precision_retriever": precision_retriever
+            }
+    def evaluate_llm(self, query, html, ground_truth_outer_html, retrieved_context, record_error: bool=False):
+        action_engine = self.action_engine
+        driver = self.driver
+        
+        decontaminated_retrieved_context = decontaminate_html(retrieved_context)
+
+        generated_code = action_engine.manual_complete(decontaminated_retrieved_context, query)
+        
+        # In case of missing backend node ids, we raise an error
+        if not contains_backend_node_id(html):
+            raise ValueError("The HTML content does not contain backend node ids.")
+        
+        try:
+            targeted_outer_html = get_outer_html(html, driver, generated_code)
+            recall_llm = id_recall(ground_truth_outer_html, targeted_outer_html)
+            precision_llm = id_precision(ground_truth_outer_html, targeted_outer_html)
+            if record_error:
+                error = None
+        except Exception as e:
+            if self.raise_exceptions:
+                raise e
+            else:
+                recall_llm = 0
+                precision_llm = 0
+                error = str(e)
+        output = {
+            "recall_llm": recall_llm,
+            "precision_llm": precision_llm
+        }
+        if record_error:
+            output["error"] = error
+        return output
+        
+    def evaluate(self, query, html, ground_truth_code, 
+                 return_context: bool=False, record_error: bool=False) -> float:
+        html_with_id = inject_backend_node_id(html)
+        
+        outputs = self.evaluate_retriever(query, html_with_id, ground_truth_code, return_context=return_context)
+        ground_truth_outer_html, retrieved_context, recall_retriever, precision_retriever = outputs.values()
 
         # We remove the backend node ids to ensure the LLM does not use them
-        decontaminated_context_str = decontaminate_html(context_str)
-
-        generated_code = action_engine.manual_complete(decontaminated_context_str, query)
-
-        # Keep only the variable assignments in the generated code
-        assignment_code = keep_assignments(generated_code)
-
-        # Split the code into lines and keep only the first assignment
-        assignment_code = assignment_code.split("\n")[0]
-
-        variable_name = return_first_assignment_variables(assignment_code)
-        code = f"""from selenium.webdriver.common.by import By
-{assignment_code}
-target_element = {variable_name}
-target_outer_html = driver.execute_script("return arguments[0].outerHTML;", target_element)
-        """.strip()
-        
-        
-        local_scope = {"driver": driver}
-        try:
-            exec(code, globals(), local_scope)
-            target_outer_html = local_scope["target_outer_html"]
-
-            # Execute the code to define the first variable
-            # Assign the variable to the target_element variable which will be used afterwards to compute score
-            
-            recall_llm = id_recall(ground_truth_outer_html, target_outer_html)
-            precision_llm = id_precision(ground_truth_outer_html, target_outer_html)
-            valid_generated_code = "Yes"
-        except Exception as e:
-            recall_llm = 0
-            precision_llm = 0
-            valid_generated_code = str(e)
+        output = self.evaluate_llm(query, html_with_id, ground_truth_outer_html, retrieved_context, record_error=record_error)
+        recall_llm, precision_llm = output.values()
             
         output = {
             "recall_retriever": recall_retriever,
             "precision_retriever": precision_retriever,
             "recall_llm": recall_llm,
             "precision_llm": precision_llm,
-            "valid_generated_code": valid_generated_code
         }
     
         return output
         
-    def evaluate_df(self, df, column_mapping = {"query": "query", "html": "html", "ground_truth_code": "selenium_ground_truth"}):
+    def batch_evaluate_retriever(self, queries, htmls, ground_truth_codes, 
+                                 return_context: bool=False):
         
         results = []
-        for i, row in df.iterrows():
-            query = row[column_mapping["query"]]
-            html = row[column_mapping["html"]]
-            ground_truth_code = row[column_mapping["ground_truth_code"]]
-            result = self.evaluate(query, html, ground_truth_code)
+        for query, html, ground_truth_code in tqdm(zip(queries, htmls, ground_truth_codes)):
+            html_with_id = inject_backend_node_id(html)
+            result = self.evaluate_retriever(query, html_with_id, ground_truth_code, return_context=return_context)
             results.append(result)
         return pd.DataFrame(results)
+    
+    def batch_evaluate_llm(self, queries, htmls, ground_truth_outer_htmls, retrieved_contexts, 
+                           record_error: bool=False):
+        
+        results = []
+        for query, html, ground_truth_outer_html, retrieved_context in tqdm(zip(queries, htmls, ground_truth_outer_htmls, retrieved_contexts)):
+            html_with_id = inject_backend_node_id(html)
+            result = self.evaluate_llm(query, html_with_id, ground_truth_outer_html, retrieved_context, 
+                                       record_error=record_error)
+            results.append(result)
+        return pd.DataFrame(results)
+        
+    def batch_evaluate(self, queries, htmls, ground_truth_codes,
+                        return_context: bool=False, record_error: bool=False):
+        
+        retriever_results = self.batch_evaluate_retriever(queries, htmls, ground_truth_codes, return_context=True)
+        ground_truth_outer_htmls = retriever_results["ground_truth_outer_html"].tolist()
+        retrieved_contexts = retriever_results["retrieved_context"].tolist()
+        
+        llm_results = self.batch_evaluate_llm(queries, htmls, ground_truth_outer_htmls, retrieved_contexts, record_error=record_error)
+        results = pd.concat([retriever_results, llm_results], axis=1)
+        
+        if not return_context:
+            results = results.drop(columns=["ground_truth_outer_html", "retrieved_context"])
+        
+        return results
+        
