@@ -10,13 +10,7 @@ LaVague is an **open-source** project designed to automate automation for devs! 
 
 Here's an examples to show how LaVague can execute natural lanaguge instructions on a browser to automate interactions with a website:
 
-<div>
-  <figure>
-    <img src="assets/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
-    <figcaption><b>LaVague interacting with Hugging Face's website.</b></figcaption>
-  </figure>
-  <br><br>
-</div>
+<img src="assets/hf_lavague.gif" alt="LaVague Interaction Example">
 
 ## 🚀 Getting Started
 
@@ -36,6 +30,10 @@ lavague --instructions examples/instructions/huggingface.yaml --config examples/
 ```
 
 For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
+
+## 🎭 Playwright integration
+
+If you want to get started with LaVague build using Playwright as your underlying automation tool, see our [Playwright integration guide](./docs/get-started/playwright.md)
 
 ## 🙋 Contributing
 
@@ -63,6 +61,6 @@ If you want to ask questions, contribute, or have proposals, please come on our 
 
 TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
-### 🚨 Disclaimer
+!!! warning "Disclaimer"
 
-This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
+    This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
