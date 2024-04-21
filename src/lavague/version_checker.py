@@ -34,7 +34,7 @@ def get_installed_version(dist_name, lookup_dirs=None):
 
 def check_latest_version():
     package_version = get_installed_version("lavague")
-    url = f"https://pypi.org/pypi/lavague/json"
+    url = "https://pypi.org/pypi/lavague/json"
     response = requests.get(url)
     data = response.json()
     latest_version = data["info"]["version"]
