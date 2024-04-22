@@ -1,4 +1,4 @@
-# Get started: LaVague VSCode Extension **Alpha**
+# Get started: LaVague VSCode Extension **(Alpha)**
 
 The LaVague VSCode Extension allows you to leverage LaVague directly in VSCode. 
 

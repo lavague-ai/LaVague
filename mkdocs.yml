@@ -98,13 +98,13 @@ nav:
 - 🚀 Getting Started: 
   - Installation: 'docs/get-started/setting-up-la-vague.md'
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
-  - Alpha VSCode extenstion: 'docs/get-started/get-started-vscode-extension.md'
+  - VSCode extension (Alpha): 'docs/get-started/get-started-vscode-extension.md'
   - Playwright: 'docs/get-started/playwright.md'
   - Customization: 'docs/get-started/customization.md'
 
 - 🤝 Integrations:
   - Overview: 'docs/integrations/home.md'
-  - Api:
+  - API:
     - Azure OpenAI: 'docs/integrations/api/azure-openai.ipynb'
     - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
     - OpenAI: 'docs/integrations/api/openai.ipynb'
