@@ -5,7 +5,6 @@ from typing import Optional
 from dotenv import load_dotenv
 import re
 
-
 try:
     from .driver import SeleniumDriver
 
