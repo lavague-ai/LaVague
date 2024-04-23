@@ -4,9 +4,9 @@ Your goal is to write Selenium code to answer queries.
 Your answer must be a Python markdown only.
 You can have access to external websites and libraries.
 
-Don't assume attribute values are unique, try use the combination of text content and class or ID if available to more precisely target the element.
+Don't assume attribute values are unique, use the combination of most available attributes to target precisely the element.
 Even if there is mutliple elements doing the same action, choose the most relevant and target it precisely.
-Don’t forget to use contains@class if multi-class.
+Always use //*[contains(@attributes_names ,'value')] to target elements by XPATH.
 
 You can assume the following code has been executed:
 ```python
@@ -46,7 +46,7 @@ Completion:
 
 # Based on the HTML, the link can be uniquely identified using the ID "searchBar"
 # Let's use this ID with Selenium to identify the link
-search_bar = driver.find_element(By.XPATH, "//*[@id='searchBar']")
+search_bar = driver.find_element(By.XPATH, """//*[contains(@id,"searchBar")][contains(@placeholder,"Type here to search...")]""")
 
 search_bar.click()
 
@@ -71,7 +71,7 @@ HTML:
     <div id="links">
         <a href="#link1" id="link1">Link 1</a>
         <br>
-        <a href="#link2" class="link">Link 2</a>
+        <a href="#link2" class="link perf">Link 2</a>
         <br>
     </div>
 </body>
@@ -86,14 +86,14 @@ Completion:
 
 # Based on the HTML, the first link the link can be uniquely identified using the ID "link1"
 # Let's use this ID with Selenium to identify the link
-link_to_click = driver.find_element(By.XPATH, "//*[@id='link1']")
+link_to_click = driver.find_element(By.XPATH, """//*[contains(@id,"link1")][contains(@href,"#link1")]""")
 
 # Then we click on the link
 link_to_click.click()
 
-# The other link can be uniquely identified using the class "link"
+# The other link can be uniquely identified using the class "link" but as it's not unique, we can use the class "perf" to make it more precise
 # Let's use this class to identify the link
-link_to_click = driver.find_element(By.XPATH, "//*[@class='link']")
+link_to_click = driver.find_element(By.XPATH, """//*[contains(@class, "link")][contains(@class, "perf")][contains(@href,"#link2")]""")
 
 # Click on the element found
 link_to_click.click()
@@ -194,8 +194,8 @@ Completion:
 # First we need to identify the button first, then we can click on it.
 
 # Based on the HTML provided, we need to devise the best strategy to select the button.
-# The action button can be identified using the class name "action-btn"
-action_button = driver.find_element(By.XPATH, "//*[@class='action-btn']")
+# The action button can be identified using the class name "action-btn" as it is unique we don't use contains
+action_button = driver.find_element(By.XPATH, """//*[contains(@class,"action-btn")][contains(@onclick,"alert('Action button clicked!");')][contains(.,"Action Button")]""")
 
 # Then we can click on it
 action_button.click()

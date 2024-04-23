@@ -1,18 +1,22 @@
 
-# Installation & set up
+# Installation
 
 In this section, we're going to walk you through how you can install and set up everything you need to run LaVague locally.
 
-> If you just want to test out LaVague without having to install anything locally, you can run our [Quick Tour notebook with Google Colab](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour.ipynb).
+!!! tip "Colab"
+    If you just want to test out LaVague without having to install anything locally, you can run our [Quick Tour notebook with Google Colab](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb).
 
-To start using LaVague, we need to install a webdriver and store it in our home directory, so that LaVague can interact with the browser in our environment. We will then also need to install the LaVague package.
+To start using LaVague, we need to install a webdriver and store it in our home directory, so that LaVague can interact with the browser using underlying automation tool `Selenium`. We will then also install the LaVague package.
+
+!!! note "Playwright integration"
+    Alternatively, we support using Playwright for our `lavague build` command, which does not require webdriver installation. With the `lavague build` CLI command, you can generate Python files with automation code to carry out actions from text instructions! See our [playwright guide](./playwright.md) to see how to get started with Playright. 
 
 We provide two key installation options:
 
 - Setting up LaVague in your environment [with our installation script](#local-setup)
-- Running LaVague with [the Lavague docker image](#lavague-docker-image)
+- Running LaVague with [the Lavague docker image](#docker-setup)
 
-### Local setup
+## Local setup
 
 To set-up LaVague in your local linux environment, you can run our `setup.sh` script:
 
@@ -25,13 +29,8 @@ To set-up LaVague in your local macos environment, you can run our `setup-macos.
 This will perform all necessary steps to set-up LaVague.
 
 > Feel free to inspect the script before running it.
-Also I notice you mention managed version of LaVague is also in preparation so that almost nothing needs to be installed for a quick start! (Of course, people can consume/host models to use LaVague)
 
-### LaVague with docker
-
-⚠️ Pre-requisites:
-
-- 🐋 Docker: Ensure Docker is installed and running on your machine
+## Docker setup
 
 To use LaVague with our docker image you will first need to:
 
@@ -42,8 +41,6 @@ To use LaVague with our docker image you will first need to:
 2. Use `docker run` with the LaVague command of your choice:
 
 `docker run -v /home/$USER/LaVague/lavague-files:/home/vscode/lavague-files -e OPENAI_API_KEY=[YOUR_OPENAI_API_KEY] lavagueai/lavague:latest build`
-
-⚠️ Make sure to replace the `[YOUR_OPENAI_API_KEY]` placeholder with your OpenAI API key.
 
 If you end your docker run command with:
 
@@ -61,10 +58,6 @@ If you end your docker run command with:
 
     - Any environment variables required to run our command, such as your `OPENAI_API_KEY` should be specified with the `-e` option.
 
-### 🚨 Disclaimer
-
-This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
-
 ## Conclusions
 
-You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.ipynb) or [integration pages](../integrations/hugging-face-api.ipynb).
+You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.ipynb) or [integration pages](../integrations/api/hugging-face.ipynb).

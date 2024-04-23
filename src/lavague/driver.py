@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Tuple
 from .format_utils import clean_html
 
 try:
@@ -18,7 +18,7 @@ except:
 
 
 class AbstractDriver(ABC):
-    def getDriver(self) -> tuple[str, Any]:
+    def getDriver(self) -> Tuple[str, Any]:
         """Return the expected variable name and the driver object"""
         pass
 
@@ -69,7 +69,7 @@ if SELENIUM_IMPORT:
         def __init__(self, selenium_driver: WebDriver):
             self.driver = selenium_driver
 
-        def getDriver(self) -> tuple[str, WebDriver]:
+        def getDriver(self) -> Tuple[str, WebDriver]:
             return "driver", self.driver
 
         def getUrl(self) -> str:
@@ -101,7 +101,7 @@ if PLAYWRIGHT_IMPORT:
         def __init__(self, sync_playwright_page: Page):
             self.driver = sync_playwright_page
 
-        def getDriver(self) -> tuple[str, Page]:
+        def getDriver(self) -> Tuple[str, Page]:
             return "page", self.driver
 
         def getUrl(self) -> str:

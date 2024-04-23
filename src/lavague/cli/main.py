@@ -1,9 +1,13 @@
 import click
 import importlib.util
-
+from lavague.version_checker import check_latest_version
 
 class LazyGroup(click.Group):
     def __init__(self, *args, lazy_subcommands=None, **kwargs):
+        try:
+            check_latest_version()
+        except:
+            pass
         super().__init__(*args, **kwargs)
         self.lazy_subcommands = lazy_subcommands or {}
 

@@ -20,9 +20,8 @@ To achieve this, it leverages Retrieval-Augmented Generation by splitting the cu
 
 It then uses our default prompt template, which combines the user’s instructions and relevant source code with a carefully constructed prompt template which enables us to attain accurate automation code, currently using Selenium Python code, from the LLM, ready to be executed.
 
-> The default prompt was engineered based on principles of Few-shot learning and Chain of Thought. Put simply, we provide the LLM with multiple examples following the same structure: user instructions, HTML source code + the correct Selenium code to automate the task, broken down into clear steps. You can view our `DEFAULT_PROMPT` at `./src/LaVague/prompts.py`
-
-> Note that by default we prompt the model to generate Selenium, but integrations with other automation tools like Playwright can achieve the same thing.
+??? info "Default prompts"
+    The default prompts was engineered based on principles of Few-shot learning and Chain of Thought. Put simply, we provide the LLM with multiple examples following the same structure: user instructions, HTML source code + the correct Selenium code to automate the task, broken down into clear steps. You can view our `DEFAULT_PROMPT` at `./src/LaVague/prompts.py`
 
 ### Action Store ⌛ (coming soon)
 
