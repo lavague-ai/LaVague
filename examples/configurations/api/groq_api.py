@@ -2,7 +2,7 @@ import os
 from llama_index.llms.groq import Groq
 
 
-class GroqApiLLM(Groq):
+class LLM(Groq):
     # This class initializes the Groq API with selected models.
     # Available models: llama3-8b-8192, llama3-70b-8192, llama2-70b-4096, mixtral-8x7b-32768, gemma-7b-it
     def __init__(

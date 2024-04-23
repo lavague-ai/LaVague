@@ -2,7 +2,7 @@ import os
 from llama_index.llms.anthropic import Anthropic
 
 
-class AnthropicApiLLM(Anthropic):
+class LLM(Anthropic):
     # This class initializes the Anthropic API with selected models.
     # Available models: claude-3-haiku-20240307, claude-3-sonnet-20240229, claude-3-opus-20240229
     def __init__(
