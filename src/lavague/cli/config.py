@@ -5,7 +5,6 @@ import yaml
 import importlib.util
 from pathlib import Path
 from llama_index.core.base.llms.base import BaseLLM
-from llama_index.core.base.embeddings.base import BaseEmbedding
 from ..defaults import (
     default_get_selenium_driver,
     DefaultLLM,
@@ -40,7 +39,8 @@ class Config:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         llm = getattr(module, "LLM", DefaultLLM)()
-        retriever = getattr(module, "retriever", OpsmSplitRetriever(DefaultEmbedder()))
+        embedder = getattr(module, "Embedder", DefaultEmbedder)()
+        retriever = getattr(module, "retriever", OpsmSplitRetriever(embedder))
         get_driver = getattr(module, "get_driver", default_get_selenium_driver)
         prompt_template = getattr(module, "prompt_template", SELENIUM_PROMPT)
         cleaning_function = getattr(
