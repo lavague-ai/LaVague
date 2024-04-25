@@ -3,7 +3,7 @@ import click
 import warnings
 import os
 
-from lavague.evaluator import SeleniumActionEvaluator
+from lavague.evaluator import Evaluator, SeleniumActionEvaluator
 from ..format_utils import extract_code_from_funct, extract_imports_from_lines
 
 
@@ -155,35 +155,16 @@ def evaluation(ctx, dataset: str, nb_data: int, output_file: str):
     from datasets import load_dataset 
     from .config import Config
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        config: Config = Config.from_path(ctx.obj["config"])
-        abstractDriver = config.get_driver()
-        action_engine = config.make_action_engine()
+    config: Config = Config.from_path(ctx.obj["config"])
+    evaluator: Evaluator = config.make_evaluator()
 
-        source_code_lines = extract_code_from_funct(config.get_driver)
-        exec(extract_imports_from_lines(source_code_lines))
-
-        driver_name, driver = abstractDriver.getDriver()
-
-        dataset = load_dataset(dataset)
-        df = dataset["test"].to_pandas()
-
-        evaluator = SeleniumActionEvaluator(driver, action_engine)
-
-        sub_df = df.head(nb_data)
-        queries = sub_df["query"].tolist()
-        htmls = sub_df["html"].tolist()
-        ground_truths = sub_df["selenium_ground_truth"].tolist()
-
-        results = evaluator.batch_evaluate(queries, htmls, ground_truths, return_context=False)
-        if output_file is None:
-            normalized_path = os.path.normpath(ctx.obj["config"])
-            file_name = os.path.basename(normalized_path)
-            file_name, _ = os.path.splitext(file_name)
-            file_name += ".json"
-        else:
-            file_name = output_file
-        print(f"Exporting data to {file_name}")
-        results.to_json(file_name, orient='records', lines=True)
-        abstractDriver.destroy()
+    results = evaluator.evaluate(dataset)
+    if output_file is None:
+        normalized_path = os.path.normpath(ctx.obj["config"])
+        file_name = os.path.basename(normalized_path)
+        file_name, _ = os.path.splitext(file_name)
+        file_name += ".json"
+    else:
+        file_name = output_file
+    print(f"Exporting data to {file_name}")
+    results.to_json(file_name, orient='records', lines=True)

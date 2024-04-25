@@ -1,12 +1,53 @@
 import re
 import ast
+from typing import Callable
+import warnings
 from bs4 import BeautifulSoup
 import os
+
+from lavague.driver import AbstractDriver
+from lavague.format_utils import extract_code_from_funct, extract_imports_from_lines
 from .action_engine import ActionEngine
 import pandas as pd
 import re
 from tqdm import tqdm
 import time
+
+class Evaluator:    
+    def __init__(
+        self,
+        action_engine: ActionEngine,
+        get_driver: Callable[[], AbstractDriver],
+    ):
+        self.action_engine = action_engine
+        self.get_driver = get_driver
+
+    def get_action_engine(self) -> ActionEngine:
+        return self.action_engine
+
+    def evaluate(self, dataset: str, nb_data: int = 5) -> pd.DataFrame:
+        from datasets import load_dataset 
+        abstractDriver = self.get_driver()
+
+        source_code_lines = extract_code_from_funct(self.get_driver)
+        exec(extract_imports_from_lines(source_code_lines))
+
+        driver_name, driver = abstractDriver.getDriver()
+
+        dataset = load_dataset(dataset)
+        df = dataset["test"].to_pandas()
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            evaluator = SeleniumActionEvaluator(driver, self.action_engine)
+            sub_df = df.head(nb_data)
+            queries = sub_df["query"].tolist()
+            htmls = sub_df["html"].tolist()
+            ground_truths = sub_df["selenium_ground_truth"].tolist()
+            results = evaluator.batch_evaluate(queries, htmls, ground_truths, return_context=False)
+            abstractDriver.destroy()
+            return results
+
 
 decontaminate_html = lambda x: re.sub(r' backend_node_id="\d+"', '', x)
 

@@ -6,6 +6,8 @@ import importlib.util
 from pathlib import Path
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
+
+from lavague.evaluator import Evaluator
 from ..defaults import (
     default_get_selenium_driver,
     DefaultLLM,
@@ -58,6 +60,16 @@ class Config:
     def make_action_engine(self) -> ActionEngine:
         return ActionEngine(
             self.llm, self.embedder, self.prompt_template, self.cleaning_function
+        )
+    
+    def make_action_engine(self) -> ActionEngine:
+        return ActionEngine(
+            self.llm, self.embedder, self.prompt_template, self.cleaning_function
+        )
+    
+    def make_evaluator(self) -> Evaluator:
+        return Evaluator(
+            self.make_action_engine(), self.get_driver
         )
 
 
