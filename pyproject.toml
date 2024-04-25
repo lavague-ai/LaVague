@@ -58,6 +58,7 @@ dependencies = [
   "python-dotenv==1.0.1",
   "gradio==4.21.0",
   "ipython",
+  "langchain",
 ]
 
 [project.optional-dependencies]
