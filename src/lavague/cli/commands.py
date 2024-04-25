@@ -158,7 +158,7 @@ def evaluation(ctx, dataset: str, nb_data: int, output_file: str):
     config: Config = Config.from_path(ctx.obj["config"])
     evaluator: Evaluator = config.make_evaluator()
 
-    results = evaluator.evaluate(dataset)
+    results = evaluator.evaluate(dataset, nb_data)
     if output_file is None:
         normalized_path = os.path.normpath(ctx.obj["config"])
         file_name = os.path.basename(normalized_path)
