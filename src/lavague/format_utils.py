@@ -22,10 +22,14 @@ def extract_imports_from_lines(lines: List[str]) -> str:
     )
 
 
+input_attributes = ["accept", "alt", "checked", "disabled", "height", "max", "maxlength", "min",
+                    "multiple", "pattern", "placeholder", "readonly", "required", "size", "src",
+                    "step", "type", "value", "width"]
+attributes_to_keep = ["id", "href"] + input_attributes
 def clean_html(
     html_to_clean: str,
     tags_to_remove: List[str] = ["style", "svg", "script"],
-    attributes_to_keep: List[str] = ["id", "href"],
+    attributes_to_keep: List[str] = attributes_to_keep,
 ) -> str:
     """
     Clean HTML content by removing specified tags and attributes while keeping specified attributes.
