@@ -6,6 +6,7 @@ from .action_engine import ActionEngine
 import pandas as pd
 import re
 from tqdm import tqdm
+import time
 
 decontaminate_html = lambda x: re.sub(r' backend_node_id="\d+"', '', x)
 
@@ -124,78 +125,87 @@ outer_html = driver.execute_script("return arguments[0].outerHTML;", element)
     return outer_html
 
 class SeleniumActionEvaluator:
-    def __init__(self, driver, action_engine: ActionEngine, inject_node: bool=True, raise_exceptions: bool=False):
+    def __init__(self, driver, action_engine: ActionEngine, inject_node: bool=False):
         self.driver = driver
         self.action_engine = action_engine
         self.inject_node = inject_node
-        self.raise_exceptions = raise_exceptions
         
-    def evaluate_retriever(self, query, html, ground_truth_code, return_context: bool=False):
+    def evaluate_retriever(self, query, html, ground_truth_code, 
+                           return_context: bool=False, record_timing: bool=True):
         driver = self.driver
         action_engine = self.action_engine
         
         ground_truth_outer_html = get_outer_html(html, driver, ground_truth_code)
 
+        start = time.time()
         source_nodes = action_engine.get_nodes(query, html)
+        end = time.time()
+        retriever_time = end - start
+        
         retrieved_context = "\n".join(source_nodes)
 
         recall_retriever = id_recall(ground_truth_outer_html, retrieved_context)
         precision_retriever = id_precision(ground_truth_outer_html, retrieved_context)
-        
+        output = {
+            "recall_retriever": recall_retriever,
+            "precision_retriever": precision_retriever
+        }
         if return_context:
-            return {
-                "ground_truth_outer_html": ground_truth_outer_html,
-                "retrieved_context": retrieved_context,
-                "recall_retriever": recall_retriever,
-                "precision_retriever": precision_retriever
-            }
-        else:
-            return {
-                "recall_retriever": recall_retriever,
-                "precision_retriever": precision_retriever
-            }
-    def evaluate_llm(self, query, html, ground_truth_outer_html, retrieved_context, record_error: bool=False):
+            output["retrieved_context"] = retrieved_context
+            output["ground_truth_outer_html"] = ground_truth_outer_html
+        if record_timing:
+            output["retriever_time"] = retriever_time
+            
+        return output
+    def evaluate_llm(self, query, html, ground_truth_outer_html, retrieved_context, 
+                     debug: bool=False, record_timing: bool=True):
         action_engine = self.action_engine
         driver = self.driver
         
         decontaminated_retrieved_context = decontaminate_html(retrieved_context)
 
+        start = time.time()
         generated_code = action_engine.manual_complete(decontaminated_retrieved_context, query)
+        end = time.time()
+        llm_time = end - start
+        
         
         # In case of missing backend node ids, we raise an error
         if not contains_backend_node_id(html):
             raise ValueError("The HTML content does not contain backend node ids.")
         
+        error = ""
         try:
             targeted_outer_html = get_outer_html(html, driver, generated_code)
             recall_llm = id_recall(ground_truth_outer_html, targeted_outer_html)
             precision_llm = id_precision(ground_truth_outer_html, targeted_outer_html)
-            if record_error:
-                error = None
         except Exception as e:
-            if self.raise_exceptions:
-                raise e
-            else:
-                recall_llm = 0
-                precision_llm = 0
-                error = str(e)
+            recall_llm = 0
+            precision_llm = 0
+            error = str(e)
+                
         output = {
             "recall_llm": recall_llm,
             "precision_llm": precision_llm
         }
-        if record_error:
+        if debug:
             output["error"] = error
+            output["generated_code"] = generated_code
+        if record_timing:
+            output["llm_time"] = llm_time
         return output
         
     def evaluate(self, query, html, ground_truth_code, 
-                 return_context: bool=False, record_error: bool=False) -> float:
+                 return_context: bool=False, record_error: bool=False, record_timing: bool=True) -> float:
         html_with_id = inject_backend_node_id(html)
         
-        outputs = self.evaluate_retriever(query, html_with_id, ground_truth_code, return_context=return_context)
+        outputs = self.evaluate_retriever(query, html_with_id, ground_truth_code, 
+                                          return_context=True, record_timing=record_timing)
         ground_truth_outer_html, retrieved_context, recall_retriever, precision_retriever = outputs.values()
 
         # We remove the backend node ids to ensure the LLM does not use them
-        output = self.evaluate_llm(query, html_with_id, ground_truth_outer_html, retrieved_context, record_error=record_error)
+        output = self.evaluate_llm(query, html_with_id, ground_truth_outer_html, retrieved_context, 
+                                   record_error=record_error, record_timing=record_timing)
         recall_llm, precision_llm = output.values()
             
         output = {
@@ -204,42 +214,50 @@ class SeleniumActionEvaluator:
             "recall_llm": recall_llm,
             "precision_llm": precision_llm,
         }
+        if return_context:
+            output["retrieved_context"] = retrieved_context
+            output["ground_truth_outer_html"] = ground_truth_outer_html
+        if record_timing:
+            output["retriever_time"] = outputs["retriever_time"]
+            output["llm_time"] = output["llm_time"]
     
         return output
         
     def batch_evaluate_retriever(self, queries, htmls, ground_truth_codes, 
-                                 return_context: bool=False):
+                                 return_context: bool=False, record_timing: bool=True):
         
         results = []
         for query, html, ground_truth_code in tqdm(zip(queries, htmls, ground_truth_codes)):
             html_with_id = inject_backend_node_id(html)
-            result = self.evaluate_retriever(query, html_with_id, ground_truth_code, return_context=return_context)
+            result = self.evaluate_retriever(query, html_with_id, ground_truth_code, 
+                                             return_context=return_context, record_timing=record_timing)
             results.append(result)
         return pd.DataFrame(results)
     
     def batch_evaluate_llm(self, queries, htmls, ground_truth_outer_htmls, retrieved_contexts, 
-                           record_error: bool=False):
+                           debug: bool=False, record_timing: bool=True):
         
         results = []
         for query, html, ground_truth_outer_html, retrieved_context in tqdm(zip(queries, htmls, ground_truth_outer_htmls, retrieved_contexts)):
             html_with_id = inject_backend_node_id(html)
             result = self.evaluate_llm(query, html_with_id, ground_truth_outer_html, retrieved_context, 
-                                       record_error=record_error)
+                                       debug=debug, record_timing=record_timing)
             results.append(result)
         return pd.DataFrame(results)
         
     def batch_evaluate(self, queries, htmls, ground_truth_codes,
-                        return_context: bool=False, record_error: bool=False):
+                        return_context: bool=False, record_error: bool=False, record_timing: bool=True):
         
-        retriever_results = self.batch_evaluate_retriever(queries, htmls, ground_truth_codes, return_context=True)
+        retriever_results = self.batch_evaluate_retriever(queries, htmls, ground_truth_codes,
+                                                          return_context=True, record_timing=record_timing)
         ground_truth_outer_htmls = retriever_results["ground_truth_outer_html"].tolist()
         retrieved_contexts = retriever_results["retrieved_context"].tolist()
         
-        llm_results = self.batch_evaluate_llm(queries, htmls, ground_truth_outer_htmls, retrieved_contexts, record_error=record_error)
+        llm_results = self.batch_evaluate_llm(queries, htmls, ground_truth_outer_htmls, retrieved_contexts, 
+                                            record_timing=record_timing)
         results = pd.concat([retriever_results, llm_results], axis=1)
         
         if not return_context:
             results = results.drop(columns=["ground_truth_outer_html", "retrieved_context"])
         
         return results
-        
