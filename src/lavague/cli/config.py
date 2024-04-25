@@ -62,11 +62,6 @@ class Config:
             self.llm, self.embedder, self.prompt_template, self.cleaning_function
         )
     
-    def make_action_engine(self) -> ActionEngine:
-        return ActionEngine(
-            self.llm, self.embedder, self.prompt_template, self.cleaning_function
-        )
-    
     def make_evaluator(self) -> Evaluator:
         return Evaluator(
             self.make_action_engine(), self.get_driver
