@@ -1,16 +1,30 @@
 import os
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from lavague.driver import SeleniumDriver
 
-class LLM(OpenAI):
+api_key = os.getenv("AZURE_OPENAI_KEY")
+api_version = "2024-02-15-preview"
+azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+model = "gpt-35-turbo"
+deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-35-turbo")
+
+LOCAL_EMBED_MODEL = "BAAI/bge-small-en-v1.5"
+
+class Embedder(HuggingFaceEmbedding):
+    def __init__(self, model_name: str = LOCAL_EMBED_MODEL, device: str = "cuda"):
+        super().__init__(model_name, device)
+
+
+class LLM(AzureOpenAI):
     def __init__(self):
-        max_new_tokens = 512
-        api_key = os.getenv("OPENAI_API_KEY")
-        if api_key is None:
-            raise ValueError("OPENAI_API_KEY environment variable is not set")
-        else:
-            super().__init__(
-                api_key=api_key, max_tokens=max_new_tokens, temperature=0.0
+        super().__init__(
+            model=model,
+            deployment_name=deployment_name,
+            api_key=api_key,
+            azure_endpoint=azure_endpoint,
+            api_version=api_version,
+            temperature=0.0,
         )
 
 def get_driver() -> SeleniumDriver:
