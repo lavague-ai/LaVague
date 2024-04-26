@@ -7,7 +7,7 @@ import os
 from lavague.driver import SeleniumDriver
 
 DEFAULT_MAX_NEW_TOKENS = 512
-HUGGINGFACE_API_LLM = "meta-llama/Meta-Llama-3-8B"
+HUGGINGFACE_API_LLM = "meta-llama/Meta-Llama-3-8B-Instruct"
 
 # Mokey patch because stream_complete is not implemented in the current version of llama_index
 def stream_complete(self, prompt: str, **kwargs):

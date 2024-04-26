@@ -148,19 +148,51 @@ def test(ctx):
     required=False,
 )
 
+@click.option(
+    "--retriever",
+    "-r",
+    type=click.Path(exists=True),
+    required=False,
+)
+
+@click.option(
+    "--export-retriever",
+    "-exr",
+    type=str,
+    required=False,
+)
+
 @click.pass_context
-def evaluation(ctx, dataset: str, nb_data: int, output_file: str):
+def evaluation(ctx, dataset: str, nb_data: int, output_file: str, export_retriever: str, retriever: str):
     """Run the whole evaluation pipeline"""
     import pandas as pd 
+
+    retriever_data = None
+    if retriever is not None:
+        retriever_data = pd.read_json(retriever, orient='records', lines=True)
+    
+    if os.path.isdir(ctx.obj["config"]) != True:
+        retriever_data = common_evaluation(ctx.obj["config"], dataset, nb_data, output_file, export_retriever, retriever_data)
+    else:
+        for file in os.listdir(ctx.obj["config"]):
+            if file.endswith(".py"):
+                print(f"Handling {file}...")
+                retriever_data = common_evaluation(ctx.obj["config"] + "/" + file, dataset, nb_data, output_file, export_retriever, retriever_data)
+    if export_retriever:
+        print(f"Exporting retriever to {export_retriever}")
+        retriever_data.to_json(export_retriever, orient='records', lines=True)
+
+
+def common_evaluation(path, dataset: str, nb_data: int, output_file: str, export_retriever: str, retriever_data):
     from datasets import load_dataset 
     from .config import Config
 
-    config: Config = Config.from_path(ctx.obj["config"])
+    config: Config = Config.from_path(path)
     evaluator: Evaluator = config.make_evaluator()
 
-    results = evaluator.evaluate(dataset, nb_data)
+    results, retriever_data = evaluator.evaluate(dataset, retriever_data, nb_data=nb_data)
     if output_file is None:
-        normalized_path = os.path.normpath(ctx.obj["config"])
+        normalized_path = os.path.normpath(path)
         file_name = os.path.basename(normalized_path)
         file_name, _ = os.path.splitext(file_name)
         file_name += ".json"
@@ -168,3 +200,6 @@ def evaluation(ctx, dataset: str, nb_data: int, output_file: str):
         file_name = output_file
     print(f"Exporting data to {file_name}")
     results.to_json(file_name, orient='records', lines=True)
+    return retriever_data
+
+        

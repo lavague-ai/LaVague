@@ -22,10 +22,7 @@ class Evaluator:
         self.action_engine = action_engine
         self.get_driver = get_driver
 
-    def get_action_engine(self) -> ActionEngine:
-        return self.action_engine
-
-    def evaluate(self, dataset: str, nb_data: int = 5) -> pd.DataFrame:
+    def evaluate(self, dataset: str, retreiver_dataset: pd.DataFrame, nb_data: int = 5) -> pd.DataFrame:
         from datasets import load_dataset 
         abstractDriver = self.get_driver()
 
@@ -44,7 +41,7 @@ class Evaluator:
             queries = sub_df["query"].tolist()
             htmls = sub_df["html"].tolist()
             ground_truths = sub_df["selenium_ground_truth"].tolist()
-            results = evaluator.batch_evaluate(queries, htmls, ground_truths, return_context=False)
+            results = evaluator.batch_evaluate(queries, htmls, ground_truths, retreiver_dataset, return_context=False)
             abstractDriver.destroy()
             return results
 
@@ -286,11 +283,16 @@ class SeleniumActionEvaluator:
             results.append(result)
         return pd.DataFrame(results)
         
-    def batch_evaluate(self, queries, htmls, ground_truth_codes,
-                        return_context: bool=False, record_error: bool=False, record_timing: bool=True):
+    def batch_evaluate(self, queries, htmls, ground_truth_codes, retreiver_dataset,
+                        return_context: bool=True, record_error: bool=False, record_timing: bool=True):
         
-        retriever_results = self.batch_evaluate_retriever(queries, htmls, ground_truth_codes,
+        if retreiver_dataset is None:
+            retriever_results = self.batch_evaluate_retriever(queries, htmls, ground_truth_codes,
                                                           return_context=True, record_timing=record_timing)
+        else:
+            print("Using previously generated retriever dataset...")
+            retriever_results = retreiver_dataset
+
         ground_truth_outer_htmls = retriever_results["ground_truth_outer_html"].tolist()
         retrieved_contexts = retriever_results["retrieved_context"].tolist()
         
@@ -301,4 +303,4 @@ class SeleniumActionEvaluator:
         if not return_context:
             results = results.drop(columns=["ground_truth_outer_html", "retrieved_context"])
         
-        return results
+        return (results, retriever_results)
