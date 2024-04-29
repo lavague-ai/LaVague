@@ -13,23 +13,23 @@
 
 <h4 align="center">
  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
-    <img src="https://img.shields.io/badge/discord-000000?style=for-the-badge&colorB=555" height='35px' alt="Join our Discord server!">
+    <img src="https://dcbadge.vercel.app/api/server/SDxn9KpqX9?compact=true" height='35px' alt="Join our Discord server!">
   </a>
-  <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/docs-000000?style=for-the-badge&colorB=07f" height='35px' alt="Docs"></a>
+  <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/📄-docs-000000?style=for-the-badge&colorA=09c&colorB=555" height='35px' alt="Docs"></a>
 </h4>
-  <p>Copilot for devs to automate automation</p>
+  <p>The open-source community for Large Action Models</p>
 <h1></h1>
 </div>
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an **open-source** project designed to automate automation for devs! 
+LaVague is an **open-source Large Action Model framework** for turning **natural language** into **browser actions**.
 
-We use **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to turn **natural language instructions** into Python code leveraging **Selenium**. LaVague is designed to make it easy for users to **automate web workflows** and execute them on a browser.
+At LaVague's core, we have an **Action Engine** which uses **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to “compile” natural language instructions into browser automation code, by leveraging **Selenium** or **Playwright**.
 
 ### LaVague in Action
 
-Here's an example to show how LaVague can execute natural language instructions on a browser to automate interactions with a website:
+Here's an example of LaVague being used to execute natural language instructions on a browser to automate web interactions. This example uses the Gradio interface available with the `lavague launch` CLI command:
 
 <div>
   <figure>
@@ -53,7 +53,7 @@ sudo bash setup.sh
 
 2. Run your LaVague command!
 
-You can either `launch` an interactive demo, where LaVague will execute and show you the results of the automation code it generates for your instruction.
+You can either `launch` an interactive Gradio interface, where you will see both the automation code generated for each instruction but also a live preview of the results of executing the code with a debug tab.
 ```
 lavague --instructions examples/instructions/huggingface.yaml --config examples/configurations/api/openai_api.py launch
 ```
@@ -71,7 +71,7 @@ If you want to get started with LaVague build using Playwright as your underlyin
 
 ## 🙋 Contributing
 
-We would love your help in making La Vague a reality. 
+We would love your help and support on our quest to build a robust and reliable Large Action Model for web automation.
 
 To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
 
@@ -92,4 +92,4 @@ TO keep up to date with our project backlog [here](https://github.com/orgs/lavag
 
 ### 🚨 Disclaimer
 
-This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
+Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
