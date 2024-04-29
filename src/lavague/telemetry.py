@@ -37,7 +37,7 @@ def send_telemetry(
                     "user_id": USER_ID,
                     "origin": origin,
                     "success": success_str,
-                    "error_msg": error
+                    "error_msg": error,
                     "test": test,
                 },
             )
