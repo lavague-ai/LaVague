@@ -16,6 +16,7 @@ def send_telemetry(
     origin: str,
     success: bool,
     test: bool = False,
+    error: str = "",
 ):
     """
     Telemetry to help performance.
@@ -36,6 +37,7 @@ def send_telemetry(
                     "user_id": USER_ID,
                     "origin": origin,
                     "success": success_str,
+                    "error_msg": error
                     "test": test,
                 },
             )
@@ -51,6 +53,7 @@ def send_telemetry(
                     "url": url,
                     "success": success_str,
                     "instruction": instruction,
+                    "error_msg": error,
                     "test": test,
                 },
             )

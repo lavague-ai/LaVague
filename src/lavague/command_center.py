@@ -45,6 +45,7 @@ class GradioDemo(CommandCenter):
         self.driver = driver
         self.base_url = ""
         self.success = False
+        self.error = ""
 
     def init_driver(self):
         def init_driver_impl(url):
@@ -86,12 +87,14 @@ class GradioDemo(CommandCenter):
                 self.driver.getUrl(),
                 "Lavague-Launch",
                 self.success,
+                self.error
             )
 
         return telemetry
 
     def __exec_code(self):
         def exec_code(code, full_code):
+            self.error = ""
             code = self.actionEngine.cleaning_function(code)
             html = self.driver.getHtml()
             _, driver = self.driver.getDriver()  # define driver for exec
@@ -105,6 +108,7 @@ class GradioDemo(CommandCenter):
                 output = f"Error in code execution: {str(e)}"
                 status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
                 self.success = False
+                self.error = repr(e)
             return output, code, html, status, full_code
 
         return exec_code

@@ -80,6 +80,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
         print(f"Processing instruction: {instruction}")
         html = abstractDriver.getHtml()
         code = action_engine.get_action(instruction, html)
+        error = ""
         try:
             exec(code)
             success = True
@@ -87,6 +88,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             print(f"Error in code execution: {code}")
             print("Error:", e)
             print(f"Saving output to {output_file}")
+            error = repr(e)
             success = False
             with open(output_file, "w") as file:
                 file.write(output)
@@ -107,6 +109,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             "Lavague-build",
             success,
             test,
+            error,
         )
     abstractDriver.destroy()
     print(f"Saving output to {output_file}")
