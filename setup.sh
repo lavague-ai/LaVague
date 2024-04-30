@@ -6,7 +6,6 @@ set -e
 # Function to print error message and exit
 print_error() {
     echo -e "\e[31mError occurred. Exiting...\e[0m"
-    exit 1
 }
 
 # Trap exit signals and call print_error function
