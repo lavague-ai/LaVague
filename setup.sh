@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Enable exit on error
+set -e
+
+# Function to print error message and exit
+print_error() {
+    echo -e "\e[31mError occurred. Exiting...\e[0m"
+    exit 1
+}
+
+# Trap exit signals and call print_error function
+trap 'print_error' ERR
+
 # Update package lists and install necessary packages
 sudo apt update
 sudo apt install -y ca-certificates fonts-liberation unzip \
