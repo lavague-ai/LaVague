@@ -1,8 +1,22 @@
 # LaVague Guide for Contributors 🌊
 
-Thanks for your interest in the project! We really appreciate all contributions, from bug reports, to suggestions to helping us build new features. Your support is vital in helping us build an awesome tool!
+🫵 We need your help to build effective LAMs and make the LaVague community flourish!
 
-In this guide, we'll outline how you can contribute to the project.
+We really appreciate all contributions, from bug reports, to sharing research with us, to direct additions to our codebase.
+
+In this section, we'll give you some general advice on how to:
+
+- [report bugs](#reporting-bugs)
+- [suggest new features](#suggesting-new-features)
+- [contribute to the codebase](#code-contribution-process)
+- [set up a LaVague dev environment](#setting-up-your-dev-environment)
+
+However, you can also check out the guides we provide for each of our key contributor pathways:
+
+- 📑 [Documentation](./documentation.md): Be part of our **content contributor pathway** to help make clean & clear **documentation**!
+- (**Coming soon**) 🚀 Our LAM & AI pipeline: Be part of our **AI contributor pathway** to work on building an effective & robust LAM!
+- (**Coming soon**) 🌿 Data collection & BigAction: Join our **data contributor pathway** to help collect and collate the data needed to build our LAM
+- (**Coming soon**) 👩‍💻 Our interfaces (CLI & VSCode extention): Join our **dev contributor pathway** to improve our **end user interfaces** for interacting with our LAM.
 
 If you have any further questions, please contact us on [Discord](https://discord.gg/SDxn9KpqX9).
 
@@ -20,59 +34,17 @@ You can make a [new feature request](https://github.com/lavague-ai/LaVague/issue
 
 Please provide as much information as possible: the behavior you want, why, and examples of how this feature would be used!
 
-## Contributing to the codebase
+## Code contribution process
 
-### Identifying a feature to work on
+To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
 
-You can see the features we're looking for help on by selecting the ['help wanted' label in our listed issues](https://github.com/lavague-ai/LaVague/labels/help%20wanted).
-
-If one of these interests you, or you see another unassigned issue that you'd like to work on, let us know in the #contribute Discord channel or by commenting in the issue! 
-
-If you would like to work on a feature that is not listed in our GitHub issues, let us know by creating a new issue and waiting for us to validate it with the 'accepted' label.
-
-⚠️ To avoid having duplicate people working on the same feature, please await confirmation from someone from our internal team before going ahead with work on a feature! We will give issues a 'contributor assigned' label when we have found a contributor for a feature.
-
-### Setting up your dev environment
-
-Firstly, you'll need to [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo.
-
-You can create a local dev environment, by creating and activating a virtual Python environment:
-
-```
-python -m venv env .
-source env/bin/activate
-```
-
-You'll then need to clone your forked repository using git:
-
-```
-git clone https://github.com/<username>/LaVague.git
-cd LaVague
-```
-
-### LaVague Dev container (Docker integration 🐋)
-
-You can then use our pre-configured dev container in VSCode to quickly get started.
-
-⚠️ Pre-requisites:
-
-- 🐋 Docker: Ensure Docker is installed and running on your machine
-- Visual Studio Code + Visual Studio Code's Remote - Containers Extension
-
-To open the project in our dev container you need to:
-
-1. Open VSCode at the root of the LaVague repo.
-2. Click on the blue "><" icon in the bottom left corner, then select "Reopen in Container" in the drop-down menu that then appears.
-
-VS Code will then build the container based on the Dockerfile and devcontainer.json files in the .devcontainer folder. This will install all necessary dependencies and install the current LaVague repo in 'edit' mode. You are now ready to run LaVague CLI commands and modify the source code files as required.
-
-⏳ Note, this process might take a few minutes the first time you run it.
-
-> Note, if you want to view the Gradio generated with `lavague [OPTIONS] launch` in-browser on your host machine, you'll need to use the generated `public URL`!
-
-### Pull requests
-
-Once you've finished building your feature, you can submit it for review by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
+📢 We outline tasks on our backlog: we recommend you check out issues with the help-wanted labels & good first issue labels
+🙋‍♀️ If you are interested in working on one of these tasks, comment on the issue!
+🤝 We will discuss with you and assign you the task with a community assigned label
+💬 We will then be available to discuss this task with you
+🍴 [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo!
+⬆️ When you are ready, submit your work for review by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+✅ We will review & merge your code or request changes/give feedback
 
 When submitting a PR, please:
 
@@ -80,11 +52,32 @@ When submitting a PR, please:
 - [Link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to the issue you were working on in the PR
 - Add any relevant information to the description that you could help us review your code
 - [Rebase your branch](https://docs.github.com/en/get-started/using-git/about-git-rebase) against the latest version of `main`.
-- **Coming soon** Check your branch passes all GitHub actions pass.
+- Check your branch passes all GitHub actions pass.
 
 If you want any help or guidance on developing the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
 
 ⚠️ Note, we aim to merge as many PRs as possible but we cannot guarantee to merge PRs and they are subject to our review process.
+
+## Setting up your dev container (Docker integration 🐋)
+
+Feel free to make use of our pre-configured dev container in VSCode to quickly set up a dev environment.
+
+⚠️ Pre-requisites:
+
+- 🐋 Docker: Ensure Docker is installed and running on your machine
+- Visual Studio Code + Visual Studio Code's Remote - Containers Extension
+- Fork the LaVague repo and git clone it locally. 
+
+To open the project in our dev container you need to:
+
+1. Open VSCode at the root of your clone of your forked LaVague repo.
+2. Click on the blue "><" icon in the bottom left corner, then select "Reopen in Container" in the drop-down menu that then appears.
+
+VS Code will then build the container based on the Dockerfile and devcontainer.json files in the .devcontainer folder. This will install all necessary dependencies and install the current LaVague repo in 'edit' mode. You are now ready to run LaVague CLI commands and modify the source code files as required.
+
+⏳ Note, this process might take a few minutes the first time you run it.
+
+> Note, if you want to view the Gradio generated with `lavague [OPTIONS] launch` in-browser on your host machine, you'll need to use the generated `public URL`!
 
 ### Contributing to the documentation
 
