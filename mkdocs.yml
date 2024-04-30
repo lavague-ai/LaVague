@@ -62,7 +62,7 @@ extra:
   homepage: https://mithrilsecurity.io
   social:
     - icon: fontawesome/brands/discord
-      link: https://discord.com/invite/TxEHagpWd4
+      link: https://discord.gg/invite/SDxn9KpqX9
     - icon: fontawesome/brands/github
       link: https://github.com/mithril-security/
     - icon: fontawesome/brands/linkedin
@@ -119,7 +119,8 @@ nav:
   - Under the hood: 'docs/advanced/under-the-hood.md'
 
 - 🤗 Contributing:
-  - Contributors' guide: "docs/contributing/contributing.md"
+  - Overview: "docs/contributing/contributing.md"
+  - Documentation: "docs/contributing/documentation.md"
 
 - 🛠️ API reference:
   - API reference home: 'docs/lavague/index.html'
