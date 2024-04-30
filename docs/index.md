@@ -23,7 +23,7 @@ You can get started with `LaVague` in 2 steps:
 1. Install LaVague & dependencies
 ```
 wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&
-sudo bash setup.sh
+bash setup.sh
 ```
 
 2. Run your LaVague command!
