@@ -38,6 +38,7 @@ In the repository you'll find ```mkdocs.yml```, it is the file that holds our do
 
 The ```docs``` folder contains all the actual content of the documentation. This is where you can modify existing content or create new pages. 
 
+When you're ready to submit your changes as a PR, you can then submit your proposed additions for review, by pushing your changes to your forked repo and then [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
 
 ### Examples
 - To modify the architecture page:
@@ -48,12 +49,11 @@ The ```docs``` folder contains all the actual content of the documentation. This
     2. In the ```nav``` section in ```mkdocs.yml```, add a link to your new page in the appropriate section. 
 
 
-
 ## Best practices
 ### FAQ
 - I can't see my changes on the documentation
 
-Make sure you've executed the ```mkdocs serve``` command in your local clone and that you're looking on the right local URL ```http://127.0.0.1:8000/en/latest/```
+Make sure you've executed the ```mkdocs serve``` command from the root of the repo of your local clone and that you're looking on the right local URL ```http://127.0.0.1:8000/en/latest/```
 
 ### Need help ?
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to ask us any questions!
