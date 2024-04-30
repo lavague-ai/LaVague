@@ -1,6 +1,6 @@
 # LaVague Guide for Contributors 🌊
 
-🫵 We need your help to build effective LAMs and make the LaVague community flourish!
+**We need your help to build effective Large Action Models & an awesome framework & tooling around them!**
 
 🤗 We really appreciate all contributions, from bug reports, to sharing research with us, to direct additions to our codebase.
 
@@ -15,7 +15,7 @@ In this section, we'll give you some general advice on how to:
 
 ### 🗺️ Contribution pathways
 
-However, you can also check out the guides we provide for each of our key contributor pathways:
+Whether you're a dev, AI enthusiast or tech writer, there's a **contribution pathway for you**! Check the guides we provide for each key pathway:
 
 - 📑 [Documentation](./documentation.md): Be part of our **content contributor pathway** to help make clean & clear **documentation**!
 - (**Coming soon**) 🚀 Our LAM & AI pipeline: Be part of our **AI contributor pathway** to work on building an effective & robust LAM!
@@ -50,7 +50,7 @@ To avoid having multiple people working on the same things & being unable to mer
 - ⬆️ When you are ready, submit your work for review by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 - ✅ We will review & merge your code or request changes/give feedback
 
-??? info "QA"
+??? tip "QA"
     When submitting a PR, please:
 
     - Use a descriptive title
@@ -67,7 +67,7 @@ To avoid having multiple people working on the same things & being unable to mer
 
 Feel free to make use of our pre-configured dev container in VSCode to quickly set up a dev environment.
 
-??? info "Pre-requisites"
+??? note "Pre-requisites"
 
     - 🐋 Docker: Ensure Docker is installed and running on your machine
     - Visual Studio Code + Visual Studio Code's Remote - Containers Extension
@@ -84,6 +84,6 @@ VS Code will then build the container based on the Dockerfile and devcontainer.j
 
 > Note, if you want to view the Gradio generated with `lavague [OPTIONS] launch` in-browser on your host machine, you'll need to use the generated `public URL`!
 
-??? info "License"
+??? note "License"
 
     Note that all contributions made to this project are subject to the project's [Apache 2.0 License](https://github.com/lavague-ai/LaVague/blob/main/LICENSE) 
