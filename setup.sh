@@ -32,12 +32,8 @@ rm chrome-linux64.zip chromedriver-linux64.zip
 mv chrome-linux64/ ~/
 mv chromedriver-linux64/ ~/
 
-# Install LaVague from main of GitHub repo
-git clone https://github.com/lavague-ai/LaVague.git
-pip install -e LaVague
-
-# Change directory to LaVague
-cd LaVague
+# Install LaVague
+pip install lavague
 
 # Print success message
 echo -e "\e[32mAll steps completed successfully.\e[0m"
