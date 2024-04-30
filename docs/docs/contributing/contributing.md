@@ -50,13 +50,14 @@ To avoid having multiple people working on the same things & being unable to mer
 - ⬆️ When you are ready, submit your work for review by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 - ✅ We will review & merge your code or request changes/give feedback
 
-When submitting a PR, please:
+??? info "QA"
+    When submitting a PR, please:
 
-- Use a descriptive title
-- [Link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to the issue you were working on in the PR
-- Add any relevant information to the description that you could help us review your code
-- [Rebase your branch](https://docs.github.com/en/get-started/using-git/about-git-rebase) against the latest version of `main`.
-- Check your branch passes all GitHub actions pass.
+    - Use a descriptive title
+    - [Link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to the issue you were working on in the PR
+    - Add any relevant information to the description that you could help us review your code
+    - [Rebase your branch](https://docs.github.com/en/get-started/using-git/about-git-rebase) against the latest version of `main`.
+    - Check your branch passes all GitHub actions pass.
 
 > If you want any help or guidance on developing the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
 
@@ -66,11 +67,11 @@ When submitting a PR, please:
 
 Feel free to make use of our pre-configured dev container in VSCode to quickly set up a dev environment.
 
-⚠️ Pre-requisites:
+??? info "Pre-requisites"
 
-- 🐋 Docker: Ensure Docker is installed and running on your machine
-- Visual Studio Code + Visual Studio Code's Remote - Containers Extension
-- Fork the LaVague repo and git clone it locally. 
+    - 🐋 Docker: Ensure Docker is installed and running on your machine
+    - Visual Studio Code + Visual Studio Code's Remote - Containers Extension
+    - Ensure you have forked the LaVague repo and git cloned it locally
 
 To open the project in our dev container you need to:
 
@@ -83,6 +84,6 @@ VS Code will then build the container based on the Dockerfile and devcontainer.j
 
 > Note, if you want to view the Gradio generated with `lavague [OPTIONS] launch` in-browser on your host machine, you'll need to use the generated `public URL`!
 
-## License
+??? info "License"
 
-Note that all contributions made to this project are subject to the project's [Apache 2.0 License](https://github.com/lavague-ai/LaVague/blob/main/LICENSE) 
+    Note that all contributions made to this project are subject to the project's [Apache 2.0 License](https://github.com/lavague-ai/LaVague/blob/main/LICENSE) 
