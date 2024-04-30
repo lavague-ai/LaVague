@@ -108,8 +108,8 @@ nav:
     - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
     - OpenAI: 'docs/integrations/api/openai.ipynb'
     - Litellm: 'docs/integrations/api/litellm.ipynb'
-    - Groq: 'docs/integrations/api/groq_api.ipynb'
-    - Anthropic: 'docs/integrations/api/anthropic_api.ipynb'
+    - Groq: 'docs/integrations/api/groq.ipynb'
+    - Anthropic: 'docs/integrations/api/anthropic.ipynb'
   - Local:
     - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
   
