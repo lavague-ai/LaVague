@@ -2,13 +2,13 @@
 ## Introduction
 Welcome to the Documentation section of our contributing guide. Effective documentation serves as a comprehensive manual on how to use, troubleshoot, and contribute to our project. 
 
-Whether you're a seasoned contributor or a first-time participant, enhancing our documentation helps make our software more accessible and easier to use. 
+Whether you're a seasoned contributor or a first-time participant, enhancing our documentation helps make our codebase and interfaces more accessible and easier to use.
 
 ## Getting started
 ### Prerequisites
 Before contributing to our documentation, you should have a basic understanding of our project's goals and structure. Familiarity with [Markdown](https://www.markdownguide.org/basic-syntax/) syntax and [GitHub workflow](https://docs.github.com/en/get-started/start-your-journey/about-github-and-git) is also beneficial.
 
-Our full documentation is maintained directly in our GitHub repository and we use [MkDocs](https://www.mkdocs.org/) for all of it. 
+Our full documentation is maintained directly in our GitHub repository and we use [MkDocs](https://www.mkdocs.org/) for all of it.
 
 ### Setup
 To set up your environment for documentation work:
