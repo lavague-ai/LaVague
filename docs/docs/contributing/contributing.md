@@ -2,7 +2,9 @@
 
 🫵 We need your help to build effective LAMs and make the LaVague community flourish!
 
-We really appreciate all contributions, from bug reports, to sharing research with us, to direct additions to our codebase.
+🤗 We really appreciate all contributions, from bug reports, to sharing research with us, to direct additions to our codebase.
+
+### 🏠 Contribution home
 
 In this section, we'll give you some general advice on how to:
 
@@ -10,6 +12,8 @@ In this section, we'll give you some general advice on how to:
 - [suggest new features](#suggesting-new-features)
 - [contribute to the codebase](#code-contribution-process)
 - [set up a LaVague dev environment](#setting-up-your-dev-environment)
+
+### 🗺️ Contribution pathways
 
 However, you can also check out the guides we provide for each of our key contributor pathways:
 
@@ -38,13 +42,13 @@ Please provide as much information as possible: the behavior you want, why, and 
 
 To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
 
-📢 We outline tasks on our backlog: we recommend you check out issues with the help-wanted labels & good first issue labels
-🙋‍♀️ If you are interested in working on one of these tasks, comment on the issue!
-🤝 We will discuss with you and assign you the task with a community assigned label
-💬 We will then be available to discuss this task with you
-🍴 [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo!
-⬆️ When you are ready, submit your work for review by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
-✅ We will review & merge your code or request changes/give feedback
+- 📢 We outline tasks on our backlog: we recommend you check out issues with the help-wanted labels & good first issue labels
+- 🙋‍♀️ If you are interested in working on one of these tasks, comment on the issue!
+- 🤝 We will discuss with you and assign you the task with a community assigned label
+- 💬 We will then be available to discuss this task with you
+- 🍴 [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) the LaVague repo!
+- ⬆️ When you are ready, submit your work for review by [opening a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+- ✅ We will review & merge your code or request changes/give feedback
 
 When submitting a PR, please:
 
@@ -54,7 +58,7 @@ When submitting a PR, please:
 - [Rebase your branch](https://docs.github.com/en/get-started/using-git/about-git-rebase) against the latest version of `main`.
 - Check your branch passes all GitHub actions pass.
 
-If you want any help or guidance on developing the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
+> If you want any help or guidance on developing the feature you are working on more before submitting, reach out to us on [Discord](https://discord.gg/SDxn9KpqX9)!
 
 ⚠️ Note, we aim to merge as many PRs as possible but we cannot guarantee to merge PRs and they are subject to our review process.
 
@@ -78,10 +82,6 @@ VS Code will then build the container based on the Dockerfile and devcontainer.j
 ⏳ Note, this process might take a few minutes the first time you run it.
 
 > Note, if you want to view the Gradio generated with `lavague [OPTIONS] launch` in-browser on your host machine, you'll need to use the generated `public URL`!
-
-### Contributing to the documentation
-
-For information on contributing to the documentation, see [our guide on contributing to the documentation](./documentation.md)
 
 ## License
 
