@@ -84,6 +84,8 @@ VS Code will then build the container based on the Dockerfile and devcontainer.j
 
 > Note, if you want to view the Gradio generated with `lavague [OPTIONS] launch` in-browser on your host machine, you'll need to use the generated `public URL`!
 
+## License
+
 !!! note "License"
 
     Note that all contributions made to this project are subject to the project's [Apache 2.0 License](https://github.com/lavague-ai/LaVague/blob/main/LICENSE) 
