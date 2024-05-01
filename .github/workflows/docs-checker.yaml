@@ -8,6 +8,7 @@ on:
 
 jobs:
   check-links:
+    if: github.event_name == 'schedule' # Only run if triggered by a schedule event
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -39,7 +40,7 @@ jobs:
 
       - name: Spellcheck Markdown files
         run: |
-          pyspelling -c ../.pyspelling.yaml
+          pyspelling -c .github/.pyspelling.yaml
   
   notify:
     runs-on: ubuntu-latest
@@ -47,7 +48,7 @@ jobs:
     if: ${{ failure() }}
     steps:
       - name: Send failure notification via Discord
-        uses: 8395a7/action-discord@v2
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
         with:
           args: "The link check failed, please review."
         env:
