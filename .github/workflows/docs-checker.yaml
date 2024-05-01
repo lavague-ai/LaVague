@@ -3,12 +3,9 @@ on:
   push:
     paths:
       - 'docs/**' # Trigger if there are changes within the /docs directory
-  schedule:
-    - cron: "*/10 * * * *" # run 10 minutes after push so docs have time to build
 
 jobs:
   check-links:
-    if: github.event_name == 'schedule' # Only run if triggered by a schedule event
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -38,14 +35,29 @@ jobs:
         run: |
           pip install pyspelling
 
+      - name: List files in directory
+        run: ls -a
+
       - name: Spellcheck Markdown files
         run: |
           pyspelling -c .github/.pyspelling.yaml
   
+  check-README-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+
+      - name: Check links in README.md
+        run: markdown-link-check README.md
+  
   notify:
     runs-on: ubuntu-latest
-    needs: check-links
-    if: ${{ failure() }}
+    needs: [check-links, check-README-links] # Wait for check-links and check-README-links to complete
+    if: ${{ failure() || needs.check-links.outcome == 'failure' || needs.check-README-links.outcome == 'failure' }}
     steps:
       - name: Send failure notification via Discord
         uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
