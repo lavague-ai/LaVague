@@ -23,7 +23,7 @@ jobs:
 
       - name: Install Aspell
         run: |
-        sudo apt-get install aspell aspell-en
+          sudo apt-get install aspell aspell-en
 
       - name: Spellcheck Markdown files
         run: |

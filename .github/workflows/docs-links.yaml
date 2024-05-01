@@ -2,7 +2,7 @@ Name: docs link checker
 
 on:
   schedule:
-    - cron: '45 21 * * *'
+      - cron: '0 8 * * *'
 
 jobs:
   check-links:
