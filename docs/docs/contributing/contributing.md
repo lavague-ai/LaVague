@@ -6,12 +6,12 @@
 
 ## 🏠 Contribution general guidelines
 
-In the [General Guidelines section](./guidelines.md), we'll walk you through how to:
+In the [General Guidelines section](./general.md), we'll walk you through how to:
 
-- [report bugs](#reporting-bugs)
-- [suggest new features](#suggesting-new-features)
-- [contribute to the codebase](#code-contribution-process)
-- [set up a LaVague dev environment](#setting-up-your-dev-environment)
+- [report bugs](./general.md#🪲-reporting-bugs)
+- [suggest new features](./general.md#💡suggesting-new-features)
+- [contribute to the codebase](./general.md#👩‍💻-code-contribution-process)
+- [set up a LaVague dev environment](./general.md#🐋-setting-up-your-dev-container-docker-integration)
 
 ## 🗺️ Contribution pathways
 
