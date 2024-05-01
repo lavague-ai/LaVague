@@ -95,12 +95,9 @@ nav:
 - 🚀 Getting Started:
   - Installation: 'docs/get-started/setting-up-la-vague.md'
   - Quick tour: 'docs/get-started/quick-tour.ipynb'
-  - Interfaces:
-    - CLI: 'docs/get-started/cli.md'
-    - VSCode extension (Alpha): 'docs/get-started/get-started-vscode-extension.md'
-  - Customization:
-    - Playwright: 'docs/get-started/playwright.md'
-    - Customization: 'docs/get-started/customization.md'
+  - VSCode extension (Alpha): 'docs/get-started/get-started-vscode-extension.md'
+  - Playwright: 'docs/get-started/playwright.md'
+  - Customization: 'docs/get-started/customization.md'
 
 - 🤝 Integrations:
   - Overview: 'docs/integrations/home.md'
@@ -122,9 +119,8 @@ nav:
   
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
-  - Modules guides:
-    - Telemetry: 'docs/advanced/telemetry.md'
-    - Under the hood: 'docs/advanced/under-the-hood.md'
+  - Telemetry: 'docs/advanced/telemetry.md'
+  - Under the hood: 'docs/advanced/under-the-hood.md'
 
 - 🛠️ API reference:
   - API reference home: 'docs/lavague/index.html'
