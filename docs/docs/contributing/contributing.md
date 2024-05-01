@@ -20,7 +20,7 @@ Whether you're a dev, AI enthusiast or tech writer, there's a **contribution pat
 - 📑 [Documentation](./documentation.md): Be part of our **content contributor pathway** to help make clean & clear **documentation**!
 - (**Coming soon**) 🚀 Our LAM & AI pipeline: Be part of our **AI contributor pathway** to work on building an effective & robust LAM!
 - (**Coming soon**) 🌿 Data collection & BigAction: Join our **data contributor pathway** to help collect and collate the data needed to build our LAM
-- (**Coming soon**) 👩‍💻 Our interfaces (CLI & VSCode extention): Join our **dev contributor pathway** to improve our **end user interfaces** for interacting with our LAM.
+- (**Coming soon**) 👩‍💻 Our interfaces (CLI & VSCode extension): Join our **dev contributor pathway** to improve our **end user interfaces** for interacting with our LAM.
 
 ## Contact us
 

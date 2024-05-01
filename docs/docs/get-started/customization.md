@@ -42,7 +42,7 @@ Our default values are:
 
 ### Custom URL and instructions
 
-When we use the CLI commands, we also provide a instuctions yaml file to the `file_path` option: 
+When we use the CLI commands, we also provide a instructions yaml file to the `file_path` option: 
 `lavague -i huggingface.yaml -c custom_file.py launch`
 
 Let's take a look at the default `huggingface.yaml` file we provide:

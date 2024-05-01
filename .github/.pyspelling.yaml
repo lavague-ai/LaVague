@@ -1,9 +1,11 @@
 matrix:
 - name: Markdown
-  aspell:
-    lang: en
+  hunspell:
+    d: en_US
   dictionary:
-    encoding: utf-8
+    wordlists:
+    - .github/lavague-dic.txt
+    output: build/dictionary/python.dic
   pipeline:
     - pyspelling.filters.markdown:
     - pyspelling.filters.html:
@@ -13,4 +15,5 @@ matrix:
           - pre
   sources:
     - 'docs/**/*.md'
+    - 'README.md'
   default_encoding: utf-8

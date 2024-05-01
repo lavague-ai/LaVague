@@ -70,7 +70,7 @@ This is where the Gradio layout and input events are defined and we launch the G
 
 When user enters a URL:
 
-We initialise our driver to go to the URL and display an initial screenshot of the webpage:
+We initialize our driver to go to the URL and display an initial screenshot of the web page:
 
 see the `__update_image_display()` method
 

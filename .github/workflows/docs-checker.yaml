@@ -36,8 +36,9 @@ jobs:
         run: |
           pip install pyspelling
 
-      - name: List files in directory
-        run: ls -a
+      - name: Install Aspell
+        run: |
+        sudo apt-get install aspell aspell-en
 
       - name: Spellcheck Markdown files
         run: |

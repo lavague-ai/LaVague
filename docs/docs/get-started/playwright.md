@@ -35,7 +35,7 @@ For example, you can run lavague build with our example Playwright configuration
 !!! success "Generated automation file"
     A new file will be created in your current directory `openai_api_playwright_huggingface_gen.py`, which contains the automation code needed to run the instructions outlined in the `huggingface.yaml` file.
 
-You can create a new `yaml` file with your own `url` and `instructions` to test different actiosn on new sites!
+You can create a new `yaml` file with your own `url` and `instructions` to test different actions on new sites!
 
 !!! abstract "Playwright configuration file"
 
