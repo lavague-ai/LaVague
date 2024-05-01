@@ -39,8 +39,8 @@ jobs:
 
       - name: Spellcheck Markdown files
         run: |
-          pyspelling -c .pyspelling.yml
-
+          pyspelling -c ../.pyspelling.yaml
+  
   notify:
     runs-on: ubuntu-latest
     needs: check-links
