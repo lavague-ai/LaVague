@@ -2,7 +2,8 @@ name: Check Links
 on:
   push:
     paths:
-      - 'docs/**' # Trigger if there are changes within the /docs directory
+      - 'docs/**'
+      - 'README.md'
 
 jobs:
   check-links:
