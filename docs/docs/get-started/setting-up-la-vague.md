@@ -9,7 +9,7 @@ In this section, we're going to walk you through how you can install and set up 
 To start using LaVague, we need to install a webdriver and store it in our home directory, so that LaVague can interact with the browser using underlying automation tool `Selenium`. We will then also install the LaVague package.
 
 !!! note "Playwright integration"
-    Alternatively, we support using Playwright for our `lavague build` command, which does not require webdriver installation. With the `lavague build` CLI command, you can generate Python files with automation code to carry out actions from text instructions! See our [playwright guide](./playwright.md) to see how to get started with Playright. 
+    Alternatively, we support using Playwright for our `lavague build` command, which does not require webdriver installation. With the `lavague build` CLI command, you can generate Python files with automation code to carry out actions from text instructions! See our [playwright guide](./playwright.md) to see how to get started with Playwright. 
 
 We provide two key installation options:
 
