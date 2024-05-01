@@ -120,6 +120,7 @@ nav:
 
 - 🤗 Contributing:
   - Overview: "docs/contributing/contributing.md"
+  - General guidelines: "docs/contributing/general.md"
   - Documentation: "docs/contributing/documentation.md"
 
 - 🛠️ API reference:
