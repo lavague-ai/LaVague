@@ -1,4 +1,4 @@
-name: Docs: spellcheck & README link checker
+name: spellcheck & README link checker
 on:
   push:
     paths:

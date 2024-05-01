@@ -1,8 +1,8 @@
-Name: Docs: spellcheck & links checker
+Name: docs link checker
 
 on:
   schedule:
-    - cron: '45 21 * * *' # 9:45 PM UK time
+    - cron: '45 21 * * *'
 
 jobs:
   check-links:
