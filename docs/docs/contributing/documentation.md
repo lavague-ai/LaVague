@@ -25,7 +25,7 @@ git clone https://github.com/your_username/LaVague.git
 pip install mkdocs mkdocs-jupyter mkdocs-material
 ```
 
-- To see your changes in realtime, start serving the documentation locally with
+- To see your changes in real-time, start serving the documentation locally with
 ```
 mkdocs serve
 ```
