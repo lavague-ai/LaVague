@@ -113,7 +113,7 @@ class ActionEngine(BaseActionEngine):
         return code
     
     def action_from_context(self, context: str, query: str) -> str: 
-        prompt = SELENIUM_PROMPT.format(context_str=context, query_str=query)
+        prompt = self.prompt_template.format(context_str=context, query_str=query)
 
         response = self.llm.complete(prompt).text
 
