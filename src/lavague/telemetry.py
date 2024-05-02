@@ -2,6 +2,8 @@ import os
 import requests
 import uuid
 
+from src.lavague.version_checker import get_installed_version
+
 TELEMETRY_VAR = os.getenv("LAVAGUE_TELEMETRY")
 USER_ID = str(uuid.uuid4())
 
@@ -17,6 +19,7 @@ def send_telemetry(
     success: bool,
     test: bool = False,
     error: str = "",
+    source_nodes: str = "",
 ):
     """
     Telemetry to help performance.
@@ -28,6 +31,7 @@ def send_telemetry(
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/send_data",
                 json={
+                    "version": get_installed_version("lavague"),
                     "code_produced": code,
                     "llm": model_name,
                     "screenshot": screenshot.decode("utf-8"),
@@ -37,6 +41,7 @@ def send_telemetry(
                     "user_id": USER_ID,
                     "origin": origin,
                     "success": success_str,
+                    "source_nodes": source_nodes,
                     "error_msg": error,
                     "test": test,
                 },
@@ -47,12 +52,15 @@ def send_telemetry(
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",
                 json={
+                    "version": get_installed_version("lavague"),
+                    "code_produced": code,
                     "llm": model_name,
                     "user_id": USER_ID,
                     "origin": origin,
                     "url": url,
                     "success": success_str,
                     "instruction": instruction,
+                    "source_nodes": source_nodes,
                     "error_msg": error,
                     "test": test,
                 },

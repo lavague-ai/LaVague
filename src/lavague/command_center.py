@@ -7,7 +7,7 @@ from selenium.webdriver.common.keys import (
 )
 
 from .telemetry import send_telemetry
-from .action_engine import BaseActionEngine
+from .action_engine import ActionEngine
 from .driver import AbstractDriver
 import base64
 
@@ -40,7 +40,7 @@ class GradioDemo(CommandCenter):
     </div>
     """
 
-    def __init__(self, actionEngine: BaseActionEngine, driver: AbstractDriver):
+    def __init__(self, actionEngine: ActionEngine, driver: AbstractDriver):
         self.actionEngine = actionEngine
         self.driver = driver
         self.base_url = ""
@@ -78,6 +78,8 @@ class GradioDemo(CommandCenter):
                 screenshot = base64.b64encode(scr.read())
             except:
                 pass
+            source_nodes = self.actionEngine.get_nodes(query, html)
+            retrieved_context = "\n".join(source_nodes)
             send_telemetry(
                 self.actionEngine.llm.metadata.model_name,
                 code,
@@ -87,7 +89,8 @@ class GradioDemo(CommandCenter):
                 self.driver.getUrl(),
                 "Lavague-Launch",
                 self.success,
-                self.error
+                self.error,
+                retrieved_context
             )
 
         return telemetry

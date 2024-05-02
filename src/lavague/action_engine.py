@@ -156,7 +156,9 @@ class ActionEngine(BaseActionEngine):
             err = repr(e)
             success = False
         finally:
-            send_telemetry(self.llm.metadata.model_name, full_text, "", html, query, url, "lavague-vscode", success, False, err)
+            source_nodes = self.get_nodes(query, html)
+            retrieved_context = "\n".join(source_nodes)
+            send_telemetry(self.llm.metadata.model_name, full_text, "", html, query, url, "lavague-vscode", success, False, err, retrieved_context)
 
 class TestActionEngine(BaseActionEngine):
     """

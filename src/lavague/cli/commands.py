@@ -107,6 +107,8 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             + "\n"
             + f"# Query: {instruction}\n# Code:\n{code}".strip()
         )
+        source_nodes = action_engine.get_nodes(instruction, html)
+        retrieved_context = "\n".join(source_nodes)
         send_telemetry(
             config.llm.metadata.model_name,
             code,
@@ -118,6 +120,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             success,
             test,
             error,
+            retrieved_context
         )
     abstractDriver.destroy()
     print(f"Saving output to {output_file}")
