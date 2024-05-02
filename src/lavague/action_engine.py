@@ -1,8 +1,8 @@
-from typing import Callable, Optional, Generator
+from typing import Callable, Optional, Generator, List
 from abc import ABC, abstractmethod
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core import get_response_synthesizer
-from llama_index.core import PromptTemplate
+from llama_index.core import PromptTemplate, QueryBundle
 from llama_index.core.base.llms.base import BaseLLM
 from .prompts import SELENIUM_PROMPT
 from .defaults import default_python_code_extractor
@@ -110,6 +110,28 @@ class ActionEngine(BaseActionEngine):
         code = response.response
         code = self.cleaning_function(code)
         return code
+    
+    def action_from_context(self, context: str, query: str) -> str: 
+        prompt = SELENIUM_PROMPT.format(context_str=context, query_str=query)
+
+        response = self.llm.complete(prompt).text
+
+        generated_code = self.cleaning_function(response)
+        return generated_code
+    
+    def get_nodes(self, query: str, html: str) -> List[str]:
+        """
+        Get the nodes from the html page
+
+        Args:
+            html (`str`): The html page
+
+        Return:
+            `List[str]`: The nodes
+        """
+        source_nodes = self.retriever._retrieve_html(html, QueryBundle(query_str=query))
+        source_nodes = [node.text for node in source_nodes]
+        return source_nodes
 
     def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
         query_engine = self.get_query_engine(html, streaming=True)

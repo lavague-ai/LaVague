@@ -5,6 +5,8 @@ import yaml
 import importlib.util
 from pathlib import Path
 from llama_index.core.base.llms.base import BaseLLM
+from llama_index.core.base.embeddings.base import BaseEmbedding
+from lavague.evaluator import Evaluator
 from ..defaults import (
     default_get_selenium_driver,
     DefaultLLM,
@@ -32,12 +34,15 @@ class Config:
         self.prompt_template = prompt_template
         self.cleaning_function = cleaning_function
 
-    def from_path(path: str) -> Config:
-        # Convert the path to a Python module path
-        module_name = Path(path).stem
-        spec = importlib.util.spec_from_file_location(module_name, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+    def from_path(path: str | None) -> Config:
+        if path is not None:
+            # Convert the path to a Python module path
+            module_name = Path(path).stem
+            spec = importlib.util.spec_from_file_location(module_name, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        else:
+            module = None
         llm = getattr(module, "LLM", DefaultLLM)()
         embedder = getattr(module, "Embedder", DefaultEmbedder)()
         retriever = getattr(module, "retriever", OpsmSplitRetriever(embedder))
@@ -60,11 +65,21 @@ class Config:
         return ActionEngine(
             self.llm, self.retriever, self.prompt_template, self.cleaning_function
         )
+    
+    def make_evaluator(self) -> Evaluator:
+        return Evaluator(
+            self.make_action_engine(), self.get_driver
+        )
 
 
 class Instructions(BaseModel):
     url: str
     instructions: List[str]
+
+    def from_default() -> Instructions:
+        url = "https://news.ycombinator.com/"
+        instructions = ["Click on search bar, then type 'lavague', then click enter"]
+        return Instructions(url=url, instructions=instructions)
 
     def from_yaml(path: Path) -> Instructions:
         with open(path, "r") as file:
