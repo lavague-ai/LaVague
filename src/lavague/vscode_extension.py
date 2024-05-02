@@ -16,7 +16,7 @@ try:
         try:
             r = requests.post(
                 "http://127.0.0.1:16500/push",
-                data=engine_vscode.get_action_streaming(line, html),
+                data=engine_vscode.get_action_streaming_vscode(line, html, driver.getUrl()),
                 stream=True,
             )
         except:

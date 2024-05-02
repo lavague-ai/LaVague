@@ -4,6 +4,7 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core import get_response_synthesizer
 from llama_index.core import PromptTemplate, QueryBundle
 from llama_index.core.base.llms.base import BaseLLM
+
 from .prompts import SELENIUM_PROMPT
 from .defaults import default_python_code_extractor
 from .retrievers import BaseHtmlRetriever
@@ -139,6 +140,25 @@ class ActionEngine(BaseActionEngine):
         for text in streaming_response.response_gen:
             yield text
 
+    def get_action_streaming_vscode(self, query: str, html: str, url: str) -> Generator[str, None, None]:
+        from src.lavague.telemetry import send_telemetry
+
+        success = True
+        err = ""
+        try:
+            query_engine = self.get_query_engine(html, streaming=True)
+            streaming_response = query_engine.query(query)
+            full_text = ""
+            for text in streaming_response.response_gen:
+                full_text += text
+                yield text
+        except Exception as e:
+            err = repr(e)
+            success = False
+        finally:
+            source_nodes = self.get_nodes(query, html)
+            retrieved_context = "\n".join(source_nodes)
+            send_telemetry(self.llm.metadata.model_name, full_text, "", html, query, url, "lavague-vscode", success, False, err, retrieved_context)
 
 class TestActionEngine(BaseActionEngine):
     """

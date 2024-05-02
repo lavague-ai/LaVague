@@ -55,7 +55,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
         config_path = os.path.basename(config_path)
         config_path, _ = os.path.splitext(config_path)
 
-        output_path = (instructions_path + "_" if len(instructions_path) > 0 else "") + config_path + "_gen"
+        output_path = instructions_path + "_" + config_path + "_gen"
         base_path = str(output_path)
         output_path += ".py"
         i = 1
@@ -91,6 +91,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
         print(f"Processing instruction: {instruction}")
         html = abstractDriver.getHtml()
         code = action_engine.get_action(instruction, html)
+        error = ""
         try:
             exec(code)
             success = True
@@ -98,27 +99,33 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             print(f"Error in code execution: {code}")
             print("Error:", e)
             print(f"Saving output to {output_file}")
+            error = repr(e)
             success = False
             with open(output_file, "w") as file:
                 file.write(output)
                 break
-        output += (
-            "\n\n"
-            + "#" * 80
-            + "\n"
-            + f"# Query: {instruction}\n# Code:\n{code}".strip()
-        )
-        send_telemetry(
-            config.llm.metadata.model_name,
-            code,
-            "",
-            html,
-            instruction,
-            instructions.url,
-            "Lavague-build",
-            success,
-            test,
-        )
+        finally:
+            output += (
+                "\n\n"
+                + "#" * 80
+                + "\n"
+                + f"# Query: {instruction}\n# Code:\n{code}".strip()
+            )
+            source_nodes = action_engine.get_nodes(instruction, html)
+            retrieved_context = "\n".join(source_nodes)
+            send_telemetry(
+                config.llm.metadata.model_name,
+                code,
+                "",
+                html,
+                instruction,
+                instructions.url,
+                "Lavague-build",
+                success,
+                test,
+                error,
+                retrieved_context
+            )
     abstractDriver.destroy()
     print(f"Saving output to {output_file}")
     with open(output_file, "w") as file:
