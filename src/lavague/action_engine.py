@@ -141,14 +141,14 @@ class ActionEngine(BaseActionEngine):
             yield text
 
     def get_action_streaming_vscode(self, query: str, html: str, url: str) -> Generator[str, None, None]:
-        from src.lavague.telemetry import send_telemetry
+        from .telemetry import send_telemetry
 
         success = True
         err = ""
+        full_text = ""
         try:
             query_engine = self.get_query_engine(html, streaming=True)
             streaming_response = query_engine.query(query)
-            full_text = ""
             for text in streaming_response.response_gen:
                 full_text += text
                 yield text
