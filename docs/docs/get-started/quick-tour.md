@@ -11,7 +11,9 @@ If you prefer to run this quick tour as end-to-end Google Colab notebook, follow
     To use LaVague with different APIs, see our [integrations section](https://docs.lavague.ai/en/latest/docs/integrations/home/)
 
 ## LaVague Launch
-
+<div>
+    <img src="https://raw.githubusercontent.com/lavague-ai/lavague/main/docs/assets/lavague_launch_hn.gif" alt="LaVague Launch Example">
+</div>
 You can launch an interactive in-browser Gradio demo where you can test out instructing LaVague to perform actions on a website with the following command:
 
 ```bash
@@ -36,10 +38,12 @@ You can now click on the public (if you are using Google Colab) or local URL to 
 
     Feel free to test out different URLs and instructions.
 
-<img src="https://raw.githubusercontent.com/lavague-ai/LaVague/main/docs/assets/launch_2_openai_py.png" />
 
 
 ## LaVague Build
+<div>
+    <img src="https://raw.githubusercontent.com/lavague-ai/lavague/main/docs/assets/lavague_build_hn.gif" alt="LaVague Build Example">
+</div>
 
 Alternatively, you can use the `build` command to generate the automation code directly without launching a Gradio demo:
 
