@@ -46,7 +46,7 @@ Alternatively, you can use the `build` command to generate the automation code d
 
 `lavague build`
 
-This will create an automation script in your current directory named `huggingface_openai_api_gen.py` - a combination of the two input file names separated by a `_` character with a `_gen` suffix.
+This will create an automation script in your current directory named `output_gen.py`.
 
 You can then inspect the code and execute it locally!
 

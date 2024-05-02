@@ -52,15 +52,17 @@ bash setup.sh
 
 2. Run your LaVague command!
 
-You can either `launch` an interactive Gradio interface, where you will see both the automation code generated for each instruction but also a live preview of the results of executing the code with a debug tab.
+You can either `launch` an interactive Gradio interface, where you will see both the automation code generated for each instruction but also a live preview of the results of executing the code with a debug tab:
 ```
 lavague launch
 ```
 
-Or you can use the `build` command to directly get the Python code leveraging Selenium in a file, which you can then inspect & execute locally.
+Or you can use the `build` command to directly get the Python code leveraging Selenium in a file, which you can then inspect & execute locally:
 ```
 lavague build
 ```
+
+> Note, you'll need an OpenAI API key for this default example and will need the `OPENAI_API_KEY` set in your environment. To use LaVague with a different API, see our [integrations section](https://docs.lavague.ai/en/latest/docs/integrations/home/).
 
 For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
