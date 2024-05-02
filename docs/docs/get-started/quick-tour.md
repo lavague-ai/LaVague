@@ -1,6 +1,6 @@
 # LaVague Quick Tour
 
-In this quick tour we'll show you how you can use the LaVague CLI to test out using our Large Action Model to perform actions on web from natural language instructions.
+In this quick tour, we'll show you how you can use the LaVague CLI to perform actions on web from natural language instructions using our Large Action Model.
 
 !!! note Pre-requisites
     - Make sure you've already [installed LaVague](https://docs.lavague.ai/en/latest/docs/get-started/setting-up-la-vague/)
@@ -27,11 +27,11 @@ lavague launch
 
 You can now click on the public (if you are using Google Colab) or local URL to open your interactive LaVague demo.
 
-You'll need to manually interact with this demo:
+!!! note "How to use Gradio demo"
 
-1) Click on the URL textbox and press enter. This will show a screenshot of your initial page.
+    1. Click on the URL textbox and press enter. This will show a screenshot of your initial page.
 
-2) Then select an instruction or write your own, and again click within the instruction textbox and press enter.
+    2. Select an instruction or write your own, and again click within the instruction textbox and press enter.
 
 <img src="https://raw.githubusercontent.com/lavague-ai/LaVague/main/docs/assets/launch_2_openai_py.png" />
 
