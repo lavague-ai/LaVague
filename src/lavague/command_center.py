@@ -90,7 +90,7 @@ class GradioDemo(CommandCenter):
                 "Lavague-Launch",
                 self.success,
                 False,
-                repr(self.error),
+                self.error,
                 retrieved_context
             )
 
