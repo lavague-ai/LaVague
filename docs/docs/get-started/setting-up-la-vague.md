@@ -60,4 +60,4 @@ If you end your docker run command with:
 
 ## Conclusions
 
-You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.ipynb) or [integration pages](../integrations/api/hugging-face.ipynb).
+You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.md) or [integration pages](../integrations/api/hugging-face.ipynb).
