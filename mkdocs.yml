@@ -17,7 +17,6 @@ theme:
     - content.tabs.link
     - navigation.sections
     - navigation.indexes
-    - navigation.expand
     
   logo: assets/logo.png
   favicon: assets/logo.png
@@ -60,16 +59,14 @@ plugins:
 
 # Customization
 extra:
-  homepage: https://mithrilsecurity.io
+  homepage: https://lavague.ai
   social:
     - icon: fontawesome/brands/discord
-      link: https://discord.com/invite/TxEHagpWd4
+      link: https://discord.gg/invite/SDxn9KpqX9
     - icon: fontawesome/brands/github
-      link: https://github.com/mithril-security/
+      link: https://github.com/lavague-ai/
     - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/company/mithril-security-company/
     - icon: fontawesome/brands/twitter
-      link: https://twitter.com/mithrilsecurity
 
 extra_css:
   - stylesheets/extra.css
@@ -95,9 +92,9 @@ markdown_extensions:
 nav:
 - 🏠 Home: 'index.md'
 
-- 🚀 Getting Started: 
+- 🚀 Getting Started:
   - Installation: 'docs/get-started/setting-up-la-vague.md'
-  - Quick tour: 'docs/get-started/quick-tour.ipynb'
+  - Quick tour: 'docs/get-started/quick-tour.md'
   - VSCode extension (Alpha): 'docs/get-started/get-started-vscode-extension.md'
   - Playwright: 'docs/get-started/playwright.md'
   - Customization: 'docs/get-started/customization.md'
@@ -109,16 +106,21 @@ nav:
     - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
     - OpenAI: 'docs/integrations/api/openai.ipynb'
     - Litellm: 'docs/integrations/api/litellm.ipynb'
+    - Groq: 'docs/integrations/api/groq.ipynb'
+    - Anthropic: 'docs/integrations/api/anthropic.ipynb'
   - Local:
     - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
+
+- 🤗 Contributing:
+  - Overview: "docs/contributing/contributing.md"
+  - General guidelines: "docs/contributing/general.md"
+  - Pathways:
+    - Documentation: "docs/contributing/documentation.md"
   
 - ⚡ Advanced:
   - Architecture: 'docs/get-started/architecture.md'
   - Telemetry: 'docs/advanced/telemetry.md'
   - Under the hood: 'docs/advanced/under-the-hood.md'
-
-- 🤗 Contributing:
-  - Contributors' guide: "docs/contributing/contributing.md"
 
 - 🛠️ API reference:
   - API reference home: 'docs/lavague/index.html'

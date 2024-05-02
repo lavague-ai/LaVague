@@ -9,7 +9,7 @@ In this section, we're going to walk you through how you can install and set up 
 To start using LaVague, we need to install a webdriver and store it in our home directory, so that LaVague can interact with the browser using underlying automation tool `Selenium`. We will then also install the LaVague package.
 
 !!! note "Playwright integration"
-    Alternatively, we support using Playwright for our `lavague build` command, which does not require webdriver installation. With the `lavague build` CLI command, you can generate Python files with automation code to carry out actions from text instructions! See our [playwright guide](./playwright.md) to see how to get started with Playright. 
+    Alternatively, we support using Playwright for our `lavague build` command, which does not require webdriver installation. With the `lavague build` CLI command, you can generate Python files with automation code to carry out actions from text instructions! See our [playwright guide](./playwright.md) to see how to get started with Playwright. 
 
 We provide two key installation options:
 
@@ -20,11 +20,11 @@ We provide two key installation options:
 
 To set-up LaVague in your local linux environment, you can run our `setup.sh` script:
 
-`sudo bash setup.sh`
+`bash setup.sh`
 
 To set-up LaVague in your local macos environment, you can run our `setup-macos.sh` script:
 
-`sudo bash setup-macos.sh`
+`bash setup-macos.sh`
 
 This will perform all necessary steps to set-up LaVague.
 
@@ -60,4 +60,4 @@ If you end your docker run command with:
 
 ## Conclusions
 
-You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.ipynb) or [integration pages](../integrations/api/hugging-face.ipynb).
+You are now ready to use LaVague with the integration of your choice. To see how to do this with our CLI, see our [quick tour](./quick-tour.md) or [integration pages](../integrations/api/hugging-face.ipynb).

@@ -27,7 +27,7 @@ Our Docker image works with our CLI `lavague --i instructions.yaml -c config.py 
 - The `instructions.yaml` file: The first line should contain the website URL you wish to perform actions on and the following lines include the default clickable instruction suggestions you wish to appear in the resulting Gradio demo
 ![instructions-default](../../assets/openai-default.png)
 
-- An `config.py` file: This file will define parameters such as the LLM to be used. See the [customization guide](./customization.md) for more details on all the customizable elements available in this file.
+- An `config.py` file: This file will define parameters such as the LLM to be used. See the [customization guide](https://docs.lavague.ai/en/latest/docs/get-started/customization/) for more details on all the customizable elements available in this file.
 
 ![default-config](../../assets/openai-default.png)
 

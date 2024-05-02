@@ -1,6 +1,6 @@
 # Customization
 
-In the [quick tour](./quick-tour.ipynb), we saw how to use LaVague with our default config file for OpenAI - we also provide default config files for several other [integrations](../integrations/api/azure-openai.ipynb). In this guide, we will show you how you can modify these config files or create your own for customized use cases.
+In the [quick tour](./quick-tour.md), we saw how to use LaVague with our default config file for OpenAI - we also provide default config files for several other [integrations](../integrations/api/azure-openai.ipynb). In this guide, we will show you how you can modify these config files or create your own for customized use cases.
 
 ## Python config file
 
@@ -42,7 +42,7 @@ Our default values are:
 
 ### Custom URL and instructions
 
-When we use the CLI commands, we also provide a instuctions yaml file to the `file_path` option: 
+When we use the CLI commands, we also provide a instructions yaml file to the `file_path` option: 
 `lavague -i huggingface.yaml -c custom_file.py launch`
 
 Let's take a look at the default `huggingface.yaml` file we provide:

@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Enable exit on error
+set -e
+
+# Function to print error message and exit
+print_error() {
+    echo -e "\e[31mError occurred. Exiting...\e[0m"
+}
+
+# Trap exit signals and call print_error function
+trap 'print_error' ERR
+
 # Update package lists and install necessary packages
 sudo apt update
 sudo apt install -y ca-certificates fonts-liberation unzip \
@@ -21,12 +32,8 @@ rm chrome-linux64.zip chromedriver-linux64.zip
 mv chrome-linux64/ ~/
 mv chromedriver-linux64/ ~/
 
-# Install LaVague from main of GitHub repo
-git clone https://github.com/lavague-ai/LaVague.git
-pip install -e LaVague
-
-# Change directory to LaVague
-cd LaVague
+# Install LaVague
+pip install lavague
 
 # Print success message
 echo -e "\e[32mAll steps completed successfully.\e[0m"
