@@ -426,6 +426,10 @@ Your goal is to write Playwright Python code to answer queries.
 Your answer must be a Python markdown only.
 You can have access to external websites and libraries.
 
+In your playwright code, you should only use the page.locator() or page.get_by_text() methods to uniquely locate and interact with the elements on the page. 
+For page.locator(), you must use XPath selectors to uniquely locate elements.
+you must always interact with the first matching element by calling .first and performing an action on it (e.g., click, fill, type, etc.).
+
 You can assume the following code has been executed:
 ```python
 from playwright.sync_api import sync_playwright
@@ -446,12 +450,6 @@ HTML:
     <h1>Search Page Example</h1>
     <input id="searchBar" type="text" placeholder="Type here to search...">
     <button id="searchButton">Search</button>
-    <script>
-        document.getElementById('searchButton').onclick = function() {{
-            var searchText = document.getElementById('searchBar').value;
-            alert("Searching for: " + searchText);
-        }};
-    </script>
 </body>
 </html>
 
@@ -463,15 +461,15 @@ Completion:
 # First we need to identify the component first, then we can click on it.
 
 # Based on the HTML, the link can be uniquely identified using the ID "searchBar"
-# Click on the search bar
-search_bar = page.locator('#searchBar')
-search_bar.click()
+# Get the first matching element and click on it
+search_bar_button = page.locator("//input[@id='searchBar']").first
+search_bar_button.click()
 
 # Type 'playwright' into the search bar
-page.type('#searchBar', 'playwright')
+search_bar_button.fill('playwright')
 
 # Press the 'Enter' key
-page.keyboard.press('Enter')
+search_bar_button.press('Enter')
 
 ```
 
@@ -502,16 +500,16 @@ Completion:
 # Let's proceed step by step.
 # First we need to identify the first component, then we can click on it. Then we can identify the second component and click on it.
 
-# Based on the HTML, the first link the link can be uniquely identified using the ID "link1"
-# Let's use this ID with playwright to identify the link
-link1 = page.locator('#link1')
+# Based on the HTML, the first link the link can be uniquely identified using the text "Link 1"
+# Let's use get_by_text to identify the link and get the first matching element
+link1 = page.get_by_text('Link 1').first
 
 # Then we click on the link
 link1.click()
 
-# The other link can be uniquely identified using the class "link"
-# Let's use this class to identify the link
-link2 = page.locator('.link')
+# The other link can be uniquely identified using the text Link 2
+# Let's use get_by_text to identify the link and get the first matching element
+link2 = page.get_by_text('Link 2').first
 
 # Click on the element found
 link2.click()
@@ -539,28 +537,11 @@ Completion:
 ```python
 # Let's proceed step by step.
 
-# To select a paragraph, we can execute a JS script to select the text using the DOM
-# In the provided HTML, the third paragraph can be identified using the ID "para3"
-# We need to use getElementById to select the paragraph precisely
-js_script = """
-    // This part depends on the specific HTML, here is the identified ID "para3"
-    var para = document.getElementById('para3');
-    // The rest is standard
-    if (document.body.createTextRange) {{
-        var range = document.body.createTextRange();
-        range.moveToElementText(para);
-        range.select();
-    }} else if (window.getSelection) {{
-        var selection = window.getSelection();
-        var range = document.createRange();
-        range.selectNodeContents(para);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }}
-"""
+# Locate the third paragraph using the ID "para3" and get the first matching element
+third_paragraph = page.locator("//p[@id='para3']").first
 
-# Then we execute JavaScript
-page.evaluate(js_script)
+# Select the text inside the third paragraph
+third_paragraph.select_text()
 ```
 
 ---
@@ -611,12 +592,12 @@ Completion:
 # Let's proceed step by step.
 # First we need to identify the button first, then we can click on it.
 
-# Based on the HTML provided, we need to devise the best strategy to select the button.
-# The action button can be identified using the class name "action-btn"
-action_button = page.locator('.action-btn')
+# Based on the HTML provided, we need to devise the best strategy to select the button and get the first matching element.
+# The action button can be identified using the text "Action Button"
+action_button = page.get_by_text("Action Button").first
 
 # Then we can click on it
-await action_button.click()
+action_button.click()
 ```
 
 ---

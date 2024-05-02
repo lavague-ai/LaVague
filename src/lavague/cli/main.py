@@ -51,13 +51,13 @@ class LazyGroup(click.Group):
     "--instructions",
     "-i",
     type=click.Path(exists=True),
-    required=True,
+    required=False,
 )
 @click.option(
     "--config",
     "-c",
     type=click.Path(exists=True),
-    required=True,
+    required=False,
 )
 
 @click.pass_context

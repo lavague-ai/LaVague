@@ -1,14 +1,16 @@
 ---
-description: "Automate automation with LaVague, generating web automation pipelines from natural language queries"
+description: "The open-source community for Large Action Models"
 ---
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an **open-source** project designed to automate automation for devs! We use **advanced AI techniques** to turn **natural language queries** into Python code leveraging Selenium. LaVague is designed to make it easy for users to automate express web workflows and execute them on a browser.
+LaVague is an **open-source Large Action Model framework** for turning **natural language** into **browser actions**.
+
+At LaVague's core, we have an **Action Engine** which uses **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to “compile” natural language instructions into browser automation code, by leveraging **Selenium** or **Playwright**.
 
 ### LaVague in Action
 
-Here's an examples to show how LaVague can execute natural lanaguge instructions on a browser to automate interactions with a website:
+Here's an example of LaVague being used to execute natural language instructions on a browser to automate web interactions. This example uses the Gradio interface available with the `lavague launch` CLI command:
 
 <img src="assets/hf_lavague.gif" alt="LaVague Interaction Example">
 
@@ -21,7 +23,7 @@ You can get started with `LaVague` in 2 steps:
 1. Install LaVague & dependencies
 ```
 wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&
-sudo bash setup.sh
+bash setup.sh
 ```
 
 2. Run your LaVague command!
@@ -37,7 +39,7 @@ If you want to get started with LaVague build using Playwright as your underlyin
 
 ## 🙋 Contributing
 
-We would love your help in making La Vague a reality. 
+We would love your help and support on our quest to build a robust and reliable Large Action Model for web automation.
 
 To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
 

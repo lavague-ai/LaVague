@@ -1,4 +1,4 @@
-from lavague.prompts import GEMMA_PROMPT
+from lavague.prompts import SELENIUM_GEMMA_PROMPT
 from transformers import BitsAndBytesConfig
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -42,7 +42,7 @@ class Embedder(HuggingFaceEmbedding):
 
 
 # We needed to steer the model more with a more explicit prompt so we use a custom prompt
-prompt_template = GEMMA_PROMPT
+prompt_template = SELENIUM_GEMMA_PROMPT
 
 # The cleaning is also different in this case
 cleaning_function = lambda code: code.split("```")[0]
