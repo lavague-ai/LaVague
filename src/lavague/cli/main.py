@@ -43,6 +43,7 @@ class LazyGroup(click.Group):
     lazy_subcommands={
         "launch": "lavague.cli.commands.launch",
         "build": "lavague.cli.commands.build",
+        "eval": "lavague.cli.commands.evaluation",
         "test": "lavague.cli.commands.test",
     },
 )
@@ -50,14 +51,15 @@ class LazyGroup(click.Group):
     "--instructions",
     "-i",
     type=click.Path(exists=True),
-    required=True,
+    required=False,
 )
 @click.option(
     "--config",
     "-c",
     type=click.Path(exists=True),
-    required=True,
+    required=False,
 )
+
 @click.pass_context
 def cli(ctx, instructions, config):
     """Copilot for devs to automate automation"""
