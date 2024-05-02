@@ -60,5 +60,6 @@ test.ipynb
 
 #virtual environemnt
 env/
+venv/
 
 tests/*.py

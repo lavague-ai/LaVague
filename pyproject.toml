@@ -1,0 +1,36 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.poetry]
+name = "lavague"
+version = "0.0.1"
+description = "automation code generation from text instructions"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+  "Mithril Security <contact@mithrilsecurity.io>"
+]
+maintainers = [
+  "Mithril Security <contact@mithrilsecurity.io>"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "License :: OSI Approved :: Apache Software License",
+]
+keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
+homepage = "https://mithrilsecurity.io"
+repository = "https://github.com/lavague-ai/LaVague/"
+documentation = "https://docs.lavague.ai/en/latest/"
+packages = [{from = "_lavague", include = "lavague"}]
+
+[tool.poetry.dependencies]
+"python" = "^3.8.1"
+"lavague-core" = {path = "lavague-core"}
+
+[tool.poetry.dev-dependencies]
+ruff = "0.0.292"

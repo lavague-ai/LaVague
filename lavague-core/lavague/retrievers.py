@@ -15,6 +15,7 @@ from llama_index.core.schema import TextNode
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
 from .driver import BaseDriver
+from .format_utils import clean_html
 
 
 class _LlamaIndexAdapter(BaseRetriever):
@@ -51,7 +52,7 @@ class LegacyRetriever(BaseHtmlRetriever):
         self.top_k = top_k
 
     def _retrieve_html(self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle) -> List[NodeWithScore]:
-        text_list = [driver.get_html()]
+        text_list = [clean_html(driver.get_html())]
         documents = [Document(text=t) for t in text_list]
 
         splitter = CodeSplitter(

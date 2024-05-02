@@ -11,6 +11,13 @@
 	"workspaceFolder": "/home/vscode/LaVague",
 	"postCreateCommand": "/usr/local/bin/start.sh",
 	"customizations": {
+		"vscode": {
+			"extensions": [
+				"tamasfe.even-better-toml",
+				"ms-python.python",
+				"ms-toolsai.jupyter"
+			]
+		},
         "settings": {
             "terminal.integrated.profiles.linux": {
                 "zsh": {
@@ -18,14 +25,7 @@
                 }
             },
             "terminal.integrated.defaultProfile.linux": "zsh"
-        },
-		"vscode": {
-			"extensions": [
-				"tamasfe.even-better-toml",
-				"ms-python.python",
-				"ms-toolsai.jupyter"
-			]
-		}
+        }
 	},
 	"containerEnv": {
 		"SHELL": "/usr/bin/zsh"

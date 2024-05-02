@@ -1,3 +1,9 @@
 #!/bin/bash
-cd /home/$USERNAME/LaVague
-pip install -e .
+
+set -e
+
+cd $HOME/LaVague/lavague-core
+poetry install
+cd ..
+poetry install
+poetry shell

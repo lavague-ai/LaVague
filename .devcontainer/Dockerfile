@@ -31,7 +31,7 @@ RUN unzip chrome-linux64.zip -d /home/$USERNAME
 RUN rm chrome-linux64.zip chromedriver-linux64.zip
 
 # We need python3.10 to build the project
-RUN add-apt-repository ppa:deadsnakes/ppa && apt-get install -y python3.10
+RUN add-apt-repository ppa:deadsnakes/ppa && apt-get install -y python3.10 python3.10-distutils
 COPY .devcontainer/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
@@ -39,9 +39,7 @@ USER $USERNAME
 
 WORKDIR /home/$USERNAME
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
-&& python3.10 -m pip install virtualenv \
-&& python3.10 -m pip install llama-index-llms-azure-openai
-
+RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN touch .zshrc
 # fix path problem
 ENV PATH="/home/vscode/.local/bin:${PATH}"
