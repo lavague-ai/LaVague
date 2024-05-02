@@ -4,6 +4,8 @@ on:
     paths:
       - 'docs/**'
       - 'README.md'
+      - '.github/.pyspelling.yaml'
+      - '.github/lavague-dic.txt'
 
 jobs:
   spellcheck:
