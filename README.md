@@ -54,15 +54,15 @@ bash setup.sh
 
 You can either `launch` an interactive Gradio interface, where you will see both the automation code generated for each instruction but also a live preview of the results of executing the code with a debug tab.
 ```
-lavague --instructions examples/instructions/huggingface.yaml --config examples/configurations/api/openai_api.py launch
+lavague launch
 ```
 
 Or you can use the `build` command to directly get the Python code leveraging Selenium in a file, which you can then inspect & execute locally.
 ```
-lavague --instructions examples/instructions/huggingface.yaml --config examples/configurations/api/openai_api.py build
+lavague build
 ```
 
-For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
+For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
 ## 🎭 Playwright integration
 
