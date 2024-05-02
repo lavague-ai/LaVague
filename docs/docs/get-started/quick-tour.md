@@ -18,8 +18,7 @@ You can launch an interactive in-browser Gradio demo where you can test out inst
 lavague launch
 ```
 
-??? note 'Optional arguments'
-
+???+ info "Optional arguments"
     You can specify a custom URL and insturctions or LaVague configuration with the following arguments:
     - The `--instructions` or `-i` option accepts a yaml file containing: the URL of the website we will interact with & the instructions for the actions we wish to automate
     -  The `--config` or `-c` option with a Python file which can be used to set a desired LLM, embedder etc.
