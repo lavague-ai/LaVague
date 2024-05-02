@@ -2,13 +2,14 @@
 
 In this quick tour, we'll show you how you can use the LaVague CLI to perform actions on web from natural language instructions using our Large Action Model.
 
-!!! note Pre-requisites
+!!! note "Pre-requisites"
     - Make sure you've already [installed LaVague](https://docs.lavague.ai/en/latest/docs/get-started/setting-up-la-vague/)
     - Our default demo uses the OpenAI API. You will need to have an OPENAI_API_KEY environment variable set in your local environment
 
-    To use LaVague with a different LLM API, see our [integrations](https://docs.lavague.ai/en/latest/docs/integrations/home/) section
+    To use LaVague with different APIs, see our [integrations section](https://docs.lavague.ai/en/latest/docs/integrations/home/)
 
-If you prefer to run this quick tour as end-to-end Google Colab notebook, follow [this link](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
+!!! tip "Google Colab"
+    If you prefer to run this quick tour as end-to-end Google Colab notebook, follow [this link](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
 ## LaVague Launch
 
@@ -18,8 +19,9 @@ You can launch an interactive in-browser Gradio demo where you can test out inst
 lavague launch
 ```
 
-???+ info "Optional arguments"
+??? info "Optional arguments"
     You can specify a custom URL and insturctions or LaVague configuration with the following arguments:
+
     - The `--instructions` or `-i` option accepts a yaml file containing: the URL of the website we will interact with & the instructions for the actions we wish to automate
     -  The `--config` or `-c` option with a Python file which can be used to set a desired LLM, embedder etc.
 
@@ -35,7 +37,7 @@ You can now click on the public (if you are using Google Colab) or local URL to 
 
 <img src="https://raw.githubusercontent.com/lavague-ai/LaVague/main/docs/assets/launch_2_openai_py.png" />
 
-Feel free to test our different URLs or instructions!
+Feel free to test our different URLs or instructions.
 
 ## LaVague Build
 
