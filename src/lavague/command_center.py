@@ -89,7 +89,8 @@ class GradioDemo(CommandCenter):
                 self.driver.getUrl(),
                 "Lavague-Launch",
                 self.success,
-                self.error,
+                False,
+                repr(self.error),
                 retrieved_context
             )
 

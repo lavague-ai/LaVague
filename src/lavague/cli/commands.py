@@ -20,10 +20,7 @@ def launch(ctx):
     from ..command_center import GradioDemo
 
     config = Config.from_path(ctx.obj["config"])
-    if ctx.obj["instructions"] is None:
-        instructions = Instructions.from_yaml(ctx.obj["instructions"])
-    else:
-        instructions = Instructions.from_default()
+    instructions = Instructions.from_yaml(ctx.obj["instructions"])
     action_engine = config.make_action_engine()
     driver = config.get_driver()
     command_center = GradioDemo(action_engine, driver)
@@ -55,7 +52,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
         config_path = os.path.basename(config_path)
         config_path, _ = os.path.splitext(config_path)
 
-        output_path = (instructions_path + "_" if len(instructions_path) > 0 else "") + config_path + "_gen"
+        output_path = instructions_path + "_" + config_path + "_gen"
         base_path = str(output_path)
         output_path += ".py"
         i = 1
@@ -104,27 +101,28 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             with open(output_file, "w") as file:
                 file.write(output)
                 break
-        output += (
-            "\n\n"
-            + "#" * 80
-            + "\n"
-            + f"# Query: {instruction}\n# Code:\n{code}".strip()
-        )
-        source_nodes = action_engine.get_nodes(instruction, html)
-        retrieved_context = "\n".join(source_nodes)
-        send_telemetry(
-            config.llm.metadata.model_name,
-            code,
-            "",
-            html,
-            instruction,
-            instructions.url,
-            "Lavague-build",
-            success,
-            test,
-            error,
-            retrieved_context
-        )
+        finally:
+            output += (
+                "\n\n"
+                + "#" * 80
+                + "\n"
+                + f"# Query: {instruction}\n# Code:\n{code}".strip()
+            )
+            source_nodes = action_engine.get_nodes(instruction, html)
+            retrieved_context = "\n".join(source_nodes)
+            send_telemetry(
+                config.llm.metadata.model_name,
+                code,
+                "",
+                html,
+                instruction,
+                instructions.url,
+                "Lavague-build",
+                success,
+                test,
+                error,
+                retrieved_context
+            )
     abstractDriver.destroy()
     print(f"Saving output to {output_file}")
     with open(output_file, "w") as file:
