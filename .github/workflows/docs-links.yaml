@@ -1,8 +1,8 @@
-Name: docs link checker
+name: docs link checker
 
 on:
   schedule:
-      - cron: '0 8 * * *'
+    - cron: '20 8 * * *'
 
 jobs:
   check-links:
