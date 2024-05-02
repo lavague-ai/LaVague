@@ -20,7 +20,10 @@ def launch(ctx):
     from ..command_center import GradioDemo
 
     config = Config.from_path(ctx.obj["config"])
-    instructions = Instructions.from_yaml(ctx.obj["instructions"])
+    if ctx.obj["instructions"] is None:
+        instructions = Instructions.from_yaml(ctx.obj["instructions"])
+    else:
+        instructions = Instructions.from_default()
     action_engine = config.make_action_engine()
     driver = config.get_driver()
     command_center = GradioDemo(action_engine, driver)
@@ -52,7 +55,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
         config_path = os.path.basename(config_path)
         config_path, _ = os.path.splitext(config_path)
 
-        output_path = instructions_path + "_" + config_path + "_gen"
+        output_path = (instructions_path + "_" if len(instructions_path) > 0 else "") + config_path + "_gen"
         base_path = str(output_path)
         output_path += ".py"
         i = 1
@@ -78,7 +81,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
 
     # Prepare the file
     if output_file is None:
-        output_file = build_name(ctx.obj["config"], ctx.obj["instructions"] if ctx.obj["instructions"] is not None else "default")
+        output_file = build_name(ctx.obj["config"] if ctx.obj["config"] is not None else "output", ctx.obj["instructions"] if ctx.obj["instructions"] is not None else "")
     output = "\n".join(source_code_lines)
     output += f"\n{abstractDriver.goToUrlCode(instructions.url.strip())}\n"
     driver_name, driver = abstractDriver.getDriver()

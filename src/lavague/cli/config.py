@@ -77,8 +77,8 @@ class Instructions(BaseModel):
     instructions: List[str]
 
     def from_default() -> Instructions:
-        url = "https://news.ycombinator.com/"
-        instructions = ["Click on search bar, then type 'lavague', then click enter"]
+        url = "https://huggingface.co/"
+        instructions = ["Click on the datasets button, in the menu", "Click on the search bar 'Search models, datasets, users...', type 'lavague-ai', import time to sleep 1 second and press enter", "Scroll by 500 pixels"]
         return Instructions(url=url, instructions=instructions)
 
     def from_yaml(path: Path) -> Instructions:

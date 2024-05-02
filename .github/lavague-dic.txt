@@ -4,6 +4,7 @@ LLM
 Gradio
 actionEngine
 config
+embedder
 py
 init
 bashrc
