@@ -203,7 +203,7 @@ class SeleniumActionEvaluator:
         decontaminated_retrieved_context = decontaminate_html(retrieved_context)
 
         start = time.time()
-        generated_code = action_engine.manual_complete(decontaminated_retrieved_context, query)
+        generated_code = action_engine.action_from_context(decontaminated_retrieved_context, query)
         end = time.time()
         llm_time = end - start
         

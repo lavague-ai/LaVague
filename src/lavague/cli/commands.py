@@ -177,7 +177,10 @@ def evaluation(ctx, dataset: str, nb_data: int, output_file: str, export_retriev
         for file in os.listdir(ctx.obj["config"]):
             if file.endswith(".py"):
                 print(f"Handling {file}...")
-                retriever_data = common_evaluation(ctx.obj["config"] + "/" + file, dataset, nb_data, output_file, export_retriever, retriever_data)
+                try:
+                    retriever_data = common_evaluation(ctx.obj["config"] + "/" + file, dataset, nb_data, output_file, export_retriever, retriever_data)
+                except Exception as e:
+                    print(f"An error occured while handling {file}: {repr(e)}")
     if export_retriever:
         print(f"Exporting retriever to {export_retriever}")
         retriever_data.to_json(export_retriever, orient='records', lines=True)

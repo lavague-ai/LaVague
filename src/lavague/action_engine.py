@@ -153,7 +153,7 @@ class ActionEngine(BaseActionEngine):
         code = self.cleaning_function(code)
         return code
     
-    def manual_complete(self, context: str, query: str) -> str:
+    def action_from_context(self, context: str, query: str) -> str: 
         prompt = SELENIUM_PROMPT.format(context_str=context, query_str=query)
 
         response = self.llm.complete(prompt).text
