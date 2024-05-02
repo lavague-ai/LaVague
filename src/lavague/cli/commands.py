@@ -78,7 +78,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
 
     # Prepare the file
     if output_file is None:
-        output_file = build_name(ctx.obj["config"], ctx.obj["instructions"] if ctx.obj["instructions"] is not None else "default")
+        output_file = build_name(ctx.obj["config"] if ctx.obj["config"] is not None else "default_configuration", ctx.obj["instructions"] if ctx.obj["instructions"] is not None else "default_instructions")
     output = "\n".join(source_code_lines)
     output += f"\n{abstractDriver.goToUrlCode(instructions.url.strip())}\n"
     driver_name, driver = abstractDriver.getDriver()
