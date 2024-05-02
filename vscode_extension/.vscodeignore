@@ -1,0 +1,4 @@
+**/*.ts
+**/tsconfig.json
+!file.ts
+node_modules
