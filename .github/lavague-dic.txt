@@ -9,6 +9,7 @@ init
 bashrc
 source
 url
+textbox
 coderesponse
 html
 CLI

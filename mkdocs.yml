@@ -94,7 +94,7 @@ nav:
 
 - 🚀 Getting Started:
   - Installation: 'docs/get-started/setting-up-la-vague.md'
-  - Quick tour: 'docs/get-started/quick-tour.ipynb'
+  - Quick tour: 'docs/get-started/quick-tour.md'
   - VSCode extension (Alpha): 'docs/get-started/get-started-vscode-extension.md'
   - Playwright: 'docs/get-started/playwright.md'
   - Customization: 'docs/get-started/customization.md'
