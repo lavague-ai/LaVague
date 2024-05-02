@@ -2,7 +2,7 @@ import os
 import requests
 import uuid
 
-from src.lavague.version_checker import get_installed_version
+from .version_checker import get_installed_version
 
 TELEMETRY_VAR = os.getenv("LAVAGUE_TELEMETRY")
 USER_ID = str(uuid.uuid4())
