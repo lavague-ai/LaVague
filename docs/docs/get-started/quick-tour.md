@@ -14,7 +14,9 @@ If you prefer to run this quick tour as end-to-end Google Colab notebook, follow
 
 You can launch an interactive in-browser Gradio demo where you can test out instructing LaVague to perform actions on a website with the following command:
 
-`lavague launch`
+```bash
+lavague launch
+```
 
 ??? note 'Optional arguments'
 
@@ -40,7 +42,9 @@ Feel free to test our different URLs or instructions!
 
 Alternatively, you can use the `build` command to generate the automation code directly without launching a Gradio demo:
 
-`lavague build`
+```bash
+lavague build
+```
 
 This will create an automation script in your current directory named `output_gen.py`.
 
