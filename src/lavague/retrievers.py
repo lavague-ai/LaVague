@@ -41,7 +41,7 @@ class BaseHtmlRetriever(ABC):
         return _LlamaIndexAdapter(html, self)
 
 
-class LegacyRetriever(BaseHtmlRetriever):
+class BM25HtmlRetriever(BaseHtmlRetriever):
     """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
 
     def __init__(self, embedder: BaseEmbedding, top_k: int = 3):

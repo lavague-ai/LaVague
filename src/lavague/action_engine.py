@@ -176,3 +176,6 @@ class TestActionEngine(BaseActionEngine):
 
     def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
         return self.dummy_code
+    
+    def get_nodes(self, query: str, html: str) -> List[str]:
+        return ["test", "test"]
