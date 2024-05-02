@@ -20,7 +20,10 @@ def launch(ctx):
     from ..command_center import GradioDemo
 
     config = Config.from_path(ctx.obj["config"])
-    instructions = Instructions.from_yaml(ctx.obj["instructions"])
+    if ctx.obj["instructions"] is not None:
+        instructions = Instructions.from_yaml(ctx.obj["instructions"])
+    else:
+        instructions = Instructions.from_default()
     action_engine = config.make_action_engine()
     driver = config.get_driver()
     command_center = GradioDemo(action_engine, driver)
