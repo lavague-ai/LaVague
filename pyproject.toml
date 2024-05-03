@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lavague"
-version = "1.0.9"
+version = "1.0.10"
 description = "Selenium code generation from text instructions"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -59,6 +59,7 @@ dependencies = [
   "gradio==4.21.0",
   "ipython",
   "langchain==0.1.10",
+  "datasets==2.19.0"
 ]
 
 [project.optional-dependencies]
