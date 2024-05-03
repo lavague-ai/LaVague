@@ -12,7 +12,9 @@
 
 <h4 align="center">
  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
+    <!-- markdown-link-check-disable -->
     <img src="https://dcbadge.vercel.app/api/server/SDxn9KpqX9?compact=true" height='35px' alt="Join our Discord server!">
+    <!-- markdown-link-check-enable -->
   </a>
   <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/📄-docs-000000?style=for-the-badge&colorA=09c&colorB=555" height='35px' alt="Docs"></a>
 </h4>
