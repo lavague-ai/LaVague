@@ -55,7 +55,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
         config_path = os.path.basename(config_path)
         config_path, _ = os.path.splitext(config_path)
 
-        output_path = instructions_path + "_" + config_path + "_gen"
+        output_path = (instructions_path + "_" if len(instructions_path) > 0 else "") + config_path + "_gen"
         base_path = str(output_path)
         output_path += ".py"
         i = 1
