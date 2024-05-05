@@ -40,15 +40,17 @@ class GradioDemo(CommandCenter):
     </div>
     """
 
-    def __init__(self, actionEngine: ActionEngine, driver: AbstractDriver):
+    def __init__(self, actionEngine: ActionEngine, get_driver: callable):
         self.actionEngine = actionEngine
-        self.driver = driver
+        self.get_driver = get_driver
+        self.driver = None
         self.base_url = ""
         self.success = False
         self.error = ""
 
     def init_driver(self):
         def init_driver_impl(url):
+            self.driver = self.get_driver() if self.driver is None else self.driver
             self.driver.goTo(url)
             self.driver.getScreenshot("screenshot.png")
             # This function is supposed to fetch and return the image from the URL.
