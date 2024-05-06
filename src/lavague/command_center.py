@@ -63,7 +63,7 @@ class GradioDemo(CommandCenter):
                 self.driver.goTo(url_input)
             state = self.driver.getHtml()
             response = ""
-            for text in self.actionEngine.get_action_streaming(query, state):
+            for text in self.actionEngine.get_action_streaming(query, state, url_input):
                 # do something with text as they arrive.
                 response += text
                 yield response

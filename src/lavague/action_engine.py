@@ -8,6 +8,7 @@ from llama_index.core.base.llms.base import BaseLLM
 from .prompts import SELENIUM_PROMPT
 from .defaults import default_python_code_extractor
 from .retrievers import BaseHtmlRetriever
+from .telemetry import send_telemetry_action_engine
 
 
 class BaseActionEngine(ABC):
@@ -16,13 +17,14 @@ class BaseActionEngine(ABC):
     """
 
     @abstractmethod
-    def get_action(self, query: str, html: str) -> str:
+    def get_action(self, query: str, html: str, url: str = "") -> str:
         """
         Generate the code from a query and an html page, and clean it to extract the code
 
         Args:
             query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
             html (`str`): The html page
+            url (`str`, optional): The URL of the page, used for the telemetry only
 
         Return:
             `str`: The generated code
@@ -30,13 +32,14 @@ class BaseActionEngine(ABC):
         pass
 
     @abstractmethod
-    def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
+    def get_action_streaming(self, query: str, html: str, url: str = "") -> Generator[str, None, None]:
         """
         Generate the code with streaming from a query and an html page (without cleaning)
 
         Args:
             query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
             html (`str`): The html page
+            url (`str`, optional): The URL of the page, used for the telemetry only
 
         Return:
             `str`: The generated code
@@ -105,11 +108,22 @@ class ActionEngine(BaseActionEngine):
 
         return query_engine
 
-    def get_action(self, query: str, html: str) -> str:
-        query_engine = self.get_query_engine(html, streaming=False)
-        response = query_engine.query(query)
-        code = response.response
-        code = self.cleaning_function(code)
+    def get_action(self, query: str, html: str, url: str = "") -> str:
+        success = True
+        err = ""
+        try:
+            query_engine = self.get_query_engine(html, streaming=False)
+            response = query_engine.query(query)
+            code = response.response
+            code = self.cleaning_function(code)
+        except Exception as e:
+            success = False
+            err = repr(e)
+            raise e
+        finally:
+            source_nodes = self.get_nodes(query, html)
+            retrieved_context = "\n".join(source_nodes)
+            send_telemetry_action_engine(self.llm.metadata.model_name, code, query, url, success, False, err, retrieved_context)
         return code
     
     def action_from_context(self, context: str, query: str) -> str: 
@@ -134,11 +148,23 @@ class ActionEngine(BaseActionEngine):
         source_nodes = [node.text for node in source_nodes]
         return source_nodes
 
-    def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
-        query_engine = self.get_query_engine(html, streaming=True)
-        streaming_response = query_engine.query(query)
-        for text in streaming_response.response_gen:
-            yield text
+    def get_action_streaming(self, query: str, html: str, url: str = "") -> Generator[str, None, None]:
+        success = True
+        err = ""
+        code = ""
+        try:
+            query_engine = self.get_query_engine(html, streaming=True)
+            streaming_response = query_engine.query(query)
+            for text in streaming_response.response_gen:
+                yield text
+        except Exception as e:
+            err = repr(e)
+            success = False
+            raise e
+        finally:
+            source_nodes = self.get_nodes(query, html)
+            retrieved_context = "\n".join(source_nodes)
+            send_telemetry_action_engine(self.llm.metadata.model_name, code, query, url, success, False, err, retrieved_context)
 
     def get_action_streaming_vscode(self, query: str, html: str, url: str) -> Generator[str, None, None]:
         from .telemetry import send_telemetry
@@ -171,10 +197,10 @@ class TestActionEngine(BaseActionEngine):
     def __init__(self, dummy_code: str):
         self.dummy_code = dummy_code
 
-    def get_action(self, query: str, html: str) -> str:
+    def get_action(self, query: str, html: str, url: str = "") -> str:
         return self.dummy_code
 
-    def get_action_streaming(self, query: str, html: str) -> Generator[str, None, None]:
+    def get_action_streaming(self, query: str, html: str, url: str = "") -> Generator[str, None, None]:
         return self.dummy_code
     
     def get_nodes(self, query: str, html: str) -> List[str]:
