@@ -87,7 +87,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
     output = "\n".join(source_code_lines)
     output += f"\n{abstractDriver.goToUrlCode(instructions.url.strip())}\n"
     driver_name, driver = abstractDriver.getDriver()
-    exec(f"{driver_name} = driver")  # define driver
+    exec(f"{driver_name.strip()} = driver")  # define driver
 
     for instruction in tqdm(instructions.instructions):
         print(f"Processing instruction: {instruction}")

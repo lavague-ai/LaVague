@@ -103,7 +103,8 @@ class GradioDemo(CommandCenter):
             self.error = ""
             code = self.actionEngine.cleaning_function(code)
             html = self.driver.getHtml()
-            _, driver = self.driver.getDriver()  # define driver for exec
+            driver_name, driver = self.driver.getDriver()  # define driver for exec
+            exec(f"{driver_name.strip()} = driver")  # define driver in case its name is different
             try:
                 exec(code)
                 output = "Successful code execution"
@@ -193,6 +194,10 @@ class GradioDemo(CommandCenter):
             )
             text_area.submit(
                 self.__show_processing_message(), outputs=[status_html]
+            ).then(
+                self.init_driver(),
+                inputs=[url_input],
+                outputs=[image_display],
             ).then(
                 self.process_instructions(),
                 inputs=[text_area, url_input],
