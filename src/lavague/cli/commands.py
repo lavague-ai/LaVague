@@ -25,8 +25,10 @@ def launch(ctx):
     else:
         instructions = Instructions.from_default()
     action_engine = config.make_action_engine()
-    driver = config.get_driver()
-    command_center = GradioDemo(action_engine, driver)
+    # We will just pass the get driver func name to the Gradio demo.
+    # We will call this during driver initialization in init_driver() 
+    get_driver = config.get_driver
+    command_center = GradioDemo(action_engine, get_driver)
     command_center.run(instructions.url, instructions.instructions)
 
 
@@ -85,7 +87,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
     output = "\n".join(source_code_lines)
     output += f"\n{abstractDriver.goToUrlCode(instructions.url.strip())}\n"
     driver_name, driver = abstractDriver.getDriver()
-    exec(f"{driver_name} = driver")  # define driver
+    exec(f"{driver_name.strip()} = driver")  # define driver
 
     for instruction in tqdm(instructions.instructions):
         print(f"Processing instruction: {instruction}")

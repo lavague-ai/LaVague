@@ -40,15 +40,17 @@ class GradioDemo(CommandCenter):
     </div>
     """
 
-    def __init__(self, actionEngine: ActionEngine, driver: AbstractDriver):
+    def __init__(self, actionEngine: ActionEngine, get_driver: callable):
         self.actionEngine = actionEngine
-        self.driver = driver
+        self.get_driver = get_driver
+        self.driver = None
         self.base_url = ""
         self.success = False
         self.error = ""
 
     def init_driver(self):
         def init_driver_impl(url):
+            self.driver = self.get_driver() if self.driver is None else self.driver
             self.driver.goTo(url)
             self.driver.getScreenshot("screenshot.png")
             # This function is supposed to fetch and return the image from the URL.
@@ -101,7 +103,8 @@ class GradioDemo(CommandCenter):
             self.error = ""
             code = self.actionEngine.cleaning_function(code)
             html = self.driver.getHtml()
-            _, driver = self.driver.getDriver()  # define driver for exec
+            driver_name, driver = self.driver.getDriver()  # define driver for exec
+            exec(f"{driver_name.strip()} = driver")  # define driver in case its name is different
             try:
                 exec(code)
                 output = "Successful code execution"
@@ -191,6 +194,10 @@ class GradioDemo(CommandCenter):
             )
             text_area.submit(
                 self.__show_processing_message(), outputs=[status_html]
+            ).then(
+                self.init_driver(),
+                inputs=[url_input],
+                outputs=[image_display],
             ).then(
                 self.process_instructions(),
                 inputs=[text_area, url_input],
