@@ -1,16 +1,11 @@
 from typing import Optional, List
 from abc import ABC, abstractmethod
 import gradio as gr
-from selenium.webdriver.common.by import By  # import used by generated selenium code
-from selenium.webdriver.common.keys import (
-    Keys,
-)
 
 from .telemetry import send_telemetry
 from .action_engine import ActionEngine
 from .driver import AbstractDriver
 import base64
-
 
 class CommandCenter(ABC):
     @abstractmethod
