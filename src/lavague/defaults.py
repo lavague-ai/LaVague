@@ -153,8 +153,7 @@ if PLAYWRIGHT_IMPORT:
             raise ImportError(
                 "Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers"
             ) from error
-        p = sync_playwright().__enter__()
+        p = sync_playwright().start()
         browser = p.chromium.launch()
-        context = browser.new_context()
-        page = context.new_page()
-        return PlaywrightDriver(page)
+        page = browser.new_page()
+        return PlaywrightDriver(page, p)
