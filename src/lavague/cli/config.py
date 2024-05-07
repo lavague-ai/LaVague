@@ -13,7 +13,7 @@ from ..defaults import (
     DefaultEmbedder,
     default_python_code_extractor,
 )
-from ..prompts import PLAYWRIGHT_PROMPT
+from ..prompts import PLAYWRIGHT_PROMPT, SELENIUM_PROMPT
 from ..driver import AbstractDriver
 from ..action_engine import ActionEngine
 from ..retrievers import OpsmSplitRetriever, BaseHtmlRetriever
