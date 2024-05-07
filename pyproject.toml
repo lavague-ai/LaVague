@@ -59,7 +59,7 @@ dependencies = [
   "gradio==4.21.0",
   "ipython",
   "langchain==0.1.10",
-  "datasets==2.19.0"
+  "datasets"
 ]
 
 [project.optional-dependencies]
