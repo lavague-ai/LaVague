@@ -14,8 +14,8 @@ from llama_index.core.schema import NodeWithScore
 from llama_index.core.schema import TextNode
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
-from .base_driver import BaseDriver
-from .utilities.format_utils import clean_html
+from lavague.core.base_driver import BaseDriver
+from lavague.core.utilities.format_utils import clean_html
 
 
 class _LlamaIndexAdapter(BaseRetriever):
