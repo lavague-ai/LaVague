@@ -112,7 +112,6 @@ class GradioDemo(CommandCenter):
                 full_code += code
                 url_input = driver_o.getUrl()
                 driver_o.getScreenshot("screenshot.png")
-                print(driver.)
             except Exception as e:
                 output = f"Error in code execution: {str(e)}"
                 status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
