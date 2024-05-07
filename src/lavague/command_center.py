@@ -188,25 +188,29 @@ class GradioDemo(CommandCenter):
                 outputs=[image_display],
             )
             text_area.submit(
-                self.__show_processing_message(), outputs=[status_html]
+                self.__show_processing_message(), outputs=[status_html], queue=True
             ).then(
                 self.init_driver(),
                 inputs=[url_input],
                 outputs=[image_display],
+                queue=True
             ).then(
                 self.process_instructions(),
                 inputs=[text_area, url_input],
                 outputs=[code_display],
+                queue=True
             ).then(
                 self.__exec_code(),
                 inputs=[code_display, full_code],
                 outputs=[log_display, code_display, full_html, status_html, full_code],
+                queue=True
             ).then(
                 self.__update_image_display(),
                 inputs=[],
                 outputs=[image_display, url_input],
+                queue=True
             ).then(
                 self.__telemetry(),
                 inputs=[text_area, code_display, full_html],
             )
-        demo.launch(server_port=server_port, share=True, debug=True)
+        demo.launch(server_port=server_port, share=True, debug=True, max_threads=1)

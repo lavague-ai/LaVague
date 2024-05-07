@@ -155,5 +155,6 @@ if PLAYWRIGHT_IMPORT:
             ) from error
         p = sync_playwright().__enter__()
         browser = p.chromium.launch()
-        page = browser.new_page()
+        context = browser.new_context()
+        page = context.new_page()
         return PlaywrightDriver(page)
