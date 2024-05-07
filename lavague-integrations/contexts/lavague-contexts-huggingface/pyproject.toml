@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "lavague-contexts-litellm"
+name = "lavague-contexts-huggingface"
 version = "0.1.0"
-description = "LiteLLM integration for lavague"
+description = "HuggingFaceLLM integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
 license = "Apache-2.0"
@@ -22,7 +22,8 @@ packages = [{include = "lavague/"}]
 [tool.poetry.dependencies]
 python = "^3.8.1"
 lavague-core = "^0.1.0"
-llama-index-llms-litellm = "^0.1.4"
+lavague-llms-huggingface = "^0.1.0"
+llama-index-embeddings-huggingface = "^0.2.0"
 
 [build-system]
 requires = ["poetry-core"]

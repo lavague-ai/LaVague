@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "lavague-contexts-azure"
+name = "lavague-llms-huggingface"
 version = "0.1.0"
-description = "Azure OpenAI integration for lavague"
+description = "HuggingFaceLLM integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
 license = "Apache-2.0"
@@ -21,9 +21,11 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-llama-index-embeddings-azure-openai = "^0.1.5"
 lavague-core = "^0.1.0"
-llama-index-llms-azure-openai = "^0.1.5"
+llama-index-llms-huggingface = "^0.1.5"
+bitsandbytes = "^0.43.1"
+accelerate = "^0.30.0"
+
 
 [build-system]
 requires = ["poetry-core"]

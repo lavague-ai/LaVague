@@ -1,1 +1,1 @@
-from lavague.contexts.litellm.base import GroqContext
+from lavague.contexts.groq.base import GroqContext

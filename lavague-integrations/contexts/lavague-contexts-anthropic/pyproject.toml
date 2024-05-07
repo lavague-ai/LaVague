@@ -23,6 +23,7 @@ packages = [{include = "lavague/"}]
 python = "^3.8.1"
 lavague-core = "^0.1.0"
 llama-index-llms-anthropic = "^0.1.8"
+llama-index-embeddings-openai = "^0.1.9"
 
 [build-system]
 requires = ["poetry-core"]
