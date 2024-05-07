@@ -8,7 +8,7 @@ from llama_index.core.base.llms.base import BaseLLM
 from .prompts import SELENIUM_PROMPT
 from .defaults import default_python_code_extractor
 from .retrievers import BaseHtmlRetriever
-from .telemetry import send_telemetry_action_engine
+from .telemetry import send_telemetry
 
 
 class BaseActionEngine(ABC):
@@ -123,7 +123,7 @@ class ActionEngine(BaseActionEngine):
         finally:
             source_nodes = self.get_nodes(query, html)
             retrieved_context = "\n".join(source_nodes)
-            send_telemetry_action_engine(self.llm.metadata.model_name, code, query, url, success, False, err, retrieved_context)
+            send_telemetry(self.llm.metadata.model_name, code, "", html, query, url, "action-engine", success, False, err, retrieved_context)
         return code
     
     def action_from_context(self, context: str, query: str) -> str: 
@@ -156,6 +156,7 @@ class ActionEngine(BaseActionEngine):
             query_engine = self.get_query_engine(html, streaming=True)
             streaming_response = query_engine.query(query)
             for text in streaming_response.response_gen:
+                code += text
                 yield text
         except Exception as e:
             err = repr(e)
@@ -164,7 +165,7 @@ class ActionEngine(BaseActionEngine):
         finally:
             source_nodes = self.get_nodes(query, html)
             retrieved_context = "\n".join(source_nodes)
-            send_telemetry_action_engine(self.llm.metadata.model_name, code, query, url, success, False, err, retrieved_context)
+            send_telemetry(self.llm.metadata.model_name, code, "", html, query, url, "action-engine", success, False, err, retrieved_context)
 
     def get_action_streaming_vscode(self, query: str, html: str, url: str) -> Generator[str, None, None]:
         from .telemetry import send_telemetry

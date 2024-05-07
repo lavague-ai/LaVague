@@ -7,49 +7,6 @@ from .version_checker import get_installed_version
 TELEMETRY_VAR = os.getenv("LAVAGUE_TELEMETRY")
 USER_ID = str(uuid.uuid4())
 
-def send_telemetry_action_engine(
-    model_name: str,
-    code: str,
-    instruction: str,
-    url: str,
-    success: bool,
-    test: bool = False,
-    error: str = "",
-    source_nodes: str = "",
-):
-    """
-    Telemetry (Action Engine) to help performance.
-    Mandatory telemetry variables - DO NOT DELETE ANY, else telemetry will fail: model_name, code, source_nodes, instruction, url, origin, success
-    """
-    success_str = str(success)
-    try:
-        if TELEMETRY_VAR == "HIGH" or TELEMETRY_VAR is None or TELEMETRY_VAR == "LOW":
-            r = requests.post(
-                "https://telemetrylavague.mithrilsecurity.io/telemetry_ae",
-                json={
-                    "version": get_installed_version("lavague"),
-                    "code_produced": code,
-                    "llm": model_name,
-                    "user_id": USER_ID,
-                    "url": url,
-                    "success": success_str,
-                    "instruction": instruction,
-                    "source_nodes": source_nodes,
-                    "error_msg": error,
-                    "test": test,
-                },
-            )
-            if r.status_code != 200:
-                raise ValueError(r.content)
-        elif TELEMETRY_VAR == "NONE":
-            pass
-    except Exception as e:
-        if not test:
-            print("Telemetry (Action Engine) failed with ", e)
-        else:
-            raise ValueError("Telemetry (Action Engine) failed with ", e)
-
-
 def send_telemetry(
     model_name: str,
     code: str,
