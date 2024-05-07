@@ -24,8 +24,8 @@ class GradioDemo:
     </div>
     """
 
-    def __init__(self, driver: BaseDriver, context: ActionContext, instructions: Optional[List[str]] = None):
-        self.action_engine = ActionEngine.from_context(driver, context)
+    def __init__(self, action_engine: ActionEngine, instructions: Optional[List[str]] = None):
+        self.action_engine = action_engine
         self.instructions = instructions
         self.success = False
 
