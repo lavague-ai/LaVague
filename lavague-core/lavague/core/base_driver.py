@@ -1,6 +1,6 @@
 from typing import Tuple, Any, Callable, Optional
 from abc import ABC, abstractmethod
-from .format_utils import extract_code_from_funct, extract_imports_from_lines
+from lavague.core.utilities.format_utils import extract_code_from_funct, extract_imports_from_lines
 
 class BaseDriver(ABC):
 

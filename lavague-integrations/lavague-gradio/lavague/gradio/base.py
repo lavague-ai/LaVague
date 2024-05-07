@@ -1,36 +1,20 @@
-from typing import Optional, List
-from abc import ABC, abstractmethod
+from typing import List, Optional
 import gradio as gr
-from selenium.webdriver.common.by import By  # import used by generated selenium code
-from selenium.webdriver.common.keys import (
-    Keys,
-)
-
-from .telemetry import send_telemetry
-from .action_engine import BaseActionEngine
-from .drivers import AbstractDriver
+from lavague.core.utilities.telemetry import send_telemetry
+from lavague.core.action_context import ActionContext
+from lavague.core.action_engine import ActionEngine
+from lavague.core.base_driver import BaseDriver
 import base64
 
-
-class CommandCenter(ABC):
-    @abstractmethod
-    def init_driver():
-        pass
-
-    @abstractmethod
-    def process_instructions():
-        pass
-
-
-class GradioDemo(CommandCenter):
+class GradioDemo:
     """
-    CommandCenter allows you to launch a gradio demo powered by selenium and the ActionEngine
+    Launch a gradio demo of lavague
 
     Args:
-        actionEngine (`BaseActionEngine`):
-            The action engine, with streaming enabled
-        driver (`AbstractDriver`):
+        driver (`BaseDriver`):
             The driver
+        context (`ActionContext`):
+            An action context
     """
 
     title = """
@@ -40,29 +24,27 @@ class GradioDemo(CommandCenter):
     </div>
     """
 
-    def __init__(self, actionEngine: BaseActionEngine, driver: AbstractDriver):
-        self.actionEngine = actionEngine
-        self.driver = driver
-        self.base_url = ""
+    def __init__(self, driver: BaseDriver, context: ActionContext, instructions: Optional[List[str]] = None):
+        self.action_engine = ActionEngine.from_context(driver, context)
+        self.instructions = instructions
         self.success = False
 
-    def init_driver(self):
+    def _init_driver(self):
         def init_driver_impl(url):
-            self.driver.goTo(url)
-            self.driver.getScreenshot("screenshot.png")
+            self.action_engine.driver.goto(url)
+            self.action_engine.driver.get_screenshot("screenshot.png")
             # This function is supposed to fetch and return the image from the URL.
             # Placeholder function: replace with actual image fetching logic.
             return "screenshot.png"
 
         return init_driver_impl
 
-    def process_instructions(self):
+    def _process_instructions(self):
         def process_instructions_impl(query, url_input):
-            if url_input != self.driver.getUrl():
-                self.driver.goTo(url_input)
-            state = self.driver.getHtml()
+            if url_input != self.action_engine.driver.get_url():
+                self.action_engine.driver.goto(url_input)
             response = ""
-            for text in self.actionEngine.get_action_streaming(query, state):
+            for text in self.action_engine.get_action_streaming(query):
                 # do something with text as they arrive.
                 response += text
                 yield response
@@ -78,12 +60,12 @@ class GradioDemo(CommandCenter):
             except:
                 pass
             send_telemetry(
-                self.actionEngine.llm.metadata.model_name,
+                self.action_engine.llm.metadata.model_name,
                 code,
                 screenshot,
                 html,
                 query,
-                self.driver.getUrl(),
+                self.action_engine.driver.get_url(),
                 "Lavague-Launch",
                 self.success,
             )
@@ -92,11 +74,10 @@ class GradioDemo(CommandCenter):
 
     def __exec_code(self):
         def exec_code(code, full_code):
-            code = self.actionEngine.cleaning_function(code)
-            html = self.driver.getHtml()
-            _, driver = self.driver.getDriver()  # define driver for exec
+            code = self.action_engine.extractor.extract(code)
+            html = self.action_engine.driver.get_html()
             try:
-                exec(code)
+                self.action_engine.driver.exec_code(code)
                 output = "Successful code execution"
                 status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
                 self.success = True
@@ -111,8 +92,8 @@ class GradioDemo(CommandCenter):
 
     def __update_image_display(self):
         def update_image_display():
-            self.driver.getScreenshot("screenshot.png")
-            url = self.driver.getUrl()
+            self.action_engine.driver.get_screenshot("screenshot.png")
+            url = self.action_engine.driver.get_url()
             return "screenshot.png", url
 
         return update_image_display
@@ -120,7 +101,7 @@ class GradioDemo(CommandCenter):
     def __show_processing_message(self):
         return lambda: "Processing..."
 
-    def run(self, base_url: str, instructions: List[str], server_port: int = 7860):
+    def launch(self, server_port: int = 7860, share=True, debug=True):
         """
         Launch the gradio demo
 
@@ -135,7 +116,7 @@ class GradioDemo(CommandCenter):
                     gr.HTML(self.title)
                 with gr.Row():
                     url_input = gr.Textbox(
-                        value=base_url,
+                        value=self.action_engine.driver.get_url(),
                         label="Enter URL and press 'Enter' to load the page.",
                     )
 
@@ -161,7 +142,7 @@ class GradioDemo(CommandCenter):
                         text_area = gr.Textbox(
                             label="Enter instructions and press 'Enter' to generate code."
                         )
-                        gr.Examples(examples=instructions, inputs=text_area)
+                        gr.Examples(examples=self.instructions, inputs=text_area)
             with gr.Tab("Debug"):
                 with gr.Row():
                     with gr.Column():
@@ -177,14 +158,14 @@ class GradioDemo(CommandCenter):
 
             # Linking components
             url_input.submit(
-                self.init_driver(),
+                self._init_driver(),
                 inputs=[url_input],
                 outputs=[image_display],
             )
             text_area.submit(
                 self.__show_processing_message(), outputs=[status_html]
             ).then(
-                self.process_instructions(),
+                self._process_instructions(),
                 inputs=[text_area, url_input],
                 outputs=[code_display],
             ).then(

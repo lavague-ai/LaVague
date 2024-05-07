@@ -1,6 +1,6 @@
 from typing import Callable, Optional
 from playwright.sync_api import Page
-from ...driver import BaseDriver
+from lavague.core.base_driver import BaseDriver
 
 class PlaywrightDriver(BaseDriver):
     def __init__(self, url: Optional[str] = None, get_sync_playwright_page: Optional[Callable[[], Page]] = None):
@@ -50,7 +50,7 @@ class PlaywrightDriver(BaseDriver):
             return False
 
     def exec_code(self, code: str):
-        exec(self._get_import_lines())
+        exec(self.import_lines)
         page = self.driver
         exec(code)
     

@@ -5,10 +5,10 @@ from llama_index.core import get_response_synthesizer
 from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from .extractors import BaseExtractor
-from .retrievers import BaseHtmlRetriever
-from .driver import BaseDriver
-from .action_context import ActionContext
+from lavague.core.extractors import BaseExtractor
+from lavague.core.retrievers import BaseHtmlRetriever
+from lavague.core.base_driver import BaseDriver
+from lavague.core.action_context import ActionContext
 
 class ActionEngine:
     """

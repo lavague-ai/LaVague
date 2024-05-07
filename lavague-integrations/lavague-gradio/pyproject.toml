@@ -1,14 +1,14 @@
 [build-system]
-build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "lavague"
-version = "0.1.0"
-description = "automation code generation from text instructions"
+name = "lavague-gradio"
 authors = ["lavague-ai"]
-readme = "README.md"
+version = "0.1.0"
+description = "Gradio demo for lavague"
 license = "Apache-2.0"
+readme = "README.md"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -18,14 +18,12 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
 ]
 keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
-homepage = "https://mithrilsecurity.io"
+homepage = "https://lavague.ai"
 repository = "https://github.com/lavague-ai/LaVague/"
 documentation = "https://docs.lavague.ai/en/latest/"
-packages = [{from = "_lavague", include = "lavague"}]
+packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
 lavague-core = "^0.1.0"
-
-[tool.poetry.dev-dependencies]
-ruff = "0.0.292"
+gradio = "^4.0.0"

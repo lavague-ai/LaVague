@@ -1,7 +1,7 @@
-from typing import Any, Tuple, Optional, Callable
+from typing import Any, Optional, Callable
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-from ...driver import BaseDriver
+from lavague.core.base_driver import BaseDriver
 
 class SeleniumDriver(BaseDriver):
     def __init__(self, url: Optional[str] = None, get_selenium_driver: Optional[Callable[[], WebDriver]] = None):
@@ -76,7 +76,7 @@ class SeleniumDriver(BaseDriver):
             return False
     
     def exec_code(self, code: str):
-        exec(self._get_import_lines())
+        exec(self.import_lines)
         driver = self.driver
         exec(code)
     
