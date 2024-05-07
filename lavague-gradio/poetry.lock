@@ -1000,7 +1000,7 @@ develop = true
 
 [package.source]
 type = "directory"
-url = "../../lavague-core"
+url = "../lavague-core"
 
 [[package]]
 name = "markdown-it-py"
