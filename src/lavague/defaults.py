@@ -162,7 +162,7 @@ if PLAYWRIGHT_IMPORT:
             browser = p.chromium.launch()
         except Error as e:
             if "Executable doesn't exist" in str(e):
-                print("Playwright executable not found. Installing new browsers...")
+                print("Browsers executable not found. Installing the browsers...")
                 subprocess.run(["playwright", "install"])
                 print("Browsers installed successfully. Retrying...")
                 try:
