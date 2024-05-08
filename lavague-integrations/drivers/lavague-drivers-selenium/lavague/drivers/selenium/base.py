@@ -48,7 +48,9 @@ class SeleniumDriver(BaseDriver):
     def get_driver(self) -> WebDriver:
         return self.driver
 
-    def get_url(self) -> str:
+    def get_url(self) -> Optional[str]:
+        if self.driver.current_url == "data:,":
+            return None
         return self.driver.current_url
 
     def go_to_url_code(self, url: str) -> str:

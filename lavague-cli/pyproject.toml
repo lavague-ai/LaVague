@@ -1,14 +1,14 @@
 [build-system]
-build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "lavague-core"
-version = "0.1.0"
-description = "automation code generation from text instructions"
+name = "lavague-cli"
 authors = ["lavague-ai"]
-readme = "README.md"
+version = "0.1.0"
+description = "CLI for lavague"
 license = "Apache-2.0"
+readme = "README.md"
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -25,4 +25,9 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-llama-index = "^0.10.19"
+lavague-core = "^0.1.0"
+click = "^8.1.7"
+importlib = "^1.0.4"
+
+[tool.poetry.scripts]
+lavague-cli = "lavague.cli:cli"

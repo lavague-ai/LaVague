@@ -32,7 +32,7 @@ class BaseDriver(ABC):
         pass
 
     @abstractmethod
-    def get_url(self) -> str:
+    def get_url(self) -> Optional[str]:
         """Get the url of the current page"""
         pass
 

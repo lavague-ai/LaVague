@@ -22,7 +22,9 @@ class PlaywrightDriver(BaseDriver):
     def get_driver(self) -> Page:
         return self.driver
 
-    def get_url(self) -> str:
+    def get_url(self) -> Optional[str]:
+        if self.driver.url == "about:blank":
+            return None
         return self.driver.url
 
     def go_to_url_code(self, url: str) -> str:

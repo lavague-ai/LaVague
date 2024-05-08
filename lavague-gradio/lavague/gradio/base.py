@@ -142,7 +142,8 @@ class GradioDemo:
                         text_area = gr.Textbox(
                             label="Enter instructions and press 'Enter' to generate code."
                         )
-                        gr.Examples(examples=self.instructions, inputs=text_area)
+                        if self.instructions is not None and len(self.instructions) > 0:
+                            gr.Examples(examples=self.instructions, inputs=text_area)
             with gr.Tab("Debug"):
                 with gr.Row():
                     with gr.Column():
