@@ -148,28 +148,12 @@ if PLAYWRIGHT_IMPORT:
 
     def default_get_playwright_driver() -> PlaywrightDriver:
         try:
-            import playwright
-            from playwright.sync_api import sync_playwright, Browser
-            from playwright.sync_api._generated import Error
-            import subprocess
+            from playwright.sync_api import sync_playwright
         except (ImportError, ModuleNotFoundError) as error:
             raise ImportError(
                 "Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers"
             ) from error
-        browser: Browser
         p = sync_playwright().start()
-        try:
-            browser = p.chromium.launch()
-        except Error as e:
-            if "Executable doesn't exist" in str(e):
-                print("Browsers executable not found. Installing the browsers...")
-                subprocess.run(["playwright", "install"])
-                print("Browsers installed successfully. Retrying...")
-                try:
-                    browser = p.chromium.launch()
-                except playwright.errors.Error as e:
-                    print("Failed to launch Chromium even after installation:", e)
-            else:
-                print("An error occurred:", e)
+        browser = p.chromium.launch()
         page = browser.new_page()
         return PlaywrightDriver(page, p)
