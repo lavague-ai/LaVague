@@ -1,16 +1,11 @@
 from typing import Optional, List
 from abc import ABC, abstractmethod
 import gradio as gr
-from selenium.webdriver.common.by import By  # import used by generated selenium code
-from selenium.webdriver.common.keys import (
-    Keys,
-)
 
 from .telemetry import send_telemetry
 from .action_engine import ActionEngine
 from .driver import AbstractDriver
 import base64
-
 
 class CommandCenter(ABC):
     @abstractmethod
@@ -50,30 +45,32 @@ class GradioDemo(CommandCenter):
 
     def init_driver(self):
         def init_driver_impl(url):
-            self.driver = self.get_driver() if self.driver is None else self.driver
-            self.driver.goTo(url)
-            self.driver.getScreenshot("screenshot.png")
+            driver = self.get_driver()
+            driver.goTo(url)
+            driver.getScreenshot("screenshot.png")
             # This function is supposed to fetch and return the image from the URL.
             # Placeholder function: replace with actual image fetching logic.
+            driver.destroy()
             return "screenshot.png"
 
         return init_driver_impl
 
     def process_instructions(self):
         def process_instructions_impl(query, url_input):
-            if url_input != self.driver.getUrl():
-                self.driver.goTo(url_input)
-            state = self.driver.getHtml()
+            driver = self.get_driver()
+            driver.goTo(url_input)
+            state = driver.getHtml()
             response = ""
             for text in self.actionEngine.get_action_streaming(query, state):
                 # do something with text as they arrive.
                 response += text
                 yield response
+            driver.destroy()
 
         return process_instructions_impl
 
     def __telemetry(self):
-        def telemetry(query, code, html):
+        def telemetry(query, code, html, url_input):
             screenshot = b""
             try:
                 scr = open("screenshot.png", "rb")
@@ -88,7 +85,7 @@ class GradioDemo(CommandCenter):
                 screenshot,
                 html,
                 query,
-                self.driver.getUrl(),
+                url_input,
                 "Lavague-Launch",
                 self.success,
                 False,
@@ -99,11 +96,13 @@ class GradioDemo(CommandCenter):
         return telemetry
 
     def __exec_code(self):
-        def exec_code(code, full_code):
+        def exec_code(url_input, code, full_code):
+            driver_o = self.get_driver()
             self.error = ""
             code = self.actionEngine.cleaning_function(code)
-            html = self.driver.getHtml()
-            driver_name, driver = self.driver.getDriver()  # define driver for exec
+            driver_o.goTo(url_input)
+            html = driver_o.getHtml()
+            driver_name, driver = driver_o.getDriver()  # define driver for exec
             exec(f"{driver_name.strip()} = driver")  # define driver in case its name is different
             try:
                 exec(code)
@@ -111,22 +110,17 @@ class GradioDemo(CommandCenter):
                 status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
                 self.success = True
                 full_code += code
+                url_input = driver_o.getUrl()
+                driver_o.getScreenshot("screenshot.png")
             except Exception as e:
                 output = f"Error in code execution: {str(e)}"
                 status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
                 self.success = False
                 self.error = repr(e)
-            return output, code, html, status, full_code
+            driver_o.destroy()
+            return output, code, html, status, full_code, "screenshot.png", url_input
 
         return exec_code
-
-    def __update_image_display(self):
-        def update_image_display():
-            self.driver.getScreenshot("screenshot.png")
-            url = self.driver.getUrl()
-            return "screenshot.png", url
-
-        return update_image_display
 
     def __show_processing_message(self):
         return lambda: "Processing..."
@@ -191,27 +185,22 @@ class GradioDemo(CommandCenter):
                 self.init_driver(),
                 inputs=[url_input],
                 outputs=[image_display],
+                queue=True,
             )
             text_area.submit(
-                self.__show_processing_message(), outputs=[status_html]
-            ).then(
-                self.init_driver(),
-                inputs=[url_input],
-                outputs=[image_display],
+                self.__show_processing_message(), outputs=[status_html], queue=True, concurrency_limit=1
             ).then(
                 self.process_instructions(),
                 inputs=[text_area, url_input],
                 outputs=[code_display],
+                queue=True,
             ).then(
                 self.__exec_code(),
-                inputs=[code_display, full_code],
-                outputs=[log_display, code_display, full_html, status_html, full_code],
-            ).then(
-                self.__update_image_display(),
-                inputs=[],
-                outputs=[image_display, url_input],
+                inputs=[url_input, code_display, full_code],
+                outputs=[log_display, code_display, full_html, status_html, full_code, image_display, url_input],
+                queue=True,
             ).then(
                 self.__telemetry(),
-                inputs=[text_area, code_display, full_html],
+                inputs=[text_area, code_display, full_html, url_input],
             )
         demo.launch(server_port=server_port, share=True, debug=True)

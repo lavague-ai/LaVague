@@ -49,7 +49,7 @@ jobs:
     - name: Install necessary dependencies
       run: |
         bash setup.sh
-        pip install -e '.[playwright]'
+        pip install -e '.[selenium]'
         playwright install chromium
 
     - name: Run selenium test

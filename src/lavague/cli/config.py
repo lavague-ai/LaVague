@@ -8,12 +8,12 @@ from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from lavague.evaluator import Evaluator
 from ..defaults import (
-    default_get_selenium_driver,
+    default_get_playwright_driver,
     DefaultLLM,
     DefaultEmbedder,
     default_python_code_extractor,
 )
-from ..prompts import SELENIUM_PROMPT
+from ..prompts import PLAYWRIGHT_PROMPT, SELENIUM_PROMPT
 from ..driver import AbstractDriver
 from ..action_engine import ActionEngine
 from ..retrievers import OpsmSplitRetriever, BaseHtmlRetriever
@@ -46,8 +46,8 @@ class Config:
         llm = getattr(module, "LLM", DefaultLLM)()
         embedder = getattr(module, "Embedder", DefaultEmbedder)()
         retriever = getattr(module, "retriever", OpsmSplitRetriever(embedder))
-        get_driver = getattr(module, "get_driver", default_get_selenium_driver)
-        prompt_template = getattr(module, "prompt_template", SELENIUM_PROMPT)
+        get_driver = getattr(module, "get_driver", default_get_playwright_driver)
+        prompt_template = getattr(module, "prompt_template", PLAYWRIGHT_PROMPT)
         cleaning_function = getattr(
             module, "cleaning_function", default_python_code_extractor
         )

@@ -55,11 +55,16 @@ def default_python_code_extractor(markdown_text: str) -> Optional[str]:
 if SELENIUM_IMPORT:
 
     def default_get_selenium_driver() -> SeleniumDriver:
-        from selenium import webdriver
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.service import Service
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.chrome.options import Options
+            from selenium.webdriver.common.keys import Keys
+        except (ImportError, ModuleNotFoundError) as error:
+            raise ImportError(
+                "Please install selenium using `pip install selenium`"
+            ) from error
         import os.path
 
         chrome_options = Options()
@@ -93,11 +98,16 @@ if SELENIUM_IMPORT:
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:
         """Extra options to make the driver more static for evaluation purposes."""
-        from selenium import webdriver
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.service import Service
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.chrome.options import Options
+            from selenium.webdriver.common.keys import Keys
+        except (ImportError, ModuleNotFoundError) as error:
+            raise ImportError(
+                "Please install selenium using `pip install selenium`"
+            ) from error
         import os.path
 
         chrome_options = Options()
@@ -138,12 +148,28 @@ if PLAYWRIGHT_IMPORT:
 
     def default_get_playwright_driver() -> PlaywrightDriver:
         try:
-            from playwright.sync_api import sync_playwright
+            import playwright
+            from playwright.sync_api import sync_playwright, Browser
+            from playwright.sync_api._generated import Error
+            import subprocess
         except (ImportError, ModuleNotFoundError) as error:
             raise ImportError(
                 "Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers"
             ) from error
-        p = sync_playwright().__enter__()
-        browser = p.chromium.launch()
+        browser: Browser
+        p = sync_playwright().start()
+        try:
+            browser = p.chromium.launch()
+        except Error as e:
+            if "Executable doesn't exist" in str(e):
+                print("Browsers executable not found. Installing the browsers...")
+                subprocess.run(["playwright", "install"])
+                print("Browsers installed successfully. Retrying...")
+                try:
+                    browser = p.chromium.launch()
+                except playwright.errors.Error as e:
+                    print("Failed to launch Chromium even after installation:", e)
+            else:
+                print("An error occurred:", e)
         page = browser.new_page()
-        return PlaywrightDriver(page)
+        return PlaywrightDriver(page, p)

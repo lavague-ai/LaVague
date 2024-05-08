@@ -11,6 +11,7 @@ except:
 
 try:
     from playwright.sync_api import Page
+    from playwright.sync_api._generated import Playwright
 
     PLAYWRIGHT_IMPORT = True
 except:
@@ -98,8 +99,9 @@ if SELENIUM_IMPORT:
 if PLAYWRIGHT_IMPORT:
 
     class PlaywrightDriver(AbstractDriver):
-        def __init__(self, sync_playwright_page: Page):
+        def __init__(self, sync_playwright_page: Page, context: Playwright):
             self.driver = sync_playwright_page
+            self.context = context
 
         def getDriver(self) -> Tuple[str, Page]:
             return "page", self.driver
@@ -124,3 +126,4 @@ if PLAYWRIGHT_IMPORT:
 
         def destroy(self) -> None:
             self.driver.close()
+            self.context.stop()
