@@ -150,6 +150,7 @@ if PLAYWRIGHT_IMPORT:
         try:
             import playwright
             from playwright.sync_api import sync_playwright, Browser
+            from playwright.sync_api._generated import Error
             import subprocess
         except (ImportError, ModuleNotFoundError) as error:
             raise ImportError(
@@ -159,7 +160,7 @@ if PLAYWRIGHT_IMPORT:
         p = sync_playwright().start()
         try:
             browser = p.chromium.launch()
-        except playwright.errors.Error as e:
+        except Error as e:
             if "Executable doesn't exist" in str(e):
                 print("Playwright executable not found. Installing new browsers...")
                 subprocess.run(["playwright", "install"])
