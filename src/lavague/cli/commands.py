@@ -92,7 +92,7 @@ def build(ctx, output_file: Optional[str], test: bool = False):
     for instruction in tqdm(instructions.instructions):
         print(f"Processing instruction: {instruction}")
         html = abstractDriver.getHtml()
-        code = action_engine.get_action(instruction, html)
+        code = action_engine.get_action(instruction, html, instructions.url)
         error = ""
         try:
             exec(code)
