@@ -2,6 +2,14 @@ from typing import Optional, List
 from abc import ABC, abstractmethod
 import gradio as gr
 
+try:
+    from selenium.webdriver.common.by import By  # import used by generated selenium code
+    from selenium.webdriver.common.keys import (
+    Keys,
+)
+except Exception as e:
+    pass
+
 from .telemetry import send_telemetry
 from .action_engine import ActionEngine
 from .driver import AbstractDriver
