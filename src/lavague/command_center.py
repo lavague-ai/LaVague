@@ -2,18 +2,63 @@ from typing import Optional, List
 from abc import ABC, abstractmethod
 import gradio as gr
 
-try:
-    from selenium.webdriver.common.by import By  # import used by generated selenium code
-    from selenium.webdriver.common.keys import (
-    Keys,
-)
-except Exception as e:
-    pass
-
 from .telemetry import send_telemetry
 from .action_engine import ActionEngine
 from .driver import AbstractDriver
 import base64
+
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+css = """body {
+    font-family: Arial, sans-serif; /* Sets the font for the page */
+    background-color: #1a1a1a; /* Dark background for the page */
+    color: #fff; /* White text color */
+    margin: 0;
+    padding: 0;
+}
+
+.list-container {
+    width: 300px; /* Set the width of the container */
+    background: #333; /* Darker background for the list */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Subtle shadow */
+    margin: 20px auto; /* Centering the list */
+    padding: 10px; /* Padding around the list */
+}
+
+ul {
+    list-style: none; /* Removes default bullet points */
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+}
+
+li {
+    padding: 10px; /* Padding inside each list item */
+    border-bottom: 1px solid #444; /* Separator between items */
+    cursor: pointer; /* Pointer cursor on hover */
+}
+
+li:last-child {
+    border-bottom: none; /* Removes border from the last item */
+}
+"""
+
+html = """
+<div class="list-container">
+    <ul>
+    </ul>
+</div>
+"""
+
+def append_value(values):
+    print(values)
+    import numpy as np
+    
+    value = str(np.random.randint(0,1024))
+    values.append(value)
+    update = gr.CheckboxGroup(choices=values, value=values)
+    return update
 
 class CommandCenter(ABC):
     @abstractmethod
@@ -142,7 +187,8 @@ class GradioDemo(CommandCenter):
             instructions (List[`str`]): List of default instructions
             max_tokens
         """
-        with gr.Blocks() as demo:
+        with gr.Blocks(css=css) as demo:
+            current_instruction = gr.State()
             with gr.Tab("LaVague"):
                 with gr.Row():
                     gr.HTML(self.title)
@@ -161,6 +207,11 @@ class GradioDemo(CommandCenter):
                             full_code = gr.Code(
                                 value="", language="python", interactive=False
                             )
+                        with gr.Row():
+                            previous = gr.Button(value="Previous")
+                            next = gr.Button(value="Next")
+                        instructions_history = gr.HTML(html)
+
                         code_display = gr.Code(
                             label="Generated code",
                             language="python",
@@ -187,6 +238,61 @@ class GradioDemo(CommandCenter):
                             interactive=False,
                             lines=20,
                         )
+                        
+            from bs4 import BeautifulSoup
+
+            def append_item(new_item_text, soup):
+                new_item = soup.new_tag("li")
+                new_item.string = new_item_text
+                soup.find('ul').append(new_item)
+
+            def remove_item(item_index, soup):
+                items = soup.find_all('li')
+                if 0 <= item_index < len(items):
+                    items[item_index].decompose()
+                    
+            def go_back(instructions_history, current_instruction):
+                soup = BeautifulSoup(instructions_history, 'html.parser')
+
+                current_instruction -= 1
+                if current_instruction < 0:
+                    current_instruction = 0
+                items = soup.find_all('li')
+                for item in items:
+                    item.attrs.pop('style', None)
+                items[current_instruction]['style'] = "background-color: #555;"
+                output = soup.prettify()
+                return output, current_instruction
+            
+            def go_forward(instructions_history, current_instruction):
+                soup = BeautifulSoup(instructions_history, 'html.parser')
+
+                current_instruction += 1
+                items = soup.find_all('li')
+                if current_instruction >= len(items):
+                    current_instruction = len(items) - 1
+                for item in items:
+                    item.attrs.pop('style', None)
+                items[current_instruction]['style'] = "background-color: #555;"
+                output = soup.prettify()
+                return output, current_instruction
+                    
+            def add_instruction(instruction, instructions_history, current_instruction):
+                soup = BeautifulSoup(instructions_history, 'html.parser')
+                new_item = soup.new_tag("li")
+                new_item.string = instruction
+                soup.find('ul').append(new_item)
+                
+                items = soup.find_all('li')
+                for item in items:
+                    item.attrs.pop('style', None)
+                    
+                current_instruction = len(items) - 1
+
+                items[-1]['style'] = "background-color: #555;"
+
+                output = soup.prettify()
+                return output, current_instruction
 
             # Linking components
             url_input.submit(
@@ -195,20 +301,30 @@ class GradioDemo(CommandCenter):
                 outputs=[image_display],
                 queue=True,
             )
-            text_area.submit(
-                self.__show_processing_message(), outputs=[status_html], queue=True, concurrency_limit=1
-            ).then(
-                self.process_instructions(),
-                inputs=[text_area, url_input],
-                outputs=[code_display],
-                queue=True,
-            ).then(
-                self.__exec_code(),
-                inputs=[url_input, code_display, full_code],
-                outputs=[log_display, code_display, full_html, status_html, full_code, image_display, url_input],
-                queue=True,
-            ).then(
-                self.__telemetry(),
-                inputs=[text_area, code_display, full_html, url_input],
-            )
+            previous.click(go_back, 
+                           inputs=[instructions_history, current_instruction], 
+                           outputs=[instructions_history, current_instruction])
+            
+            next.click(go_forward, 
+                       inputs=[instructions_history, current_instruction], 
+                       outputs=[instructions_history, current_instruction])
+            text_area.submit(add_instruction, 
+                             inputs=[text_area, instructions_history, current_instruction], 
+                             outputs=[instructions_history, current_instruction])
+            # text_area.submit(
+            #     self.__show_processing_message(), outputs=[status_html], queue=True, concurrency_limit=1
+            # ).then(
+            #     self.process_instructions(),
+            #     inputs=[text_area, url_input],
+            #     outputs=[code_display],
+            #     queue=True,
+            # ).then(
+            #     self.__exec_code(),
+            #     inputs=[url_input, code_display, full_code],
+            #     outputs=[log_display, code_display, full_html, status_html, full_code, image_display, url_input],
+            #     queue=True,
+            # ).then(
+            #     self.__telemetry(),
+            #     inputs=[text_area, code_display, full_html, url_input],
+            # )
         demo.launch(server_port=server_port, share=True, debug=True)
