@@ -24,7 +24,7 @@ load_dotenv()
 
 
 class DefaultEmbedder(OpenAIEmbedding):
-    def __init__(self, model="text-embedding-3-large"):
+    def __init__(self, model="text-embedding-3-small"):
         super().__init__(model=model)
 
 
@@ -58,14 +58,14 @@ if SELENIUM_IMPORT:
         try:
             from selenium import webdriver
             from selenium.webdriver.chrome.service import Service
-            from selenium.webdriver.common.by import By
             from selenium.webdriver.chrome.options import Options
-            from selenium.webdriver.common.keys import Keys
         except (ImportError, ModuleNotFoundError) as error:
             raise ImportError(
                 "Please install selenium using `pip install selenium`"
             ) from error
         import os.path
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.common.keys import Keys
 
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # Ensure GUI is off
