@@ -8,8 +8,6 @@ from .driver import AbstractDriver
 import base64
 
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 css = """body {
     font-family: Arial, sans-serif; /* Sets the font for the page */
     background-color: #1a1a1a; /* Dark background for the page */
@@ -156,9 +154,15 @@ class GradioDemo(CommandCenter):
             driver_o.goTo(url_input)
             html = driver_o.getHtml()
             driver_name, driver = driver_o.getDriver()  # define driver for exec
-            exec(f"{driver_name.strip()} = driver")  # define driver in case its name is different
+            
+            from .format_utils import extract_code_from_funct, extract_imports_from_lines
+            source_code_lines = extract_code_from_funct(self.get_driver)
+            import_lines = extract_imports_from_lines(source_code_lines)
             try:
-                exec(code)
+                code_to_exec = f"""
+{import_lines}
+{code}"""
+                exec(code_to_exec)
                 output = "Successful code execution"
                 status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
                 self.success = True
@@ -187,6 +191,8 @@ class GradioDemo(CommandCenter):
             instructions (List[`str`]): List of default instructions
             max_tokens
         """
+        
+        
         with gr.Blocks(css=css) as demo:
             current_instruction = gr.State()
             with gr.Tab("LaVague"):
@@ -308,23 +314,23 @@ class GradioDemo(CommandCenter):
             next.click(go_forward, 
                        inputs=[instructions_history, current_instruction], 
                        outputs=[instructions_history, current_instruction])
-            text_area.submit(add_instruction, 
+            
+            text_area.submit(
+                self.__show_processing_message(), outputs=[status_html], queue=True, concurrency_limit=1
+            ).then(
+                self.process_instructions(),
+                inputs=[text_area, url_input],
+                outputs=[code_display],
+                queue=True,
+            ).then(
+                self.__exec_code(),
+                inputs=[url_input, code_display, full_code],
+                outputs=[log_display, code_display, full_html, status_html, full_code, image_display, url_input],
+                queue=True,
+            ).then(
+                self.__telemetry(),
+                inputs=[text_area, code_display, full_html, url_input],
+            ).then(add_instruction, 
                              inputs=[text_area, instructions_history, current_instruction], 
                              outputs=[instructions_history, current_instruction])
-            # text_area.submit(
-            #     self.__show_processing_message(), outputs=[status_html], queue=True, concurrency_limit=1
-            # ).then(
-            #     self.process_instructions(),
-            #     inputs=[text_area, url_input],
-            #     outputs=[code_display],
-            #     queue=True,
-            # ).then(
-            #     self.__exec_code(),
-            #     inputs=[url_input, code_display, full_code],
-            #     outputs=[log_display, code_display, full_html, status_html, full_code, image_display, url_input],
-            #     queue=True,
-            # ).then(
-            #     self.__telemetry(),
-            #     inputs=[text_area, code_display, full_html, url_input],
-            # )
         demo.launch(server_port=server_port, share=True, debug=True)
