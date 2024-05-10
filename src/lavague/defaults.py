@@ -156,4 +156,5 @@ if PLAYWRIGHT_IMPORT:
         p = sync_playwright().start()
         browser = p.chromium.launch()
         page = browser.new_page()
+        page.set_default_timeout(5000)
         return PlaywrightDriver(page)

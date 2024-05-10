@@ -42,6 +42,7 @@ class LazyGroup(click.Group):
     cls=LazyGroup,
     lazy_subcommands={
         "launch": "lavague.cli.commands.launch",
+        "driver_server_jupyter": "lavague.cli.commands.driver_server_jupyter",
         "driver_server": "lavague.cli.commands.driver_server",
         "build": "lavague.cli.commands.build",
         "eval": "lavague.cli.commands.evaluation",

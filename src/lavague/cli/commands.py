@@ -1,3 +1,4 @@
+from multiprocessing import Process
 from typing import Optional
 import click
 import warnings
@@ -15,17 +16,13 @@ def cli():
 @click.pass_context
 def driver_server(ctx):
     """Start a server containing the driver"""
-    from .config import Config, Instructions
+    from .config import Config
     from ..browser_server import run_server
-    import subprocess
-    import pkg_resources
-    import sys
+    from multiprocessing import Process
 
     config = Config.from_path(ctx.obj["config"])
     get_driver = config.get_driver
-    distribution = pkg_resources.get_distribution("lavague")
-    subprocess_script_path = distribution.get_resource_filename("lavague", "lavague/browser_server.py")
-    subprocess.run([sys.executable, subprocess_script_path] + [list_to_str(extract_code_from_funct(get_driver))])
+    run_server(get_driver)
 
 
 @cli.command()
