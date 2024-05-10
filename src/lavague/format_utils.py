@@ -14,14 +14,6 @@ def extract_code_from_funct(funct: Callable) -> List[str]:
         line[nident:] for line in source_code_lines[:-1]
     ]  # every line except the return
 
-
-def list_to_str(lines: List[str], add_before: str = "") -> str:
-    """"""
-    return "\n".join(
-        [add_before + line for line in lines]
-    )
-
-
 def extract_imports_from_lines(lines: List[str]) -> str:
     """Only keep import lines from python code lines and join them"""
     return "\n".join(

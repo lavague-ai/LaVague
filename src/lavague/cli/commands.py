@@ -4,8 +4,8 @@ import click
 import warnings
 import os
 
-from lavague.evaluator import Evaluator, SeleniumActionEvaluator
-from ..format_utils import extract_code_from_funct, list_to_str
+from lavague.evaluator import Evaluator
+from ..format_utils import extract_code_from_funct, extract_imports_from_lines
 
 
 @click.group()
