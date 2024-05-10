@@ -24,7 +24,6 @@ def driver_server(ctx):
     get_driver = config.get_driver
     run_server(get_driver)
 
-
 @cli.command()
 @click.pass_context
 def launch(ctx):
