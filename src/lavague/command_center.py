@@ -2,17 +2,9 @@ from typing import Optional, List
 from abc import ABC, abstractmethod
 import gradio as gr
 
-try:
-    from selenium.webdriver.common.by import By  # import used by generated selenium code
-    from selenium.webdriver.common.keys import (
-    Keys,
-)
-except Exception as e:
-    pass
-
 from .telemetry import send_telemetry
 from .action_engine import ActionEngine
-from .driver import AbstractDriver
+from .driver import RemoteDriver
 import base64
 
 class CommandCenter(ABC):
@@ -46,34 +38,28 @@ class GradioDemo(CommandCenter):
     def __init__(self, actionEngine: ActionEngine, get_driver: callable):
         self.actionEngine = actionEngine
         self.get_driver = get_driver
-        self.driver = None
+        self.driver = RemoteDriver("127.0.0.1", 16500)
         self.base_url = ""
         self.success = False
         self.error = ""
 
     def init_driver(self):
         def init_driver_impl(url):
-            driver = self.get_driver()
-            driver.goTo(url)
-            driver.getScreenshot("screenshot.png")
-            # This function is supposed to fetch and return the image from the URL.
-            # Placeholder function: replace with actual image fetching logic.
-            driver.destroy()
+            self.driver.goTo(url)
+            self.driver.getScreenshot("screenshot.png")
             return "screenshot.png"
 
         return init_driver_impl
 
     def process_instructions(self):
         def process_instructions_impl(query, url_input):
-            driver = self.get_driver()
-            driver.goTo(url_input)
-            state = driver.getHtml()
+            self.driver.goTo(url_input)
+            state = self.driver.getHtml()
             response = ""
             for text in self.actionEngine.get_action_streaming(query, state, url_input):
                 # do something with text as they arrive.
                 response += text
                 yield response
-            driver.destroy()
 
         return process_instructions_impl
 
@@ -105,27 +91,30 @@ class GradioDemo(CommandCenter):
 
     def __exec_code(self):
         def exec_code(url_input, code, full_code):
-            driver_o = self.get_driver()
-            self.error = ""
+            html = self.driver.getHtml()
             code = self.actionEngine.cleaning_function(code)
-            driver_o.goTo(url_input)
-            html = driver_o.getHtml()
-            driver_name, driver = driver_o.getDriver()  # define driver for exec
-            exec(f"{driver_name.strip()} = driver")  # define driver in case its name is different
             try:
-                exec(code)
-                output = "Successful code execution"
-                status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
-                self.success = True
-                full_code += code
-                url_input = driver_o.getUrl()
-                driver_o.getScreenshot("screenshot.png")
+                res = self.driver.execCode(code)
+                if res["success"] == True:
+                    html = self.driver.getHtml()
+                    url_input = self.driver.getUrl()
+                    self.driver.getScreenshot("screenshot.png")
+                    output = "Successful code execution"
+                    status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
+                    self.success = True
+                    full_code += code
+                else:
+                    err = res["error"]
+                    output = f"Error in code execution: {err}"
+                    status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
+                    self.success = False
+                    self.error = err
             except Exception as e:
-                output = f"Error in code execution: {str(e)}"
+                err = repr(e)
+                output = f"Error in code execution: {err}"
                 status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
                 self.success = False
-                self.error = repr(e)
-            driver_o.destroy()
+                self.error = err
             return output, code, html, status, full_code, "screenshot.png", url_input
 
         return exec_code
@@ -211,4 +200,4 @@ class GradioDemo(CommandCenter):
                 self.__telemetry(),
                 inputs=[text_area, code_display, full_html, url_input],
             )
-        demo.launch(server_port=server_port, share=True, debug=True)
+        demo.launch(server_port=server_port, share=True, debug=True, max_threads=1)
