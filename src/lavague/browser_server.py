@@ -42,7 +42,6 @@ def exec_code(req: Request):
 {import_lines} 
 {req.code}
 """
-    print(code_to_exec)
     try:
         exec(code_to_exec)
         success = True
