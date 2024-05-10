@@ -156,4 +156,4 @@ if PLAYWRIGHT_IMPORT:
         p = sync_playwright().start()
         browser = p.chromium.launch()
         page = browser.new_page()
-        return PlaywrightDriver(page, p)
+        return PlaywrightDriver(page)

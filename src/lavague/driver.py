@@ -86,7 +86,7 @@ class RemoteDriver(AbstractDriver):
         res = requests.get(f"http://{self.addr}:{self.port}/go_to",  params={"url": url})
         res.raise_for_status()
 
-    def getHtml(self, clean: bool = True) -> str:
+    def getHtml(self, clean: bool = False) -> str:
         html = requests.get(f"http://{self.addr}:{self.port}/get_html").json()
         html = html["html"]
         return clean_html(html) if clean else html
@@ -149,9 +149,8 @@ if SELENIUM_IMPORT:
 if PLAYWRIGHT_IMPORT:
 
     class PlaywrightDriver(AbstractDriver):
-        def __init__(self, sync_playwright_page: Page, context: Playwright):
+        def __init__(self, sync_playwright_page: Page):
             self.driver = sync_playwright_page
-            self.context = context
 
         def getDriver(self) -> Tuple[str, Page]:
             return "page", self.driver
@@ -176,4 +175,3 @@ if PLAYWRIGHT_IMPORT:
 
         def destroy(self) -> None:
             self.driver.close()
-            self.context.stop()
