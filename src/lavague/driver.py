@@ -70,7 +70,7 @@ class RemoteDriver(AbstractDriver):
         self.addr = addr
         self.port = port
 
-    def getDriver(self) -> Tuple[str, WebDriver]:
+    def getDriver(self) -> Tuple[str, Any]:
         return "driver", None
 
     def getUrl(self) -> str:
