@@ -167,15 +167,16 @@ driver.execute_script(js_script)
 
 HTML:
 
-Query: Scroll up a bit
+Query: Scroll down by a full screen
+
 
 Completion:
 ```python
 # Let's proceed step by step.
 # We don't need to use the HTML data as this is a stateless operation.
-# 200 pixels should be sufficient. Let's execute the JavaScript to scroll up.
+# Let's execute the JavaScript to scroll down.
 
-driver.execute_script("window.scrollBy(0, 200)")
+driver.execute_script("window.scrollBy(0, window.innerHeight);")
 ```
 
 ---

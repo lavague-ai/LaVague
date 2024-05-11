@@ -2,44 +2,11 @@ import os
 from openai import OpenAI
 from .prompts import WORLD_MODEL_PROMPT_TEMPLATE
 from string import Template
-from .format_utils import keep_assignments, return_assigned_variables
-from selenium.webdriver.remote.webelement import WebElement
-from IPython.display import Image
 from abc import ABC, abstractmethod
 from typing import Any
+import requests
 
-def get_highlighted_element(generated_code, driver):
-
-    assignment_code = keep_assignments(generated_code)
-
-    code = f"""
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
-{assignment_code}
-    """.strip()
-
-    local_scope = {"driver": driver}
-
-    exec(code, globals(), local_scope)
-
-    variable_names = return_assigned_variables(generated_code)
-
-    elements = []
-
-    for variable_name in variable_names:
-        var = local_scope[variable_name]
-        if type(var) == WebElement:
-            elements.append(var)
-
-    first_element = elements[0]
-    driver.execute_script("arguments[0].setAttribute('style', arguments[1]);", first_element, "border: 2px solid red;")
-    driver.execute_script("arguments[0].scrollIntoView();", first_element)
-    driver.save_screenshot("screenshot.png")
-    image = Image("screenshot.png")
-    driver.execute_script("arguments[0].setAttribute('style', '');", first_element)
-    return image
-
-class AbstractWorldModel(ABC):
+class BaseWorldModel(ABC):
     """Abstract class for WorldModel"""
 
     @abstractmethod
@@ -47,7 +14,7 @@ class AbstractWorldModel(ABC):
         """Get instruction from the world model given the current state and objective."""
         raise NotImplementedError("get_instruction method is not implemented")
 
-class GPTWorldModel:
+class GPTWorldModel(BaseWorldModel):
     """Class for Vision-based WorldModel"""
 
     def __init__(self, examples, api_key: str = None):
@@ -91,4 +58,57 @@ class GPTWorldModel:
         )
 
         output = response.choices[0].message.content
+        return output
+    
+class AzureWorldModel(BaseWorldModel):
+    """Class for Vision-based WorldModel"""
+    
+    def __init__(self, examples: str, api_key: str, endpoint: str):
+        self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.safe_substitute(examples=examples)
+        self.api_key = api_key
+        self.endpoint = endpoint
+    
+    def get_instruction(self, state: str, objective: str) -> str:
+        base64_image = state
+        headers = {
+            "Content-Type": "application/json",
+            "api-key": self.api_key,
+        }
+        
+        prompt = self.prompt_template.format(objective=objective)
+
+        # Payload for the request
+        payload = {
+        "messages": [
+            {
+            "role": "user",
+            "content": [
+                {
+                "type": "text",
+                "text": prompt
+                },
+                {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}"
+                }
+                }
+            ]
+            }
+        ],
+        "temperature": 0.0,
+        "top_p": 0.95,
+        "max_tokens": 800
+        }
+        
+        endpoint = self.endpoint
+
+        # Send request
+        try:
+            response = requests.post(endpoint, headers=headers, json=payload)
+            response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
+        except requests.RequestException as e:
+            raise SystemExit(f"Failed to make the request. Error: {e}")
+
+        output = response.json()["choices"][0]["message"]["content"]
         return output
