@@ -16,8 +16,12 @@ class WebAgent:
         self.driver.get(url)
         
     def run(self, objective):
+        
+        driver = self.driver
+        action_engine= self.action_engine
+        world_model = self.world_model
 
-        self.driver.save_screenshot("screenshot.png")
+        driver.save_screenshot("screenshot.png")
         display(Image("screenshot.png"))
 
         print("Objective: ", objective)
@@ -29,34 +33,43 @@ class WebAgent:
             state = encode_image("screenshot.png")
 
             # We get the instruction for the action engine using the world model
-            output = self.world_model.get_instruction(state, objective)
+            output = world_model.get_instruction(state, objective)
             instruction = extract_instruction(output)
 
             print("Thoughts:", output)
             if instruction != "STOP":
                 query = instruction
-                html = self.driver.page_source
+                html = driver.page_source
 
                 # We retrieve once the parts of the HTML that are relevant for the action generation, in case of we have to retry several times
-                nodes = self.action_engine.get_nodes(query, html)
+                nodes = action_engine.get_nodes(query, html)
                 context = "\n".join(nodes)
                 for _ in range(N_ATTEMPTS):
                     try:
-                        action = self.action_engine.action_from_context(context, query)
-                        screenshot_before_action = get_highlighted_element(action, self.driver)
+                        action = action_engine.action_from_context(context, query)
+                        screenshot_before_action = get_highlighted_element(action, driver)
                         clear_output()
                         display(screenshot_before_action)
                         print("Showing the next element to interact with")
                         time.sleep(3)
 
-                        exec(action)
+                        local_scope = {"driver": driver}
+                        
+                        code = f"""
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+{action}""".strip()
+
+                        exec(code, globals(), local_scope)
                         time.sleep(3)
                         clear_output()
-                        display_screenshot(self.driver)
+                        display_screenshot(driver)
                         break
 
                     except Exception as e:
+                        
                         print("Action execution failed. Retrying...")
+                        print("Error:", e)
                         pass
             else:
                 print("Objective reached")
