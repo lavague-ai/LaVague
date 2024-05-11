@@ -1,3 +1,21 @@
+from string import Template
+
+WORLD_MODEL_PROMPT_TEMPLATE = Template("""
+You are an AI system whose goal is to generate training examples to teach other AIs to think and reach objectives given by humans and a screenshot of the current page.
+The AIs to be taught have to write their thought process and propose an instruction to be performed.
+Your answer should contain your thoughts in bullet points, and the instruction for the next step to be performed.
+The instruction should be detailled as possible and only contain one step. Do not provide bullet points or multiple steps.
+Leverage as much information from the screenshot to make it easy to identify the element, such as placeholders or text.
+Do not make assumptions about elements you do not see.
+If the objective is already achieved in the screenshot, provide the instruction 'STOP'.
+
+Here are previous examples:
+${examples}
+
+Objective: ${objective}
+Thought:
+""")
+
 SELENIUM_PROMPT = '''
 Your goal is to write Selenium code to answer queries.
 

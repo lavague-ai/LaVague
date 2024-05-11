@@ -28,6 +28,8 @@ class DefaultEmbedder(OpenAIEmbedding):
         super().__init__(model=model)
 
 
+DEFAULT_OPENAI_MODEL = "gpt-4-1106-preview"
+
 class DefaultLLM(OpenAI):
     def __init__(self):
         max_new_tokens = 512
@@ -35,7 +37,7 @@ class DefaultLLM(OpenAI):
         if api_key is None:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
         else:
-            super().__init__(api_key=api_key, max_tokens=max_new_tokens)
+            super().__init__(model=DEFAULT_OPENAI_MODEL, api_key=api_key, max_tokens=max_new_tokens)
 
 
 def default_python_code_extractor(markdown_text: str) -> Optional[str]:
@@ -55,11 +57,16 @@ def default_python_code_extractor(markdown_text: str) -> Optional[str]:
 if SELENIUM_IMPORT:
 
     def default_get_selenium_driver() -> SeleniumDriver:
-        from selenium import webdriver
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.service import Service
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.chrome.options import Options
+            from selenium.webdriver.common.keys import Keys
+        except (ImportError, ModuleNotFoundError) as error:
+            raise ImportError(
+                "Please install selenium using `pip install selenium`"
+            ) from error
         import os.path
 
         chrome_options = Options()
@@ -93,11 +100,16 @@ if SELENIUM_IMPORT:
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:
         """Extra options to make the driver more static for evaluation purposes."""
-        from selenium import webdriver
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.service import Service
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.chrome.options import Options
+            from selenium.webdriver.common.keys import Keys
+        except (ImportError, ModuleNotFoundError) as error:
+            raise ImportError(
+                "Please install selenium using `pip install selenium`"
+            ) from error
         import os.path
 
         chrome_options = Options()
@@ -143,7 +155,7 @@ if PLAYWRIGHT_IMPORT:
             raise ImportError(
                 "Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers"
             ) from error
-        p = sync_playwright().__enter__()
+        p = sync_playwright().start()
         browser = p.chromium.launch()
         page = browser.new_page()
-        return PlaywrightDriver(page)
+        return PlaywrightDriver(page, p)
