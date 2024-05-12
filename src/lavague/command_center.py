@@ -1,16 +1,11 @@
 from typing import Optional, List
 from abc import ABC, abstractmethod
 import gradio as gr
-from selenium.webdriver.common.by import By  # import used by generated selenium code
-from selenium.webdriver.common.keys import (
-    Keys,
-)
 
 from .telemetry import send_telemetry
 from .action_engine import ActionEngine
-from .driver import AbstractDriver
+from .driver import RemoteDriver
 import base64
-
 
 class CommandCenter(ABC):
     @abstractmethod
@@ -43,29 +38,26 @@ class GradioDemo(CommandCenter):
     def __init__(self, actionEngine: ActionEngine, get_driver: callable):
         self.actionEngine = actionEngine
         self.get_driver = get_driver
-        self.driver = None
+        self.driver = RemoteDriver("127.0.0.1", 16500)
         self.base_url = ""
         self.success = False
         self.error = ""
 
     def init_driver(self):
         def init_driver_impl(url):
-            self.driver = self.get_driver() if self.driver is None else self.driver
             self.driver.goTo(url)
             self.driver.getScreenshot("screenshot.png")
-            # This function is supposed to fetch and return the image from the URL.
-            # Placeholder function: replace with actual image fetching logic.
             return "screenshot.png"
 
         return init_driver_impl
 
     def process_instructions(self):
         def process_instructions_impl(query, url_input):
-            if url_input != self.driver.getUrl():
-                self.driver.goTo(url_input)
+            self.driver.goTo(url_input)
             state = self.driver.getHtml()
             response = ""
-            for text in self.actionEngine.get_action_streaming(query, state):
+            print("Generating code...")
+            for text in self.actionEngine.get_action_streaming(query, state, url_input):
                 # do something with text as they arrive.
                 response += text
                 yield response
@@ -73,22 +65,25 @@ class GradioDemo(CommandCenter):
         return process_instructions_impl
 
     def __telemetry(self):
-        def telemetry(query, code, html):
+        def telemetry(query, code, html, url_input):
             screenshot = b""
             try:
                 scr = open("screenshot.png", "rb")
                 screenshot = base64.b64encode(scr.read())
             except:
                 pass
-            source_nodes = self.actionEngine.get_nodes(query, html)
-            retrieved_context = "\n".join(source_nodes)
+            try:
+                source_nodes = self.actionEngine.get_nodes(query, html)
+                retrieved_context = "\n".join(source_nodes)
+            except:
+                retrieved_context = self.actionEngine.retrieved_context
             send_telemetry(
                 self.actionEngine.llm.metadata.model_name,
                 code,
                 screenshot,
                 html,
                 query,
-                self.driver.getUrl(),
+                url_input,
                 "Lavague-Launch",
                 self.success,
                 False,
@@ -99,34 +94,35 @@ class GradioDemo(CommandCenter):
         return telemetry
 
     def __exec_code(self):
-        def exec_code(code, full_code):
-            self.error = ""
-            code = self.actionEngine.cleaning_function(code)
+        def exec_code(url_input, code, full_code):
             html = self.driver.getHtml()
-            driver_name, driver = self.driver.getDriver()  # define driver for exec
-            exec(f"{driver_name.strip()} = driver")  # define driver in case its name is different
+            code = self.actionEngine.cleaning_function(code)
             try:
-                exec(code)
-                output = "Successful code execution"
-                status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
-                self.success = True
-                full_code += code
+                res = self.driver.execCode(code)
+                if res["success"] == True:
+                    html = self.driver.getHtml()
+                    url_input = self.driver.getUrl()
+                    self.driver.getScreenshot("screenshot.png")
+                    output = "Successful code execution"
+                    status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
+                    self.success = True
+                    full_code += code
+                    self.error = ""
+                else:
+                    err = res["error"]
+                    output = f"Error in code execution: {err}"
+                    status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
+                    self.success = False
+                    self.error = err
             except Exception as e:
-                output = f"Error in code execution: {str(e)}"
+                err = repr(e)
+                output = f"Error in code execution: {err}"
                 status = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure! Open the Debug tab for more information</p>"""
                 self.success = False
-                self.error = repr(e)
-            return output, code, html, status, full_code
+                self.error = err
+            return output, code, html, status, full_code, "screenshot.png", url_input
 
         return exec_code
-
-    def __update_image_display(self):
-        def update_image_display():
-            self.driver.getScreenshot("screenshot.png")
-            url = self.driver.getUrl()
-            return "screenshot.png", url
-
-        return update_image_display
 
     def __show_processing_message(self):
         return lambda: "Processing..."
@@ -191,27 +187,22 @@ class GradioDemo(CommandCenter):
                 self.init_driver(),
                 inputs=[url_input],
                 outputs=[image_display],
+                queue=True,
             )
             text_area.submit(
-                self.__show_processing_message(), outputs=[status_html]
-            ).then(
-                self.init_driver(),
-                inputs=[url_input],
-                outputs=[image_display],
+                self.__show_processing_message(), outputs=[status_html], queue=True, concurrency_limit=1
             ).then(
                 self.process_instructions(),
                 inputs=[text_area, url_input],
                 outputs=[code_display],
+                queue=True,
             ).then(
                 self.__exec_code(),
-                inputs=[code_display, full_code],
-                outputs=[log_display, code_display, full_html, status_html, full_code],
-            ).then(
-                self.__update_image_display(),
-                inputs=[],
-                outputs=[image_display, url_input],
+                inputs=[url_input, code_display, full_code],
+                outputs=[log_display, code_display, full_html, status_html, full_code, image_display, url_input],
+                queue=True,
             ).then(
                 self.__telemetry(),
-                inputs=[text_area, code_display, full_html],
+                inputs=[text_area, code_display, full_html, url_input],
             )
-        demo.launch(server_port=server_port, share=True, debug=True)
+        demo.launch(server_port=server_port, share=True, debug=True, max_threads=1)

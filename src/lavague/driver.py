@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Tuple
 from .format_utils import clean_html
+import requests
 
 try:
     from selenium.webdriver.remote.webdriver import WebDriver
@@ -11,6 +12,7 @@ except:
 
 try:
     from playwright.sync_api import Page
+    from playwright.sync_api._generated import Playwright
 
     PLAYWRIGHT_IMPORT = True
 except:
@@ -63,6 +65,57 @@ class AbstractDriver(ABC):
         pass
 
 
+class RemoteDriver(AbstractDriver):
+    def __init__(self, addr: str, port: int = 16500):
+        self.addr = addr
+        self.port = port
+
+    def getDriver(self) -> Tuple[str, Any]:
+        name = requests.get(f"http://{self.addr}:{self.port}/get_driver_name")
+        name.raise_for_status()
+        return name.text, None
+
+    def getUrl(self) -> str:
+        url = requests.get(f"http://{self.addr}:{self.port}/get_url")
+        url.raise_for_status()
+        url = url.text.strip('\"')
+        return url
+
+    def goToUrlCode(self, url: str) -> str:
+        return f''
+
+    def goTo(self, url: str) -> None:
+        res = requests.get(f"http://{self.addr}:{self.port}/go_to",  params={"url": url})
+        res.raise_for_status()
+
+    def getHtml(self, clean: bool = False) -> str:
+        html = requests.get(f"http://{self.addr}:{self.port}/get_html").json()
+        html = html["html"]
+        return clean_html(html) if clean else html
+
+    def getScreenshot(self, filename: str) -> None:
+        import base64
+        res_txt = requests.get(f"http://{self.addr}:{self.port}/screenshot")
+        res_txt.raise_for_status()
+        res_txt = res_txt.text
+        res = base64.b64decode(res_txt)
+        f = open(filename, "wb")
+        f.write(res)
+        f.close()
+
+    def execCode(self, code: str) -> Any:
+        res = requests.post(f"http://{self.addr}:{self.port}/exec_code", json={"code": code})
+        res.raise_for_status()
+        res = res.json()
+        return res
+
+    def getDummyCode(self) -> str:
+        return ''
+
+    def destroy(self) -> None:
+        res = requests.get(f"http://{self.addr}:{self.port}/destroy")
+        res.raise_for_status()
+
 if SELENIUM_IMPORT:
 
     class SeleniumDriver(AbstractDriver):
@@ -114,6 +167,7 @@ if PLAYWRIGHT_IMPORT:
             return self.driver.goto(url)
 
         def getHtml(self) -> str:
+            self.driver.wait_for_load_state(timeout=10000)
             return self.driver.content()
 
         def getScreenshot(self, filename: str) -> None:

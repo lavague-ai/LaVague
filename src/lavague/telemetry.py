@@ -7,7 +7,6 @@ from .version_checker import get_installed_version
 TELEMETRY_VAR = os.getenv("LAVAGUE_TELEMETRY")
 USER_ID = str(uuid.uuid4())
 
-
 def send_telemetry(
     model_name: str,
     code: str,

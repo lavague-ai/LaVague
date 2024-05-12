@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lavague"
-version = "1.0.10"
-description = "Selenium code generation from text instructions"
+version = "1.0.14"
+description = "Selenium & Playwright code generation from text instructions"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
-keywords = ["IA", "AI", "selenium", "generation"]
+keywords = ["IA", "AI", "selenium", "generation", "playwright"]
 authors = [
   {name = "Mithril Security", email = "contact@mithrilsecurity.io" }
 ]
@@ -53,20 +53,23 @@ dependencies = [
   "tree-sitter==0.21.0",
   "tree-sitter-languages==1.10.2",
   "nest_asyncio==1.6.0",
-  "selenium==4.18.1",
+  "playwright==1.42.0",
   "google-search-results==2.4.2",
   "python-dotenv==1.0.1",
   "gradio==4.21.0",
   "ipython",
   "langchain==0.1.10",
-  "datasets==2.19.0"
+  "datasets",
+  "fastapi",
+  "uvicorn",
+  "starlette"
 ]
 
 [project.optional-dependencies]
 dev = ["ruff", "ipykernel"]
 cuda = ["accelerate==0.28.0", "bitsandbytes==0.42.0"]
 huggingface = ["llama-index-embeddings-huggingface==0.1.4", "llama-index-llms-huggingface==0.1.4"]
-playwright = ["playwright==1.42.0"]
+selenium = ["selenium==4.18.1"]
 
 [project.urls]
 "Homepage" = "https://mithrilsecurity.io"
