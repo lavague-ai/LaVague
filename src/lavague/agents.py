@@ -1,6 +1,7 @@
-from IPython.display import Image, display, clear_output
+
 from lavague.web_utils import get_highlighted_element, display_screenshot, encode_image
 from lavague.format_utils import extract_instruction
+from PIL import Image
 import time
 
 N_ATTEMPTS = 5
@@ -15,22 +16,22 @@ class WebAgent:
     def get(self, url):
         self.driver.get(url)
         
-    def run(self, objective):
+    def run(self, objective, display=True):
         
         driver = self.driver
         action_engine= self.action_engine
         world_model = self.world_model
 
-        driver.save_screenshot("screenshot.png")
-        display(Image("screenshot.png"))
-
-        print("Objective: ", objective)
-
         for i in range(N_STEPS):
+            driver.save_screenshot("screenshot_before_action.jpeg")
+            screenshot_before_action = Image.open("screenshot_before_action.jpeg")
+            if display:
+                display_screenshot(screenshot_before_action)
+            
             print("Computing an action plan...")
 
             # We get the current screenshot into base64 before sending to our World Model
-            state = encode_image("screenshot.png")
+            state = encode_image("screenshot_before_action.jpeg")
 
             # We get the instruction for the action engine using the world model
             output = world_model.get_instruction(state, objective)
@@ -47,9 +48,10 @@ class WebAgent:
                 for _ in range(N_ATTEMPTS):
                     try:
                         action = action_engine.action_from_context(context, query)
-                        screenshot_before_action = get_highlighted_element(action, driver)
-                        clear_output()
-                        display(screenshot_before_action)
+                        screenshot_with_highlight = get_highlighted_element(action, driver)
+                        if display:
+                            display_screenshot(screenshot_with_highlight)
+                        
                         print("Showing the next element to interact with")
                         time.sleep(3)
 
@@ -62,8 +64,10 @@ from selenium.webdriver.common.keys import Keys
 
                         exec(code, globals(), local_scope)
                         time.sleep(3)
-                        clear_output()
-                        display_screenshot(driver)
+                        driver.save_screenshot("screenshot_after_action.jpeg")
+                        screenshot_after_action = Image.open("screenshot_after_action.jpeg")
+                        if display:
+                            display_screenshot(screenshot_after_action)
                         break
 
                     except Exception as e:

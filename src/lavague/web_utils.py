@@ -1,19 +1,25 @@
 from .format_utils import keep_assignments, return_assigned_variables
 from selenium.webdriver.remote.webelement import WebElement
-from IPython.display import Image, display
-
+from IPython.display import display, clear_output
+from PIL import Image
+from PIL.PngImagePlugin import PngImageFile
 import base64
+
 # Function to encode the image
 def encode_image(image_path):
   with open(image_path, "rb") as image_file:
     return base64.b64encode(image_file.read()).decode('utf-8')
 
-def display_screenshot(driver):
-    driver.save_screenshot("screenshot.png")
-    display(Image("screenshot.png"))
+def display_screenshot(img: PngImageFile):
+    clear_output()
+    if img.mode == 'RGBA':
+        img = img.convert('RGB')
+
+    # Display the image directly in the notebook
+    display(img)
 
 
-def get_highlighted_element(generated_code, driver):
+def get_highlighted_element(generated_code, driver) -> PngImageFile:
 
     assignment_code = keep_assignments(generated_code)
 
@@ -40,6 +46,6 @@ from selenium.webdriver.common.action_chains import ActionChains
     driver.execute_script("arguments[0].setAttribute('style', arguments[1]);", first_element, "border: 2px solid red;")
     driver.execute_script("arguments[0].scrollIntoView();", first_element)
     driver.save_screenshot("screenshot.png")
-    image = Image("screenshot.png")
+    image = Image.open("screenshot.png")
     driver.execute_script("arguments[0].setAttribute('style', '');", first_element)
     return image
