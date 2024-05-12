@@ -1,5 +1,5 @@
 # server.py
-from typing import Callable
+from typing import Callable, Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 from sqlalchemy import func
@@ -9,7 +9,7 @@ from lavague.driver import AbstractDriver
 from lavague.format_utils import extract_code_from_funct, extract_imports_from_lines
 
 class Request(BaseModel):
-    code: str
+    code: Optional[str] = None
 
 driver_global: AbstractDriver = None
 get_driver: Callable[[], AbstractDriver]

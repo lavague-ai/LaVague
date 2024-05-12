@@ -56,6 +56,7 @@ class GradioDemo(CommandCenter):
             self.driver.goTo(url_input)
             state = self.driver.getHtml()
             response = ""
+            print("Generating code...")
             for text in self.actionEngine.get_action_streaming(query, state, url_input):
                 # do something with text as they arrive.
                 response += text
@@ -71,8 +72,11 @@ class GradioDemo(CommandCenter):
                 screenshot = base64.b64encode(scr.read())
             except:
                 pass
-            source_nodes = self.actionEngine.get_nodes(query, html)
-            retrieved_context = "\n".join(source_nodes)
+            try:
+                source_nodes = self.actionEngine.get_nodes(query, html)
+                retrieved_context = "\n".join(source_nodes)
+            except:
+                retrieved_context = self.actionEngine.retrieved_context
             send_telemetry(
                 self.actionEngine.llm.metadata.model_name,
                 code,
