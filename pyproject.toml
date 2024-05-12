@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lavague"
-version = "1.0.13"
+version = "1.0.14"
 description = "Selenium & Playwright code generation from text instructions"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -59,7 +59,10 @@ dependencies = [
   "gradio==4.21.0",
   "ipython",
   "langchain==0.1.10",
-  "datasets"
+  "datasets",
+  "fastapi",
+  "uvicorn",
+  "starlette"
 ]
 
 [project.optional-dependencies]
