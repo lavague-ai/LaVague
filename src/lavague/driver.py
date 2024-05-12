@@ -71,7 +71,9 @@ class RemoteDriver(AbstractDriver):
         self.port = port
 
     def getDriver(self) -> Tuple[str, Any]:
-        return "driver", None
+        name = requests.get(f"http://{self.addr}:{self.port}/get_driver_name")
+        name.raise_for_status()
+        return name.text, None
 
     def getUrl(self) -> str:
         url = requests.get(f"http://{self.addr}:{self.port}/get_url")

@@ -50,6 +50,13 @@ def exec_code(req: Request):
         success = False
     return {"success": success, "error": error}
 
+@app.get("/get_driver_name")
+def getdrivername():
+    global driver_global
+    if driver_global is None:
+        driver_global = get_driver()
+    name, _ = driver_global.getDriver()
+    return name
 
 @app.get("/get_url")
 def geturl():
