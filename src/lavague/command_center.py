@@ -103,6 +103,7 @@ class GradioDemo(CommandCenter):
                     status = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
                     self.success = True
                     full_code += code
+                    self.error = ""
                 else:
                     err = res["error"]
                     output = f"Error in code execution: {err}"

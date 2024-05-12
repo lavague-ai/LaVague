@@ -165,7 +165,7 @@ class ActionEngine(BaseActionEngine):
         finally:
             source_nodes = self.get_nodes(query, html)
             retrieved_context = "\n".join(source_nodes)
-            send_telemetry(self.llm.metadata.model_name, code, "", html, query, url, "action-engine", success, False, err, retrieved_context)
+            send_telemetry(self.llm.metadata.model_name, code, "", html, query, url, "action-engine", None, False, err, retrieved_context)
 
     def get_action_streaming_vscode(self, query: str, html: str, url: str) -> Generator[str, None, None]:
         from .telemetry import send_telemetry
@@ -185,7 +185,7 @@ class ActionEngine(BaseActionEngine):
         finally:
             source_nodes = self.get_nodes(query, html)
             retrieved_context = "\n".join(source_nodes)
-            send_telemetry(self.llm.metadata.model_name, full_text, "", html, query, url, "lavague-vscode", success, False, err, retrieved_context)
+            send_telemetry(self.llm.metadata.model_name, full_text, "", html, query, url, "lavague-vscode", None, False, err, retrieved_context)
 
 class TestActionEngine(BaseActionEngine):
     """

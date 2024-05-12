@@ -47,6 +47,7 @@ def exec_code(req: Request):
         success = True
     except Exception as e:
         error = repr(e)
+        success = False
     return {"success": success, "error": error}
 
 
