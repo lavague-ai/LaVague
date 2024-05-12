@@ -167,6 +167,7 @@ if PLAYWRIGHT_IMPORT:
             return self.driver.goto(url)
 
         def getHtml(self) -> str:
+            self.driver.wait_for_load_state(timeout=10000)
             return self.driver.content()
 
         def getScreenshot(self, filename: str) -> None:

@@ -57,16 +57,11 @@ def default_python_code_extractor(markdown_text: str) -> Optional[str]:
 if SELENIUM_IMPORT:
 
     def default_get_selenium_driver() -> SeleniumDriver:
-        try:
-            from selenium import webdriver
-            from selenium.webdriver.chrome.service import Service
-            from selenium.webdriver.common.by import By
-            from selenium.webdriver.chrome.options import Options
-            from selenium.webdriver.common.keys import Keys
-        except (ImportError, ModuleNotFoundError) as error:
-            raise ImportError(
-                "Please install selenium using `pip install selenium`"
-            ) from error
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.common.keys import Keys
         import os.path
 
         chrome_options = Options()
@@ -100,16 +95,11 @@ if SELENIUM_IMPORT:
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:
         """Extra options to make the driver more static for evaluation purposes."""
-        try:
-            from selenium import webdriver
-            from selenium.webdriver.chrome.service import Service
-            from selenium.webdriver.common.by import By
-            from selenium.webdriver.chrome.options import Options
-            from selenium.webdriver.common.keys import Keys
-        except (ImportError, ModuleNotFoundError) as error:
-            raise ImportError(
-                "Please install selenium using `pip install selenium`"
-            ) from error
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.common.keys import Keys
         import os.path
 
         chrome_options = Options()
