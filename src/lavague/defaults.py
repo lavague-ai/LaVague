@@ -78,9 +78,9 @@ if SELENIUM_IMPORT:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--window-size=1024,1024")
 
         driver = webdriver.Chrome(options=chrome_options)
-        resize_driver(driver, 1024, 1024)
 
         return SeleniumDriver(default_get_selenium_driver())
     
