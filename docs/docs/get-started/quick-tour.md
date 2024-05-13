@@ -9,8 +9,7 @@
 
     If you don't have an OpenAI API key, please get one [here](https://platform.openai.com/docs/quickstart/developer-quickstart)
 
-
-# Installation
+## Installation
 
 We start by downloading LaVague.
 
@@ -51,8 +50,7 @@ We will finally need to define our `OPENAI_API_KEY`.
 exort "OPENAI_API_KEY" = # Your OPENAI_API_KEY
 ```
 
-
-# World model
+## World model
 
 Here we will introduce World Models, which are models whose goal is to take a given set of:
 - Objective: here the goal to be achieved
@@ -74,7 +72,7 @@ hf_examples = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague
 world_model = GPTWorldModel(examples=hf_examples)
 ```
 
-# Demo
+## Demo
 
 We can now play with it, with a small example where we show our World Model can help achieve a specific goal, here going on the quicktour of Hugging Face's PEFT framework for model finetuning, by providing instructions to our `ActionEngine`:
 
