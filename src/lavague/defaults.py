@@ -62,6 +62,7 @@ if SELENIUM_IMPORT:
 
         chrome_options = Options()
         chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
 
         driver = webdriver.Chrome(options=chrome_options)
         return driver
@@ -69,11 +70,7 @@ if SELENIUM_IMPORT:
     def evaluation_get_selenium_driver() -> SeleniumDriver:
         """Extra options to make the driver more static for evaluation purposes."""
         from selenium import webdriver
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.common.by import By
         from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
-        import os.path
 
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # Ensure GUI is off
@@ -85,7 +82,7 @@ if SELENIUM_IMPORT:
         chrome_options.add_argument('--proxy-server=127.0.0.1:9999')
 
         driver = webdriver.Chrome(options=chrome_options)
-        return SeleniumDriver(driver)
+        return driver
 
 
 if PLAYWRIGHT_IMPORT:
