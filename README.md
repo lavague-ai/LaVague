@@ -18,59 +18,43 @@
   </a>
   <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/📄-docs-000000?style=for-the-badge&colorA=09c&colorB=555" height='35px' alt="Docs"></a>
 </h4>
-  <p>The open-source community for Large Action Models</p>
+  <p>A Large Action Model framework for developing AI Web Agents
+</p>
 <h1></h1>
 </div>
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an **open-source Large Action Model framework** for turning **natural language** into **browser actions**.
+LaVague is an **open-source Large Action Model framework** which aims to leverage **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to develop effective AI Web Agents.
 
-At LaVague's core, we have an **Action Engine** which uses **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to “compile” natural language instructions into browser automation code, by leveraging **Selenium** or **Playwright**.
+Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library Thought:" and performs the required actions to achieve this goal by leveraging our two core components:
 
-### LaVague in Action
-
-Here's an example of LaVague being used to execute natural language instructions on a browser to automate web interactions. This example uses the Gradio interface available with the `lavague launch` CLI command:
-
-<div>
-  <figure>
-    <img src="static/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
-    <figcaption><b>LaVague interacting with Hugging Face's website.</b></figcaption>
-  </figure>
-  <br><br>
-</div>
+- A **World Model** to break down an objective, such as "" into instructions for step-by-step web actions
+- An **Action Engine** which uses to “compile” these instructions into automation code, by leveraging **Selenium** or **Playwright** & execute them
 
 ## 🚀 Getting Started
 
-### Running LaVague in your local env
+You can download the LaVague PyPi package with:
 
-You can get started with `LaVague` in 2 steps:
+```bash
+pip install lavague
+```
+You can then leverage our library to automate web actions based on natural language objectives:
 
-1. Install LaVague & dependencies
-```
-wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&
-bash setup.sh
-```
+```python
+from lavague.agents import WebAgent
+from lavague.actionEngine import ActionEngine
+from lavague.wordModel import WorldModel
 
-2. Run your LaVague command!
+agent = WebAgent(ActionEngine(), WorldModel())
+agent.get("https://huggingface.co/docs")
+agent.run("Go on the quicktour of PEFT")
+```
+For more informatio on this example and how to use LaVague Core, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
-You can either `launch` an interactive Gradio interface, where you will see both the automation code generated for each instruction but also a live preview of the results of executing the code with a debug tab:
-```
-lavague launch
-```
-
-Or you can use the `build` command to directly get the Python code leveraging Selenium in a file, which you can then inspect & execute locally:
-```
-lavague build
-```
-
-> Note, you'll need an OpenAI API key for this default example and will need the `OPENAI_API_KEY` set in your environment. To use LaVague with a different API, see our [integrations section](https://docs.lavague.ai/en/latest/docs/integrations/home/).
+> Note, these examples use our default OpenAI API configuration and you will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for these to work. For different API integrations, see our [ActionEngine integrations]().
 
 For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
-
-## 🎭 Playwright integration
-
-If you want to get started with LaVague build using Playwright as your underlying automation tool, see our [Playwright integration guide](./docs/docs/get-started/playwright.md)
 
 ## 🙋 Contributing
 
