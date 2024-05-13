@@ -92,24 +92,25 @@ markdown_extensions:
 nav:
 - 🏠 Home: 'index.md'
 
-- 🚀 Getting Started:
-  - Installation: 'docs/get-started/setting-up-la-vague.md'
-  - Quick tour: 'docs/get-started/quick-tour.md'
-  - VSCode extension (Alpha): 'docs/get-started/get-started-vscode-extension.md'
-  - Playwright: 'docs/get-started/playwright.md'
-  - Customization: 'docs/get-started/customization.md'
+- ⚡ Getting Started:
+  - Quick tour: 'docs/get-started/quick-tour-notebook/quick-tour.ipynb'
+  # - Customization: 'docs/get-started/customization.md'
 
-- 🤝 Integrations:
-  - Overview: 'docs/integrations/home.md'
-  - API:
-    - Azure OpenAI: 'docs/integrations/api/azure-openai.ipynb'
-    - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
-    - OpenAI: 'docs/integrations/api/openai.ipynb'
-    - Litellm: 'docs/integrations/api/litellm.ipynb'
-    - Groq: 'docs/integrations/api/groq.ipynb'
-    - Anthropic: 'docs/integrations/api/anthropic.ipynb'
-  - Local:
-    - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
+# - 🚀 Action Engine:
+# - 🤝 Integrations:
+#   - Overview: 'docs/integrations/home.md'
+#   - API:
+#     - Azure OpenAI: 'docs/integrations/api/azure-openai.ipynb'
+#     - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
+#     - OpenAI: 'docs/integrations/api/openai.ipynb'
+#     - Litellm: 'docs/integrations/api/litellm.ipynb'
+#     - Groq: 'docs/integrations/api/groq.ipynb'
+#     - Anthropic: 'docs/integrations/api/anthropic.ipynb'
+#   - Local:
+#     - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
+
+
+# - 🌎 Word Model:
 
 - 🤗 Contributing:
   - Overview: "docs/contributing/contributing.md"
@@ -117,10 +118,10 @@ nav:
   - Pathways:
     - Documentation: "docs/contributing/documentation.md"
   
-- ⚡ Advanced:
-  - Architecture: 'docs/get-started/architecture.md'
-  - Telemetry: 'docs/advanced/telemetry.md'
-  - Under the hood: 'docs/advanced/under-the-hood.md'
+# - ⚡ Advanced:
+#   - Architecture: 'docs/get-started/architecture.md'
+#   - Telemetry: 'docs/advanced/telemetry.md'
+#   - Under the hood: 'docs/advanced/under-the-hood.md'
 
 - 🛠️ API reference:
   - API reference home: 'docs/lavague/index.html'

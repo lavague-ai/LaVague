@@ -1,41 +1,39 @@
 ---
-description: "The open-source community for Large Action Models"
+description: "The open-source Large Action Model framework for AI Web Agents"
 ---
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an **open-source Large Action Model framework** for turning **natural language** into **browser actions**.
+LaVague is an **open-source Large Action Model framework** which aims to leverage **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to develop effective AI Web Agents.
 
-At LaVague's core, we have an **Action Engine** which uses **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to “compile” natural language instructions into browser automation code, by leveraging **Selenium** or **Playwright**.
+Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library Thought:" and performs the required actions to achieve this goal by leveraging our two core components:
 
-### LaVague in Action
-
-Here's an example of LaVague being used to execute natural language instructions on a browser to automate web interactions. This example uses the Gradio interface available with the `lavague launch` CLI command:
-
-<img src="assets/hf_lavague.gif" alt="LaVague Interaction Example">
+- A **World Model** to break down an objective into instructions for step-by-step web actions
+- An **Action Engine** which uses to “compile” these instructions into automation code, by leveraging **Selenium** or **Playwright** & execute them
 
 ## 🚀 Getting Started
 
-### Running LaVague in your local env
+You can download the LaVague PyPi package with:
 
-You can get started with `LaVague` in 2 steps:
-
-1. Install LaVague & dependencies
+```bash
+pip install lavague
 ```
-wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&
-bash setup.sh
+You can then leverage our library to automate web actions based on natural language objectives:
+
+```python
+from lavague.agents import WebAgent
+from lavague.actionEngine import ActionEngine
+from lavague.wordModel import WorldModel
+
+agent = WebAgent(ActionEngine(), WorldModel())
+agent.get("https://huggingface.co/docs")
+agent.run("Go on the quicktour of PEFT")
 ```
+For more information on this example and how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
-2. Run your LaVague command!
-```
-lavague --instructions examples/instructions/huggingface.yaml --config examples/configurations/api/openai_api.py build
-```
+> Note, these examples use our default OpenAI API configuration and you will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for these to work.
 
-For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
-
-## 🎭 Playwright integration
-
-If you want to get started with LaVague build using Playwright as your underlying automation tool, see our [Playwright integration guide](./docs/get-started/playwright.md)
+For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
 ## 🙋 Contributing
 
@@ -66,3 +64,19 @@ TO keep up to date with our project backlog [here](https://github.com/orgs/lavag
 !!! warning "Disclaimer"
 
     This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
+
+!!! warning "Telemetry"
+
+    By default LaVague records some basic anonymous values to help us gather data to build better agents and Large Action Models:
+
+    - Version of LaVague installed
+    - Code generated for each web action step
+    - LLM used (i.e GPT4)
+    - Randomly generated anonymous user ID
+    - Whether you are using a CLI command or our library directly
+    - The URL you performed an action on
+    - Whether the action failed or succeeded
+    - Error message, where relevant
+    - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
+
+    If you want to turn off telemetry, you can set your `TELEMETRY_VAR` environment variable to `NONE` in your working environment.
