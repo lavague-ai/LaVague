@@ -82,18 +82,18 @@ TO keep up to date with our project backlog [here](https://github.com/orgs/lavag
 
     This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
 
-!!! warning "Telemetry"
+## Telemetry
 
-    By default LaVague records some basic anonymous values to help us gather data to build better agents and Large Action Models:
+By default LaVague records some basic anonymous values to help us gather data to build better agents and Large Action Models:
 
-    - Version of LaVague installed
-    - Code generated for each web action step
-    - LLM used (i.e GPT4)
-    - Randomly generated anonymous user ID
-    - Whether you are using a CLI command or our library directly
-    - The URL you performed an action on
-    - Whether the action failed or succeeded
-    - Error message, where relevant
-    - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
+- Version of LaVague installed
+- Code generated for each web action step
+- LLM used (i.e GPT4)
+- Randomly generated anonymous user ID
+- Whether you are using a CLI command or our library directly
+- The URL you performed an action on
+- Whether the action failed or succeeded
+- Error message, where relevant
+- The source nodes (chunks of HTML code retrieved from the web page to perform this action)
 
-    If you want to turn off telemetry, you can set your `TELEMETRY_VAR` environment variable to `NONE` in your working environment.
+If you want to turn off telemetry, you can set your `TELEMETRY_VAR` environment variable to `NONE` in your working environment.
