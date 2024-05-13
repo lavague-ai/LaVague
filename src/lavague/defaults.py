@@ -1,5 +1,6 @@
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
+from .web_utils import resize_driver
 import os
 from typing import Optional
 from dotenv import load_dotenv
@@ -65,6 +66,7 @@ if SELENIUM_IMPORT:
         chrome_options.add_argument("--no-sandbox")
 
         driver = webdriver.Chrome(options=chrome_options)
+        resize_driver(driver, 1024, 1024)
         return driver
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:
