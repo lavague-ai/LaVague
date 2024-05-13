@@ -1,6 +1,0 @@
-url: https://huggingface.co/
-
-instructions:
-  - Click on the datasets button, in the menu
-  - Click on the search bar 'Search models, datasets, users...', type 'lavague-ai', import time to sleep 1 second and press enter
-  - Scroll by 500 pixels
