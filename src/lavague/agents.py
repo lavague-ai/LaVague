@@ -70,12 +70,14 @@ from selenium.webdriver.common.keys import Keys
                         screenshot_after_action = Image.open("screenshot_after_action.jpeg")
                         if display:
                             display_screenshot(screenshot_after_action)
+                            
+                            
+                        
                         break
 
                     except Exception as e:
                         
                         print("Action execution failed. Retrying...")
-                        print("Error:", e)
                         pass
             else:
                 print("Objective reached")

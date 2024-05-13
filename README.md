@@ -34,12 +34,24 @@ Our web agents take an objective, such as "Print installation steps for Hugging 
 
 ## 🚀 Getting Started
 
-You can download LaVague with:
+### Demo
+
+Here is an example of how LaVague can take multiple steps to achieve the objective of "Go on the quicktour of PEFT":
+
+<p align="center">
+  <img src="./docs/assets/demo_agent_hf.gif" alt="Demo for agent">
+</p>
+
+### Hands-on 
+
+To do this, the steps are simple:
+
+1. Download LaVague with:
 
 ```bash
 pip install lavague
 ```
-You can then leverage our library to automate web actions based on natural language objectives:
+2. Use our framework to build a Web Agent and implement the objective:
 
 ```python
 from lavague.retrievers import OpsmSplitRetriever
@@ -59,6 +71,7 @@ agent = WebAgent(driver, action_engine, world_model)
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
 ```
+
 For more information on this example and how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
 > Note, these examples use our default OpenAI API configuration and you will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for these to work.
