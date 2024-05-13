@@ -20,9 +20,7 @@ try:
 except:
     PLAYWRIGHT_IMPORT = False
 
-
 load_dotenv()
-
 
 class DefaultEmbedder(OpenAIEmbedding):
     def __init__(self, model="text-embedding-3-large"):
@@ -76,7 +74,7 @@ if SELENIUM_IMPORT:
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.common.keys import Keys
         import os.path
-        
+
         return SeleniumDriver(default_get_selenium_driver())
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:

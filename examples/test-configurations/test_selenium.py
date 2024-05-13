@@ -8,7 +8,6 @@ from lavague.defaults import (
     default_get_driver,
 )
 
-
 # default LLM for testing
 class LLM(OpenAI):
     def __init__(self):
