@@ -58,3 +58,8 @@ PEFT
 https
 huggingface
 quicktour
+DefaultEmbedder
+DefaultLLM
+GPTWorldModel
+OpsmSplitRetriever
+utils
