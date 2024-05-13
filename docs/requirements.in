@@ -2,3 +2,5 @@ mkdocs
 markdown-include
 mkdocs-material
 mkdocs-jupyter
+pymdown-extensions
+Pygments
