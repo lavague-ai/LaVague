@@ -70,6 +70,13 @@ if SELENIUM_IMPORT:
         return driver
     
     def default_get_driver() -> SeleniumDriver:
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.common.keys import Keys
+        import os.path
+        
         return SeleniumDriver(default_get_selenium_driver())
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:
