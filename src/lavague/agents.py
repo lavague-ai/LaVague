@@ -48,9 +48,11 @@ class WebAgent:
                 for _ in range(N_ATTEMPTS):
                     try:
                         action = action_engine.action_from_context(context, query)
-                        screenshot_with_highlight = get_highlighted_element(action, driver)
+                        outputs = get_highlighted_element(action, driver)
+                        image = outputs[-1]["image"]
+                        
                         if display:
-                            display_screenshot(screenshot_with_highlight)
+                            display_screenshot(image)
                         
                         print("Showing the next element to interact with")
                         time.sleep(3)

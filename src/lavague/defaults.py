@@ -1,5 +1,6 @@
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
+from .web_utils import resize_driver
 import os
 from typing import Optional
 from dotenv import load_dotenv
@@ -19,9 +20,7 @@ try:
 except:
     PLAYWRIGHT_IMPORT = False
 
-
 load_dotenv()
-
 
 class DefaultEmbedder(OpenAIEmbedding):
     def __init__(self, model="text-embedding-3-large"):
@@ -58,6 +57,18 @@ if SELENIUM_IMPORT:
 
     def default_get_selenium_driver() -> SeleniumDriver:
         from selenium import webdriver
+        from selenium.webdriver.chrome.options import Options
+
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+
+        driver = webdriver.Chrome(options=chrome_options)
+        resize_driver(driver, 1024, 1024)
+        return driver
+    
+    def default_get_driver() -> SeleniumDriver:
+        from selenium import webdriver
         from selenium.webdriver.chrome.service import Service
         from selenium.webdriver.common.by import By
         from selenium.webdriver.chrome.options import Options
@@ -65,21 +76,18 @@ if SELENIUM_IMPORT:
         import os.path
 
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Ensure GUI is off
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--window-size=1600,900")
+        chrome_options.add_argument("--window-size=1024,1024")
 
         driver = webdriver.Chrome(options=chrome_options)
-        return SeleniumDriver(driver)
+
+        return SeleniumDriver(default_get_selenium_driver())
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:
         """Extra options to make the driver more static for evaluation purposes."""
         from selenium import webdriver
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.common.by import By
         from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
-        import os.path
 
         chrome_options = Options()
         chrome_options.add_argument("--headless")  # Ensure GUI is off
@@ -91,7 +99,7 @@ if SELENIUM_IMPORT:
         chrome_options.add_argument('--proxy-server=127.0.0.1:9999')
 
         driver = webdriver.Chrome(options=chrome_options)
-        return SeleniumDriver(driver)
+        return driver
 
 
 if PLAYWRIGHT_IMPORT:
