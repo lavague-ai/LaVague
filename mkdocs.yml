@@ -20,16 +20,13 @@ theme:
     
   logo: assets/logo.png
   favicon: assets/logo.png
-  theme:
   palette:
-
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -52,7 +49,7 @@ theme:
       example: material/test-tube
       quote: material/format-quote-close
 
-#Plugins
+# Plugins
 plugins:
   - search
   - mkdocs-jupyter
@@ -86,7 +83,10 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.critic
-
+  - pymdownx.highlight:
+      use_pygments: true
+      pygments_style: monokai
+  - pymdownx.superfences
 
 # Documentation tree
 nav:
@@ -109,7 +109,6 @@ nav:
 #   - Local:
 #     - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
 
-
 # - 🌎 Word Model:
 
 - 🤗 Contributing:
@@ -118,10 +117,5 @@ nav:
   - Pathways:
     - Documentation: "docs/contributing/documentation.md"
   
-# - ⚡ Advanced:
-#   - Architecture: 'docs/get-started/architecture.md'
-#   - Telemetry: 'docs/advanced/telemetry.md'
-#   - Under the hood: 'docs/advanced/under-the-hood.md'
-
 - 🛠️ API reference:
   - API reference home: 'docs/lavague/index.html'
