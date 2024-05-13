@@ -8,7 +8,7 @@ LaVague is an **open-source Large Action Model framework** which aims to leverag
 
 Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library Thought:" and performs the required actions to achieve this goal by leveraging our two core components:
 
-- A **World Model** to break down an objective, such as "" into instructions for step-by-step web actions
+- A **World Model** to break down an objective into instructions for step-by-step web actions
 - An **Action Engine** which uses to “compile” these instructions into automation code, by leveraging **Selenium** or **Playwright** & execute them
 
 ## 🚀 Getting Started
@@ -29,9 +29,9 @@ agent = WebAgent(ActionEngine(), WorldModel())
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
 ```
-For more informatio on this example and how to use LaVague Core, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
+For more information on this example and how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
-> Note, these examples use our default OpenAI API configuration and you will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for these to work. For different API integrations, see our [ActionEngine integrations]().
+> Note, these examples use our default OpenAI API configuration and you will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for these to work.
 
 For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
@@ -64,3 +64,19 @@ TO keep up to date with our project backlog [here](https://github.com/orgs/lavag
 !!! warning "Disclaimer"
 
     This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
+
+!!! warning "Telemetry"
+
+    By default LaVague records some basic anonymous values to help us gather data to build better agents and Large Action Models:
+
+    - Version of LaVague installed
+    - Code generated for each web action step
+    - LLM used (i.e GPT4)
+    - Randomly generated anonymous user ID
+    - Whether you are using a CLI command or our library directly
+    - The URL you performed an action on
+    - Whether the action failed or succeeded
+    - Error message, where relevant
+    - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
+
+    If you want to turn off telemetry, you can set your `TELEMETRY_VAR` environment variable to `NONE` in your working environment.

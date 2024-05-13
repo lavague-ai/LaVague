@@ -1,0 +1,61 @@
+Objective: Ask the AI model 'Command R plus' 'What is love'
+Thought:
+- I am on the Hugging Face website.
+- Hugging Face is a company that hosts AI models, and allows users to interact with models on them through the chat.
+- Therefore, to answer the objective of asking the AI model 'Command R Plus' 'What is love', we need first to find the model page.
+- Given the current screenshot, the fastest way to find the model page seems to be to use the search bar.
+Instruction: Type 'Command R plus' on the search bar with placeholder "Search ..." and click on the first result
+
+Objective: Explore the latest updates on the model 'Meta-Llama-3-8B'
+Thought:
+- I am currently viewing the main page of Hugging Face, a hub for AI models and datasets.
+- On this platform, users can explore and interact with a variety of AI models.
+- From the current screenshot, I see that the model 'Meta-Llama-3-8B' is displayed in the "Trending" section.
+- To investigate the updates made to 'Meta-Llama-3-8B', the best approach is to go directly to the model's specific page where information will be available
+Instruction: Click on 'Meta-Llama-3-8B'
+
+Objective: Print the installation guide of Mistral-7B
+Thoughts:
+- The current screenshot shows the model page of Mistral-7B
+- Installation guides are usually found within the model's page
+- This page seems to be the right place to find the installation guide for Mistral-7B but not sufficient information is available on the current screen
+- To get the installation guide, the best approach is to scroll down the page to find the relevant section
+Instruction: Scroll down by one full screen to continue exploring the current page
+
+Objective: Show examples of Image to Text models
+Thoughts:
+- The current screenshot shows the Hugging Face website, specifically the "Models" section.
+- The left sidebar categorizes AI tasks, and "Image-to-Text" is highlighted, indicating that models related to this task are being displayed.
+- The main area of the page lists various models that perform the Image-to-Text task, showing their names, descriptions, and some statistics like the number of likes and the last update date.
+- Since the objective is to show examples of Image to Text models, and the screenshot already displays these models, no further action is required.
+Instruction: STOP
+
+Objective: Ask Phi-3 'What is the meaning of life?'
+Thoughts:
+- The current screenshot shows the model page of the AI model Phi-3-mini-128k-instruct
+- The relevant part of the page for this objective is the chat interface on the right where users can interact with the model
+- To reach the objective, we just have to type the question 'What is the meaning of life?' in the chat interface and send it to the model
+Instruction: Select the input with placeholder 'Your sentence here...', type 'What is love' and press 'Enter'
+
+Objective: Show how to use Zero GPU Spaces
+Thoughts:
+- This screenshot shows a page of the Zero GPU community on Hugging Face
+- The main part of the page shows a description of their offering
+- However, the current screen does not provide detailed instructions on how to use Zero GPU Spaces
+- This page is still promising, so to find information on how to use Zero GPU Spaces, the best approach is to scroll down to see if more details are available
+Instruction: Scroll down by one full screen to continue exploring the current page
+
+Objective: Print installation steps for Hugging Face's Diffusers library
+Thought:
+- The current page seems to be the home page of the Diffusers' library.
+- The installation section is highlighted on the menu on the left-side menu.
+- The current page does not provide sufficient information about how to install Diffusers.
+- To get more information on installation steps, clicking on the 'Installation' link on the left menu is the best choice.
+Instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
+
+Objective: Get information on KANs-base models
+Thought:
+- The current page is a social post on Hugging Face's website.
+- The post is about the recent work of KANs models with GPT2.
+- Since this provides sufficient information on KANs, no further action is required to achieve the objective.
+Instruction: STOP

@@ -92,10 +92,11 @@ markdown_extensions:
 nav:
 - 🏠 Home: 'index.md'
 
-- 🚀 Getting Started:
+- ⚡ Getting Started:
   - Quick tour: 'docs/get-started/quick-tour.md'
   # - Customization: 'docs/get-started/customization.md'
 
+# - 🚀 Action Engine:
 # - 🤝 Integrations:
 #   - Overview: 'docs/integrations/home.md'
 #   - API:
@@ -107,6 +108,9 @@ nav:
 #     - Anthropic: 'docs/integrations/api/anthropic.ipynb'
 #   - Local:
 #     - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
+
+
+# - 🌎 Word Model:
 
 - 🤗 Contributing:
   - Overview: "docs/contributing/contributing.md"
