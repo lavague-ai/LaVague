@@ -31,7 +31,7 @@ import requests
 driver = default_get_selenium_driver()
 action_engine = ActionEngine(DefaultLLM(), OpsmSplitRetriever(DefaultEmbedder(), top_k=3))
 
-examples = requests.get("https://github.com/lavague-ai/LaVague/tree/main/examples/knowledge/hf_example.txt").text
+examples = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_example.txt").text
 world_model = GPTWorldModel(examples=examples)
 
 agent = WebAgent(driver, action_engine, world_model)
