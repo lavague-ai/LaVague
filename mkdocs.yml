@@ -93,7 +93,7 @@ nav:
 - 🏠 Home: 'index.md'
 
 - ⚡ Getting Started:
-  - Quick tour: 'docs/get-started/quick-tour-notebook/quick-tour.ipynb'
+  - Quick tour: 'docs/get-started/quick-tour.md'
   # - Customization: 'docs/get-started/customization.md'
 
 # - 🚀 Action Engine:
