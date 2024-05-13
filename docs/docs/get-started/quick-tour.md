@@ -47,7 +47,7 @@ action_engine = ActionEngine(llm, retriever)
 We will finally need to define our `OPENAI_API_KEY`.
 
 ```bash
-exort "OPENAI_API_KEY" = # Your OPENAI_API_KEY
+export "OPENAI_API_KEY" = # Your OPENAI_API_KEY
 ```
 
 ## World model
