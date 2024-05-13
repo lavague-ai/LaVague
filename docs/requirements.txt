@@ -108,7 +108,7 @@ mkdocs==1.6.0
     #   mkdocs-material
 mkdocs-get-deps==0.2.0
     # via mkdocs
-mkdocs-jupyter==0.24.3
+mkdocs-jupyter==0.24.7
     # via -r requirements.in
 mkdocs-material==9.5.22
     # via
