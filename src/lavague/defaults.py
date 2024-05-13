@@ -75,6 +75,13 @@ if SELENIUM_IMPORT:
         from selenium.webdriver.common.keys import Keys
         import os.path
 
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+
+        driver = webdriver.Chrome(options=chrome_options)
+        resize_driver(driver, 1024, 1024)
+
         return SeleniumDriver(default_get_selenium_driver())
     
     def evaluation_get_selenium_driver() -> SeleniumDriver:
