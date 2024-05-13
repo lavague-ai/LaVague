@@ -21,11 +21,18 @@ pip install lavague
 You can then leverage our library to automate web actions based on natural language objectives:
 
 ```python
+from lavague.retrievers import OpsmSplitRetriever
+from lavague.defaults import DefaultEmbedder, DefaultLLM, default_get_selenium_driver
+from lavague.action_engine import ActionEngine
+from lavague.world_model import GPTWorldModel
 from lavague.agents import WebAgent
-from lavague.actionEngine import ActionEngine
-from lavague.wordModel import WorldModel
+from lavague.web_utils import resize_driver
 
-agent = WebAgent(ActionEngine(), WorldModel())
+driver = default_get_selenium_driver()
+action_engine = ActionEngine(DefaultLLM(), OpsmSplitRetriever(DefaultEmbedder(), top_k=3))
+world_model = GPTWorldModel()
+
+agent = WebAgent(driver, action_engine, world_model)
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
 ```
