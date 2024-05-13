@@ -25,16 +25,16 @@
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an **open-source Large Action Model framework** which aims to leverage **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to develop effective AI Web Agents.
+LaVague is an **open-source Large Action Model framework** to develop AI Web Agents.
 
-Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library Thought:" and performs the required actions to achieve this goal by leveraging our two core components:
+Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library" and performs the required actions to achieve this goal by leveraging our two core components:
 
-- A **World Model** to break down an objective into instructions for step-by-step web actions
-- An **Action Engine** which uses to “compile” these instructions into automation code, by leveraging **Selenium** or **Playwright** & execute them
+- A **World Model** that takes an objective and the current state (aka the current web page) and turns that into instructions
+- An **Action Engine** which “compiles” these instructions into action code, e.g. **Selenium** or **Playwright** & execute them
 
 ## 🚀 Getting Started
 
-You can download the LaVague PyPi package with:
+You can download LaVague with:
 
 ```bash
 pip install lavague
