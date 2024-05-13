@@ -14,24 +14,10 @@ def cli():
 
 @cli.command()
 @click.pass_context
-def driver_server(ctx):
-    """Start a server containing the driver"""
-    from .config import Config
-    from ..browser_server import run_server
-    from multiprocessing import Process
-
-    config = Config.from_path(ctx.obj["config"])
-    get_driver = config.get_driver
-    run_server(get_driver)
-
-@cli.command()
-@click.pass_context
 def launch(ctx):
     """Start a local gradio demo of lavague"""
     from .config import Config, Instructions
     from ..command_center import GradioDemo
-    from ..browser_server import run_server
-    from multiprocessing import Process
 
     config = Config.from_path(ctx.obj["config"])
     if ctx.obj["instructions"] is not None:
@@ -43,11 +29,7 @@ def launch(ctx):
     # We will call this during driver initialization in init_driver() 
     get_driver = config.get_driver
     command_center = GradioDemo(action_engine, (get_driver))
-    p = Process(target=run_server, args=(get_driver, ()))
-    p.start()
     command_center.run(instructions.url, instructions.instructions)
-    p.join()
-
 
 @cli.command()
 @click.option(

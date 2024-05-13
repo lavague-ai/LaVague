@@ -1,3 +1,21 @@
+from string import Template
+
+WORLD_MODEL_PROMPT_TEMPLATE = Template("""
+You are an AI system whose goal is to generate training examples to teach other AIs to think and reach objectives given by humans and a screenshot of the current page.
+The AIs to be taught have to write their thought process and propose an instruction to be performed.
+Your answer should contain your thoughts in bullet points, and the instruction for the next step to be performed.
+The instruction should be detailled as possible and only contain one step. Do not provide bullet points or multiple steps.
+Leverage as much information from the screenshot to make it easy to identify the element, such as placeholders or text.
+Do not make assumptions about elements you do not see.
+If the objective is already achieved in the screenshot, provide the instruction 'STOP'.
+
+Here are previous examples:
+${examples}
+
+Objective: ${objective}
+Thought:
+""")
+
 SELENIUM_PROMPT = '''
 Your goal is to write Selenium code to answer queries.
 
@@ -149,15 +167,16 @@ driver.execute_script(js_script)
 
 HTML:
 
-Query: Scroll up a bit
+Query: Scroll down by a full screen
+
 
 Completion:
 ```python
 # Let's proceed step by step.
 # We don't need to use the HTML data as this is a stateless operation.
-# 200 pixels should be sufficient. Let's execute the JavaScript to scroll up.
+# Let's execute the JavaScript to scroll down.
 
-driver.execute_script("window.scrollBy(0, 200)")
+driver.execute_script("window.scrollBy(0, window.innerHeight);")
 ```
 
 ---
