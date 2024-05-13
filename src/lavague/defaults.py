@@ -69,6 +69,9 @@ if SELENIUM_IMPORT:
         resize_driver(driver, 1024, 1024)
         return driver
     
+    def default_get_driver() -> SeleniumDriver:
+        return SeleniumDriver(default_get_selenium_driver())
+    
     def evaluation_get_selenium_driver() -> SeleniumDriver:
         """Extra options to make the driver more static for evaluation purposes."""
         from selenium import webdriver
