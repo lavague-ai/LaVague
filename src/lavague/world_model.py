@@ -22,8 +22,8 @@ class BaseWorldModel(ABC):
 class GPTWorldModel(BaseWorldModel):
     """Class for Vision-based WorldModel"""
 
-    def __init__(self, examples, api_key: str = None):
-        self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.safe_substitute(examples=examples)
+    def __init__(self, observations, api_key: str = None):
+        self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.safe_substitute(examples=observations)
         if not api_key:
             api_key = os.getenv("OPENAI_API_KEY")
         if api_key is None:
