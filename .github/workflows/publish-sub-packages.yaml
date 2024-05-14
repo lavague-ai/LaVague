@@ -37,7 +37,8 @@ jobs:
               cd `echo $file | sed 's/\/pyproject.toml//g'`
               poetry lock
               pip install -e .
-              poetry config pypi-token.pypi $PYPI_TOKEN
-              poetry publish --build
+              poetry config repositories.test-pypi https://test.pypi.org/legacy/
+              poetry config pypi-token.test-pypi $PYPI_TOKEN
+              poetry publish -r testpypi --build
               cd -
           done
