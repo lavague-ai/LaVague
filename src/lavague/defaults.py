@@ -26,8 +26,7 @@ class DefaultEmbedder(OpenAIEmbedding):
     def __init__(self, model="text-embedding-3-large"):
         super().__init__(model=model)
 
-
-DEFAULT_OPENAI_MODEL = "gpt-4-1106-preview"
+DEFAULT_OPENAI_MODEL = "gpt-4o"
 
 class DefaultLLM(OpenAI):
     def __init__(self):
