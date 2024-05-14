@@ -65,14 +65,18 @@ class ActionEngine(BaseActionEngine):
     def __init__(
         self,
         llm: BaseLLM = DefaultLLM(),
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(DefaultEmbedder(), top_k=3),
+        retriever: BaseHtmlRetriever = None,
         prompt_template: str = SELENIUM_PROMPT,
         cleaning_function: Callable[
             [str], Optional[str]
         ] = default_python_code_extractor,
     ):
         self.llm = llm
-        self.retriever = retriever
+        if retriever is None:
+            self.embedder = DefaultEmbedder()
+            self.retriever = OpsmSplitRetriever(self.embedder, top_k=3)
+        else:
+            self.retriever = retriever
         self.prompt_template = prompt_template
         self.cleaning_function = cleaning_function
         self.retrieved_context = ""
