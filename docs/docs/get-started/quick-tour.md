@@ -62,14 +62,14 @@ Our current world model uses GPT4 with Vision to output an instruction using a s
 
 We can have a look at the current prompt template [here](https://github.com/lavague-ai/LaVague/blob/2c0fc2052fd25676da777e3d0de490d9414097b6/src/lavague/prompts.py#L3).
 
-Here we show we can improve our base World Model with knowledge on how to interact with Hugging Face's website by showing previous examples of turning observations into instructions., that are then turned into actions:
+Here we show we can improve our base World Model with knowledge on how to interact with Hugging Face's website by showing previous examples of turning observations into instructions, that are then turned into actions:
 
 ```python
 from lavague.world_model import GPTWorldModel
 import requests
 
-hf_examples = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_example.txt").text
-world_model = GPTWorldModel(examples=hf_examples)
+hf_observations = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_example.txt").text
+world_model = GPTWorldModel(observations=hf_observations)
 ```
 
 ## Demo

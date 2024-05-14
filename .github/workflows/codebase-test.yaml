@@ -48,7 +48,6 @@ jobs:
 
     - name: Install necessary dependencies
       run: |
-        bash setup.sh
         pip install -e '.[playwright]'
         playwright install chromium
 

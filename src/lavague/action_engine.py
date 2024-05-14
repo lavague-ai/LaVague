@@ -6,8 +6,8 @@ from llama_index.core import PromptTemplate, QueryBundle
 from llama_index.core.base.llms.base import BaseLLM
 
 from .prompts import SELENIUM_PROMPT
-from .defaults import default_python_code_extractor
-from .retrievers import BaseHtmlRetriever
+from .defaults import DefaultEmbedder, DefaultLLM, default_python_code_extractor
+from .retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from .telemetry import send_telemetry
 
 
@@ -64,15 +64,22 @@ class ActionEngine(BaseActionEngine):
 
     def __init__(
         self,
-        llm: BaseLLM,
-        retriever: BaseHtmlRetriever,
+        llm: BaseLLM = None,
+        retriever: BaseHtmlRetriever = None,
         prompt_template: str = SELENIUM_PROMPT,
         cleaning_function: Callable[
             [str], Optional[str]
         ] = default_python_code_extractor,
     ):
-        self.llm = llm
-        self.retriever = retriever
+        if llm is None:
+            self.llm = DefaultLLM()
+        else:
+            self.llm = llm
+        if retriever is None:
+            self.embedder = DefaultEmbedder()
+            self.retriever = OpsmSplitRetriever(self.embedder, top_k=3)
+        else:
+            self.retriever = retriever
         self.prompt_template = prompt_template
         self.cleaning_function = cleaning_function
         self.retrieved_context = ""

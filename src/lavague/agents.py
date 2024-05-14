@@ -23,15 +23,15 @@ class WebAgent:
         world_model = self.world_model
 
         for i in range(N_STEPS):
-            driver.save_screenshot("screenshot_before_action.jpeg")
-            screenshot_before_action = Image.open("screenshot_before_action.jpeg")
+            driver.save_screenshot("screenshot_before_action.png")
+            screenshot_before_action = Image.open("screenshot_before_action.png")
             if display:
                 display_screenshot(screenshot_before_action)
             
             print("Computing an action plan...")
 
             # We get the current screenshot into base64 before sending to our World Model
-            state = encode_image("screenshot_before_action.jpeg")
+            state = encode_image("screenshot_before_action.png")
 
             # We get the instruction for the action engine using the world model
             output = world_model.get_instruction(state, objective)
@@ -66,8 +66,8 @@ from selenium.webdriver.common.keys import Keys
 
                         exec(code, globals(), local_scope)
                         time.sleep(3)
-                        driver.save_screenshot("screenshot_after_action.jpeg")
-                        screenshot_after_action = Image.open("screenshot_after_action.jpeg")
+                        driver.save_screenshot("screenshot_after_action.png")
+                        screenshot_after_action = Image.open("screenshot_after_action.png")
                         if display:
                             display_screenshot(screenshot_after_action)
                             

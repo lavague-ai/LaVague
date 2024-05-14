@@ -1,10 +1,15 @@
-import os
-from openai import OpenAI
 from .prompts import WORLD_MODEL_PROMPT_TEMPLATE
 from string import Template
 from abc import ABC, abstractmethod
 from typing import Any
 import requests
+
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from llama_index.core.multi_modal_llms.generic_utils import load_image_urls
+from llama_index.core import SimpleDirectoryReader
+
+import base64
+import os
 
 class BaseWorldModel(ABC):
     """Abstract class for WorldModel"""
@@ -17,47 +22,35 @@ class BaseWorldModel(ABC):
 class GPTWorldModel(BaseWorldModel):
     """Class for Vision-based WorldModel"""
 
-    def __init__(self, examples, api_key: str = None):
-        self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.safe_substitute(examples=examples)
+    def __init__(self, observations, api_key: str = None):
+        self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.safe_substitute(examples=observations)
         if not api_key:
             api_key = os.getenv("OPENAI_API_KEY")
         if api_key is None:
             raise ValueError("No api_key is provided or OPENAI_API_KEY environment variable is not set")
-        self.api_key = api_key
-        self.client = OpenAI(api_key=api_key)
+        self.mm_llm = OpenAIMultiModal(model="gpt-4o", max_new_tokens=300, api_key= api_key)
 
     def get_instruction(self, state: str, objective: str) -> str:
         """Use GPT4V to generate instruction from the current state and objective."""
-        base64_image = state
 
         prompt = Template(self.prompt_template).safe_substitute(objective=objective)
 
-        model = "gpt-4-turbo"
-        messages = [
-            {
-            "role": "user",
-            "content": [
-                {
-                "type": "text",
-                "text": prompt
-                },
-                {
-                "type": "image_url",
-                "image_url": {
-                    "url": f"data:image/jpeg;base64,{base64_image}",
-                    "detail": "high"
-                }
-                }
-            ]
-            }
-        ]
-        response  = self.client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=300, temperature=0.0, seed=42
-        )
+        base64_image = state
+        
+        image_data = base64.b64decode(base64_image)
 
-        output = response.choices[0].message.content
+        # Create the 'screenshots' directory if it doesn't exist
+        if not os.path.exists('screenshots'):
+            os.makedirs('screenshots')
+
+        # Save the image data to a PNG file
+        with open('screenshots/output.png', 'wb') as file:
+            file.write(image_data)
+            
+        image_documents = SimpleDirectoryReader("./screenshots").load_data()
+        
+        output = self.mm_llm.complete(prompt, image_documents=image_documents).text
+
         return output
     
 class AzureWorldModel(BaseWorldModel):
