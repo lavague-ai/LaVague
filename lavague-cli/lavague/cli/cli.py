@@ -5,6 +5,7 @@ import click
 class CliError(Exception):
     pass
 
+
 def load_attr_from_module(attr_module_str: str) -> Any:
     import importlib
 
@@ -24,9 +25,7 @@ def load_attr_from_module(attr_module_str: str) -> Any:
     try:
         return getattr(module, attr_str)
     except AttributeError:
-        raise CliError(
-            f'Attribute "{attr_str}" not found in module "{module_str}".'
-        )
+        raise CliError(f'Attribute "{attr_str}" not found in module "{module_str}".')
 
 
 @click.group()
@@ -69,7 +68,7 @@ def launch(url: Optional[str], engine: Optional[str], instruction: Optional[List
         action_engine = load_attr_from_module(engine)
         if url is not None:
             action_engine.driver.goto(url)
-    
+
     if action_engine.driver.get_url() is None and len(instruction) == 0:
         action_engine.driver.goto("https://news.ycombinator.com/")
         instruction = ["Click on search bar, then type 'lavague', then click enter"]

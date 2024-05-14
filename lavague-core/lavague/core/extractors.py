@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 import re
 
+
 class BaseExtractor(ABC):
     @abstractmethod
     def extract(self, text: str) -> str:
         pass
+
 
 class PythonFromMarkdownExtractor(BaseExtractor):
     """
@@ -14,6 +16,7 @@ class PythonFromMarkdownExtractor(BaseExtractor):
     Completion:
     --------------------------------------------
     """
+
     def extract(self, markdown_text: str) -> str:
         # Pattern to match the first ```python ``` code block
         pattern = r"```python(.*?)```"
@@ -27,15 +30,17 @@ class PythonFromMarkdownExtractor(BaseExtractor):
             # Return None if no match is found
             return None
 
+
 class UntilEndOfMarkdownExtractor(BaseExtractor):
     """
     Extractor for the prompts that end with (or similar to) the following:
-    
+
     --------------------------------------------
     Completion:
     ```python
     # Let's proceed step by step.
     --------------------------------------------
     """
+
     def extract(self, text: str) -> str:
         return text.split("```")[0]

@@ -3,8 +3,13 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from lavague.core.base_driver import BaseDriver
 
+
 class SeleniumDriver(BaseDriver):
-    def __init__(self, url: Optional[str] = None, get_selenium_driver: Optional[Callable[[], WebDriver]] = None):
+    def __init__(
+        self,
+        url: Optional[str] = None,
+        get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
+    ):
         super().__init__(url, get_selenium_driver)
 
     def default_init_code(self) -> Any:
@@ -76,12 +81,12 @@ class SeleniumDriver(BaseDriver):
             return self.driver.find_element(By.XPATH, xpath).is_displayed()
         except:
             return False
-    
+
     def exec_code(self, code: str):
         exec(self.import_lines)
         driver = self.driver
         exec(code)
-    
+
     def get_capability(self) -> str:
         return '''
 Your goal is to write Selenium code to answer queries.

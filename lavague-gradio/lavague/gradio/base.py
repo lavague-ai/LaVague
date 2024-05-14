@@ -6,6 +6,7 @@ from lavague.core.action_engine import ActionEngine
 from lavague.core.base_driver import BaseDriver
 import base64
 
+
 class GradioDemo:
     """
     Launch a gradio demo of lavague
@@ -24,7 +25,9 @@ class GradioDemo:
     </div>
     """
 
-    def __init__(self, action_engine: ActionEngine, instructions: Optional[List[str]] = None):
+    def __init__(
+        self, action_engine: ActionEngine, instructions: Optional[List[str]] = None
+    ):
         self.action_engine = action_engine
         self.instructions = instructions
         self.success = False

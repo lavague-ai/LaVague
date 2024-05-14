@@ -37,5 +37,3 @@ class DeepSeekCoderForAction(HuggingFaceLLM):
 
 # We needed to steer the model more with a more explicit prompt so we use a custom prompt
 prompt_template = SELENIUM_GEMMA_PROMPT_TEMPLATE
-
-

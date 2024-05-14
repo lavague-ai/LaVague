@@ -2,10 +2,15 @@ from typing import Callable, Optional
 from playwright.sync_api import Page
 from lavague.core.base_driver import BaseDriver
 
+
 class PlaywrightDriver(BaseDriver):
-    def __init__(self, url: Optional[str] = None, get_sync_playwright_page: Optional[Callable[[], Page]] = None):
+    def __init__(
+        self,
+        url: Optional[str] = None,
+        get_sync_playwright_page: Optional[Callable[[], Page]] = None,
+    ):
         super().__init__(url, get_sync_playwright_page)
-    
+
     def default_init_code(self) -> Page:
         # these imports are necessary as they will be pasted to the output
         try:
@@ -47,7 +52,7 @@ class PlaywrightDriver(BaseDriver):
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            return self.driver.locator(f'xpath={xpath}').is_visible()
+            return self.driver.locator(f"xpath={xpath}").is_visible()
         except:
             return False
 
@@ -55,9 +60,9 @@ class PlaywrightDriver(BaseDriver):
         exec(self.import_lines)
         page = self.driver
         exec(code)
-    
+
     def get_capability(self) -> str:
-        return '''
+        return """
 Your goal is to write Playwright Python code to answer queries.
 
 Your answer must be a Python markdown only.
@@ -238,4 +243,4 @@ action_button.click()
 ```
 
 ---
-'''
+"""

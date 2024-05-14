@@ -21,26 +21,36 @@ from lavague.core.utilities.format_utils import clean_html
 class _LlamaIndexAdapter(BaseRetriever):
     """Adapter for HtmlRetriever to be compatible with the llama index BaseRetriever"""
 
-    def __init__(self, html_retriever: BaseHtmlRetriever, driver: BaseDriver, embedding: BaseEmbedding):
+    def __init__(
+        self,
+        html_retriever: BaseHtmlRetriever,
+        driver: BaseDriver,
+        embedding: BaseEmbedding,
+    ):
         self.html_retriever = html_retriever
         self.driver = driver
-        self.embedding = embedding 
+        self.embedding = embedding
         super().__init__()
 
     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        return self.html_retriever._retrieve_html(self.driver, self.embedding, query_bundle)
+        return self.html_retriever._retrieve_html(
+            self.driver, self.embedding, query_bundle
+        )
 
 
 class BaseHtmlRetriever(ABC):
-
     @abstractmethod
-    def _retrieve_html(self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle) -> List[NodeWithScore]:
+    def _retrieve_html(
+        self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
+    ) -> List[NodeWithScore]:
         """
         This method should be implemented by the user
         """
         pass
 
-    def to_llama_index(self, driver: BaseDriver, embedding: BaseEmbedding) -> BaseRetriever:
+    def to_llama_index(
+        self, driver: BaseDriver, embedding: BaseEmbedding
+    ) -> BaseRetriever:
         """Convert to a llama-index compatible retriever"""
         return _LlamaIndexAdapter(self, driver, embedding)
 
@@ -51,7 +61,9 @@ class LegacyRetriever(BaseHtmlRetriever):
     def __init__(self, top_k: int = 3):
         self.top_k = top_k
 
-    def _retrieve_html(self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle) -> List[NodeWithScore]:
+    def _retrieve_html(
+        self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
+    ) -> List[NodeWithScore]:
         text_list = [clean_html(driver.get_html())]
         documents = [Document(text=t) for t in text_list]
 
@@ -82,32 +94,36 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         self.group_by = group_by
         self.rank_fields = rank_fields
 
-    def _generate_xpath(self, element, path=""): # used to generate dict nodes
-        """ Recursive function to generate the xpath of an element """
+    def _generate_xpath(self, element, path=""):  # used to generate dict nodes
+        """Recursive function to generate the xpath of an element"""
         if element.parent is None:
             return path
         else:
-            siblings = [sib for sib in element.parent.children if sib.name == element.name]
+            siblings = [
+                sib for sib in element.parent.children if sib.name == element.name
+            ]
             if len(siblings) > 1:
                 count = siblings.index(element) + 1
                 path = f"/{element.name}[{count}]{path}"
             else:
                 path = f"/{element.name}{path}"
             return self._generate_xpath(element.parent, path)
-        
+
     def _add_xpath_attributes(self, html_content):
         """
         Add an 'xpath' attribute to each element in the HTML content with its computed XPath.
         """
-        soup = BeautifulSoup(html_content, 'lxml')
+        soup = BeautifulSoup(html_content, "lxml")
         for element in soup.find_all(True):
             xpath = self._generate_xpath(element)
-            element['xpath'] = xpath
+            element["xpath"] = xpath
         return str(soup)
 
-    def _create_nodes_dict(self, html, only_body=True, max_length=200): # used to generate dict nodes
-        ''' Create a list of xpaths and a list of dict of attributes of all elements in the html'''
-        soup = BeautifulSoup(html, 'html.parser')
+    def _create_nodes_dict(
+        self, html, only_body=True, max_length=200
+    ):  # used to generate dict nodes
+        """Create a list of xpaths and a list of dict of attributes of all elements in the html"""
+        soup = BeautifulSoup(html, "html.parser")
         if only_body:
             root = soup.body
         else:
@@ -118,16 +134,22 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             element = stack.pop()
             if element.name is not None:
                 element_attrs = dict(element.attrs)
-                direct_text_content = ''.join([str(content).strip() for content in element.contents if isinstance(content, NavigableString) and content.strip()])
+                direct_text_content = "".join(
+                    [
+                        str(content).strip()
+                        for content in element.contents
+                        if isinstance(content, NavigableString) and content.strip()
+                    ]
+                )
                 if direct_text_content:
-                    element_attrs['text'] = direct_text_content
-                    element_attrs['element'] = element.name
+                    element_attrs["text"] = direct_text_content
+                    element_attrs["element"] = element.name
                     for key in element_attrs:
                         if len(element_attrs[key]) > max_length:
                             element_attrs[key] = element_attrs[key][:max_length]
                     element_attributes_list.append(element_attrs)
                 elif element_attrs != {}:
-                    element_attrs['element'] = element.name
+                    element_attrs["element"] = element.name
                     for key in element_attrs:
                         if len(element_attrs[key]) > max_length:
                             element_attrs[key] = element_attrs[key][:max_length]
@@ -140,15 +162,16 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
     def _chunk_dicts(self, dicts, chunk_size=10):
         def chunks(lst, n):
             for i in range(0, len(lst), n):
-                yield lst[i:i + n]
+                yield lst[i : i + n]
+
         grouped_chunks = []
         for chunk in chunks(dicts, chunk_size):
-            all_keys = set(key for d in chunk for key in d.keys()) 
+            all_keys = set(key for d in chunk for key in d.keys())
             grouped = {key: [] for key in all_keys}
             for d in chunk:
                 for key in all_keys:
-                    grouped[key].append(d.get(key, ''))  
-            grouped_chunks.append(grouped)   
+                    grouped[key].append(d.get(key, ""))
+            grouped_chunks.append(grouped)
         return grouped_chunks
 
     def _unchunk_dicts(self, grouped_chunks):
@@ -159,99 +182,125 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                 new_dict = {}
                 for key, values in group.items():
                     if i < len(values):
-                        if values[i] != '':
+                        if values[i] != "":
                             new_dict[key] = values[i]
                 if new_dict:
                     flat_list.append(new_dict)
         return flat_list
 
-    def _clean_attributes(self, attributes_list): # used to generate dict nodes
+    def _clean_attributes(self, attributes_list):  # used to generate dict nodes
         if self.rank_fields:
-            self.rank_fields.append('xpath')
-            attributes_list = [{k: v for k, v in d.items() if k in self.rank_fields} for d in attributes_list]
-        attributes_list = [d for d in attributes_list if (not((len(list(d.keys()))==2) and (('element' in list(d.keys())) and 'xpath' in list(d.keys())))) or d=={}]
+            self.rank_fields.append("xpath")
+            attributes_list = [
+                {k: v for k, v in d.items() if k in self.rank_fields}
+                for d in attributes_list
+            ]
+        attributes_list = [
+            d
+            for d in attributes_list
+            if (
+                not (
+                    (len(list(d.keys())) == 2)
+                    and (("element" in list(d.keys())) and "xpath" in list(d.keys()))
+                )
+            )
+            or d == {}
+        ]
         return attributes_list
 
-    def _get_results(self, embedding, query, html): # used to generate and retrieve dict nodes
-        ''' Return the top_k elements of the html that are the most relevant to the query as Node objects with xpath in their metadata'''
+    def _get_results(
+        self, embedding, query, html
+    ):  # used to generate and retrieve dict nodes
+        """Return the top_k elements of the html that are the most relevant to the query as Node objects with xpath in their metadata"""
         attributes_list = self._create_nodes_dict(html)
-        #cleaning the attributes_list
+        # cleaning the attributes_list
         attributes_list = self._clean_attributes(attributes_list)
-        #retrieving the top_k results
-        
+        # retrieving the top_k results
+
         list_of_results = []
         attributes_list = self._chunk_dicts(attributes_list, self.group_by)
         l = len(attributes_list)
-        #grouping the attributes_list in groups of 1000 to avoid memory errors
+        # grouping the attributes_list in groups of 1000 to avoid memory errors
         list_of_grouped_results = []
         for j in range(0, l, 1000):
             nodes = []
-            attr = attributes_list[j:j+1000]
+            attr = attributes_list[j : j + 1000]
             for d in attr:
-                xpath = d.pop('xpath')
-                nodes.append(TextNode(text=str(d), metadata={'xpath': xpath}))
+                xpath = d.pop("xpath")
+                nodes.append(TextNode(text=str(d), metadata={"xpath": xpath}))
             index = VectorStoreIndex(nodes, embed_model=embedding)
-            retriever = BM25Retriever.from_defaults(index = index, similarity_top_k=self.top_k)
+            retriever = BM25Retriever.from_defaults(
+                index=index, similarity_top_k=self.top_k
+            )
             results = retriever.retrieve(query)
             list_of_grouped_results += results
         nodes = []
         for grouped_results in list_of_grouped_results:
-            xpaths = grouped_results.metadata['xpath']
+            xpaths = grouped_results.metadata["xpath"]
             ds = self._unchunk_dicts([ast.literal_eval(grouped_results.text)])
             assert len(xpaths) == len(ds)
             for xpath, d in zip(xpaths, ds):
-                nodes.append(TextNode(text=str(d), metadata={'xpath': xpath}))
+                nodes.append(TextNode(text=str(d), metadata={"xpath": xpath}))
         l2 = len(nodes)
         for j in range(0, l2, 1000):
-            index = VectorStoreIndex(nodes[j:j+1000], embed_model=embedding)
-            retriever = BM25Retriever.from_defaults(index = index, similarity_top_k=self.top_k)
+            index = VectorStoreIndex(nodes[j : j + 1000], embed_model=embedding)
+            retriever = BM25Retriever.from_defaults(
+                index=index, similarity_top_k=self.top_k
+            )
             results = retriever.retrieve(query)
             list_of_results += results
         list_of_results = sorted(list_of_results, key=lambda x: x.score, reverse=True)
-        results = list_of_results[:self.top_k]
+        results = list_of_results[: self.top_k]
         results_dict = [ast.literal_eval(r.text) for r in results]
         for i in range(len(results_dict)):
-            results_dict[i]['xpath'] = results[i].metadata['xpath']
+            results_dict[i]["xpath"] = results[i].metadata["xpath"]
         scores = [r.score for r in results]
         return results_dict, scores
 
     def _match_element(self, attributes, element_specs):
-        i=0
+        i = 0
         for spec in element_specs:
-            if attributes['xpath'] == spec['xpath']:
-                return i       
-            i+=1
+            if attributes["xpath"] == spec["xpath"]:
+                return i
+            i += 1
         return None
 
     def _return_nodes_with_xpath(self, nodes, results_dict, score):
         returned_nodes = []
         for node in nodes:
             split_html = node.text
-            soup = BeautifulSoup(split_html, 'html.parser')
-            for element  in soup.descendants:
+            soup = BeautifulSoup(split_html, "html.parser")
+            for element in soup.descendants:
                 try:
                     indice = self._match_element(element.attrs, results_dict)
                     if indice is not None:
-                        node.metadata['score'] = score[indice]
+                        node.metadata["score"] = score[indice]
                         returned_nodes.append(node)
                 except:
                     pass
         return returned_nodes
 
-    def _retrieve_html(self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle) -> List[NodeWithScore]:
+    def _retrieve_html(
+        self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
+    ) -> List[NodeWithScore]:
         html = self._add_xpath_attributes(driver.get_html())
         text_list = [html]
         documents = [Document(text=t) for t in text_list]
-        splitter = LangchainNodeParser(lc_splitter=RecursiveCharacterTextSplitter.from_language(
+        splitter = LangchainNodeParser(
+            lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
-            ))
+            )
+        )
         nodes = splitter.get_nodes_from_documents(documents)
         results_dict, score = self._get_results(embedding, query.query_str, html)
         for r in results_dict:
-            if not driver.check_visibility(r['xpath']):
+            if not driver.check_visibility(r["xpath"]):
                 i = results_dict.index(r)
                 results_dict.remove(r)
                 score.pop(i)
         results_nodes = self._return_nodes_with_xpath(nodes, results_dict, score)
-        results = [NodeWithScore(node=node, score=node.metadata['score']) for node in results_nodes] 
+        results = [
+            NodeWithScore(node=node, score=node.metadata["score"])
+            for node in results_nodes
+        ]
         return results

@@ -8,10 +8,13 @@ from lavague.core.extractors import BaseExtractor, UntilEndOfMarkdownExtractor
 from lavague.core import ActionContext
 from lavague.llms.huggingface import ActionHuggingFaceLLM
 
+
 class HuggingfaceContext:
     def from_defaults(
         llm: BaseLLM = ActionHuggingFaceLLM(),
-        embedding: BaseEmbedding = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5", device="cuda"),
+        embedding: BaseEmbedding = HuggingFaceEmbedding(
+            model_name="BAAI/bge-small-en-v1.5", device="cuda"
+        ),
         retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
         prompt_template: PromptTemplate = GemmaPromptTemplate(),
         extractor: BaseExtractor = UntilEndOfMarkdownExtractor(),

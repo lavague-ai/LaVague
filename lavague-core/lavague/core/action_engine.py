@@ -10,6 +10,7 @@ from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.action_context import ActionContext
 
+
 class ActionEngine:
     """
     ActionEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
@@ -42,15 +43,22 @@ class ActionEngine:
         self.llm = llm
         self.embedding = embedding
         self.retriever = retriever
-        self.prompt_template = prompt_template.partial_format(driver_capability=driver.get_capability())
+        self.prompt_template = prompt_template.partial_format(
+            driver_capability=driver.get_capability()
+        )
         self.extractor = extractor
 
     def from_context(driver: BaseDriver, context: ActionContext) -> ActionEngine:
-        return ActionEngine(driver, context.llm, context.embedding, context.retriever, context.prompt_template, context.extractor)
+        return ActionEngine(
+            driver,
+            context.llm,
+            context.embedding,
+            context.retriever,
+            context.prompt_template,
+            context.extractor,
+        )
 
-    def _get_query_engine(
-        self, streaming: bool = True
-    ) -> RetrieverQueryEngine:
+    def _get_query_engine(self, streaming: bool = True) -> RetrieverQueryEngine:
         """
         Get the llama-index query engine
 

@@ -7,6 +7,7 @@ from lavague.core.retrievers import BaseHtmlRetriever
 DEFAULT_MAX_TOKENS = 512
 DEFAULT_TEMPERATURE = 0.0
 
+
 class ActionContext:
     """Set the context which will be used thourough the action generation pipeline."""
 

@@ -1,12 +1,17 @@
 from typing import Tuple, Any, Callable, Optional
 from abc import ABC, abstractmethod
-from lavague.core.utilities.format_utils import extract_code_from_funct, extract_imports_from_lines
+from lavague.core.utilities.format_utils import (
+    extract_code_from_funct,
+    extract_imports_from_lines,
+)
+
 
 class BaseDriver(ABC):
-
     def __init__(self, url: Optional[str], init_function: Optional[Callable[[], Any]]):
         """Init the driver with the init funtion, and then go to the desired url"""
-        self.init_function = init_function if init_function is not None else self.default_init_code
+        self.init_function = (
+            init_function if init_function is not None else self.default_init_code
+        )
         self.driver = self.init_function()
 
         # extract import lines for later exec of generated code
@@ -69,7 +74,7 @@ class BaseDriver(ABC):
     def check_visibility(self, xpath: str) -> bool:
         """Check an element visibility by its xpath"""
         pass
-    
+
     @abstractmethod
     def exec_code(self, code: str):
         """Exec generated code"""
