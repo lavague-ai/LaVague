@@ -208,7 +208,12 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             results = retriever.retrieve(query)
             list_of_results += results
         list_of_results = sorted(list_of_results, key=lambda x: x.score, reverse=True)
-        return list_of_results[:self.top_k]
+        results = list_of_results[:self.top_k]
+        results_dict = [ast.literal_eval(r.text) for r in results]
+        for i in range(len(results_dict)):
+            results_dict[i]['xpath'] = results[i].metadata['xpath']
+        scores = [r.score for r in results]
+        return results_dict, scores
 
     def _match_element(self, attributes, element_specs):
         i=0
@@ -241,11 +246,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                 language="html",
             ))
         nodes = splitter.get_nodes_from_documents(documents)
-        results = self._get_results(embedding, query.query_str, html)
-        results_dict = [ast.literal_eval(r.text) for r in results]
-        for i in range(len(results_dict)):
-            results_dict[i]['xpath'] = results[i].metadata['xpath']
-        score = [r.score for r in results]
+        results_dict, score = self._get_results(embedding, query.query_str, html)
         for r in results_dict:
             if not driver.check_visibility(r['xpath']):
                 i = results_dict.index(r)
