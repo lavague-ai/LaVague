@@ -56,6 +56,7 @@ class WebAgent:
                 context = "\n".join(nodes)
                 for _ in range(N_ATTEMPTS):
                     try:
+                        error = ""
                         url = self.driver.current_url
                         success = True
                         action = action_engine.action_from_context(context, query)
