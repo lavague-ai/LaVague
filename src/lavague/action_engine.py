@@ -65,7 +65,7 @@ class ActionEngine(BaseActionEngine):
     def __init__(
         self,
         llm: BaseLLM = DefaultLLM(),
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(DefaultEmbedder),
+        retriever: BaseHtmlRetriever = OpsmSplitRetriever(DefaultEmbedder(), top_k=3),
         prompt_template: str = SELENIUM_PROMPT,
         cleaning_function: Callable[
             [str], Optional[str]
