@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-retriever-cohere"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cohere retriever for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
