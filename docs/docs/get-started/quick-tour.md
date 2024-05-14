@@ -66,10 +66,8 @@ Here we show we can improve our base World Model with knowledge on how to intera
 
 ```python
 from lavague.world_model import GPTWorldModel
-import requests
 
-hf_observations = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_example.txt").text
-world_model = GPTWorldModel(observations=hf_observations)
+world_model = GPTWorldModel.from_hub("hf_example")
 ```
 
 ## Demo

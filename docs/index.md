@@ -38,13 +38,11 @@ from lavague.defaults import DefaultEmbedder, DefaultLLM, default_get_selenium_d
 from lavague.action_engine import ActionEngine
 from lavague.world_model import GPTWorldModel
 from lavague.agents import WebAgent
-import requests
 
 driver = default_get_selenium_driver()
 action_engine = ActionEngine(DefaultLLM(), OpsmSplitRetriever(DefaultEmbedder(), top_k=3))
 
-examples = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_example.txt").text
-world_model = GPTWorldModel(observations=examples)
+world_model = GPTWorldModel.from_hub("hf_example")
 
 agent = WebAgent(driver, action_engine, world_model)
 agent.get("https://huggingface.co/docs")
