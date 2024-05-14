@@ -31,14 +31,13 @@ jobs:
           echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -v lavague-core | grep lavague | grep pyproject | xargs)" >> $GITHUB_OUTPUT
       - name: Publish changed packages
         env:
-          PYPI_TOKEN: ${{ secrets.LAVAGUE_TESTPYPI_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.LAVAGUE_PYPI_TOKEN }}
         run: |
           for file in ${{ steps.changed-files.outputs.changed_files }}; do
               cd `echo $file | sed 's/\/pyproject.toml//g'`
               poetry lock
               pip install -e .
-              poetry config repositories.test-pypi https://test.pypi.org/legacy/
-              poetry config pypi-token.test-pypi $PYPI_TOKEN
-              poetry publish -r testpypi --build
+              poetry config pypi-token.pypi $PYPI_TOKEN
+              poetry publish --build
               cd -
           done

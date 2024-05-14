@@ -26,6 +26,8 @@ packages = [{from = "_lavague", include = "lavague"}]
 [tool.poetry.dependencies]
 python = "^3.8.1"
 lavague-core = "^0.1.0"
+lavague-drivers-selenium = "^0.1.0"
+lavague-contexts-openai = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 ruff = "0.0.292"
