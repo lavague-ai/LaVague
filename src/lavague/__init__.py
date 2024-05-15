@@ -11,7 +11,7 @@ def telemetry_warning():
 
 def exec_warning():
     warning_message = (
-        "\033[93mSecurity warning: This package executes LLM-generated code.\033[0m"
+        "\033[93mSecurity warning: This package executes LLM-generated code. Consider using this package in a secure environment, such as a virtual machine or a container, to mitigate potential risks.\033[0m"
     )
     warnings.warn(warning_message, UserWarning)
 
