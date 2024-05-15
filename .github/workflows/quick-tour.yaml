@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - new-docs-ci
     paths:
       - 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb'
       - '.github/workflows/quick-tour.yaml'
