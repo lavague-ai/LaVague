@@ -24,9 +24,7 @@ jobs:
         python-version: '3.8' 
 
     - name: Install Python dependencies and nbconvert
-        run: |
-          pip install notebook nbconvert lavague
-          # Include any other dependencies your notebook might need
+        run: pip install notebook nbconvert lavague
 
       - name: Execute the notebook
         run: |
