@@ -9,6 +9,8 @@ on:
 jobs:
   check-code:
     runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
