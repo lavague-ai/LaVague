@@ -25,6 +25,8 @@ class OpenaiContext(Context):
     ) -> Context:
         if api_key is None:
             api_key = os.getenv("OPENAI_API_KEY")
+            if api_key is None:
+                raise ValueError("OPENAI_API_KEY is not set")
         return super().__init__(
             OpenAI(api_key=api_key, model=llm, max_tokens=DEFAULT_MAX_TOKENS, temperature=DEFAULT_TEMPERATURE),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
