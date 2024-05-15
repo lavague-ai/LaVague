@@ -17,16 +17,14 @@ We provide a [public notion space](https://maize-paddleboat-93e.notion.site/Welc
 After [installation](../get-started/quick-tour.md), create a new .py file and run this code to try LaVague with Notion
 
 ```py
-from lavague.defaults import default_get_selenium_driver
-from lavague.action_engine import ActionEngine
-from lavague.world_model import GPTWorldModel
-from lavague.agents import WebAgent
+from lavague.core import WebAgent, WorldModel, ActionEngine
+from lavague.drivers.selenium import SeleniumDriver
 
-driver = default_get_selenium_driver()
-action_engine = ActionEngine()
-world_model = GPTWorldModel.from_hub("notion_example")
+selenium_driver = SeleniumDriver()
+action_engine = ActionEngine(selenium_driver)
+world_model = WorldModel.from_hub("notion_example")
 
-agent = WebAgent(driver, action_engine, world_model)
+agent = WebAgent(action_engine, world_model)
 
 agent.get("https://maize-paddleboat-93e.notion.site/Welcome-to-ACME-INC-0ac66cd290e3453b93a993e1a3ed272f")
 agent.run("What's the name of our Lead Developer ?")
