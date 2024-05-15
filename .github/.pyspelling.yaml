@@ -1,0 +1,20 @@
+matrix:
+- name: Markdown
+  hunspell:
+    d: en_US
+  dictionary:
+    wordlists:
+    - .github/lavague-dic.txt
+    output: build/dictionary/python.dic
+  pipeline:
+    - pyspelling.filters.markdown:
+    - pyspelling.filters.url:
+    - pyspelling.filters.html:
+        comments: false
+        ignores:
+          - code
+          - pre
+  sources:
+    - 'docs/**/*.md'
+    - 'README.md'
+  default_encoding: utf-8
