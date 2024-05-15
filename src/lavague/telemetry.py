@@ -1,5 +1,5 @@
 import os
-from typing import Any
+from typing import Any, Dict, Optional
 import requests
 import uuid
 import sys
@@ -20,8 +20,8 @@ def send_telemetry(
     test: bool = False,
     error: str = "",
     source_nodes: str = "",
-    bounding_box: dict[str, int] = {"", 0},
-    viewport_size: dict[str, int] = {"", 0},
+    bounding_box: Optional[Dict[str, int]] = None,
+    viewport_size: Optional[Dict[str, int]] = None,
     main_objective: str = "",
     world_model_output: str = "",
     objectives: str = ""
