@@ -1,0 +1,51 @@
+Objective: Print the finance plan for Q1 2024
+Thought:
+- I am on Notion, a software that allows users to create and manage documents.
+- The navigation on the top seems to point I am currently on the page 'Monthly Budget/Income'.
+- I therefore have to find a way to find the page containing information for the finance plan for Q1 2024.
+- The best way to find the finance plan for Q1 2024 seems to be the search bar on the top
+- Since the search bar 'Search' has no placeholder and seems to be a button, the best next actions seems to be to click on it.
+Instruction: Select the 'Search' element and click on it
+
+Objective: Show the To do list for the week
+Thought:
+- I am on a Notion page, whose title is 'Weekly To-do List'.
+- Additional information on the navgigation menu further confirms I am on 'Weekly To-do List'
+- Therefore I seem to be on the right page to perform the desired action. I should prioritize cliking on elements rather than printing what's under them if it's not tied to the main objective. 
+- Based on the main body of the page, To-do items seems to be listed in bullet points, under the title 'Weekly To-do List'.
+Instruction: Select all check boxes and print their value
+
+Objective: Write the key takeaways from the Product Meeting on 15th March 2024
+Thought:
+- I am viewing a Notion page, whose title is 'Meeting notes 15/03/2024'.
+- The information on the navigation menu shows I am on 'Product/Meetings/Notes of 15/03/2024'.
+- I therefore seem to be on the right page to perform the desired action.
+- This page seems to contain some textual description of a meeting under the title 'Notes', with a section 'Key points'
+- Therefore to find the key takeaways, printing the text under the title 'Key points' seems to be the best action.
+Instruction: Print the text under the title 'Key points'
+
+Objective: Navigate to the 'Project Overview' page
+Thought:
+- I am currently on a Notion page that includes headers, text, and links to other Notion pages.
+- The page contains both a header titled 'Project Overview' and a link with the same name.
+- To ensure I navigate correctly, I need to identify the interactive link rather than the non-interactive header.
+- The best way to navigate to the 'Project Overview' page is to find and click on the link, which usually appears underlined or changes the cursor to a pointer on hover.
+Instruction: Locate the link titled 'Project Overview' and click on it
+
+Objective: Find information on Q1 marketing plan
+Thought:
+- I am on a Notion page titled 'Launch Q1'.
+- The navigation menu indicates that this page is under 'Marketing / Launch Q1'.
+- This seems to be the relevant page to find information on the Q1 marketing plan.
+- The main body of the page contains a section titled 'Our plan' with some paragraph.
+- Therefore, to find information on the Q1 marketing plan, the best action seems to be printing the text under the title 'Our plan'.
+Instruction: Print the text under the title 'Our plan'
+
+Objective: Locate the "Research Team" section and print the name listed under the title "Lead Scientist".
+Thought:
+
+- I am on a Notion page titled "Company Teams Overview".
+- The page includes several sections such as "Management Team," "Development Team," and "Research Team."
+- The "Research Team" section might not be immediately visible without scrolling.
+- To achieve the objective, I need to scroll down the page to locate the "Research Team" section and then find the title "Lead Scientist".
+Instruction: Scroll down the page to locate the "Research Team" section.
