@@ -117,7 +117,6 @@ def build(ctx, output_file: Optional[str], test: bool = False):
             send_telemetry(
                 config.llm.metadata.model_name,
                 code,
-                "",
                 html,
                 instruction,
                 instructions.url,
