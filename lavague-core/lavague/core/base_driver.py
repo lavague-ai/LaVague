@@ -37,6 +37,12 @@ class BaseDriver(ABC):
         pass
 
     @abstractmethod
+    def resize_driver(driver, width, height):
+        """
+        Resize the driver to a targeted height and width.
+        """
+
+    @abstractmethod
     def get_url(self) -> Optional[str]:
         """Get the url of the current page"""
         pass
@@ -61,7 +67,7 @@ class BaseDriver(ABC):
         pass
 
     @abstractmethod
-    def get_screenshot(self, filename: str) -> None:
+    def save_screenshot(self, filename: str) -> None:
         """Save a screenshot to the file filename"""
         pass
 

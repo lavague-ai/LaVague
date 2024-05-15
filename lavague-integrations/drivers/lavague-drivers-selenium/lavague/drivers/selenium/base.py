@@ -1,10 +1,16 @@
 from typing import Any, Optional, Callable
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from lavague.core.base_driver import BaseDriver
+from PIL import Image
+from lavague.core.utilities.format_utils import return_assigned_variables, keep_assignments
 
 
 class SeleniumDriver(BaseDriver):
+
+    driver: WebDriver
+
     def __init__(
         self,
         url: Optional[str] = None,
@@ -19,6 +25,7 @@ class SeleniumDriver(BaseDriver):
         from selenium.webdriver.common.by import By
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.common.keys import Keys
+        from selenium.webdriver.common.action_chains import ActionChains
         import os.path
 
         chrome_options = Options()
@@ -53,6 +60,14 @@ class SeleniumDriver(BaseDriver):
     def get_driver(self) -> WebDriver:
         return self.driver
 
+    def resize_driver(self, width, height) -> None:
+        # Selenium is only being able to set window size and not viewport size
+        self.driver.set_window_size(width, height)
+        viewport_height = self.driver.execute_script("return window.innerHeight;")
+
+        height_difference = height - viewport_height
+        self.driver.set_window_size(width, height + height_difference)
+
     def get_url(self) -> Optional[str]:
         if self.driver.current_url == "data:,":
             return None
@@ -67,7 +82,7 @@ class SeleniumDriver(BaseDriver):
     def get_html(self) -> str:
         return self.driver.page_source
 
-    def get_screenshot(self, filename: str) -> None:
+    def save_screenshot(self, filename: str) -> None:
         self.driver.save_screenshot(filename)
 
     def get_dummy_code(self) -> str:
@@ -86,6 +101,89 @@ class SeleniumDriver(BaseDriver):
         exec(self.import_lines)
         driver = self.driver
         exec(code)
+
+    def resize_driver(self, width, targeted_height):
+        """Resize the Selenium driver viewport to a targeted height and width.
+        This is due to Selenium only being able to set window size and not viewport size.
+        """
+        self.driver.set_window_size(width, targeted_height)
+        
+        viewport_height = self.driver.execute_script("return window.innerHeight;")
+
+        height_difference = targeted_height - viewport_height
+        self.driver.set_window_size(width, targeted_height + height_difference)
+
+
+    def get_highlighted_element(self, generated_code):
+
+        # Extract the assignments from the generated code
+        assignment_code = keep_assignments(generated_code)
+
+        # We add imports to the code to be executed
+        code = f"""
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+{assignment_code}
+        """.strip()
+
+        local_scope = {"driver": self.driver}
+
+        exec(code, local_scope, local_scope)
+
+        # We extract pairs of variables assigned during execution with their name and pointer
+        variable_names = return_assigned_variables(generated_code)
+
+        elements = {}
+
+        for variable_name in variable_names:
+            var = local_scope[variable_name]
+            if type(var) == WebElement:
+                elements[variable_name] = var
+                
+        if len(elements) == 0:
+            raise ValueError(f"No element found.")
+        
+        outputs = []
+        for element_name, element in elements.items():
+
+            local_scope = {"driver": self.driver, 
+                element_name: element}
+            
+            code = f"""
+element = {element_name}
+driver.execute_script("arguments[0].setAttribute('style', arguments[1]);", element, "border: 2px solid red;")
+driver.execute_script("arguments[0].scrollIntoView({{block: 'center'}});", element)
+driver.save_screenshot("screenshot.png")
+
+x1 = element.location['x']
+y1 = element.location['y']
+
+x2 = x1 + element.size['width']
+y2 = y1 + element.size['height']
+
+viewport_width = driver.execute_script("return window.innerWidth;")
+viewport_height = driver.execute_script("return window.innerHeight;")
+"""
+            exec(code, globals(), local_scope)
+            bounding_box = {
+                "x1": local_scope["x1"],
+                "y1": local_scope["y1"],
+                "x2": local_scope["x2"],
+                "y2": local_scope["y2"]
+            }
+            viewport_size = {
+                "width": local_scope["viewport_width"],
+                "height": local_scope["viewport_height"]
+            }
+            image = Image.open("screenshot.png")
+            output = {
+                "image": image,
+                "bounding_box": bounding_box,
+                "viewport_size": viewport_size
+            }
+            outputs.append(output)
+        return outputs
 
     def get_capability(self) -> str:
         return '''

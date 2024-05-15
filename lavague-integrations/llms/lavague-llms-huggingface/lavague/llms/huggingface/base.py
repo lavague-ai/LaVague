@@ -1,6 +1,6 @@
 from llama_index.llms.huggingface import HuggingFaceLLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from lavague.core.action_context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
+from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
 
 
 class ActionHuggingFaceLLM(HuggingFaceLLM):

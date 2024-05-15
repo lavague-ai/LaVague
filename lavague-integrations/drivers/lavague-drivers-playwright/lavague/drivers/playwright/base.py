@@ -4,6 +4,9 @@ from lavague.core.base_driver import BaseDriver
 
 
 class PlaywrightDriver(BaseDriver):
+
+    driver: Page
+
     def __init__(
         self,
         url: Optional[str] = None,
@@ -26,6 +29,9 @@ class PlaywrightDriver(BaseDriver):
 
     def get_driver(self) -> Page:
         return self.driver
+    
+    def resize_driver(self, width, height) -> None:
+        self.driver.set_viewport_size({ "width": width, "height": height })
 
     def get_url(self) -> Optional[str]:
         if self.driver.url == "about:blank":
@@ -41,7 +47,7 @@ class PlaywrightDriver(BaseDriver):
     def get_html(self) -> str:
         return self.driver.content()
 
-    def get_screenshot(self, filename: str) -> None:
+    def save_screenshot(self, filename: str) -> None:
         return self.driver.screenshot(path=filename)
 
     def get_dummy_code(self) -> str:

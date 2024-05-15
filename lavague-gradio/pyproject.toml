@@ -24,6 +24,6 @@ documentation = "https://docs.lavague.ai/en/latest/"
 packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.10.0"
 lavague-core = "^0.1.0"
 gradio = "^4.0.0"

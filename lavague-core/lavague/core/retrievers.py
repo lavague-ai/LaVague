@@ -12,7 +12,7 @@ from llama_index.core import VectorStoreIndex
 from llama_index.core import QueryBundle
 from llama_index.core.schema import NodeWithScore
 from llama_index.core.schema import TextNode
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
 from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
@@ -40,7 +40,7 @@ class _LlamaIndexAdapter(BaseRetriever):
 
 class BaseHtmlRetriever(ABC):
     @abstractmethod
-    def _retrieve_html(
+    def retrieve_html(
         self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
     ) -> List[NodeWithScore]:
         """
@@ -55,13 +55,13 @@ class BaseHtmlRetriever(ABC):
         return _LlamaIndexAdapter(self, driver, embedding)
 
 
-class LegacyRetriever(BaseHtmlRetriever):
+class BM25HtmlRetriever(BaseHtmlRetriever):
     """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
 
     def __init__(self, top_k: int = 3):
         self.top_k = top_k
 
-    def _retrieve_html(
+    def retrieve_html(
         self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
     ) -> List[NodeWithScore]:
         text_list = [clean_html(driver.get_html())]
@@ -280,7 +280,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                     pass
         return returned_nodes
 
-    def _retrieve_html(
+    def retrieve_html(
         self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
     ) -> List[NodeWithScore]:
         html = self._add_xpath_attributes(driver.get_html())

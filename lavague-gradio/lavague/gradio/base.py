@@ -1,7 +1,7 @@
 from typing import List, Optional
 import gradio as gr
 from lavague.core.utilities.telemetry import send_telemetry
-from lavague.core.action_context import ActionContext
+from lavague.core.context import Context
 from lavague.core.action_engine import ActionEngine
 from lavague.core.base_driver import BaseDriver
 import base64

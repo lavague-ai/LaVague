@@ -1,15 +1,13 @@
 from __future__ import annotations
-from typing import Optional, Generator
+from typing import Optional, Generator, List
 from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.core import get_response_synthesizer
-from llama_index.core import PromptTemplate
+from llama_index.core import get_response_synthesizer, PromptTemplate, QueryBundle
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from lavague.core.extractors import BaseExtractor
 from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.core.base_driver import BaseDriver
-from lavague.core.action_context import ActionContext
-
+from lavague.core.context import Context, get_default_context
 
 class ActionEngine:
     """
@@ -18,45 +16,23 @@ class ActionEngine:
     Args:
         driver (`BaseDriver`):
             The Web driver used to interact with the headless browser
-        llm (`BaseLLM`):
-            The llm that will be used the generate the python code
-        embedding: (`BaseEmbedding`)
-            The embedder used by the retriever
-        retriever (`BaseHtmlRetriever`)
-            The retriever used to extract context from the html page
-        prompt_template (`str`):
-            The prompt_template given to the llm, later completed by chunks of the html page and the query
-        cleaning_function (`Callable[[str], Optional[str]]`):
-            Function to extract the python code from the llm output
     """
 
     def __init__(
         self,
         driver: BaseDriver,
-        llm: BaseLLM,
-        embedding: BaseEmbedding,
-        retriever: BaseHtmlRetriever,
-        prompt_template: PromptTemplate,
-        extractor: BaseExtractor,
+        context: Optional[Context] = None,
     ):
-        self.driver = driver
-        self.llm = llm
-        self.embedding = embedding
-        self.retriever = retriever
-        self.prompt_template = prompt_template.partial_format(
+        if context is None:
+            context = get_default_context()
+        self.driver: BaseDriver = driver
+        self.llm: BaseLLM = context.llm
+        self.embedding: BaseEmbedding = context.embedding
+        self.retriever: BaseHtmlRetriever = context.retriever
+        self.prompt_template: PromptTemplate = context.prompt_template.partial_format(
             driver_capability=driver.get_capability()
         )
-        self.extractor = extractor
-
-    def from_context(driver: BaseDriver, context: ActionContext) -> ActionEngine:
-        return ActionEngine(
-            driver,
-            context.llm,
-            context.embedding,
-            context.retriever,
-            context.prompt_template,
-            context.extractor,
-        )
+        self.extractor: BaseExtractor = context.extractor
 
     def _get_query_engine(self, streaming: bool = True) -> RetrieverQueryEngine:
         """
@@ -85,6 +61,29 @@ class ActionEngine:
         )
 
         return query_engine
+
+    def get_nodes(self, query: str) -> List[str]:
+        """
+        Get the nodes from the html page
+
+        Args:
+            html (`str`): The html page
+
+        Return:
+            `List[str]`: The nodes
+        """
+        source_nodes = self.retriever.retrieve_html(self.driver, self.embedding, QueryBundle(query_str=query))
+        source_nodes = [node.text for node in source_nodes]
+        return source_nodes
+
+    def get_action_from_context(self, context: str, query: str) -> str:
+        """
+        Generate the code from a query and a context
+        """
+        prompt = self.prompt_template.format(context_str=context, query_str=query)
+        response = self.llm.complete(prompt).text
+        code = self.extractor.extract(response)
+        return code
 
     def get_action(self, query: str) -> Optional[str]:
         """
