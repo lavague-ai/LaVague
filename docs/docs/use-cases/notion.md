@@ -24,7 +24,7 @@ from lavague.agents import WebAgent
 
 driver = default_get_selenium_driver()
 action_engine = ActionEngine()
-world_model = GPTWorldModel.from_hub("notion_world_model")
+world_model = GPTWorldModel.from_hub("notion_example")
 
 agent = WebAgent(driver, action_engine, world_model)
 
