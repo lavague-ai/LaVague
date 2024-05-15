@@ -86,6 +86,7 @@ markdown_extensions:
   - pymdownx.highlight:
       use_pygments: true
       pygments_style: monokai
+      linenums: true
   - pymdownx.superfences
 
 # Documentation tree
@@ -110,6 +111,9 @@ nav:
 #     - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
 
 # - 🌎 Word Model:
+
+- ✅ Use cases:
+  - Navigate through Notion: "docs/use-cases/notion.md"
 
 - 🤗 Contributing:
   - Overview: "docs/contributing/contributing.md"
