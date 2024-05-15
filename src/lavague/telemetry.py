@@ -14,7 +14,7 @@ USER_ID = str(uuid.uuid4())
 
 def compress_img(img: Image):
     buffer: BytesIO = BytesIO()
-    img_ret = img.resize((1024,1024), Image.ANTIALIAS)
+    img_ret = img.resize((1024,1024), Image.Resampling.LANCZOS)
     img_ret = img_ret.convert('RGB')
     img_ret.save(buffer, "PNG", quality=50)
     return buffer.getvalue()
