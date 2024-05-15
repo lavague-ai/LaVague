@@ -53,17 +53,15 @@ pip install lavague
 
 ```python
 from lavague.retrievers import OpsmSplitRetriever
-from lavague.defaults import DefaultEmbedder, DefaultLLM, default_get_selenium_driver
+from lavague.defaults import default_get_selenium_driver
 from lavague.action_engine import ActionEngine
 from lavague.world_model import GPTWorldModel
 from lavague.agents import WebAgent
-import requests
 
 driver = default_get_selenium_driver()
-action_engine = ActionEngine(DefaultLLM(), OpsmSplitRetriever(DefaultEmbedder(), top_k=3))
+action_engine = ActionEngine()
 
-examples = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_example.txt").text
-world_model = GPTWorldModel(examples=examples)
+world_model = GPTWorldModel.from_hub("hf_example")
 
 agent = WebAgent(driver, action_engine, world_model)
 agent.get("https://huggingface.co/docs")
@@ -97,13 +95,15 @@ If you want to ask questions, contribute, or have proposals, please come on our 
 
 TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
-### 🚨 Disclaimer
+## 🚨 Security warning
 
-Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
+Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
 
-### 📈 Telemetry
+## 📈 Data collection
 
-By default LaVague records some basic anonymous values to help us gather data to build better agents and Large Action Models:
+We want to build a dataset that can be used by the AI community to build better Large Action Models for better Web Agents. You can see our work so far on building community datasets on our [BigAction HuggingFace page](https://huggingface.co/BigAction).
+
+This is why LaVague collects the following user data telemetry by default:
 
 - Version of LaVague installed
 - Code generated for each web action step
@@ -115,4 +115,18 @@ By default LaVague records some basic anonymous values to help us gather data to
 - Error message, where relevant
 - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
 
-If you want to turn off telemetry, you can set your `TELEMETRY_VAR` environment variable to `NONE` in your working environment.
+### 🚫 Turn off all telemetry
+
+If you want to turn off all telemetry, you can set the TELEMETRY_VAR environment variable to NONE.
+
+If you are running LaVague locally in a Linux environment, you can persistently set this variable for your environment with the following steps:
+
+1) Add TELEMETRY_VAR=NONE to your ~/.bashrc, ~/.bash_profile, or ~/.profile file (which file you have depends on your shell and its configuration)
+2) Use `source ~/.bashrc (or .bash_profile or .profile) to apply your modifications without having to log out and back in
+
+In a notebook cell, you can use:
+
+```bash
+import os
+os.environ['TELEMETRY_VAR'] = "NONE"
+```

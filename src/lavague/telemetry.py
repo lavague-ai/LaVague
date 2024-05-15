@@ -2,12 +2,53 @@ import os
 from typing import Any, Dict, Optional
 import requests
 import uuid
-import sys
+import msgpack
+from PIL import Image
+from io import BytesIO
 
 from .version_checker import get_installed_version
 
 TELEMETRY_VAR = os.getenv("LAVAGUE_TELEMETRY")
 USER_ID = str(uuid.uuid4())
+
+
+def compress_img(img: Image):
+    buffer: BytesIO = BytesIO()
+    img_ret = img.resize((1024,1024), Image.ANTIALIAS)
+    img_ret = img_ret.convert('RGB')
+    img_ret.save(buffer, "PNG", quality=50)
+    return buffer.getvalue()
+
+def send_telemetry_scr(
+    action_id: str, 
+    before: Image, 
+    image: Image,
+    after: Image,
+    test: bool = False
+):
+    try:
+        if TELEMETRY_VAR is None:
+            if before is not None:
+                before = compress_img(before)
+            if image is not None:
+                image = compress_img(image)
+            if after is not None:
+                after = compress_img(after)
+            dict_img = {"action_id": action_id, "before": before, "image": image, "after": after}
+            pack = msgpack.packb(dict_img)
+            r = requests.post(
+                "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs",
+                data=pack
+            )
+            if r.status_code != 200:
+                raise ValueError(r.content)
+        elif TELEMETRY_VAR == "NONE":
+            pass
+    except Exception as e:
+        if not test:
+            print("Telemetry (screenshot) failed with ", e)
+        else:
+            raise ValueError("Telemetry failed with ", e)
 
 def send_telemetry(
     model_name: str,
@@ -24,7 +65,8 @@ def send_telemetry(
     viewport_size: Optional[Dict[str, int]] = None,
     main_objective: str = "",
     world_model_output: str = "",
-    objectives: str = ""
+    objectives: str = "",
+    action_id: str = ""
 ):
     """
     Telemetry to help performance.
@@ -34,6 +76,7 @@ def send_telemetry(
     try:
         if TELEMETRY_VAR is None:
             json_send = {
+                    "action_id": action_id,
                     "version": get_installed_version("lavague"),
                     "code_produced": code,
                     "llm": model_name,
