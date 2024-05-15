@@ -7,6 +7,9 @@ Here is our framework going through a company Notion space and several nested pa
 
 !["notion_demo"](../../assets/notion_demo.gif)
 
+On the left you can see the Browser being automated and the next interaction highlighted in red. On the right is the world model thoughts and instructions given to our Action Engine.
+
+
 ## Try it yourself
 
 We provide a [public notion space](https://maize-paddleboat-93e.notion.site/Welcome-to-ACME-INC-0ac66cd290e3453b93a993e1a3ed272f) with mock data and a few nested documents for you to try this example.
@@ -33,8 +36,6 @@ For now we suggest running this code in a Jupyter Notebook while we work on ways
 
 ## Tell us more about your use cases!
 
-We are always trying to improve LaVague's performance and accuracy and understanding what you want to automate is a core part of making changes. 
+Discover community use cases and share yours on our [product feedback space](https://lavague.canny.io/lavague-use-cases). We review your ideas daily to continuously improve LaVague's performance and accuracy on a wide range of tasks.
 
-- [Add and discuss your use cases](https://lavague.canny.io/lavague-use-cases) here! We take a look at it every day.
-- See a list of [community suggested use cases] that we tried and validated (https://lavague.canny.io/lavague-use-cases?status=complete)!
-- You can also drop a message on our [Discord](https://discord.gg/SDxn9KpqX9) to chat if you have any questions!
+You can also drop a message on our [Discord](https://discord.gg/SDxn9KpqX9) to chat if you have any questions!
