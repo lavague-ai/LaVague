@@ -34,13 +34,13 @@ pip install lavague
 
 ```python
 from lavague.retrievers import OpsmSplitRetriever
-from lavague.defaults import DefaultEmbedder, DefaultLLM, default_get_selenium_driver
+from lavague.defaults import default_get_selenium_driver
 from lavague.action_engine import ActionEngine
 from lavague.world_model import GPTWorldModel
 from lavague.agents import WebAgent
 
 driver = default_get_selenium_driver()
-action_engine = ActionEngine(DefaultLLM(), OpsmSplitRetriever(DefaultEmbedder(), top_k=3))
+action_engine = ActionEngine()
 
 world_model = GPTWorldModel.from_hub("hf_example")
 
