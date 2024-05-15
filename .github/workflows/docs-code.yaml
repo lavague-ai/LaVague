@@ -26,16 +26,16 @@ jobs:
       run: |
         pip install lavague
 
-    # - name: Run the Python script
-    #   run: |
-    #     python check-code.py
-
     - name: Check code consistency with docs/index.md
       run: |
-        if ! diff -q check-code.py <(sed -n '/```python/,/```/p' docs/index.md | sed '/```*/d'); then
+        if ! diff -wu <(sed -n '/```python/,/```/p' README.md | sed '/```*/d') <(sed -n '/```python/,/```/p' docs/index.md | sed '/```*/d'); then
           echo "The Python code blocks in README.md and docs/index.md do not match."
           exit 1
         fi
+
+    - name: Run the Python script
+      run: |
+        python check-code.py
 
   notify:
     runs-on: ubuntu-latest
