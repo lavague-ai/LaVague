@@ -121,4 +121,4 @@ nav:
     - Documentation: "docs/contributing/documentation.md"
   
 - 🛠️ API reference:
-  - API reference home: 'docs/lavague/index.html'
+  - API reference home: 'docs/core/index.html'
