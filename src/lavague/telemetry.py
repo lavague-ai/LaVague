@@ -20,8 +20,8 @@ def send_telemetry(
     test: bool = False,
     error: str = "",
     source_nodes: str = "",
-    bounding_box: dict[str, int] = {},
-    viewport_size: dict[str, int] = {},
+    bounding_box: dict[str, int] = {"", 0},
+    viewport_size: dict[str, int] = {"", 0},
     main_objective: str = "",
     world_model_output: str = "",
     objectives: str = ""
