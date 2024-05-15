@@ -1,4 +1,5 @@
-from lavague.telemetry import send_telemetry
+import uuid
+from lavague.telemetry import send_telemetry, send_telemetry_scr
 from lavague.web_utils import get_highlighted_element, display_screenshot, encode_image
 from lavague.format_utils import extract_instruction
 from PIL import Image
@@ -25,6 +26,8 @@ class WebAgent:
         success = True
         error = ""
         url = ""
+        image = None
+        screenshot_after_action = None
 
         for i in range(N_STEPS):
             success = True
@@ -35,6 +38,8 @@ class WebAgent:
             screenshot_before_action = Image.open("screenshot_before_action.png")
             if display:
                 display_screenshot(screenshot_before_action)
+            image = None
+            screenshot_after_action = None
 
             print("Computing an action plan...")
 
@@ -97,6 +102,7 @@ from selenium.webdriver.common.keys import Keys
                         error = repr(e)
                         pass
                     finally:
+                        action_id = str(uuid.uuid4())
                         send_telemetry(
                             action_engine.llm.metadata.model_name,
                             action,
@@ -112,8 +118,10 @@ from selenium.webdriver.common.keys import Keys
                             viewport_size,
                             objective,
                             instruction,
-                            output
+                            output,
+                            action_id
                         )
+                        send_telemetry_scr(action_id, screenshot_before_action, image, screenshot_after_action)
             else:
                 print("Objective reached")
                 break
