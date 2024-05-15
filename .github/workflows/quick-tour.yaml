@@ -7,7 +7,7 @@ on:
       - new-docs-ci
     paths:
       - 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb'
-      - .github/workflows/quitour.yaml
+      - '.github/workflows/quick-tour.yaml'
 
 jobs:
   execute-notebook:
@@ -31,4 +31,4 @@ jobs:
     - name: Execute notebook
       uses: jupyter-actions/execute-notebook@v1.0
       with:
-        path: 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb 
+        path: 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb'
