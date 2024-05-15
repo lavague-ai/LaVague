@@ -4,7 +4,11 @@ on:
   push:
     branches:
       - main
-      - new-docs-ci
+    paths:
+      - 'src/**'
+      - 'README.md'
+      - 'docs/index.md'
+      - 'pyproject.toml'
 
 jobs:
   check-code:
