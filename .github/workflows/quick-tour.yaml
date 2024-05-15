@@ -1,0 +1,41 @@
+name: Execute Jupyter Notebook
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb'
+      - '.github/workflows/quick-tour.yaml'
+
+jobs:
+  execute-notebook:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.8' 
+
+    - name: Install Python dependencies and nbconvert
+      run: pip install notebook nbconvert lavague
+
+    - name: Execute the notebook
+      run: jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [ execute-notebook ]
+    if: ${{ failure() || needs.execute-notebook.outcome == 'failure' }}
+    steps:
+      - name: Send failure notification via Discord
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
+        with:
+          args: "The code in the README fails or differs from the code on docs home - please fix!"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DOCS_DISCORD_WEBHOOK }}
