@@ -74,18 +74,11 @@ class GradioDemo(CommandCenter):
 
     def __telemetry(self):
         def telemetry(query, code, html):
-            screenshot = b""
-            try:
-                scr = open("screenshot.png", "rb")
-                screenshot = base64.b64encode(scr.read())
-            except:
-                pass
             source_nodes = self.actionEngine.get_nodes(query, html)
             retrieved_context = "\n".join(source_nodes)
             send_telemetry(
                 self.actionEngine.llm.metadata.model_name,
                 code,
-                screenshot,
                 html,
                 query,
                 self.driver.getUrl(),
