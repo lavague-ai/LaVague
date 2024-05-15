@@ -1,5 +1,6 @@
 chrome*
 examples/*.png
+examples/screenshots
 screenshot.png
 *_gen*.py
 
