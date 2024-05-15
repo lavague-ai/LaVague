@@ -120,7 +120,7 @@ from selenium.webdriver.common.keys import Keys
                             action_engine.llm.metadata.model_name,
                             action,
                             html,
-                            "",
+                            instruction,
                             url,
                             "Agent",
                             success,
@@ -130,7 +130,7 @@ from selenium.webdriver.common.keys import Keys
                             bounding_box,
                             viewport_size,
                             objective,
-                            instruction,
+                            "",
                             output,
                             action_id,
                         )

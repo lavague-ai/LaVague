@@ -33,7 +33,7 @@ class _LlamaIndexAdapter(BaseRetriever):
         super().__init__()
 
     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        return self.html_retriever._retrieve_html(
+        return self.html_retriever.retrieve_html(
             self.driver, self.embedding, query_bundle
         )
 
