@@ -1,0 +1,34 @@
+name: Execute Jupyter Notebook
+
+on:
+  push:
+    branches:
+      - main
+      - new-docs-ci
+    paths:
+      - 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb'
+      - .github/workflows/quitour.yaml
+
+jobs:
+  execute-notebook:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.8' 
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install notebook  # Install Jupyter if not already included in your project requirements
+
+    - name: Execute notebook
+      uses: jupyter-actions/execute-notebook@v1.0
+      with:
+        path: 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb 
