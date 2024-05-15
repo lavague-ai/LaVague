@@ -73,6 +73,7 @@ def send_telemetry(
     try:
         if TELEMETRY_VAR is None:
             json_send = {
+                    "action_id": action_id,
                     "version": get_installed_version("lavague"),
                     "code_produced": code,
                     "llm": model_name,

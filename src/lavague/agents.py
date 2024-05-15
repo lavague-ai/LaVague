@@ -38,8 +38,6 @@ class WebAgent:
             screenshot_before_action = Image.open("screenshot_before_action.png")
             if display:
                 display_screenshot(screenshot_before_action)
-            image = None
-            screenshot_after_action = None
 
             print("Computing an action plan...")
 
@@ -61,6 +59,8 @@ class WebAgent:
                 context = "\n".join(nodes)
                 for _ in range(N_ATTEMPTS):
                     try:
+                        image = None
+                        screenshot_after_action = None
                         error = ""
                         url = self.driver.current_url
                         success = True
