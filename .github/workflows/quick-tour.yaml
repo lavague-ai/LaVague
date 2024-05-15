@@ -24,11 +24,10 @@ jobs:
         python-version: '3.8' 
 
     - name: Install Python dependencies and nbconvert
-        run: pip install notebook nbconvert lavague
+      run: pip install notebook nbconvert lavague
 
       - name: Execute the notebook
-        run: |
-          jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
+      run: jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
 
   notify:
     runs-on: ubuntu-latest
