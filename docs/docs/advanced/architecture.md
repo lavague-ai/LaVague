@@ -1,6 +1,6 @@
 # LaVague Architecture
 
-![architecture](../../assets/architecture-lavague.png)
+![architecture](../../assets/architecture.png)
 
 ### Command Center ✅
 
