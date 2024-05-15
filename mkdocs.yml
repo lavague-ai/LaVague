@@ -86,7 +86,6 @@ markdown_extensions:
   - pymdownx.highlight:
       use_pygments: true
       pygments_style: monokai
-      linenums: true
   - pymdownx.superfences
 
 # Documentation tree
