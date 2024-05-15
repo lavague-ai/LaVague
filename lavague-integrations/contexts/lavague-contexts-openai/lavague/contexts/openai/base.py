@@ -7,10 +7,17 @@ from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
 from llama_index.core import PromptTemplate
 import os
-from lavague.core import OpsmSplitRetriever, DefaultPromptTemplate, PythonFromMarkdownExtractor, Context, get_default_context
+from lavague.core import (
+    OpsmSplitRetriever,
+    DefaultPromptTemplate,
+    PythonFromMarkdownExtractor,
+    Context,
+    get_default_context,
+)
 from lavague.core.extractors import BaseExtractor
 from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
+
 
 class OpenaiContext(Context):
     def __init__(
@@ -28,13 +35,19 @@ class OpenaiContext(Context):
             if api_key is None:
                 raise ValueError("OPENAI_API_KEY is not set")
         return super().__init__(
-            OpenAI(api_key=api_key, model=llm, max_tokens=DEFAULT_MAX_TOKENS, temperature=DEFAULT_TEMPERATURE),
+            OpenAI(
+                api_key=api_key,
+                model=llm,
+                max_tokens=DEFAULT_MAX_TOKENS,
+                temperature=DEFAULT_TEMPERATURE,
+            ),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
             OpenAIEmbedding(api_key=api_key, model=embedding),
             retriever,
             prompt_template,
             extractor,
         )
+
 
 class AzureOpenaiContext(Context):
     def __init__(
@@ -56,10 +69,14 @@ class AzureOpenaiContext(Context):
         if deployment is None:
             deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
         return super().__init__(
-            AzureOpenAI(model=llm, api_key=api_key, endpoint=endpoint, deployment=deployment),
-            AzureOpenAIMultiModal(model=mm_llm, api_key=api_key, endpoint=endpoint, deployment=deployment),
+            AzureOpenAI(
+                model=llm, api_key=api_key, endpoint=endpoint, deployment=deployment
+            ),
+            AzureOpenAIMultiModal(
+                model=mm_llm, api_key=api_key, endpoint=endpoint, deployment=deployment
+            ),
             embedding,
             retriever,
             prompt_template,
-            extractor
+            extractor,
         )

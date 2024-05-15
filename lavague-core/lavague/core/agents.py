@@ -14,12 +14,15 @@ class WebAgent:
     """
     Web agent class, for now only works with selenium.
     """
+
     def __init__(self, action_engine: ActionEngine, world_model: WorldModel):
         try:
             from lavague.drivers.selenium import SeleniumDriver
 
         except:
-            raise ImportError("Failed to import lavague-drivers-selenium, install with `pip install lavague-drivers-selenium`")
+            raise ImportError(
+                "Failed to import lavague-drivers-selenium, install with `pip install lavague-drivers-selenium`"
+            )
 
         self.driver: SeleniumDriver = action_engine.driver
         self.action_engine: ActionEngine = action_engine
@@ -30,7 +33,7 @@ class WebAgent:
 
     def run(self, objective, display=True):
         from selenium.webdriver.remote.webdriver import WebDriver
-        
+
         driver: WebDriver = self.driver.get_driver()
         action_engine: ActionEngine = self.action_engine
         world_model: WorldModel = self.world_model
@@ -129,9 +132,14 @@ from selenium.webdriver.common.keys import Keys
                             objective,
                             instruction,
                             output,
-                            action_id
+                            action_id,
                         )
-                        send_telemetry_scr(action_id, screenshot_before_action, image, screenshot_after_action)
+                        send_telemetry_scr(
+                            action_id,
+                            screenshot_before_action,
+                            image,
+                            screenshot_after_action,
+                        )
             else:
                 print("Objective reached")
                 break

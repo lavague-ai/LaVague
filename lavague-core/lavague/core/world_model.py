@@ -8,6 +8,7 @@ from llama_index.core.multi_modal_llms import MultiModalLLM
 
 from lavague.core import Context, get_default_context
 
+
 class WorldModel(ABC):
     """Abstract class for WorldModel"""
 
@@ -18,13 +19,20 @@ class WorldModel(ABC):
         if context is None:
             context = get_default_context()
         self.mm_llm = context.mm_llm
-        self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.partial_format(examples=examples)
+        self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.partial_format(
+            examples=examples
+        )
 
     @classmethod
     def from_hub(cls, url_slug: str, context: Optional[Context] = None):
         """Instantiate with template from remote hub."""
         import requests
-        response = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/" + url_slug + ".txt")
+
+        response = requests.get(
+            "https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/"
+            + url_slug
+            + ".txt"
+        )
         if response.status_code == 200:
             instance = cls(response.text, context)
             return instance
@@ -35,7 +43,7 @@ class WorldModel(ABC):
     def from_local(cls, filepath: str, context: Optional[Context] = None):
         """Instantiate with template from local file."""
         if os.path.exists(filepath):
-            with open(filepath, 'r') as file:
+            with open(filepath, "r") as file:
                 examples = file.read()
                 instance = cls(examples, context)
             return instance
@@ -48,25 +56,26 @@ class WorldModel(ABC):
         prompt = self.prompt_template.format(objective=objective)
 
         base64_image = state
-        
+
         image_data = base64.b64decode(base64_image)
 
         # Create the 'screenshots' directory if it doesn't exist
-        if not os.path.exists('screenshots'):
-            os.makedirs('screenshots')
+        if not os.path.exists("screenshots"):
+            os.makedirs("screenshots")
 
         # Save the image data to a PNG file
-        with open('screenshots/output.png', 'wb') as file:
+        with open("screenshots/output.png", "wb") as file:
             file.write(image_data)
-            
+
         image_documents = SimpleDirectoryReader("./screenshots").load_data()
-        
+
         output = self.mm_llm.complete(prompt, image_documents=image_documents).text
 
         return output
 
 
-WORLD_MODEL_PROMPT_TEMPLATE = PromptTemplate("""
+WORLD_MODEL_PROMPT_TEMPLATE = PromptTemplate(
+    """
 You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans.
 Your inputs are an objective in natural language, as well as a screenshot of the current page of the browser.
 Your output are a list of thoughts in bullet points detailling your reasoning, followed by your conclusion on what the next step should be in the form of an instruction.
@@ -81,4 +90,5 @@ ${examples}
 
 Objective: ${objective}
 Thought:
-""")
+"""
+)

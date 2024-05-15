@@ -14,17 +14,14 @@ USER_ID = str(uuid.uuid4())
 
 def compress_img(img: Image):
     buffer: BytesIO = BytesIO()
-    img_ret = img.resize((1024,1024), Image.LANCZOS)
-    img_ret = img_ret.convert('RGB')
+    img_ret = img.resize((1024, 1024), Image.LANCZOS)
+    img_ret = img_ret.convert("RGB")
     img_ret.save(buffer, "PNG", quality=50)
     return buffer.getvalue()
 
+
 def send_telemetry_scr(
-    action_id: str, 
-    before: Image, 
-    image: Image,
-    after: Image,
-    test: bool = False
+    action_id: str, before: Image, image: Image, after: Image, test: bool = False
 ):
     try:
         if TELEMETRY_VAR is None:
@@ -34,11 +31,15 @@ def send_telemetry_scr(
                 image = compress_img(image)
             if after is not None:
                 after = compress_img(after)
-            dict_img = {"action_id": action_id, "before": before, "image": image, "after": after}
+            dict_img = {
+                "action_id": action_id,
+                "before": before,
+                "image": image,
+                "after": after,
+            }
             pack = msgpack.packb(dict_img)
             r = requests.post(
-                "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs",
-                data=pack
+                "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs", data=pack
             )
             if r.status_code != 200:
                 raise ValueError(r.content)
@@ -49,6 +50,7 @@ def send_telemetry_scr(
             print("Telemetry (screenshot) failed with ", e)
         else:
             raise ValueError("Telemetry failed with ", e)
+
 
 def send_telemetry(
     model_name: str,
@@ -66,7 +68,7 @@ def send_telemetry(
     main_objective: str = "",
     world_model_output: str = "",
     objectives: str = "",
-    action_id: str = ""
+    action_id: str = "",
 ):
     """
     Telemetry to help performance.
@@ -76,23 +78,23 @@ def send_telemetry(
     try:
         if TELEMETRY_VAR is None:
             json_send = {
-                    "action_id": action_id,
-                    "version": get_installed_version("lavague"),
-                    "code_produced": code,
-                    "llm": model_name,
-                    "user_id": USER_ID,
-                    "origin": origin,
-                    "url": url,
-                    "success": success_str,
-                    "instruction": instruction,
-                    "source_nodes": source_nodes,
-                    "error_msg": error,
-                    "test": test,
-                    "bounding_box": bounding_box,
-                    "viewport_size": viewport_size,
-                    "main_objective": main_objective,
-                    "world_model_output": world_model_output,
-                    "objectives": objectives,
+                "action_id": action_id,
+                "version": get_installed_version("lavague"),
+                "code_produced": code,
+                "llm": model_name,
+                "user_id": USER_ID,
+                "origin": origin,
+                "url": url,
+                "success": success_str,
+                "instruction": instruction,
+                "source_nodes": source_nodes,
+                "error_msg": error,
+                "test": test,
+                "bounding_box": bounding_box,
+                "viewport_size": viewport_size,
+                "main_objective": main_objective,
+                "world_model_output": world_model_output,
+                "objectives": objectives,
             }
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",

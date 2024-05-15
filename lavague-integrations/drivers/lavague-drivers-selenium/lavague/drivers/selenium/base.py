@@ -4,11 +4,13 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from lavague.core.base_driver import BaseDriver
 from PIL import Image
-from lavague.core.utilities.format_utils import return_assigned_variables, keep_assignments
+from lavague.core.utilities.format_utils import (
+    return_assigned_variables,
+    keep_assignments,
+)
 
 
 class SeleniumDriver(BaseDriver):
-
     driver: WebDriver
 
     def __init__(
@@ -107,15 +109,13 @@ class SeleniumDriver(BaseDriver):
         This is due to Selenium only being able to set window size and not viewport size.
         """
         self.driver.set_window_size(width, targeted_height)
-        
+
         viewport_height = self.driver.execute_script("return window.innerHeight;")
 
         height_difference = targeted_height - viewport_height
         self.driver.set_window_size(width, targeted_height + height_difference)
 
-
     def get_highlighted_element(self, generated_code):
-
         # Extract the assignments from the generated code
         assignment_code = keep_assignments(generated_code)
 
@@ -140,16 +140,14 @@ from selenium.webdriver.common.action_chains import ActionChains
             var = local_scope[variable_name]
             if type(var) == WebElement:
                 elements[variable_name] = var
-                
+
         if len(elements) == 0:
             raise ValueError(f"No element found.")
-        
+
         outputs = []
         for element_name, element in elements.items():
+            local_scope = {"driver": self.driver, element_name: element}
 
-            local_scope = {"driver": self.driver, 
-                element_name: element}
-            
             code = f"""
 element = {element_name}
 driver.execute_script("arguments[0].setAttribute('style', arguments[1]);", element, "border: 2px solid red;")
@@ -170,17 +168,17 @@ viewport_height = driver.execute_script("return window.innerHeight;")
                 "x1": local_scope["x1"],
                 "y1": local_scope["y1"],
                 "x2": local_scope["x2"],
-                "y2": local_scope["y2"]
+                "y2": local_scope["y2"],
             }
             viewport_size = {
                 "width": local_scope["viewport_width"],
-                "height": local_scope["viewport_height"]
+                "height": local_scope["viewport_height"],
             }
             image = Image.open("screenshot.png")
             output = {
                 "image": image,
                 "bounding_box": bounding_box,
-                "viewport_size": viewport_size
+                "viewport_size": viewport_size,
             }
             outputs.append(output)
         return outputs

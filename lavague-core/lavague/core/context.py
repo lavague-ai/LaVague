@@ -8,6 +8,7 @@ from lavague.core.retrievers import BaseHtmlRetriever
 DEFAULT_MAX_TOKENS = 512
 DEFAULT_TEMPERATURE = 0.0
 
+
 class Context:
     """Set the context which will be used thourough the action generation pipeline."""
 
@@ -41,9 +42,11 @@ class Context:
         self.prompt_template = prompt_template
         self.extractor = extractor
 
+
 def get_default_context() -> Context:
     try:
         from lavague.contexts.openai import OpenaiContext
+
         return OpenaiContext()
     except ImportError:
         raise ImportError(

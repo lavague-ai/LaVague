@@ -5,7 +5,8 @@ class DefaultPromptTemplate(PromptTemplate):
     """Prompt template adapted for most models"""
 
     def __init__(self):
-        super().__init__("""
+        super().__init__(
+            """
 
 {driver_capability}
 
@@ -14,14 +15,16 @@ HTML:
 Query: {query_str}
 Completion:
 
-""")
+"""
+        )
 
 
 class GemmaPromptTemplate(PromptTemplate):
     """Modified prompt template which has shown better results with Gemma"""
 
     def __init__(self):
-        super().__init__("""
+        super().__init__(
+            """
 
 {driver_capability}
 
@@ -32,4 +35,5 @@ Completion:
 ```python
 # Let's proceed step by step.
 
-""")
+"""
+        )

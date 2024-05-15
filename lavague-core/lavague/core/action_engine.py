@@ -9,6 +9,7 @@ from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
 
+
 class ActionEngine:
     """
     ActionEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
@@ -72,7 +73,9 @@ class ActionEngine:
         Return:
             `List[str]`: The nodes
         """
-        source_nodes = self.retriever.retrieve_html(self.driver, self.embedding, QueryBundle(query_str=query))
+        source_nodes = self.retriever.retrieve_html(
+            self.driver, self.embedding, QueryBundle(query_str=query)
+        )
         source_nodes = [node.text for node in source_nodes]
         return source_nodes
 
