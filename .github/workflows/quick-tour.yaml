@@ -32,7 +32,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     needs: [ execute-notebook ]
-    if: ${{ failure() || needs.check-code.outcome == 'failure' }}
+    if: ${{ failure() || needs.execute-notebook.outcome == 'failure' }}
     steps:
       - name: Send failure notification via Discord
         uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
