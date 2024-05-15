@@ -20,34 +20,40 @@ pip install lavague
 Next, we will initialize the default Selenium webdriver, which will be used to execute our actions on the web.
 
 ```python
-from lavague.defaults import default_get_selenium_driver
+from lavague.drivers.selenium import SeleniumDriver
 
-driver = default_get_selenium_driver()
+selenium_driver = SeleniumDriver()
+```
+
+We will need to set our OpenAI Key as a Colab secret (see the key icon on the left-hand side of the Colab notebook) named 'OPENAI_API_KEY' and then convert it to an environment variable with the same name.
+
+```python
+import os
+
+# Check if running in Google Colab
+try:
+    from google.colab import userdata
+    IN_COLAB = True
+except ImportError:
+    IN_COLAB = False
+
+if IN_COLAB:
+    os.environ["OPENAI_API_KEY"] = userdata.get('OPENAI_API_KEY')
+else:
+    os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
 ```
 
 We will then build an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
 
-We will build our `AcionEngine` from the following three key components to do this:
+By default, our`AcionEngine` will use the following configuration:
 - LLM: `OpenAI's gpt-4-1106-preview`
 - Embedder: `OpenAI's text-embedding-3-large`
-- Retriever: `OPSM retriever`
+- Retriver: `OPSM retriever`
 
 ```python
-from lavague.retrievers import OpsmSplitRetriever
-from lavague.defaults import DefaultEmbedder, DefaultLLM
-from lavague.action_engine import ActionEngine
+from lavague.core import ActionEngine
 
-llm = DefaultLLM()
-embedder = DefaultEmbedder()
-
-retriever = OpsmSplitRetriever(embedder, top_k=3)
-action_engine = ActionEngine(llm, retriever)
-```
-
-We will finally need to define our `OPENAI_API_KEY`.
-
-```bash
-export OPENAI_API_KEY = # Your OPENAI_API_KEY
+action_engine = ActionEngine(selenium_driver)
 ```
 
 ## World model
@@ -60,14 +66,21 @@ and outputs an instruction that our `ActionEngine` can turn into Selenium code.
 
 Our current world model uses GPT4 with Vision to output an instruction using a screenshot and a given objective.
 
-We can have a look at the current prompt template [here](https://github.com/lavague-ai/LaVague/blob/2c0fc2052fd25676da777e3d0de490d9414097b6/src/lavague/prompts.py#L3).
+We can have a look at the current prompt template [here](https://github.com/lavague-ai/LaVague/blob/main/lavague-core/lavague/core/world_model.py#L77).
 
-Here we show we can improve our base World Model with knowledge on how to interact with Hugging Face's website by showing previous examples of turning observations into instructions, that are then turned into actions:
+Next, we will initialize our WorldModel. To do this, we need to provide the WorldModel with knowledge on how to interact with our chosen website. This knowledge consists of  previous examples for this website of turning observations into instructions, that are then turned into actions.
+
+We can initialize our WorldModel with one of three methods, allowing us to provide this knowledge in different formats:
+- `WorldModel.from_hub("URL_SLUG")` : with the `from_hub()` method, we can pull the knowledge from a `.txt` file in the `examples/knowledge` folder of our GitHub repo, which acts as a hub for sharing knowledge files. For our `examples/knowledge/hf_example.txt` file, we provide `hf_example` as input to our `from_hub()` method.
+- `WorldModel.from_local("PATH_TO_LOCAL_FILE")`: With the `from_local()` method, you can provide knowledge from a local file.
+- `WorldModel("KNOWLEDGE_AS_STRING")`: You can also directly initialize a `WorldModel` with your knowledge as a string.
+
+For the purposes of this demo, we will use the `from_hub()` method.
 
 ```python
-from lavague.world_model import GPTWorldModel
+from lavague.core import WorldModel
 
-world_model = GPTWorldModel.from_hub("hf_example")
+world_model = WorldModel.from_hub("hf_example")
 ```
 
 ## Demo
@@ -75,9 +88,9 @@ world_model = GPTWorldModel.from_hub("hf_example")
 We can now play with it, with a small example where we show our World Model can help achieve a specific goal, here going on the quicktour of Hugging Face's PEFT framework for model finetuning, by providing instructions to our `ActionEngine`:
 
 ```python
-from lavague.agents import WebAgent
+from lavague.core import WebAgent
 
-agent = WebAgent(driver, action_engine, world_model)
+agent = WebAgent(action_engine, world_model)
 ```
 
 ```python
