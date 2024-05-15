@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block head %}
+    {{ super() }}
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="LaVague Documentation">
+    <meta property="og:description" content="User and contributor documentation for LaVague">
+    <meta property="og:image" content="https://raw.githubusercontent.com/lavague-ai/LaVague/main/docs/assets/thumbnail.png">
+    <meta property="og:url" content="https://docs.lavague.ai/en/latest/">
+{% endblock %}
+
 {% block analytics %}
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

@@ -17,20 +17,16 @@ theme:
     - content.tabs.link
     - navigation.sections
     - navigation.indexes
-    - navigation.expand
     
   logo: assets/logo.png
   favicon: assets/logo.png
-  theme:
   palette:
-
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
@@ -53,23 +49,21 @@ theme:
       example: material/test-tube
       quote: material/format-quote-close
 
-#Plugins
+# Plugins
 plugins:
   - search
   - mkdocs-jupyter
 
 # Customization
 extra:
-  homepage: https://mithrilsecurity.io
+  homepage: https://lavague.ai
   social:
     - icon: fontawesome/brands/discord
-      link: https://discord.com/invite/TxEHagpWd4
+      link: https://discord.gg/invite/SDxn9KpqX9
     - icon: fontawesome/brands/github
-      link: https://github.com/mithril-security/
+      link: https://github.com/lavague-ai/
     - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/company/mithril-security-company/
     - icon: fontawesome/brands/twitter
-      link: https://twitter.com/mithrilsecurity
 
 extra_css:
   - stylesheets/extra.css
@@ -89,36 +83,42 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.critic
-
+  - pymdownx.highlight:
+      use_pygments: true
+      pygments_style: monokai
+  - pymdownx.superfences
 
 # Documentation tree
 nav:
 - 🏠 Home: 'index.md'
 
-- 🚀 Getting Started: 
-  - Installation: 'docs/get-started/setting-up-la-vague.md'
-  - Quick tour: 'docs/get-started/quick-tour.ipynb'
-  - VSCode extension (Alpha): 'docs/get-started/get-started-vscode-extension.md'
-  - Playwright: 'docs/get-started/playwright.md'
-  - Customization: 'docs/get-started/customization.md'
+- ⚡ Getting Started:
+  - Quick tour: 'docs/get-started/quick-tour.md'
+  # - Customization: 'docs/get-started/customization.md'
 
-- 🤝 Integrations:
-  - Overview: 'docs/integrations/home.md'
-  - API:
-    - Azure OpenAI: 'docs/integrations/api/azure-openai.ipynb'
-    - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
-    - OpenAI: 'docs/integrations/api/openai.ipynb'
-    - Litellm: 'docs/integrations/api/litellm.ipynb'
-  - Local:
-    - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
-  
-- ⚡ Advanced:
-  - Architecture: 'docs/get-started/architecture.md'
-  - Telemetry: 'docs/advanced/telemetry.md'
-  - Under the hood: 'docs/advanced/under-the-hood.md'
+# - 🚀 Action Engine:
+# - 🤝 Integrations:
+#   - Overview: 'docs/integrations/home.md'
+#   - API:
+#     - Azure OpenAI: 'docs/integrations/api/azure-openai.ipynb'
+#     - HuggingFace: 'docs/integrations/api/hugging-face.ipynb'
+#     - OpenAI: 'docs/integrations/api/openai.ipynb'
+#     - Litellm: 'docs/integrations/api/litellm.ipynb'
+#     - Groq: 'docs/integrations/api/groq.ipynb'
+#     - Anthropic: 'docs/integrations/api/anthropic.ipynb'
+#   - Local:
+#     - DeepSeek Coder: 'docs/integrations/local/local-inference.ipynb'
+
+# - 🌎 Word Model:
+
+- ✅ Use cases:
+  - Navigate through Notion: "docs/use-cases/notion.md"
 
 - 🤗 Contributing:
-  - Contributors' guide: "docs/contributing/contributing.md"
-
+  - Overview: "docs/contributing/contributing.md"
+  - General guidelines: "docs/contributing/general.md"
+  - Pathways:
+    - Documentation: "docs/contributing/documentation.md"
+  
 - 🛠️ API reference:
   - API reference home: 'docs/lavague/index.html'

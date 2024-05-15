@@ -3,71 +3,71 @@
   <a href="https://github.com/lavague-ai/LaVague/issues"><img src="https://img.shields.io/github/issues/lavague-ai/LaVague.svg?style=for-the-badge" alt="Issues"></a>
   <a href="https://github.com/lavague-ai/LaVague/network/members"><img src="https://img.shields.io/github/forks/lavague-ai/LaVague.svg?style=for-the-badge" alt="Forks"></a>
   <a href="https://github.com/lavague-ai/LaVague/graphs/contributors"><img src="https://img.shields.io/github/contributors/lavague-ai/LaVague.svg?style=for-the-badge" alt="Contributors"></a>
-  <a href="https://github.com/lavague-ai/LaVague/blob/master/LICENSE.md"><img src="https://img.shields.io/github/license/lavague-ai/LaVague.svg?style=for-the-badge" alt="Apache License"></a>
 </p>
 </br>
 
 <div align="center">
-  <img src="static/logo.png" width=140px: alt="LaVague Logo">
+  <img src="docs/assets/logo.png" width=140px: alt="LaVague Logo">
   <h1>Welcome to LaVague</h1>
 
 <h4 align="center">
  <a href="https://discord.gg/SDxn9KpqX9" target="_blank">
-    <img src="https://dcbadge.vercel.app/api/server/SDxn9KpqX9?compact=true" height='35px' alt="Join our Discord server!">
+    <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" height='35px' alt="Join our Discord server!">
   </a>
   <a href="https://docs.lavague.ai/en/latest/"><img src="https://img.shields.io/badge/📄-docs-000000?style=for-the-badge&colorA=09c&colorB=555" height='35px' alt="Docs"></a>
 </h4>
-  <p>The open-source community for Large Action Models</p>
+  <p>A Large Action Model framework for developing AI Web Agents
+</p>
 <h1></h1>
 </div>
 
 ## 🏄‍♀️  What is LaVague?
 
-LaVague is an **open-source Large Action Model framework** for turning **natural language** into **browser actions**.
+LaVague is an **open-source Large Action Model framework** to develop AI Web Agents.
 
-At LaVague's core, we have an **Action Engine** which uses **advanced AI techniques** (RAG, Few-shot learning, Chain of Thought) to “compile” natural language instructions into browser automation code, by leveraging **Selenium** or **Playwright**.
+Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library" and performs the required actions to achieve this goal by leveraging our two core components:
 
-### LaVague in Action
-
-Here's an example of LaVague being used to execute natural language instructions on a browser to automate web interactions. This example uses the Gradio interface available with the `lavague launch` CLI command:
-
-<div>
-  <figure>
-    <img src="static/hf_lavague.gif" alt="LaVague Interaction Example" style="margin-right: 20px;">
-    <figcaption><b>LaVague interacting with Hugging Face's website.</b></figcaption>
-  </figure>
-  <br><br>
-</div>
+- A **World Model** that takes an objective and the current state (aka the current web page) and turns that into instructions
+- An **Action Engine** which “compiles” these instructions into action code, e.g. **Selenium** or **Playwright** & execute them
 
 ## 🚀 Getting Started
 
-### Running LaVague in your local env
+### Demo
 
-You can get started with `LaVague` in 2 steps:
+Here is an example of how LaVague can take multiple steps to achieve the objective of "Go on the quicktour of PEFT":
 
-1. Install LaVague & dependencies
+<p align="center">
+  <img src="./docs/assets/demo_agent_hf.gif" alt="Demo for agent">
+</p>
+
+### Hands-on 
+
+To do this, the steps are simple:
+
+1. Download LaVague with:
+
+```bash
+pip install lavague
 ```
-wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/setup.sh &&
-sudo bash setup.sh
+2. Use our framework to build a Web Agent and implement the objective:
+
+```python
+from lavague.core import WebAgent, WorldModel, ActionEngine
+from lavague.drivers.selenium import SeleniumDriver
+
+selenium_driver = SeleniumDriver()
+world_model = WorldModel.from_hub("hf_example")
+action_engine = ActionEngine(selenium_driver)
+agent = WebAgent(action_engine, world_model)
+agent.get("https://huggingface.co/docs")
+agent.run("Go on the quicktour of PEFT")
 ```
 
-2. Run your LaVague command!
+For more information on this example and how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
-You can either `launch` an interactive Gradio interface, where you will see both the automation code generated for each instruction but also a live preview of the results of executing the code with a debug tab.
-```
-lavague --instructions examples/instructions/huggingface.yaml --config examples/configurations/api/openai_api.py launch
-```
+> Note, these examples use our default OpenAI API configuration and you will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for these to work.
 
-Or you can use the `build` command to directly get the Python code leveraging Selenium in a file, which you can then inspect & execute locally.
-```
-lavague --instructions examples/instructions/huggingface.yaml --config examples/configurations/api/openai_api.py build
-```
-
-For a step-by-step guide or to run LaVague in a Google Colab, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) which will walk you through how to get set-up and launch LaVague with our CLI tool.
-
-## 🎭 Playwright integration
-
-If you want to get started with LaVague build using Playwright as your underlying automation tool, see our [Playwright integration guide](./docs/docs/get-started/playwright.md)
+For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
 ## 🙋 Contributing
 
@@ -82,7 +82,7 @@ To avoid having multiple people working on the same things & being unable to mer
 5) ⬆️ You should submit your work as a PR
 6) ✅ We will review & merge your code or request changes/give feedback
 
-Please check out our [`contributing guide`](./contributing.md) for a more detailed guide.
+Please check out our [`contributing guide`](./docs/docs/contributing/contributing.md) for a more detailed guide.
 
 If you want to ask questions, contribute, or have proposals, please come on our [`Discord`](https://discord.gg/SDxn9KpqX9) to chat!
 
@@ -90,6 +90,38 @@ If you want to ask questions, contribute, or have proposals, please come on our 
 
 TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
-### 🚨 Disclaimer
+## 🚨 Security warning
 
-Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
+Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
+
+## 📈 Data collection
+
+We want to build a dataset that can be used by the AI community to build better Large Action Models for better Web Agents. You can see our work so far on building community datasets on our [BigAction HuggingFace page](https://huggingface.co/BigAction).
+
+This is why LaVague collects the following user data telemetry by default:
+
+- Version of LaVague installed
+- Code generated for each web action step
+- LLM used (i.e GPT4)
+- Randomly generated anonymous user ID
+- Whether you are using a CLI command or our library directly
+- The URL you performed an action on
+- Whether the action failed or succeeded
+- Error message, where relevant
+- The source nodes (chunks of HTML code retrieved from the web page to perform this action)
+
+### 🚫 Turn off all telemetry
+
+If you want to turn off all telemetry, you can set the TELEMETRY_VAR environment variable to NONE.
+
+If you are running LaVague locally in a Linux environment, you can persistently set this variable for your environment with the following steps:
+
+1) Add TELEMETRY_VAR=NONE to your ~/.bashrc, ~/.bash_profile, or ~/.profile file (which file you have depends on your shell and its configuration)
+2) Use `source ~/.bashrc (or .bash_profile or .profile) to apply your modifications without having to log out and back in
+
+In a notebook cell, you can use:
+
+```bash
+import os
+os.environ['TELEMETRY_VAR'] = "NONE"
+```
