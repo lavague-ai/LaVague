@@ -48,7 +48,7 @@ We will then build an `ActionEngine`, which is responsible for generating automa
 By default, our`AcionEngine` will use the following configuration:
 - LLM: `OpenAI's gpt-4-1106-preview`
 - Embedder: `OpenAI's text-embedding-3-large`
-- Retriver: `OPSM retriever`
+- Retriever: `OPSM retriever`
 
 ```python
 from lavague.core import ActionEngine

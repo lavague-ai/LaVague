@@ -71,3 +71,10 @@ llm
 Jupyter
 dataset
 datasets
+SeleniumDriver
+os
+ImportError
+colab
+userdata
+environ
+getenv
