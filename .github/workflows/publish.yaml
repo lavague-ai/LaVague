@@ -44,7 +44,7 @@ jobs:
 
   check-docs-with-new-package:
     runs-on: ubuntu-latest
-    needs: publish
+    needs: publish_packages_if_needed
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   
@@ -84,7 +84,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-latest
-    needs: [  check-docs-with-new-package ]
+    needs: [ check-docs-with-new-package ]
     if: ${{ failure() || needs.check-docs-with-new-package.outcome == 'failure' }}
     steps:
       - name: Send failure notification via Discord
