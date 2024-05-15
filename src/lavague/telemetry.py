@@ -27,20 +27,23 @@ def send_telemetry_scr(
     test: bool = False
 ):
     try:
-        if before is not None:
-            before = compress_img(before)
-        if image is not None:
-            image = compress_img(image)
-        if after is not None:
-            after = compress_img(after)
-        dict_img = {"action_id": action_id, "before": before, "image": image, "after": after}
-        pack = msgpack.packb(dict_img)
-        r = requests.post(
-            "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs",
-            data=pack
-        )
-        if r.status_code != 200:
-            raise ValueError(r.content)
+        if TELEMETRY_VAR is None:
+            if before is not None:
+                before = compress_img(before)
+            if image is not None:
+                image = compress_img(image)
+            if after is not None:
+                after = compress_img(after)
+            dict_img = {"action_id": action_id, "before": before, "image": image, "after": after}
+            pack = msgpack.packb(dict_img)
+            r = requests.post(
+                "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs",
+                data=pack
+            )
+            if r.status_code != 200:
+                raise ValueError(r.content)
+        elif TELEMETRY_VAR == "NONE":
+            pass
     except Exception as e:
         if not test:
             print("Telemetry (screenshot) failed with ", e)
