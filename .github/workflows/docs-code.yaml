@@ -1,0 +1,50 @@
+name: Python Code Check
+
+on:
+  push:
+    branches:
+      - main
+      - docs-ci
+
+jobs:
+  check-code:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.8'
+
+    - name: Extract Python code from README.md
+      run: |
+        sed -n '/```python/,/```/p' README.md | sed '/```*/d' > check-code.py
+
+    - name: Install dependencies
+      run: |
+        pip install lavague
+
+    # - name: Run the Python script
+    #   run: |
+    #     python check-code.py
+
+    - name: Check code consistency with docs/index.md
+      run: |
+        if ! diff -q check-code.py <(sed -n '/```python/,/```/p' docs/index.md | sed '/```*/d'); then
+          echo "The Python code blocks in README.md and docs/index.md do not match."
+          exit 1
+        fi
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [ check-code]
+    if: ${{ failure() || needs.check-code.outcome == 'failure' }}
+    steps:
+      - name: Send failure notification via Discord
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
+        with:
+          args: "The code in the README fails or differs from the code on docs home - please fix!"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DOCS_DISCORD_WEBHOOK }}
