@@ -102,7 +102,9 @@ Note, this project executes LLM-generated code using `exec`. This is not conside
 
 ## 📈 Data collection
 
-We want to build a dataset that can be used by the AI community to build better Large Action Models for better Web aAents. This is why LaVague collects the following user data:
+We want to build a dataset that can be used by the AI community to build better Large Action Models for better Web Agents. You can see our work so far on building community datasets on our [BigAction HuggingFace page](https://huggingface.co/BigAction).
+
+This is why LaVague collects the following user data telemetry by default:
 
 - Version of LaVague installed
 - Code generated for each web action step
@@ -116,7 +118,7 @@ We want to build a dataset that can be used by the AI community to build better 
 
 ### 🚫 Turn off all telemetry
 
-If you want to turn off telemetry, you can set the TELEMETRY_VAR environment variable to NONE.
+If you want to turn off all telemetry, you can set the TELEMETRY_VAR environment variable to NONE.
 
 If you are running LaVague locally in a Linux environment, you can persistenly set this variable for your environment with the following steps:
 
