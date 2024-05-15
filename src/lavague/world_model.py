@@ -18,6 +18,7 @@ class BaseWorldModel(ABC):
     def get_instruction(self, state: Any, objective: str) -> str:
         """Get instruction from the world model given the current state and objective."""
         raise NotImplementedError("get_instruction method is not implemented")
+    
 
 class GPTWorldModel(BaseWorldModel):
     """Class for Vision-based WorldModel"""
@@ -29,6 +30,28 @@ class GPTWorldModel(BaseWorldModel):
         if api_key is None:
             raise ValueError("No api_key is provided or OPENAI_API_KEY environment variable is not set")
         self.mm_llm = OpenAIMultiModal(model="gpt-4o", max_new_tokens=300, api_key= api_key)
+
+    @classmethod
+    def from_hub(cls, url_slug: str, api_key: str = None):
+        """Instantiate with template from remote hub."""
+        import requests
+        response = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/" + url_slug + ".txt")
+        if response.status_code == 200:
+            instance = cls(response.text, api_key)
+            return instance
+        else:
+            raise Exception("Failed to fetch prompt template from hub")
+
+    @classmethod
+    def from_local(cls, filepath: str, api_key: str = None):
+        """Instantiate with template from local file."""
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as file:
+                observations = file.read()
+                instance = cls(observations, api_key)
+            return instance
+        else:
+            raise FileNotFoundError(f"No file found at {filepath}")
 
     def get_instruction(self, state: str, objective: str) -> str:
         """Use GPT4V to generate instruction from the current state and objective."""
@@ -60,6 +83,28 @@ class AzureWorldModel(BaseWorldModel):
         self.prompt_template = WORLD_MODEL_PROMPT_TEMPLATE.safe_substitute(examples=examples)
         self.api_key = api_key
         self.endpoint = endpoint
+
+    @classmethod
+    def from_hub(cls, url_slug: str, api_key: str, endpoint: str):
+        """Instantiate with template from remote hub."""
+        import requests
+        response = requests.get("https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/" + url_slug + ".txt")
+        if response.status_code == 200:
+            instance = cls(response.text, api_key, endpoint)
+            return instance
+        else:
+            raise Exception("Failed to fetch prompt template from hub")
+
+    @classmethod
+    def from_local(cls, filepath: str, api_key: str, endpoint: str):
+        """Instantiate with template from local file."""
+        if os.path.exists(filepath):
+            with open(filepath, 'r') as file:
+                observations = file.read()
+                instance = cls(observations, api_key, endpoint)
+            return instance
+        else:
+            raise FileNotFoundError(f"No file found at {filepath}")
     
     def get_instruction(self, state: str, objective: str) -> str:
         base64_image = state
@@ -67,7 +112,6 @@ class AzureWorldModel(BaseWorldModel):
             "Content-Type": "application/json",
             "api-key": self.api_key,
         }
-        
         prompt = self.prompt_template.format(objective=objective)
 
         # Payload for the request
