@@ -62,7 +62,8 @@ dependencies = [
   "datasets",
   "fastapi",
   "uvicorn",
-  "starlette"
+  "starlette",
+  "msgpack"
 ]
 
 [project.optional-dependencies]
