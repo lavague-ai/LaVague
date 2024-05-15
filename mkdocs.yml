@@ -111,6 +111,9 @@ nav:
 
 # - 🌎 Word Model:
 
+- ✅ Use cases:
+  - Navigate through Notion: "docs/use-cases/notion.md"
+
 - 🤗 Contributing:
   - Overview: "docs/contributing/contributing.md"
   - General guidelines: "docs/contributing/general.md"

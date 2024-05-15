@@ -8,6 +8,7 @@ matrix:
     output: build/dictionary/python.dic
   pipeline:
     - pyspelling.filters.markdown:
+    - pyspelling.filters.url:
     - pyspelling.filters.html:
         comments: false
         ignores:
