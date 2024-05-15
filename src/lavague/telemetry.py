@@ -66,7 +66,8 @@ def send_telemetry(
     main_objective: str = "",
     world_model_output: str = "",
     objectives: str = "",
-    action_id: str = ""
+    action_id: str = "",
+    multi_modal_model: str = "",
 ):
     """
     Telemetry to help performance.
@@ -91,8 +92,9 @@ def send_telemetry(
                     "bounding_box": bounding_box,
                     "viewport_size": viewport_size,
                     "main_objective": main_objective,
-                    "world_model_output": world_model_output,
+                    "world_model_output": "",
                     "objectives": objectives,
+                    "multi_modal_model": multi_modal_model,
             }
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",

@@ -107,7 +107,7 @@ from selenium.webdriver.common.keys import Keys
                             action_engine.llm.metadata.model_name,
                             action,
                             html,
-                            "",
+                            instruction,
                             url,
                             "Agent",
                             success,
@@ -117,9 +117,10 @@ from selenium.webdriver.common.keys import Keys
                             bounding_box,
                             viewport_size,
                             objective,
-                            instruction,
+                            "",
                             output,
-                            action_id
+                            action_id,
+                            world_model.mm_llm.metadata.model_name
                         )
                         send_telemetry_scr(action_id, screenshot_before_action, image, screenshot_after_action)
             else:
