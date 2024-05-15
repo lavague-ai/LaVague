@@ -23,7 +23,7 @@ jobs:
       run: pip install ruff
 
     - name: Run Ruff on src/lavague
-      run: ruff format src/lavague/
+      run: ruff format .
     
     - name: Run Ruff on examples
       run: ruff format examples/
