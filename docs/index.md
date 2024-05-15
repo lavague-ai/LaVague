@@ -76,13 +76,13 @@ If you want to ask questions, contribute, or have proposals, please come on our 
 
 TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
-!!! warning "Disclaimer"
+!!! warning "Security warning"
 
-    This project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague (such as running LaVague in a sandboxed environment)!
+Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
 
-## Telemetry
+## 📈 Data collection
 
-By default LaVague records some basic anonymous values to help us gather data to build better agents and Large Action Models:
+We want to build a dataset that can be used by the AI community to build better Large Action Models for better Web aAents. This is why LaVague collects the following user data:
 
 - Version of LaVague installed
 - Code generated for each web action step
@@ -94,4 +94,18 @@ By default LaVague records some basic anonymous values to help us gather data to
 - Error message, where relevant
 - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
 
-If you want to turn off telemetry, you can set your `TELEMETRY_VAR` environment variable to `NONE` in your working environment.
+### 🚫 Turn off all telemetry
+
+If you want to turn off telemetry, you can set the TELEMETRY_VAR environment variable to NONE.
+
+If you are running LaVague locally in a Linux environment, you can persistenly set this variable for your environment with the following steps:
+
+1) Add TELEMETRY_VAR=NONE to your ~/.bashrc, ~/.bash_profile, or ~/.profile file (which file you have depends on your shell and its configuration)
+2) Use `souce ~/.bashrc (or .bash_profile or .profile) to apply your modifications without having to log out and back in
+
+In a notebook cell, you can use:
+
+```bash
+import os
+os.environ['TELEMETRY_VAR'] = "NONE"
+```
