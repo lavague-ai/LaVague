@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - docs-ci
+      - new-docs-ci
 
 jobs:
   check-code:
