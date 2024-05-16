@@ -3,7 +3,7 @@ name: spellcheck & link checker
 on:
   push:
   schedule:
-    - cron: '20 8, 17 * * *'
+    - cron: '20 8,17 * * *'
 
 jobs:
   spellcheck:
