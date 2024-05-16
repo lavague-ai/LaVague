@@ -78,7 +78,7 @@ TO keep up to date with our project backlog [here](https://github.com/orgs/lavag
 
 !!! warning "Security warning"
 
-Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
+  Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
 
 ## 📈 Data collection
 
