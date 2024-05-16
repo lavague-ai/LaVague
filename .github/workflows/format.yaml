@@ -1,4 +1,4 @@
-name: Software test, formatting & publishing
+name: Formatting
 
 on:
   push:

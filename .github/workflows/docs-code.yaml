@@ -1,4 +1,4 @@
-name: Python Code Check
+name: Python Code Check in docs and README
 
 on:
   push:
