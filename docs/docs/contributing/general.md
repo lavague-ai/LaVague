@@ -67,7 +67,7 @@ You can now install the lavague package from the root of your forked repo:
 
 ```bash
 poetry shell
-poetry install
+poetry install --with dev
 ```
 
 The poetry shell command will create a virtual environment specifically for this package.
@@ -76,24 +76,20 @@ This `install` command will install all the default packages in our LaVague pack
 
 !!! note "Non-default package installation"
 
-    If you want to use a non-default integration, you will need to locally install this specific package.
+    If you want to use a non-default integration, you can then locally install the specific package with `pip`.
 
     For example, if you want to use a non-default context such as the Gemini context. You would need to run:
 
     ```bash
-    cd lavague-integrations/contexts/lavague-contexts-gemini/
-    poetry install
+    pip install -e lavague-integrations/contexts/lavague-contexts-gemini
     ```
 
 ### Previewing local modifications
 
-For local modifications to a package's files to be taken into account, you will need to locally install that specific package.
+For local modifications to a package's files to be taken into account, you can locally install that specific package with `pip -e`.
 
-For example, if you are making changes within the lavague.core package. You can run:
+For example, if you are making changes within the lavague.core package. You can run the following command:
 
 ```bash
-cd lavague-core
-poetry install
+pip install -e lavague-core
 ```
-
-You should only need to do this once.
