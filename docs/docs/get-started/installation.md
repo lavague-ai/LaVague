@@ -15,7 +15,7 @@ This will install a core bundle of lavague packages required for usage of lavagu
     For example, if you want to use a non-default context such as the Gemini context. You would need to run:
 
     ```bash
-    pip install lavague.contexts-gemini
+    pip install lavague.contexts.gemini
     ```
 
 ## Installing from source
