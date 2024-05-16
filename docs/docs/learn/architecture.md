@@ -56,4 +56,4 @@ Several elements of our approach and architecture are inspired by Yann LeCun's r
 
 The paper proposes an architecture for AI that consists of multiple modules, each responsible for different functions such as perception, world modeling, memory, and action generation. These modules work together to enable the AI to perceive its environment, react to it, reason about it, plan actions, and execute them, much like the human brain leverages and combines different cognitive processes.
 
-<img src="https://raw.githubusercontent.com/lavague-ai/LaVague/under-the-hood/docs/assets/research.png" alt="Yann LeCun's proposed architecture for AI">
+<img src="https://raw.githubusercontent.com/lavague-ai/LaVague/under-the-hood/docs/assets/research.png" alt="Yann LeCun's proposed architecture for AI" width="80%">
