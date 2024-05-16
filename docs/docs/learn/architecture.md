@@ -4,7 +4,7 @@
 
 Let's first define some of the key elements in our LaVague Agent architecture:
 
-- `Objective`: The objective is the global goal that the user wants the WebAgent to achieve. For example: `"Log into my account and change my username to The WaveHunter."`
+- `Objective`: The objective is the global goal that the user wants the Web Agent to achieve. For example: `"Log into my account and change my username to The WaveHunter."`
 - `Instruction:` An instruction is the a smaller step needed to move towards achieving the user's objective. For example: `"Locate the username input field and enter the text 'user123'."`
 - `World Model`: The World Model analyzes the user's objective and the current state of a webpage to generate the next instruction needed in order to eventually achieving the objective.
 - `Action Engine`: The Action Engine receives this instruction and generates the automation code required to perform this action.
