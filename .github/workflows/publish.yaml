@@ -1,95 +1,95 @@
-# name: Publish Sub-Packages to PyPI if Needed
+name: Publish Sub-Packages to PyPI if Needed
 
-# on:
-#   push:
-#    branches:
-#      - main
+on:
+  push:
+   branches:
+     - main
 
-# env:
-#   POETRY_VERSION: "1.6.1"
-#   PYTHON_VERSION: "3.10"
+env:
+  POETRY_VERSION: "1.6.1"
+  PYTHON_VERSION: "3.10"
 
-# jobs:
-#   publish_packages_if_needed:
-#     if: github.repository == 'lavague-ai/lavague'
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v3
-#         with:
-#           fetch-depth: 0
-#       - name: Set up python ${{ env.PYTHON_VERSION }}
-#         uses: actions/setup-python@v4
-#         with:
-#           python-version: ${{ env.PYTHON_VERSION }}
-#       - name: Install Poetry
-#         uses: snok/install-poetry@v1
-#         with:
-#           version: ${{ env.POETRY_VERSION }}
-#       - name: Get changed pyproject files
-#         id: changed-files
-#         run: |
-#           echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -v lavague-core | grep lavague | grep pyproject | xargs)" >> $GITHUB_OUTPUT
-#       - name: Publish changed packages
-#         env:
-#           PYPI_TOKEN: ${{ secrets.LAVAGUE_PYPI_TOKEN }}
-#         run: |
-#           for file in ${{ steps.changed-files.outputs.changed_files }}; do
-#               cd `echo $file | sed 's/\/pyproject.toml//g'`
-#               poetry lock
-#               pip install -e .
-#               poetry config pypi-token.pypi $PYPI_TOKEN
-#               poetry publish --build
-#               cd -
-#           done
+jobs:
+  publish_packages_if_needed:
+    if: github.repository == 'lavague-ai/lavague'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+      - name: Get changed pyproject files
+        id: changed-files
+        run: |
+          echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -v lavague-core | grep lavague | grep pyproject | xargs)" >> $GITHUB_OUTPUT
+      - name: Publish changed packages
+        env:
+          PYPI_TOKEN: ${{ secrets.LAVAGUE_PYPI_TOKEN }}
+        run: |
+          for file in ${{ steps.changed-files.outputs.changed_files }}; do
+              cd `echo $file | sed 's/\/pyproject.toml//g'`
+              poetry lock
+              pip install -e .
+              poetry config pypi-token.pypi $PYPI_TOKEN
+              poetry publish --build
+              cd -
+          done
 
-  # check-docs-with-new-package:
-  #   runs-on: ubuntu-latest
-  #   needs: publish_packages_if_needed
-  #   env:
-  #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  check-docs-with-new-package:
+    runs-on: ubuntu-latest
+    needs: publish_packages_if_needed
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   
-  #   steps:
-  #   - name: Checkout Repository
-  #     uses: actions/checkout@v3
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
       
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v3
-  #     with:
-  #       python-version: '3.8'
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
 
-  #   - name: Sleep to ensure package is updated
-  #     run: sleep 30
+    - name: Sleep to ensure package is updated
+      run: sleep 30
 
-  #   - name: Install Python dependencies and nbconvert
-  #     run: pip install notebook nbconvert lavague
+    - name: Install Python dependencies and nbconvert
+      run: pip install notebook nbconvert lavague
 
-  #   - name: Execute the notebook
-  #     run: |
-  #         jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
+    - name: Execute the notebook
+      run: |
+          jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
 
-  #   - name: Extract Python code from README.md
-  #     run: |
-  #       sed -n '/```python/,/```/p' README.md | sed '/```*/d' > check-code.py
+    - name: Extract Python code from README.md
+      run: |
+        sed -n '/```python/,/```/p' README.md | sed '/```*/d' > check-code.py
 
-  #   - name: Check code consistency with docs/index.md
-  #     run: |
-  #       if ! diff -wu <(sed -n '/```python/,/```/p' README.md | sed '/```*/d') <(sed -n '/```python/,/```/p' docs/index.md | sed '/```*/d'); then
-  #         echo "The Python code blocks in README.md and docs/index.md do not match."
-  #         exit 1
-  #       fi
+    - name: Check code consistency with docs/index.md
+      run: |
+        if ! diff -wu <(sed -n '/```python/,/```/p' README.md | sed '/```*/d') <(sed -n '/```python/,/```/p' docs/index.md | sed '/```*/d'); then
+          echo "The Python code blocks in README.md and docs/index.md do not match."
+          exit 1
+        fi
 
-  #   - name: Run the Python script
-  #     run: |
-  #       python check-code.py
+    - name: Run the Python script
+      run: |
+        python check-code.py
 
-  # notify:
-  #   runs-on: ubuntu-latest
-  #   needs: [ check-docs-with-new-package ]
-  #   if: ${{ failure() || needs.check-docs-with-new-package.outcome == 'failure' }}
-  #   steps:
-  #     - name: Send failure notification via Discord
-  #       uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
-  #       with:
-  #         args: "The code in the README fails or differs from the code on docs home - please fix!"
-  #       env:
-  #         DISCORD_WEBHOOK: ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+  notify:
+    runs-on: ubuntu-latest
+    needs: [ check-docs-with-new-package ]
+    if: ${{ failure() || needs.check-docs-with-new-package.outcome == 'failure' }}
+    steps:
+      - name: Send failure notification via Discord
+        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
+        with:
+          args: "The code in the README fails or differs from the code on docs home - please fix!"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DOCS_DISCORD_WEBHOOK }}
