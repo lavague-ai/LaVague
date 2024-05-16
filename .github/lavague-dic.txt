@@ -81,6 +81,6 @@ getenv
 debian
 Yann
 LeCun
-LeCun's 
+LeCun's
 webpage
 WaveHunter
