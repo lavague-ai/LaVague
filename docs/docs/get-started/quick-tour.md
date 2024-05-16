@@ -70,7 +70,7 @@ When we initialized the World Model, we saw that we must provide a file containi
 
 We initialized the World Model with an example file from our 'hub' - which is an open-source folder in our GitHub repo, which you can find (and contribute to) [here](https://github.com/lavague-ai/LaVague/tree/main/examples/knowledge)!
 
-This was done by using the `WorldModel.from_hub()` method and providing the name of the file we wanted to download, without the file extension ending, i.e. to download `hf_examples.txt`, you should provide `hf_examples` as your argument to this method.
+This was done by using the `WorldModel.from_hub()` method, passing it the name of the file we wanted to download, "hf_example" (without the `.txt` file extension ending).
 
 !!! note "World Model initialization options"
 
