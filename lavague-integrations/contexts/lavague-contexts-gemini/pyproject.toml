@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-contexts-gemini"
-version = "0.1.2"
+version = "0.1.3"
 description = "gemini integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -22,9 +22,9 @@ packages = [{include = "lavague/"}]
 [tool.poetry.dependencies]
 python = "^3.10.0"
 lavague-core = "^0.1.1"
-llama-index-llms-gemini = "^0.1.7"
+llama-index-llms-gemini = "^0.1.8"
 llama-index-embeddings-gemini = "^0.1.6"
-llama-index-multi-modal-llms-gemini = "^0.1.5"
+llama-index-multi-modal-llms-gemini = "^0.1.6"
 google-generativeai = "^0.4.1"
 
 [build-system]
