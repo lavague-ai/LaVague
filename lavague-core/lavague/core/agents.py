@@ -119,7 +119,7 @@ from selenium.webdriver.common.keys import Keys
                     finally:
                         action_id = str(uuid.uuid4())
                         send_telemetry(
-                            model_name=action_engine.llm.metadata.model_name, 
+                            model_name=action_engine.llm.metadata.model_name,
                             code=action,
                             instruction=instruction,
                             url=url,
@@ -135,7 +135,7 @@ from selenium.webdriver.common.keys import Keys
                             action_id=action_id,
                             multi_modal_model=world_model.mm_llm.metadata.model_name,
                             step_id=step_id,
-                            run_id=run_id
+                            run_id=run_id,
                         )
                         send_telemetry_scr(
                             action_id,

@@ -34,6 +34,7 @@ GEMINI_MM_MODELS = (
     "models/gemini-1.5-flash-latest",
 )
 
+
 class GeminiMultiModal2(MultiModalLLM):
     """Gemini multimodal."""
 
