@@ -112,7 +112,10 @@ nav:
 # - 🌎 Word Model:
 
 - ✅ Use cases:
-  - Navigate through Notion: "docs/use-cases/notion.md"
+  - Knowledge Retrieval:
+    - Navigate through Notion: "docs/use-cases/notion.md"
+  - Data Entry:
+    - Fill out forms: "docs/use-cases/forms.md"
 
 - 🤗 Contributing:
   - Overview: "docs/contributing/contributing.md"
