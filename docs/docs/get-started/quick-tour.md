@@ -72,7 +72,7 @@ We initialized the World Model with an example file from our 'hub' - which is an
 
 This was done by using the `WorldModel.from_hub()` method and providing the name of the file we wanted to download, without the file extension ending, i.e. to download `hf_examples.txt`, you should provide `hf_examples` as your argument to this method.
 
-!!! "World Model initialization options"
+!!! note "World Model initialization options"
 
     Note, as well as pulling an example file from our GitHUb repo with our `from_hub()` method. You can:
 
