@@ -9,7 +9,7 @@
 
     If you don't have an OpenAI API key, please get one [here](https://platform.openai.com/docs/quickstart/developer-quickstart)
 
-### Installation
+## Installation
 
 We start by downloading LaVague.
 
@@ -47,6 +47,7 @@ We can have a look at the current prompt template [here](https://github.com/lava
 Next, we will initialize our WorldModel. To do this, we need to provide the WorldModel with knowledge on how to interact with our chosen website. This knowledge consists of  previous examples for this website of turning observations into instructions, that are then turned into actions.
 
 We can initialize our WorldModel with one of three methods, allowing us to provide this knowledge in different formats:
+
 - `WorldModel.from_hub("URL_SLUG")` : with the `from_hub()` method, we can pull the knowledge from a `.txt` file in the `examples/knowledge` folder of our GitHub repo, which acts as a hub for sharing knowledge files. For our `examples/knowledge/hf_example.txt` file, we provide `hf_example` as input to our `from_hub()` method.
 - `WorldModel.from_local("PATH_TO_LOCAL_FILE")`: With the `from_local()` method, you can provide knowledge from a local file.
 - `WorldModel("KNOWLEDGE_AS_STRING")`: You can also directly initialize a `WorldModel` with your knowledge as a string.
