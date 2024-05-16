@@ -72,7 +72,7 @@ We initialized the World Model with an example file from our 'hub' - which is an
 
 This was done by using the `WorldModel.from_hub()` method and providing the name of the file we wanted to download, without the file extension ending, i.e. to download `hf_examples.txt`, you should provide `hf_examples` as your argument to this method.
 
-!!! World Model initialization options
+!!! "World Model initialization options"
 
     Note, as well as pulling an example file from our GitHUb repo with our `from_hub()` method. You can:
 
@@ -111,9 +111,9 @@ These examples are inserted into our full World Model default prompt:
 
 By providing our `World Model` with examples, we can help our `World Model` to learn to generate instructions by demonstrating the desired thought process and structure for completing tasks.
 
-!!! hint "Contribute knowledge"
+!!! hint "Contribute to our Knowledge Hub"
 
-    You can contribute knowledge files for a website of your choice, by creating text files with examples of `objectives`, `thoughts` and `instructions` and submitting your file as a `PR` to our GitHub repo.
+    You can contribute example files for a website of your choice, by creating text files with examples of `objectives`, `thoughts` and `instructions` and submitting your file as a `PR` to our GitHub repo.
 
     See the [contribution section of the docs](../contributing/contributing.md) for more information.
 
