@@ -25,7 +25,7 @@ pip install lavague
 
 ## Action Engine
 
-An agent is made up of two components: an `ActionEngine` and a `WorldModel`.
+**An agent is made up of two components: an `ActionEngine` and a `WorldModel`.**
 
 Let's start by initializing an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
 
@@ -47,7 +47,7 @@ from lavague.core import WorldModel
 world_model = WorldModel.from_hub("hf_example")
 ```
 
-## Demo
+## WebAgent Demo
 
 We can now use these two elements to initialize a `WebAgent` and start playing with it!
 
