@@ -64,7 +64,7 @@ agent.run("Go on the quicktour of PEFT")
 
 ![qt_output](../../assets/demo_agent_hf.gif)
 
-## World Model: examples file & prompt template
+## World Model examples file
 
 When we initialized the World Model, we saw that we must provide a file containing examples. This file shows the World Model the desired thought process and reasoning we wish for it to replicate to generate the next instruction.
 
@@ -92,7 +92,7 @@ Instruction: Type 'Command R plus' on the search bar with placeholder "Search ..
 ```
 These examples are inserted into our full World Model default prompt:
 
-!!! hint "Default World Model prompt in full"
+??? hint "Default World Model prompt in full"
 
     You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans.
     Your inputs are an objective in natural language, as well as a screenshot of the current page of the browser.
