@@ -112,11 +112,11 @@ This is why LaVague collects the following user data telemetry by default:
 
 ### 🚫 Turn off all telemetry
 
-If you want to turn off all telemetry, you can set the TELEMETRY_VAR environment variable to NONE.
+If you want to turn off all telemetry, you can set the TELEMETRY_VAR environment variable to "NONE".
 
 If you are running LaVague locally in a Linux environment, you can persistently set this variable for your environment with the following steps:
 
-1) Add TELEMETRY_VAR=NONE to your ~/.bashrc, ~/.bash_profile, or ~/.profile file (which file you have depends on your shell and its configuration)
+1) Add TELEMETRY_VAR="NONE" to your ~/.bashrc, ~/.bash_profile, or ~/.profile file (which file you have depends on your shell and its configuration)
 2) Use `source ~/.bashrc (or .bash_profile or .profile) to apply your modifications without having to log out and back in
 
 In a notebook cell, you can use:
