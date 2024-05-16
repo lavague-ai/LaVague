@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'README.md'
-      - 'docs/index.md'
-      - 'pyproject.toml'
 
 jobs:
   check-code:
