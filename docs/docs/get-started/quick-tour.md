@@ -17,42 +17,18 @@ We start by downloading LaVague.
 pip install lavague
 ```
 
-Next, we will initialize the default Selenium webdriver, which will be used to execute our actions on the web.
+!!! tip "OPENAI_API_KEY"
+    If you haven't already set a valid OpenAI API Key as the `OPENAI_API_KEY` environment variable in your local environment, you will need to do that now.
 
-```python
-from lavague.drivers.selenium import SeleniumDriver
+## Action Engine
 
-selenium_driver = SeleniumDriver()
-```
-
-We will need to set our OpenAI Key as a Colab secret (see the key icon on the left-hand side of the Colab notebook) named 'OPENAI_API_KEY' and then convert it to an environment variable with the same name.
-
-```python
-import os
-
-# Check if running in Google Colab
-try:
-    from google.colab import userdata
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
-
-if IN_COLAB:
-    os.environ["OPENAI_API_KEY"] = userdata.get('OPENAI_API_KEY')
-else:
-    os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
-```
-
-We will then build an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
-
-By default, our`AcionEngine` will use the following configuration:
-- LLM: `OpenAI's gpt-4-1106-preview`
-- Embedder: `OpenAI's text-embedding-3-large`
-- Retriever: `OPSM retriever`
+Next, we will build an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
 
 ```python
 from lavague.core import ActionEngine
+from lavague.drivers.selenium import SeleniumDriver
 
+selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
 ```
 
@@ -71,6 +47,7 @@ We can have a look at the current prompt template [here](https://github.com/lava
 Next, we will initialize our WorldModel. To do this, we need to provide the WorldModel with knowledge on how to interact with our chosen website. This knowledge consists of  previous examples for this website of turning observations into instructions, that are then turned into actions.
 
 We can initialize our WorldModel with one of three methods, allowing us to provide this knowledge in different formats:
+
 - `WorldModel.from_hub("URL_SLUG")` : with the `from_hub()` method, we can pull the knowledge from a `.txt` file in the `examples/knowledge` folder of our GitHub repo, which acts as a hub for sharing knowledge files. For our `examples/knowledge/hf_example.txt` file, we provide `hf_example` as input to our `from_hub()` method.
 - `WorldModel.from_local("PATH_TO_LOCAL_FILE")`: With the `from_local()` method, you can provide knowledge from a local file.
 - `WorldModel("KNOWLEDGE_AS_STRING")`: You can also directly initialize a `WorldModel` with your knowledge as a string.
