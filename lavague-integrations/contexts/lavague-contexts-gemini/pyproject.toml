@@ -1,11 +1,7 @@
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
-
 [tool.poetry]
-name = "lavague"
-version = "1.0.23-post2"
-description = "automation code generation from text instructions"
+name = "lavague-contexts-gemini"
+version = "0.1.0"
+description = "gemini integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
 license = "Apache-2.0"
@@ -18,17 +14,19 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
 ]
 keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
-homepage = "https://mithrilsecurity.io"
+homepage = "https://lavague.ai"
 repository = "https://github.com/lavague-ai/LaVague/"
 documentation = "https://docs.lavague.ai/en/latest/"
-packages = [{from = "_lavague", include = "lavague"}]
+packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
 lavague-core = "^0.1.1"
-lavague-drivers-selenium = "^0.1.1"
-lavague-contexts-openai = "^0.1.1"
-lavague-contexts-gemini = "^0.1.1"
+llama-index-llms-gemini = "^0.1.7"
+llama-index-embeddings-gemini = "^0.1.6"
+llama-index-multi-modal-llms-gemini = "^0.1.5"
+google-generativeai = "^0.4.1"
 
-[tool.poetry.dev-dependencies]
-ruff = "0.0.292"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
