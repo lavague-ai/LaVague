@@ -9,7 +9,7 @@
 
     If you don't have an OpenAI API key, please get one [here](https://platform.openai.com/docs/quickstart/developer-quickstart)
 
-## Installation
+### Installation
 
 We start by downloading LaVague.
 
@@ -17,42 +17,18 @@ We start by downloading LaVague.
 pip install lavague
 ```
 
-Next, we will initialize the default Selenium webdriver, which will be used to execute our actions on the web.
+!!! tip "OPENAI_API_KEY"
+    If you haven't already set a valid OpenAI API Key as the `OPENAI_API_KEY` environment variable in your local environment, you will need to do that now.
 
-```python
-from lavague.drivers.selenium import SeleniumDriver
+## Action Engine
 
-selenium_driver = SeleniumDriver()
-```
-
-We will need to set our OpenAI Key as a Colab secret (see the key icon on the left-hand side of the Colab notebook) named 'OPENAI_API_KEY' and then convert it to an environment variable with the same name.
-
-```python
-import os
-
-# Check if running in Google Colab
-try:
-    from google.colab import userdata
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
-
-if IN_COLAB:
-    os.environ["OPENAI_API_KEY"] = userdata.get('OPENAI_API_KEY')
-else:
-    os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
-```
-
-We will then build an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
-
-By default, our`AcionEngine` will use the following configuration:
-- LLM: `OpenAI's gpt-4-1106-preview`
-- Embedder: `OpenAI's text-embedding-3-large`
-- Retriever: `OPSM retriever`
+Next, we will build an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
 
 ```python
 from lavague.core import ActionEngine
+from lavague.drivers.selenium import SeleniumDriver
 
+selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
 ```
 
