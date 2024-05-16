@@ -1,13 +1,9 @@
-name: Python Code Check
+name: Python Code Check in docs and README
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'README.md'
-      - 'docs/index.md'
-      - 'pyproject.toml'
 
 jobs:
   check-code:
@@ -41,11 +37,30 @@ jobs:
     - name: Run the Python script
       run: |
         python check-code.py
+    
+  execute-notebook:
+    runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10' 
+
+    - name: Install Python dependencies and nbconvert
+      run: pip install notebook nbconvert lavague
+
+    - name: Execute the notebook
+      run: jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
 
   notify:
     runs-on: ubuntu-latest
     needs: [ check-code]
-    if: ${{ failure() || needs.check-code.outcome == 'failure' }}
+    if: ${{ failure() || needs.check-code.outcome == 'failure' || needs.execute-notebook.outcome == 'failure'}}
     steps:
       - name: Send failure notification via Discord
         uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
