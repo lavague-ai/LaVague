@@ -8,24 +8,24 @@ Let's know take a look at how this works.
 
 ![LaVague Workflow](../../assets/architecture.png)
 
-1. The user's global objective is handled by the WorldModel. It considers this objective along with the state of the webpage through screenshots and HTML code, and generate the next step, aka. text instruction, needed to achieve this objective.
+1. The user's global objective is handled by the World Model. It considers this objective along with the state of the webpage through screenshots and HTML code, and generate the next step, aka. text instruction, needed to achieve this objective.
 
 2. This instruction is sent to the ActionEngine, which then generates the automation code needed to perform this step and executes it.
 
-3. The WorldModel then receives new text and image data, aka. a new screenshot and the updated source code, to reflect the updated state of the web page. With this information, it is able to generate the next instruction needed to achieve the objective.
+3. The World Model then receives new text and image data, aka. a new screenshot and the updated source code, to reflect the updated state of the web page. With this information, it is able to generate the next instruction needed to achieve the objective.
 
 4. This process repeats until the objective is achieved!
 
-## WorldModel: examples & prompt
+## World Model: examples & prompt
 
-When we initialized the WorldModel in the quick tour, we saw that we must provide a file containing examples showing the WorldModel the desired thought process and reasoning we wish for it to replicate to generate the next instruction.
+When we initialized the World Model in the quick tour, we saw that we must provide a file containing examples showing the World Model the desired thought process and reasoning we wish for it to replicate to generate the next instruction.
 
 In the case of the quick tour, we downloaded an example file from our 'hub' - which is an open-source folder in our GitHub repo, which you can find (and contribute to) [here](https://github.com/lavague-ai/LaVague/tree/main/examples/knowledge)!
 
 You can do this by using the `WorldModel.from_hub()` method and providing the name of the file you wish to download, without the file extension ending, i.e. to download `hf_examples.txt`, you provide `hf_examples` as your argument to this method.
 `WorldModel.from_hub()`
 
-!!! WorldModel initialization options
+!!! World Model initialization options
 
     Note, as well as pulling an example file from our GitHUb repo with our `from_hub()` method. You can:
 
@@ -43,9 +43,9 @@ Thought:
 - Given the current screenshot, the fastest way to find the model page seems to be to use the search bar.
 Instruction: Type 'Command R plus' on the search bar with placeholder "Search ..." and click on the first result
 ```
-These examples are inserted into our full WorldModel default prompt:
+These examples are inserted into our full World Model default prompt:
 
-!!! hint "Default WorldModel prompt in full"
+!!! hint "Default World Model prompt in full"
 
     You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans.
     Your inputs are an objective in natural language, as well as a screenshot of the current page of the browser.
@@ -62,11 +62,10 @@ These examples are inserted into our full WorldModel default prompt:
     Objective: ${objective}
     Thought:
 
-By providing our `WorldModel` with examples, we can help our `WorldModel` to learn to generate instructions by demonstrating the desired thought process and structure for completing tasks.
+By providing our `World Model` with examples, we can help our `World Model` to learn to generate instructions by demonstrating the desired thought process and structure for completing tasks.
 
 !!! hint "Contribute knowledge"
 
     You can contribute knowledge files for a website of your choice, by creating text files with examples of `objectives`, `thoughts` and `instructions` and submitting your file as a `PR` to our GitHub repo.
 
     See the [contributon section of the docs](../contributing/contributing.md) for more information.
-

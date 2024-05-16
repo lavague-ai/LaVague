@@ -25,7 +25,7 @@ pip install lavague
 
 ## Action Engine
 
-**An agent is made up of two components: an `ActionEngine` and a `WorldModel`.**
+**An agent is made up of two components: an `Action Engine` and a `World Model`.**
 
 Let's start by initializing an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
 
@@ -39,7 +39,7 @@ action_engine = ActionEngine(selenium_driver)
 
 ## World Model
 
-Next, we will initialize our `WorldModel`, providing it with examples of global objectives for actions and the desired thought process and reasoning we wish it to  replicate to generate the next instruction that needs to be passed to the `ActionEngine`.
+Next, we will initialize our `World Model`, providing it with examples of global objectives for actions and the desired thought process and reasoning we wish it to  replicate to generate the next instruction that needs to be passed to the `ActionEngine`.
 
 ```python
 from lavague.core import WorldModel
