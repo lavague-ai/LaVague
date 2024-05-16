@@ -1,7 +1,7 @@
 # Website Info
 site_name: LaVague
 site_url: https://docs.lavague.ai/en/latest/
-site_author: Mithril Security
+site_author: LaVague
 
 # Repository
 repo_name: lavague-ai/LaVague
@@ -95,9 +95,11 @@ nav:
 - ⚡ Getting Started:
   - Installation: 'docs/get-started/installation.md'
   - Quick tour: 'docs/get-started/quick-tour.md'
-  - Under the hood: 'docs/get-started/under-the-hood.md'
+  # - Under the hood: 'docs/get-started/under-the-hood.md'
   # - Customization: 'docs/get-started/customization.md'
 
+- 📚 Learn:
+  - Architecture: 'docs/learn/architecture.md'
 # - 🚀 Action Engine:
 # - 🤝 Integrations:
 #   - Overview: 'docs/integrations/home.md'
