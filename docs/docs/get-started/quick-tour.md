@@ -39,7 +39,7 @@ action_engine = ActionEngine(selenium_driver)
 
 ## World Model
 
-Next, we will initialize our `WorldModel`, providing it with examples of global objectives for actions on this website being broken down into a chain of thoughts and then the next instruction that needs to be passed to the `ActionEngine`.
+Next, we will initialize our `WorldModel`, providing it with examples of global objectives for actions and the desired thought process and reasoning we wish it to  replicate to generate the next instruction that needs to be passed to the `ActionEngine`.
 
 ```python
 from lavague.core import WorldModel
@@ -63,3 +63,7 @@ agent.run("Go on the quicktour of PEFT")
 ```
 
 ![qt_output](../../assets/demo_agent_hf.gif)
+
+## Learn
+
+To learn more about how our WebAgent works and what is going on under the hood, go to our [next section](./under-the-hood.md)
