@@ -8,9 +8,10 @@ from lavague.core.extractors import BaseExtractor
 from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
+from lavague.core.action_builder import ActionBuilder
 
 
-class ActionEngine:
+class ActionEngine(ActionBuilder):
     """
     ActionEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
 
