@@ -66,5 +66,7 @@ By providing our `WorldModel` with examples, we can help our `WorldModel` to lea
 
 !!! hint "Contribute knowledge"
 
-You can contribute files with examples for a website of your choice, by creating 
+    You can contribute knowledge files for a website of your choice, by creating text files with examples of `objectives`, `thoughts` and `instructions` and submitting your file as a `PR` to our GitHub repo.
+
+    See the [contributon section of the docs](../contributing/contributing.md) for more information.
 
