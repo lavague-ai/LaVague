@@ -47,7 +47,7 @@ from lavague.core import WorldModel
 world_model = WorldModel.from_hub("hf_example")
 ```
 
-## WebAgent Demo
+## Web Agent Demo
 
 We can now use these two elements to initialize a `WebAgent` and start playing with it!
 
