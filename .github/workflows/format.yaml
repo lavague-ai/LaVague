@@ -2,12 +2,10 @@ name: Software test, formatting & publishing
 
 on:
   push:
-    paths:
-      - 'src/lavague/**.py'
 
 jobs:
-  lint:
-    name: Run Ruff Linter
+  format:
+    name: Run Ruff format checker
     runs-on: ubuntu-latest
 
     steps:
@@ -22,8 +20,5 @@ jobs:
     - name: Install Ruff
       run: pip install ruff
 
-    - name: Run Ruff on src/lavague
-      run: ruff format .
-    
-    - name: Run Ruff on examples
-      run: ruff format examples/
+    - name: Run ruff
+      run: ruff format --check .
