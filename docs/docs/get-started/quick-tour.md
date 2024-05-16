@@ -92,7 +92,7 @@ Instruction: Type 'Command R plus' on the search bar with placeholder "Search ..
 ```
 These examples are inserted into our full World Model default prompt:
 
-??? hint "Default World Model prompt in full"
+??? note "Default World Model prompt in full"
 
     You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans.
     Your inputs are an objective in natural language, as well as a screenshot of the current page of the browser.
@@ -111,7 +111,7 @@ These examples are inserted into our full World Model default prompt:
 
 By providing our `World Model` with examples, we can help our `World Model` to learn to generate instructions by demonstrating the desired thought process and structure for completing tasks.
 
-!!! hint "Contribute to our Knowledge Hub"
+!!! tips "Contribute to our Knowledge Hub"
 
     You can contribute example files for a website of your choice, by creating text files with examples of `objectives`, `thoughts` and `instructions` and submitting your file as a `PR` to our GitHub repo.
 
