@@ -95,6 +95,7 @@ nav:
 - ⚡ Getting Started:
   - Installation: 'docs/get-started/installation.md'
   - Quick tour: 'docs/get-started/quick-tour.md'
+  - Under the hood: 'docs/get-started/under-the-hood.md'
   # - Customization: 'docs/get-started/customization.md'
 
 # - 🚀 Action Engine:
