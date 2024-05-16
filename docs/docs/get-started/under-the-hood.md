@@ -8,11 +8,11 @@ Let's know take a look at how this works.
 
 ![LaVague Workflow](../../assets/architecture.png)
 
-1. The user's global objective is handled by the WorldModel. It considers this objective alongwith the state of the webpage through screenshoots and HTML code, and generate the next step, aka. text instruction, needed to achieve this objective.
+1. The user's global objective is handled by the WorldModel. It considers this objective along with the state of the webpage through screenshots and HTML code, and generate the next step, aka. text instruction, needed to achieve this objective.
 
 2. This instruction is sent to the ActionEngine, which then generates the automation code needed to perform this step and executes it.
 
-3. The WorldModel then receieves new text and image data, aka. a new screenshot and the updated source code, to reflect the updated state of the web page. With this information, it is able to generate the next instruction needed to achieve the objective.
+3. The WorldModel then receives new text and image data, aka. a new screenshot and the updated source code, to reflect the updated state of the web page. With this information, it is able to generate the next instruction needed to achieve the objective.
 
 4. This process repeats until the objective is achieved!
 
