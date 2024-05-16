@@ -40,11 +40,11 @@ All the elements previously described interact in the following workflow:
 
 To make this workflow clear, let's consider an example:
 
-1. The World Model is given the following objective: "Log into my account and change my username to The WaveHunter."
+1. The World Model is given the following objective: `"Log into my account and change my username to The WaveHunter."`
 
     The driver provides the World Model with the initial state of the webpage: the login page is loaded with empty username and password fields.   
     
-    The World Model might then generate the following first instruction: "Locate the username input field and enter the text 'user123'."
+    The World Model might then generate the following first instruction: `"Locate the username input field and enter the text 'user123'."`
 
 2. The Action Engine receives the instruction, and generates the following automation code, which is then executed:
 
@@ -53,12 +53,11 @@ To make this workflow clear, let's consider an example:
     from selenium.webdriver.common.by import By
     from selenium.webdriver.common.keys import Keys
     driver.find_element(By.ID, 'username').send_keys('user123')
-
     ```
 
 3. The webpage state is updated (username is now entered in the field). A new screenshot and HTML source are captured.
 
-    The World Model receives the updated state and generates the next instruction: "Locate the password input field and enter the text 'password456'."
+    The World Model receives the updated state and generates the next instruction:`"Locate the password input field and enter the text 'password456'."`
 
 This process repeats until the final objective is achieved.
 
