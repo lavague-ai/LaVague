@@ -4,29 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb'
-      - '.github/workflows/quick-tour.yaml'
 
 jobs:
-  execute-notebook:
-    runs-on: ubuntu-latest
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10' 
 
-    - name: Install Python dependencies and nbconvert
-      run: pip install notebook nbconvert lavague
-
-    - name: Execute the notebook
-      run: jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
 
   notify:
     runs-on: ubuntu-latest
