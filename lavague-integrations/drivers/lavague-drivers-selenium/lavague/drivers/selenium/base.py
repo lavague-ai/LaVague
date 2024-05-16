@@ -162,14 +162,12 @@ viewport_height = driver.execute_script("return window.innerHeight;")
 
     def get_capability(self) -> str:
         return '''
+
 Your goal is to write Selenium code to answer queries.
 
 Your answer must be a Python markdown only.
 You can have access to external websites and libraries.
-
-Don't assume attribute values are unique, use the combination of most available attributes to target precisely the element.
-Even if there is mutliple elements doing the same action, choose the most relevant and target it precisely.
-Always use //*[contains(@attributes_names ,'value')] to target elements by XPATH.
+Always target elements by XPATH.
 
 You can assume the following code has been executed:
 ```python
@@ -183,15 +181,16 @@ driver = webdriver.Firefox()
 
 HTML:
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Mock Search Page</title>
+<html xpath="/html">
+<head xpath="/html/head">
+    <title xpath="/html/head/title">Mock Search Page</title>
+    <meta charset="utf-8" xpath="/html/head/meta[1]"/>
 </head>
-<body>
-    <h1>Search Page Example</h1>
-    <input id="searchBar" type="text" placeholder="Type here to search...">
-    <button id="searchButton">Search</button>
-    <script>
+<body xpath="/html/body">
+    <h1 xpath="/html/body/h1">Search Page Example</h1>
+    <input id="searchBar" type="text" placeholder="Type here to search..." xpath="/html/body/input[1]"/>
+    <button id="searchButton" xpath="/html/body/button">Search</button>
+    <script xpath="/html/body/script">
         document.getElementById('searchButton').onclick = function() {{
             var searchText = document.getElementById('searchBar').value;
             alert("Searching for: " + searchText);
@@ -207,9 +206,8 @@ Completion:
 # Let's proceed step by step.
 # First we need to identify the component first, then we can click on it.
 
-# Based on the HTML, the link can be uniquely identified using the ID "searchBar"
-# Let's use this ID with Selenium to identify the link
-search_bar = driver.find_element(By.XPATH, """//*[contains(@id,"searchBar")][contains(@placeholder,"Type here to search...")]""")
+# We use the XPATH to identify the element
+search_bar = driver.find_element(By.XPATH, "/html/body/input[1]")
 
 search_bar.click()
 
@@ -224,18 +222,18 @@ search_bar.send_keys(Keys.ENTER)
 
 HTML:
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Mock Page for Selenium</title>
+<html lang="en" xpath="/html">
+<head xpath="/html/head">
+    <meta charset="UTF-8" xpath="/html/head/meta[1]">
+    <title xpath="/html/head/title">Mock Page for Selenium</title>
 </head>
-<body>
-    <h1>Welcome to the Mock Page</h1>
-    <div id="links">
-        <a href="#link1" id="link1">Link 1</a>
-        <br>
-        <a href="#link2" class="link perf">Link 2</a>
-        <br>
+<body xpath="/html/body">
+    <h1 xpath="/html/body/h1">Welcome to the Mock Page</h1>
+    <div id="links" xpath="/html/body/div">
+        <a href="#link1" id="link1" xpath="/html/body/div/a[1]">Link 1</a>
+        <br xpath="/html/body/div/br[1]">
+        <a href="#link2" class="link perf" xpath="/html/body/div/a[2]">Link 2</a>
+        <br xpath="/html/body/div/br[2]">
     </div>
 </body>
 </html>
@@ -247,16 +245,14 @@ Completion:
 # Let's proceed step by step.
 # First we need to identify the first component, then we can click on it. Then we can identify the second component and click on it.
 
-# Based on the HTML, the first link the link can be uniquely identified using the ID "link1"
-# Let's use this ID with Selenium to identify the link
-link_to_click = driver.find_element(By.XPATH, """//*[contains(@id,"link1")][contains(@href,"#link1")]""")
+# We use the XPATH to identify the element
+link_to_click = driver.find_element(By.XPATH, "/html/body/div/a[1]")
 
 # Then we click on the link
 link_to_click.click()
 
-# The other link can be uniquely identified using the class "link" but as it's not unique, we can use the class "perf" to make it more precise
-# Let's use this class to identify the link
-link_to_click = driver.find_element(By.XPATH, """//*[contains(@class, "link")][contains(@class, "perf")][contains(@href,"#link2")]""")
+# We use the XPATH to identify the element
+link_to_click = driver.find_element(By.XPATH, "/html/body/div/a[2]")
 
 # Click on the element found
 link_to_click.click()
@@ -329,21 +325,21 @@ driver.execute_script("window.scrollBy(0, 200)")
 
 HTML:
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Enhanced Mock Page for Selenium Testing</title>
+<html lang="en" xpath="/html">
+<head xpath="/html/head">
+    <meta charset="UTF-8" xpath="/html/head/meta[1]">
+    <title xpath="/html/head/title">Enhanced Mock Page for Selenium Testing</title>
 </head>
-<body>
-    <h1>Enhanced Test Page for Selenium</h1>
-    <div class="container">
-        <button id="firstButton" onclick="alert('First button clicked!');">First Button</button>
+<body xpath="/html/body">
+    <h1 xpath="/html/body/h1">Enhanced Test Page for Selenium</h1>
+    <div class="container" xpath="/html/body/div[1]">
+        <button id="firstButton" onclick="alert('First button clicked!');" xpath="/html/body/div[1]/button[1]">First Button</button>
         <!-- This is the button we're targeting with the class name "action-btn" -->
-        <button class="action-btn" onclick="alert('Action button clicked!');">Action Button</button>
-        <div class="nested-container">
-            <button id="testButton" onclick="alert('Test Button clicked!');">Test Button</button>
+        <button class="action-btn" onclick="alert('Action button clicked!');" xpath="/html/body/div[1]/button[2]">Action Button</button>
+        <div class="nested-container" xpath="/html/body/div[1]/div">
+            <button id="testButton" onclick="alert('Test Button clicked!');" xpath="/html/body/div[1]/div/button">Test Button</button>
         </div>
-        <button class="hidden" onclick="alert('Hidden button clicked!');">Hidden Button</button>
+        <button class="hidden" onclick="alert('Hidden button clicked!');" xpath="/html/body/div[1]/button[3]">Hidden Button</button>
     </div>
 </body>
 </html>
@@ -356,9 +352,8 @@ Completion:
 # Let's proceed step by step.
 # First we need to identify the button first, then we can click on it.
 
-# Based on the HTML provided, we need to devise the best strategy to select the button.
-# The action button can be identified using the class name "action-btn" as it is unique we don't use contains
-action_button = driver.find_element(By.XPATH, """//*[contains(@class,"action-btn")][contains(@onclick,"alert('Action button clicked!");')][contains(.,"Action Button")]""")
+# We use the XPATH to identify the element
+action_button = driver.find_element(By.XPATH, "/html/body/div[1]/button[2]")
 
 # Then we can click on it
 action_button.click()
