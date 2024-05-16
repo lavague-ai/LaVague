@@ -41,11 +41,15 @@ To avoid having multiple people working on the same things & being unable to mer
 
 ## 👨‍💻 Dev environment
 
+### Fork & clone repo
+
 To get started working locally on LaVague, firstly make sure you have have [forked](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) and then clone the LaVague repo to your local environment:
 
 ```bash
 git clone https://github.com/USER_NAME/LaVague
 ```
+
+### Installing LaVague with poetry
 
 The LaVague repo is made up of several sub-packages. We recommend using [poetry](https://python-poetry.org/) for local installation of LaVague.
 
@@ -66,7 +70,9 @@ poetry shell
 poetry install
 ```
 
-This will install all the default packages in our LaVague package bundle. 
+The poetry shell command will create a virtual environment specifically for this package.
+
+This `install` command will install all the default packages in our LaVague package bundle - you can see which packages are included in this bundle in out `pyproject.toml` file at the root of our repo.
 
 !!! note "Non-default package installation"
 
