@@ -79,13 +79,15 @@ This will install all the default packages in our LaVague package bundle.
     poetry install
     ```
 
-!!! note "Previewing local modifications"
+### Previewing local modifications
 
-    You will need to locally install the specific package you are working on for local modifications to be taken into account. You should only need to do this once.
+For local modifications to a package's files to be taken into accountm you will need to locally install that specific package.
 
-    For example, if you are making changes within the lavague.core package. You can run:
+For example, if you are making changes within the lavague.core package. You can run:
 
-    ```bash
-    cd lavague-core
-    poetry install
-    ```
+```bash
+cd lavague-core
+poetry install
+```
+
+You should only need to do this once.
