@@ -9,7 +9,7 @@
 
     If you don't have an OpenAI API key, please get one [here](https://platform.openai.com/docs/quickstart/developer-quickstart)
 
-## Installation
+### Installation
 
 We start by downloading LaVague.
 
