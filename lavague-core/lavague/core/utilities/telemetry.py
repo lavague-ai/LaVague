@@ -55,7 +55,6 @@ def send_telemetry_scr(
 def send_telemetry(
     model_name: str,
     code: str,
-    html: str,
     instruction: str,
     url: str,
     origin: str,
@@ -66,10 +65,11 @@ def send_telemetry(
     bounding_box: Optional[Dict[str, int]] = None,
     viewport_size: Optional[Dict[str, int]] = None,
     main_objective: str = "",
-    world_model_output: str = "",
     objectives: str = "",
     action_id: str = "",
     multi_modal_model: str = "",
+    step_id: str = "",
+    run_id: str = "",
 ):
     """
     Telemetry to help performance.
@@ -94,9 +94,10 @@ def send_telemetry(
                 "bounding_box": bounding_box,
                 "viewport_size": viewport_size,
                 "main_objective": main_objective,
-                "world_model_output": "",
                 "objectives": objectives,
                 "multi_modal_model": multi_modal_model,
+                "run_id": run_id,
+                "step_id": step_id,
             }
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",

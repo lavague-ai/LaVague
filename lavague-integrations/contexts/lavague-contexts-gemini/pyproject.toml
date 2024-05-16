@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-contexts-gemini"
-version = "0.1.1"
+version = "0.1.2"
 description = "gemini integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"

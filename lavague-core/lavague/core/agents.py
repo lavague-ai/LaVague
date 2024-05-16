@@ -42,8 +42,10 @@ class WebAgent:
         url = ""
         image = None
         screenshot_after_action = None
+        run_id = str(uuid.uuid4())
 
         for i in range(N_STEPS):
+            step_id = str(uuid.uuid4())
             success = True
             error = ""
             bounding_box = {"": 0}
@@ -117,22 +119,23 @@ from selenium.webdriver.common.keys import Keys
                     finally:
                         action_id = str(uuid.uuid4())
                         send_telemetry(
-                            action_engine.llm.metadata.model_name,
-                            action,
-                            html,
-                            instruction,
-                            url,
-                            "Agent",
-                            success,
-                            False,
-                            error,
-                            context,
-                            bounding_box,
-                            viewport_size,
-                            objective,
-                            "",
-                            output,
-                            action_id,
+                            model_name=action_engine.llm.metadata.model_name, 
+                            code=action,
+                            instruction=instruction,
+                            url=url,
+                            origin="Agent",
+                            success=success,
+                            test=False,
+                            error=error,
+                            source_nodes=context,
+                            bounding_box=bounding_box,
+                            viewport_size=viewport_size,
+                            main_objective=objective,
+                            objectives=output,
+                            action_id=action_id,
+                            multi_modal_model=world_model.mm_llm.metadata.model_name,
+                            step_id=step_id,
+                            run_id=run_id
                         )
                         send_telemetry_scr(
                             action_id,
