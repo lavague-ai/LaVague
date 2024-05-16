@@ -1,11 +1,6 @@
 name: spellcheck & README link checker
 on:
   push:
-    paths:
-      - 'docs/**'
-      - 'README.md'
-      - '.github/.pyspelling.yaml'
-      - '.github/lavague-dic.txt'
 
 jobs:
   spellcheck:
