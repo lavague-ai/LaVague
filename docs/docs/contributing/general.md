@@ -81,7 +81,7 @@ This will install all the default packages in our LaVague package bundle.
 
 ### Previewing local modifications
 
-For local modifications to a package's files to be taken into accountm you will need to locally install that specific package.
+For local modifications to a package's files to be taken into account, you will need to locally install that specific package.
 
 For example, if you are making changes within the lavague.core package. You can run:
 
