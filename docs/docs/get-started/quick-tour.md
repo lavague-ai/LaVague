@@ -49,7 +49,7 @@ world_model = WorldModel.from_hub("hf_example")
 
 ## Demo
 
-We can now use these two elements to intialize a `WebAgent` and start playing with it!
+We can now use these two elements to initialize a `WebAgent` and start playing with it!
 
 In the following example, we show how our agent can achieve a user-defined goal, here going on the quicktour of Hugging Face's PEFT framework for model finetuning.
 
