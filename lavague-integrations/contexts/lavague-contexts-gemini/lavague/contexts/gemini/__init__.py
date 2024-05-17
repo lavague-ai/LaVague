@@ -1,1 +1,1 @@
-from lavague.contexts.gemini.base import Geminicontext
+from lavague.contexts.gemini.base import GeminiContext

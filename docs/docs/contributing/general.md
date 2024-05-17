@@ -39,23 +39,57 @@ To avoid having multiple people working on the same things & being unable to mer
 
 ⚠️ Note, we aim to merge as many PRs as possible but we cannot guarantee to merge PRs and they are subject to our review process.
 
-## 🐋 Setting up your dev container (Docker integration)
+## 👨‍💻 Dev environment
 
-Feel free to make use of our pre-configured dev container in VSCode to quickly set up a dev environment.
+### Fork & clone repo
 
-!!! note "Pre-requisites"
+To get started working locally on LaVague, firstly make sure you have have [forked](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) and then clone the LaVague repo to your local environment:
 
-    - 🐋 Docker: Ensure Docker is installed and running on your machine
-    - Visual Studio Code + Visual Studio Code's Remote - Containers Extension
-    - Ensure you have forked the LaVague repo and git cloned it locally
+```bash
+git clone https://github.com/USER_NAME/LaVague
+```
 
-To open the project in our dev container you need to:
+### Installing LaVague with poetry
 
-1. Open VSCode at the root of your clone of your forked LaVague repo.
-2. Click on the blue "><" icon in the bottom left corner, then select "Reopen in Container" in the drop-down menu that then appears.
+The LaVague repo is made up of several sub-packages. We recommend using [poetry](https://python-poetry.org/) for local installation of LaVague.
 
-VS Code will then build the container based on the Dockerfile and devcontainer.json files in the .devcontainer folder. This will install all necessary dependencies and install the current LaVague repo in 'edit' mode. You are now ready to run LaVague CLI commands and modify the source code files as required.
+For Linux users with debian-based distributions, you can do this by running:
 
-⏳ Note, this process might take a few minutes the first time you run it.
+```bash
+sudo apt update
+sudo apt install pipx
+pipx install poetry
+```
 
-> Note, if you want to view the Gradio generated with `lavague [OPTIONS] launch` in-browser on your host machine, you'll need to use the generated `public URL`!
+> For installation on other Linux distributions or operating systems, see the [official Poetry installation guide](https://python-poetry.org/docs/#installing-with-pipx).
+
+You can now install the lavague package from the root of your forked repo:
+
+```bash
+poetry shell
+poetry install --with dev
+```
+
+The poetry shell command will create a virtual environment specifically for this package.
+
+This `install` command will install all the default packages in our LaVague package bundle - you can see which packages are included in this bundle in out `pyproject.toml` file at the root of our repo.
+
+!!! note "Non-default package installation"
+
+    If you want to use a non-default integration, you can then locally install the specific package with `pip`.
+
+    For example, if you want to use a non-default context such as the Gemini context. You would need to run:
+
+    ```bash
+    pip install -e lavague-integrations/contexts/lavague-contexts-gemini
+    ```
+
+### Previewing local modifications
+
+For local modifications to a package's files to be taken into account, you can locally install that specific package with `pip -e`.
+
+For example, if you are making changes within the lavague.core package. You can run the following command:
+
+```bash
+pip install -e lavague-core
+```

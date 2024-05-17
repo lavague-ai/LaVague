@@ -1,20 +1,19 @@
 # Navigate through Notion
 
-LaVague can be used to navigate your Notion spaces and answer questions.
+LaVague can be used to navigate your Notion spaces and answer questions. 
 
-Here is our framework going through a company Notion space and several nested pages to answer the question: **"What's the name of our Lead Developer ?"**
+We have created a [public notion space](https://maize-paddleboat-93e.notion.site/Welcome-to-ACME-INC-0ac66cd290e3453b93a993e1a3ed272f) with mock data and nested documents for you to try this example.
+
+Here is our framework going through several nested pages to answer the question: **"What's the name of our Lead Developer ?"** on this demo space.
 
 
 !["notion_demo"](../../assets/notion_demo.gif)
 
-On the left you can see the Browser being automated and the next interaction highlighted in red. On the right is the world model thoughts and instructions given to our Action Engine.
-
+On the left, you can see our agent navigating and highlighting the next elements to be interacted with. On the right, the reasoning and the low level instructions generated for our Action Engine (which controls the browser). 
 
 ## Try it yourself
 
-We provide a [public notion space](https://maize-paddleboat-93e.notion.site/Welcome-to-ACME-INC-0ac66cd290e3453b93a993e1a3ed272f) with mock data and a few nested documents for you to try this example.
-
-After [installation](../get-started/quick-tour.md), create a new .py file and run this code to try LaVague with Notion
+After [installation](../get-started/quick-tour.md), create a new .py file and run this code to try LaVague with Notion!
 
 ```py
 from lavague.core import WebAgent, WorldModel, ActionEngine

@@ -42,7 +42,7 @@ Here is an example of how LaVague can take multiple steps to achieve the objecti
 
 ### Hands-on 
 
-To do this, the steps are simple:
+You can do this with the following steps:
 
 1. Download LaVague with:
 
@@ -103,8 +103,14 @@ This is why LaVague collects the following user data telemetry by default:
 - Version of LaVague installed
 - Code generated for each web action step
 - LLM used (i.e GPT4)
+- Multi modal LLM used (i.e GPT4)
 - Randomly generated anonymous user ID
 - Whether you are using a CLI command or our library directly
+- The instruction used/generated
+- The objective used (if you are using the agent)
+- The chain of thoughts (if you are using the agent)
+- The interaction zone on the page (bounding box)
+- The viewport size of your browser
 - The URL you performed an action on
 - Whether the action failed or succeeded
 - Error message, where relevant

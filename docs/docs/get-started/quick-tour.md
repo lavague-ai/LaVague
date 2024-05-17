@@ -5,9 +5,11 @@
 
 !!! tips "Pre-requisites"
 
-    **Note**: We use OpenAI's models, for the embedding, LLM and Vision model. You will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for this example to work.
+    - We use OpenAI's models, for the embedding, LLM and Vision model. You will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for this example to work.
 
     If you don't have an OpenAI API key, please get one [here](https://platform.openai.com/docs/quickstart/developer-quickstart)
+
+    - Our package currently only supports python versions 3.10 or greater. Please upgrade your python version if you are using a version below this.
 
 ## Installation
 
@@ -17,65 +19,27 @@ We start by downloading LaVague.
 pip install lavague
 ```
 
-Next, we will initialize the default Selenium webdriver, which will be used to execute our actions on the web.
+!!! tip "OPENAI_API_KEY"
+    If you haven't already set a valid OpenAI API Key as the `OPENAI_API_KEY` environment variable in your local environment, you will need to do that now.
 
-```python
-from lavague.drivers.selenium import SeleniumDriver
 
-selenium_driver = SeleniumDriver()
-```
+## Action Engine
 
-We will need to set our OpenAI Key as a Colab secret (see the key icon on the left-hand side of the Colab notebook) named 'OPENAI_API_KEY' and then convert it to an environment variable with the same name.
+**An agent is made up of two components: an `Action Engine` and a `World Model`.**
 
-```python
-import os
-
-# Check if running in Google Colab
-try:
-    from google.colab import userdata
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
-
-if IN_COLAB:
-    os.environ["OPENAI_API_KEY"] = userdata.get('OPENAI_API_KEY')
-else:
-    os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
-```
-
-We will then build an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
-
-By default, our`AcionEngine` will use the following configuration:
-- LLM: `OpenAI's gpt-4-1106-preview`
-- Embedder: `OpenAI's text-embedding-3-large`
-- Retriever: `OPSM retriever`
+Let's start by initializing an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
 
 ```python
 from lavague.core import ActionEngine
+from lavague.drivers.selenium import SeleniumDriver
 
+selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
 ```
 
-## World model
+## World Model
 
-Here we will introduce World Models, which are models whose goal is to take a given set of:
-- Objective: here the goal to be achieved
-- State: here a screenshot of the current page
-
-and outputs an instruction that our `ActionEngine` can turn into Selenium code.
-
-Our current world model uses GPT4 with Vision to output an instruction using a screenshot and a given objective.
-
-We can have a look at the current prompt template [here](https://github.com/lavague-ai/LaVague/blob/main/lavague-core/lavague/core/world_model.py#L77).
-
-Next, we will initialize our WorldModel. To do this, we need to provide the WorldModel with knowledge on how to interact with our chosen website. This knowledge consists of  previous examples for this website of turning observations into instructions, that are then turned into actions.
-
-We can initialize our WorldModel with one of three methods, allowing us to provide this knowledge in different formats:
-- `WorldModel.from_hub("URL_SLUG")` : with the `from_hub()` method, we can pull the knowledge from a `.txt` file in the `examples/knowledge` folder of our GitHub repo, which acts as a hub for sharing knowledge files. For our `examples/knowledge/hf_example.txt` file, we provide `hf_example` as input to our `from_hub()` method.
-- `WorldModel.from_local("PATH_TO_LOCAL_FILE")`: With the `from_local()` method, you can provide knowledge from a local file.
-- `WorldModel("KNOWLEDGE_AS_STRING")`: You can also directly initialize a `WorldModel` with your knowledge as a string.
-
-For the purposes of this demo, we will use the `from_hub()` method.
+Next, we will initialize our `World Model`, providing it with examples of global objectives for actions and the desired thought process and reasoning we wish it to  replicate to generate the next instruction that needs to be passed to the `ActionEngine`.
 
 ```python
 from lavague.core import WorldModel
@@ -83,19 +47,76 @@ from lavague.core import WorldModel
 world_model = WorldModel.from_hub("hf_example")
 ```
 
-## Demo
+## Web Agent demo
 
-We can now play with it, with a small example where we show our World Model can help achieve a specific goal, here going on the quicktour of Hugging Face's PEFT framework for model finetuning, by providing instructions to our `ActionEngine`:
+We can now use these two elements to initialize a `WebAgent` and start playing with it!
+
+In the following example, we show how our agent can achieve a user-defined goal, here going on the quicktour of Hugging Face's PEFT framework for model finetuning.
 
 ```python
 from lavague.core import WebAgent
 
 agent = WebAgent(action_engine, world_model)
-```
 
-```python
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
 ```
 
 ![qt_output](../../assets/demo_agent_hf.gif)
+
+## World Model examples file
+
+When we initialized the World Model, we saw that we must provide a file containing examples. This file shows the World Model the desired thought process and reasoning we wish for it to replicate to generate the next instruction.
+
+We initialized the World Model with an example file from our 'hub' - which is an open-source folder in our GitHub repo, which you can find (and contribute to) [here](https://github.com/lavague-ai/LaVague/tree/main/examples/knowledge)!
+
+This was done by using the `WorldModel.from_hub()` method, passing it the name of the file we wanted to download, "hf_example" (without the `.txt` file extension ending).
+
+!!! note "World Model initialization options"
+
+    Note, as well as pulling an example file from our GitHUb repo with our `from_hub()` method. You can:
+
+    - Specify a path to a local file containing examples by using the `WorldModel.from_local() method`
+    - Provide examples directly as a string with the `WorldMethod()` default constructor.
+
+Let's take a look at one of the multiple examples including in that file:
+
+```
+Objective: Ask the AI model 'Command R plus' 'What is love'
+Thought:
+- I am on the Hugging Face website.
+- Hugging Face is a company that hosts AI models, and allows users to interact with models on them through the chat.
+- Therefore, to answer the objective of asking the AI model 'Command R Plus' 'What is love', we need first to find the model page.
+- Given the current screenshot, the fastest way to find the model page seems to be to use the search bar.
+Instruction: Type 'Command R plus' on the search bar with placeholder "Search ..." and click on the first result
+```
+These examples are inserted into our full World Model default prompt:
+
+??? note "Default World Model prompt in full"
+
+    You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans.
+    Your inputs are an objective in natural language, as well as a screenshot of the current page of the browser.
+    Your output are a list of thoughts in bullet points detailing your reasoning, followed by your conclusion on what the next step should be in the form of an instruction.
+    You can assume the instruction is used by another AI to generate the action code to select the element to be interacted with and perform the action demanded by the human.
+
+    The instruction should be detailed as possible and only contain the next step. 
+    Do not make assumptions about elements you do not see.
+    If the objective is already achieved in the screenshot, provide the instruction 'STOP'.
+
+    Here are previous examples:
+    ${examples}
+
+    Objective: ${objective}
+    Thought:
+
+By providing our `World Model` with examples, we can help our `World Model` to learn to generate instructions by demonstrating the desired thought process and structure for completing tasks.
+
+!!! tips "Contribute to our Knowledge Hub"
+
+    You can contribute example files for a website of your choice, by creating text files with examples of `objectives`, `thoughts` and `instructions` and submitting your file as a `PR` to our GitHub repo.
+
+    See the [contribution section of the docs](../contributing/contributing.md) for more information.
+
+## Learn
+
+To learn more about the LaVague architecture and workflow, head to the [learn section in our docs](../learn/architecture.md)!

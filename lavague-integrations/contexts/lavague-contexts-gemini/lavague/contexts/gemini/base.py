@@ -17,7 +17,7 @@ from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
 
 
-class Geminicontext(Context):
+class GeminiContext(Context):
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -35,12 +35,12 @@ class Geminicontext(Context):
         return super().__init__(
             Gemini(
                 api_key=api_key,
-                model=llm,
+                model_name=llm,
                 max_tokens=DEFAULT_MAX_TOKENS,
                 temperature=DEFAULT_TEMPERATURE,
             ),
-            GeminiMultiModal(api_key=api_key, model=mm_llm),
-            GeminiEmbedding(api_key=api_key, model=embedding),
+            GeminiMultiModal(api_key=api_key, model_name=mm_llm),
+            GeminiEmbedding(api_key=api_key, model_name=embedding),
             retriever,
             prompt_template,
             extractor,

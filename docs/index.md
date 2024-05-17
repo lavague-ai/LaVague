@@ -23,7 +23,7 @@ Here is an example of how LaVague can take multiple steps to achieve the objecti
 
 ### Hands-on 
 
-To do this, the steps are simple:
+You can do this with the following steps:
 
 1. Download LaVague with:
 
@@ -56,12 +56,17 @@ We would love your help and support on our quest to build a robust and reliable 
 
 To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
 
-1) 📢 We outline tasks on our [`backlog`](https://github.com/orgs/lavague-ai/projects/1/views/3): we recommend you check out issues with the [`help-wanted`](https://github.com/lavague-ai/LaVague/labels/help%20wanted) labels & [`good first issue`](https://github.com/lavague-ai/LaVague/labels/good%20first%20issue) labels
-2) 🙋‍♀️ If you are interested in working on one of these tasks, comment on the issue! 
-3) 🤝 We will discuss with you and assign you the task with a [`community assigned`](https://github.com/lavague-ai/LaVague/labels/community-assigned) label 
-4) 💬 We will then be available to discuss this task with you
-5) ⬆️ You should submit your work as a PR
-6) ✅ We will review & merge your code or request changes/give feedback
+1. 📢 We outline tasks on our [`backlog`](https://github.com/orgs/lavague-ai/projects/1/views/3): we recommend you check out issues with the [`help-wanted`](https://github.com/lavague-ai/LaVague/labels/help%20wanted) labels & [`good first issue`](https://github.com/lavague-ai/LaVague/labels/good%20first%20issue) labels
+
+2. 🙋‍♀️ If you are interested in working on one of these tasks, comment on the issue! 
+
+3. 🤝 We will discuss with you and assign you the task with a [`community assigned`](https://github.com/lavague-ai/LaVague/labels/community-assigned) label 
+
+4. 💬 We will then be available to discuss this task with you
+
+5. ⬆️ You should submit your work as a PR
+
+6. ✅ We will review & merge your code or request changes/give feedback
 
 Please check out our [`contributing guide`](docs/contributing/contributing.md) for a more detailed guide.
 
@@ -69,11 +74,10 @@ If you want to ask questions, contribute, or have proposals, please come on our 
 
 ## 🗺️ Roadmap
 
-TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
+To keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
 !!! warning "Security warning"
-
-Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
+    Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
 
 ## 📈 Data collection
 

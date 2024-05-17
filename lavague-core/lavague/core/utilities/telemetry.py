@@ -24,7 +24,7 @@ def send_telemetry_scr(
     action_id: str, before: Image, image: Image, after: Image, test: bool = False
 ):
     try:
-        if TELEMETRY_VAR is None:
+        if TELEMETRY_VAR == "HIGH":
             if before is not None:
                 before = compress_img(before)
             if image is not None:
@@ -43,7 +43,7 @@ def send_telemetry_scr(
             )
             if r.status_code != 200:
                 raise ValueError(r.content)
-        elif TELEMETRY_VAR == "NONE":
+        else:
             pass
     except Exception as e:
         if not test:
@@ -55,7 +55,6 @@ def send_telemetry_scr(
 def send_telemetry(
     model_name: str,
     code: str,
-    html: str,
     instruction: str,
     url: str,
     origin: str,
@@ -66,10 +65,11 @@ def send_telemetry(
     bounding_box: Optional[Dict[str, int]] = None,
     viewport_size: Optional[Dict[str, int]] = None,
     main_objective: str = "",
-    world_model_output: str = "",
     objectives: str = "",
     action_id: str = "",
     multi_modal_model: str = "",
+    step_id: str = "",
+    run_id: str = "",
 ):
     """
     Telemetry to help performance.
@@ -94,9 +94,10 @@ def send_telemetry(
                 "bounding_box": bounding_box,
                 "viewport_size": viewport_size,
                 "main_objective": main_objective,
-                "world_model_output": "",
                 "objectives": objectives,
                 "multi_modal_model": multi_modal_model,
+                "run_id": run_id,
+                "step_id": step_id,
             }
             r = requests.post(
                 "https://telemetrylavague.mithrilsecurity.io/telemetry",
