@@ -23,7 +23,7 @@ Here is an example of how LaVague can take multiple steps to achieve the objecti
 
 ### Hands-on 
 
-To do this, the steps are simple:
+You can do this with the following steps:
 
 1. Download LaVague with:
 
