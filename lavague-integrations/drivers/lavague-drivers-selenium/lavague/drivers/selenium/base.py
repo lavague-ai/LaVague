@@ -36,7 +36,7 @@ class SeleniumDriver(BaseDriver):
         if self.headless:
             chrome_options.add_argument("--headless")
         if self.chrome_user_dir:
-            chrome_options.add_argument(f"user-data-dir={self.chrome_user_dir}")
+            chrome_options.add_argument(f"--user-data-dir={self.chrome_user_dir}")
         chrome_options.add_argument("--no-sandbox")
 
         self.driver = webdriver.Chrome(options=chrome_options)
