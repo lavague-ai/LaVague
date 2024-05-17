@@ -79,12 +79,9 @@ userdata
 environ
 getenv
 debian
-
 Yann
 LeCun
 LeCun's
 webpage
 WaveHunter
-
 viewport
-
