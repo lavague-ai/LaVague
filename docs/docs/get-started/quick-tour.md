@@ -33,7 +33,7 @@ Let's start by initializing an `ActionEngine`, which is responsible for generati
 from lavague.core import ActionEngine
 from lavague.drivers.selenium import SeleniumDriver
 
-selenium_driver = SeleniumDriver()
+selenium_driver = SeleniumDriver(headless=False)
 action_engine = ActionEngine(selenium_driver)
 ```
 
