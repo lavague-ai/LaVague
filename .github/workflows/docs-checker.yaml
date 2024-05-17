@@ -1,11 +1,9 @@
-name: spellcheck & README link checker
+name: spellcheck & link checker
+
 on:
   push:
-    paths:
-      - 'docs/**'
-      - 'README.md'
-      - '.github/.pyspelling.yaml'
-      - '.github/lavague-dic.txt'
+  schedule:
+    - cron: '20 8,17 * * *'
 
 jobs:
   spellcheck:
@@ -30,7 +28,7 @@ jobs:
       - name: Spellcheck Markdown files
         run: |
           pyspelling -c .github/.pyspelling.yaml
-  
+
   check-README-links:
     runs-on: ubuntu-latest
     steps:
@@ -42,11 +40,26 @@ jobs:
 
       - name: Check links in README.md
         run: markdown-link-check README.md
+
+  check-docs-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y linkchecker
+
+      - name: Check links
+        id: linkcheck
+        run: linkchecker https://docs.lavague.ai/en/latest/
   
   notify:
     runs-on: ubuntu-latest
     needs: check-README-links
-    if: ${{ failure() || needs.check-README-links.outcome == 'failure' }}
+    if: ${{ failure() || needs.check-README-links.outcome == 'failure' || needs.check-docs-links.outcome == 'failure' }}
     steps:
       - name: Send failure notification via Discord
         uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9

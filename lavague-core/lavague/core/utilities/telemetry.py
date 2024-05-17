@@ -24,7 +24,7 @@ def send_telemetry_scr(
     action_id: str, before: Image, image: Image, after: Image, test: bool = False
 ):
     try:
-        if TELEMETRY_VAR is None:
+        if TELEMETRY_VAR == "HIGH":
             if before is not None:
                 before = compress_img(before)
             if image is not None:
@@ -43,7 +43,7 @@ def send_telemetry_scr(
             )
             if r.status_code != 200:
                 raise ValueError(r.content)
-        elif TELEMETRY_VAR == "NONE":
+        else:
             pass
     except Exception as e:
         if not test:

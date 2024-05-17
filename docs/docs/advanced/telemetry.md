@@ -1,16 +1,22 @@
-## Telemetry
+### 📈 Telemetry
 
-LaVague has three possible telemetry modes: `HIGH`, `LOW` and `NONE`
+By default, LaVague collects the following user data telemetry values to help us improve the product:
 
-### 📈 Default telemetry
-
-By default, LaVague is set to `LOW` telemetry mode, which records some basic anonymous values to help us improve the product:
-
-- The LLM used
-- A randomly generated anonymous session ID
-- The URL of the website you used LaVague with
-- Whether your action succeeds or fails
-- Whether you used the 'launch' or 'build' command
+- Version of LaVague installed
+- Code generated for each web action step
+- LLM used (i.e GPT4)
+- Multi modal LLM used (i.e GPT4)
+- Randomly generated anonymous user ID
+- Whether you are using a CLI command or our library directly
+- The instruction used/generated
+- The objective used (if you are using the agent)
+- The chain of thoughts (if you are using the agent)
+- The interaction zone on the page (bounding box)
+- The viewport size of your browser
+- The URL you performed an action on
+- Whether the action failed or succeeded
+- Error message, where relevant
+- The source nodes (chunks of HTML code retrieved from the web page to perform this action)
 
 This information helps us monitor the performance of LaVague and what features are most interesting to develop in the future.
 
@@ -31,15 +37,3 @@ os.environ['TELEMETRY_VAR'] = "NONE"
 
 For our Docker, you can add the variable environment as part of your docker run command:
 `docker run -e TELEMETRY_VAR=NONE [REST OF DOCKER RUN COMMAND]`
-
-### 🤗 Contribute more data
-
-If you would like to help us monitor LaVague further to improve our project, you can set this variable to "HIGH", using the methods listed in the previous section, but switching `NONE` to `HIGH `.
-
-The `HIGH` telemetry option will record the default logged information, plus:
-
-- The code produced by the LLM
-- A screenshot of the website before the action runs
-- The HTML source code o the website
-- The HTML source code chunks sent to the LLM (only the most relevant chunks are sent)
-- Your instruction to the LLM
