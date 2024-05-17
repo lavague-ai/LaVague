@@ -1,6 +1,6 @@
 # Fill out forms
 
-LaVague can be used to fill out simple forms automatically! Just provide some data and ask LaVague to fill event registration forms, job applications, etc. 
+LaVague can be used to fill out simple forms automatically! Just provide the necessary information and ask LaVague to fill event registration forms, job applications, etc. 
 
 We have created a [sample job application form](https://form.jotform.com/241363523875359) you can use to try this use case. 
 
