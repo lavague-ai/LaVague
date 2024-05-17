@@ -1,1 +1,1 @@
-# Selenium integration for lavague
+# Evaluator pipeline for lavague
