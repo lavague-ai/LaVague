@@ -1,0 +1,47 @@
+Objective: Submit the responses for the form
+Thought:
+- I am on a Google Form titled "Customer Feedback".
+- The form contains various questions with different input types (text, multiple choice, checkboxes).
+- I have filled out all required fields, and the 'Submit' button is visible at the bottom of the form.
+- To complete the objective, I need to click the 'Submit' button to send the responses.
+Instruction: Locate the 'Submit' button at the bottom of the form and click on it.
+
+Objective: Fill in the form
+Thought:
+- I am on a Google Form titled "Event Registration".
+- The form has required fields labeled "Email Address", "First name", "Last name" and "Phone".
+- To proceed with the form, I need to enter info in all input boxes.
+- This action requires typing the first name, last name, email and phone into the corresponding fields.
+Instruction: Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
+
+Objective: Select "Yes" for the question "Do you have any dietary restrictions?"
+Thought:
+- I am on a Google Form titled "Conference RSVP".
+- The form includes a question "Do you have any dietary restrictions?" with "Yes" and "No" as options.
+- To answer this question, I need to select the "Yes" option.
+- This action involves clicking the radio button next to "Yes".
+Instruction: Locate the question "Do you have any dietary restrictions?" and click the radio button next to "Yes".
+
+Objective: Choose "Vegetarian" from the dropdown menu for the question "Meal Preference"
+Thought:
+- I am on a Google Form titled "Workshop Signup".
+- The form contains a question "Meal Preference" with a dropdown menu offering multiple options.
+- To specify the meal preference, I need to select "Vegetarian" from the dropdown list.
+- This action involves clicking the dropdown menu and choosing the appropriate option.
+Instruction: Locate the question "Meal Preference", click the dropdown menu, and select "Vegetarian".
+
+Objective: Provide additional comments in the text area
+Thought:
+- I am on a Google Form titled "Service Feedback".
+- The form includes a section for additional comments with a text area for responses.
+- To complete this section, I need to type my comments into the provided text area.
+- This action requires entering text into the designated box.
+Instruction: Locate the text area for additional comments and type in "Great service, very satisfied with the experience."
+
+Objective: Mark all applicable options for the question "Which services did you use?" (Checkboxes)
+Thought:
+- I am on a Google Form titled "Facility Usage Survey".
+- The form contains a question "Which services did you use?" with several checkboxes for multiple selections.
+- To answer this question, I need to mark all relevant options.
+- This action involves clicking the checkboxes next to the appropriate services.
+Instruction: Locate the question "Which services did you use?" and click the checkboxes next to "Gym", "Pool", and "Spa".
