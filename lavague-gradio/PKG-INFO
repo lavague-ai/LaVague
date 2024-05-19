@@ -1,0 +1,25 @@
+Metadata-Version: 2.1
+Name: lavague-gradio
+Version: 0.1.0
+Summary: Gradio demo for lavague
+Home-page: https://lavague.ai
+License: Apache-2.0
+Keywords: LAM,action,automation,LLM,NLP,RAG,selenium,playwright
+Author: lavague-ai
+Requires-Python: >=3.10.0,<4.0.0
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Dist: gradio (>=4.0.0,<5.0.0)
+Requires-Dist: lavague-core (>=0.1.0,<0.2.0)
+Project-URL: Documentation, https://docs.lavague.ai/en/latest/
+Project-URL: Repository, https://github.com/lavague-ai/LaVague/
+Description-Content-Type: text/markdown
+
+# Readme for gradio demo
