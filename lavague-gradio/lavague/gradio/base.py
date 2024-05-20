@@ -14,13 +14,6 @@ import base64
 
 from lavague.drivers.selenium.base import SeleniumDriver
 
-css_or = """
-h1 {
-    text-align: center;
-    display:block;
-}
-"""
-
 css = """body {
     font-family: Arial, sans-serif; /* Sets the font for the page */
     background-color: #1a1a1a; /* Dark background for the page */
@@ -80,12 +73,11 @@ class GradioAgentDemo:
     </div>
     """
 
-    centered_text = """
+    title_history = """
     <div align="center">
-    <h3>or</h3>
+    <h3>Steps</h3>
     </div>
     """
-
 
     def __init__(
         self, action_engine: ActionEngine, world_model: WorldModel, n_attempts: int = 5, n_steps: int = 5):
@@ -124,63 +116,47 @@ class GradioAgentDemo:
             output = soup.prettify()
             return output
     
-        def process_instructions_impl(objective, url_input, image_display, code_display, log_display, full_html, status_html, instructions_history):
+        def process_instructions_impl(objective, url_input, image_display, instructions_history, history):
             from selenium.webdriver.remote.webdriver import WebDriver
-            from selenium.webdriver.common.by import By
-            from selenium.webdriver.common.keys import Keys
+            
+            history[-1][1] = "..."
 
             driver: WebDriver = self.action_engine.driver.get_driver()
             action_engine: ActionEngine = self.action_engine
             world_model: WorldModel = self.world_model
             driver.get(url_input)
             self.success = True
-            error = ""
-            url = ""
             image = None
-            screenshot_after_action = None
-            run_id = str(uuid.uuid4())
-            process_success = False
 
             for i in range(self.n_steps):
-                step_id = str(uuid.uuid4())
                 self.success = True
-                error = ""
-                bounding_box = {"": 0}
-                viewport_size = {"": 0}
                 driver.save_screenshot("screenshot_before_action.png")
-                screenshot_before_action = Image.open("screenshot_before_action.png")
                 image_display = "screenshot_before_action.png"
-                status_html = "Computing an action plan..."
                 state = encode_image("screenshot_before_action.png")
-                code_display = "# Loading..."
-                yield url_input, image_display, code_display, log_display, full_html, status_html, instructions_history
+                yield objective, url_input, image_display, instructions_history, history
 
                 output = world_model.get_instruction(state, objective)
                 instruction = extract_instruction(output)
-                code_display = output
-                status_html = "Action plan computed. Transforming the action into code..."
-                yield url_input, image_display, code_display, log_display, full_html, status_html, instructions_history
+                print(output)
+                yield objective, url_input, image_display, instructions_history, history
                 if instruction != "STOP":
                     print("Instruction received")
-                    query = instruction
-                    nodes = action_engine.get_nodes(query)
+                    html = driver.page_source
+                    nodes = action_engine.get_nodes(instruction)
+                    print("Got nodes")
                     context = "\n".join(nodes)
                     for _ in range(self.n_steps):
                         try:
+                            print("Step")
                             image = None
-                            screenshot_after_action = None
-                            error = ""
-                            action = action_engine.get_action_from_context(context, query)
+                            action = action_engine.get_action_from_context(context, instruction)
                             outputs = self.driver.get_highlighted_element(action)
                             image = outputs[-1]["image"]
-                            bounding_box = outputs[-1]["bounding_box"]
-                            viewport_size = outputs[-1]["viewport_size"]
 
                             image_display = image
-                            status_html = "Action transformed into code. Showing the next element to interact with..."
-                            yield url_input, image_display, code_display, log_display, full_html, status_html, instructions_history
+                            yield objective, url_input, image_display, instructions_history, history
 
-                            time.sleep(3)
+                            time.sleep(1)
 
                             local_scope = {"driver": driver}
 
@@ -190,75 +166,44 @@ from selenium.webdriver.common.keys import Keys
 {action}""".strip()
 
                             exec(code, globals(), local_scope)
-                            time.sleep(3)
                             driver.save_screenshot("screenshot_after_action.png")
-                            screenshot_after_action = Image.open(
-                                "screenshot_after_action.png"
-                            )
-
                             url_input = driver.current_url
 
                             image_display = "screenshot_after_action.png"
-                            status_html = "Instruction successfully executed"
-                            yield url_input, image_display, code_display, log_display, full_html, status_html, instructions_history
+                            yield objective, url_input, image_display, instructions_history, history
 
                             break
 
                         except Exception as e:
-                            success = False
-                            error = repr(e)
-                            status_html = "Action execution failed. Retrying..."
-                            log_display = error
-                            yield url_input, image_display, code_display, log_display, full_html, status_html, instructions_history
-                            screenshot_after_action = None
+                            print(e)
+                            yield objective, url_input, image_display, instructions_history, history
                             image = None
                             pass
                 else:
-                    process_success = True
                     break
                 instructions_history = add_instruction(instruction, instructions_history)
-                yield url_input, image_display, code_display, log_display, full_html, status_html, instructions_history
+                yield objective, url_input, image_display, instructions_history, history
 
-            # instructions_history = add_instruction(url_input, instructions_history)
-            if process_success:
-                status_html = """<p style="color: green; font-size: 20px; font-weight: bold;">Success!</p>"""
-            else:
-                status_html = """<p style="color: red; font-size: 20px; font-weight: bold;">Failure, please try again.</p>"""
-            yield url_input, image_display, code_display, log_display, full_html, status_html, instructions_history
+            history[-1][1] = "Done."
+            yield objective, url_input, image_display, instructions_history, history
             
         return process_instructions_impl
+    
+    def __add_message(self):
+        def clear_instructions(instruction, instructions_history):
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(instructions_history, 'html.parser')
+            soup.find('ul').clear()
 
-    def __telemetry(self):
-        def telemetry(query, code, html):
-            screenshot = b""
-            try:
-                scr = open("screenshot.png", "rb")
-                screenshot = base64.b64encode(scr.read())
-            except:
-                pass
-            send_telemetry(
-                self.action_engine.llm.metadata.model_name,
-                code,
-                screenshot,
-                html,
-                query,
-                self.action_engine.driver.get_url(),
-                "Lavague-Launch",
-                self.success,
-            )
-
-        return telemetry
-
-    def __update_image_display(self):
-        def update_image_display():
-            self.action_engine.driver.get_screenshot("screenshot.png")
-            url = self.action_engine.driver.get_url()
-            return "screenshot.png", url
-
-        return update_image_display
-
-    def __show_processing_message(self):
-        return lambda: "Processing..."
+            output = soup.prettify()
+            return output
+        
+        def add_message(history, message, instructions_history):
+            instructions_history = clear_instructions("", instructions_history)
+            history.append((message, None))
+            return history, instructions_history
+        
+        return add_message
 
     def launch(self, server_port: int = 7860, share=True, debug=True):
         """
@@ -275,53 +220,33 @@ from selenium.webdriver.common.keys import Keys
                     gr.HTML(self.title)
                 with gr.Row():
                     url_input = gr.Textbox(
-                        value="https://huggingface.co/docs",
+                        value="",
                         label="Enter URL and press 'Enter' to load the page.",
                     )
 
-                with gr.Row():
-                    with gr.Column(scale=7):
-                        image_display = gr.Image(label="Browser", interactive=False)
+                with gr.Row(variant="panel"):
+                    with gr.Column(scale=2):
 
-                    with gr.Column(scale=3):
+                        history_txt = gr.HTML(self.title_history)
 
-                        # with gr.Row():
-                            # previous = gr.Button(value="Previous")
-                            # next = gr.Button(value="Next")
-                        code_display = gr.Code(
-                            label="Chain of thoughts",
-                            lines=5,
-                            interactive=True,
-                        )
-
-                        status_html = gr.HTML()
-                    
                         instructions_history = gr.HTML(html)
 
-                with gr.Row():
-                    with gr.Column(scale=4):
-                        text_area = gr.Textbox(
-                            label="Enter the objective and press 'Enter' to start processing it.",
-                            value="Go on the quicktour of PEFT"
-                        )
-                        gr.HTML(self.centered_text)
-                        text_area_instruction = gr.Textbox(
-                            label="Enter yout instruction and press 'Enter' to start processing it.",
-                            value=""
-                        )
+                    with gr.Column(scale=8):
+                        image_display = gr.Image(label="Browser", interactive=False)
 
-            with gr.Tab("Debug"):
                 with gr.Row():
-                    with gr.Column():
-                        log_display = gr.Textbox(interactive=False, lines=20)
-                with gr.Row():
-                    with gr.Accordion(label="Full HTML", open=False):
-                        full_html = gr.Code(
-                            language="html",
-                            label="Full HTML",
-                            interactive=False,
-                            lines=20,
-                            render=False,
+                    with gr.Column(scale=8, variant="panel"):
+                        chatbot = gr.Chatbot(
+                            [],
+                            elem_id="chatbot",
+                            bubble_full_width=True,
+                            height=250,
+                            placeholder="Your history of usage will be shown here",
+                            layout="bubble"
+                        )
+                        text_area = gr.Textbox(
+                            show_label=False,
+                            placeholder="Enter the objective and press 'Enter' to start processing it.",
                         )
 
             # Linking components
@@ -330,12 +255,10 @@ from selenium.webdriver.common.keys import Keys
                 inputs=[url_input],
                 outputs=[image_display],
             )
-            text_area.submit(
-                self.__show_processing_message(), outputs=[status_html]
-            ).then(
+            text_area.submit(self.__add_message(), inputs=[chatbot, text_area, instructions_history], outputs=[chatbot, instructions_history]).then(
                 self._process_instructions(),
-                inputs=[text_area, url_input, image_display, code_display, log_display, full_html, status_html, instructions_history],
-                outputs=[url_input, image_display, code_display, log_display, full_html, status_html, instructions_history],
+                inputs=[text_area, url_input, image_display, instructions_history, chatbot],
+                outputs=[text_area, url_input, image_display, instructions_history, chatbot],
             )
         demo.launch(server_port=server_port, share=True, debug=True)
 
