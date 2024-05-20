@@ -29,7 +29,7 @@ class SeleniumDriver(BaseDriver):
         from selenium.webdriver.common.action_chains import ActionChains
 
         chrome_options = Options()
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
 
         self.driver = webdriver.Chrome(options=chrome_options)
