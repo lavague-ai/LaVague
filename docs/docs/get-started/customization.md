@@ -27,7 +27,7 @@ These elements are initialized in a `Context` object, which can optionally passe
     - `llm`: OpenAI's gpt-3.5-turbo,
     - `mm_llm`: OpenAi's gpt-4o,
     - `embedding`: text-embedding-3-large,
-    - `retriever`: laVvgue.core's OpsmSplitRetriever(),
+    - `retriever`: lavague.core's OpsmSplitRetriever(),
     - `prompt_template`: lavague.core's DefaultPromptTemplate(),
     - `extractor`: lavague.core's PythonFromMarkdownExtractor() function
 
