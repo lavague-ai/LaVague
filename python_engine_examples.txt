@@ -25,4 +25,4 @@ query_engine = index.as_query_engine()
 instruction = "How was falcon-11B trained?"
 
 # We finally store the output in the variable 'output'
-output = query_engine.query(instruction)
+output = query_engine.query(instruction).response
