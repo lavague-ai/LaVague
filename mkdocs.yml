@@ -96,7 +96,7 @@ nav:
   - Installation: 'docs/get-started/installation.md'
   - Quick tour: 'docs/get-started/quick-tour.md'
   # - Under the hood: 'docs/get-started/under-the-hood.md'
-  # - Customization: 'docs/get-started/customization.md'
+  - Customization: 'docs/get-started/customization.md'
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
