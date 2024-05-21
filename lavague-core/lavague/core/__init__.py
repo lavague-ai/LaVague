@@ -4,8 +4,6 @@ from lavague.core.context import Context, get_default_context
 from lavague.core.extractors import PythonFromMarkdownExtractor
 from lavague.core.retrievers import OpsmSplitRetriever
 from lavague.core.world_model import WorldModel
-from lavague.core.agents import WebAgent
-from lavague.core.navigation import NavigationControl
 
 import os
 import warnings
