@@ -5,7 +5,7 @@ Our Web Agents have the following modifiable elements:
 !!! tips "Modifiable elements"
     - `llm`: The `LLM` used by the `Action Engine` to translate text instructions into automation code. You can set the `llm` to any `LlamaIndex LLM object`.
 
-    - `mm_llm`: The `multi-modal LLM` used by the `World Model` to generate the next instruction to be enacted by the Action Engine based on the current state of the web page. You can set the `mm_llm` argument to any `LlamaIndex LLM object`.
+    - `mm_llm`: The `multi-modal LLM` used by the `World Model` to generate the next instruction to be enacted by the Action Engine based on the current state of the web page. You can set the `mm_llm` argument to any `LlamaIndex multi-modal LLM object`.
 
     - `embedding`: The `embedding model` is used by the `retriever` to convert segments of the HTML page of the target website into vectors, capturing semantic meaning. You can set this to any `LlamaIndex Embedding object`. 
 
@@ -39,6 +39,7 @@ Let's take a look at how we can modify specific elements of an existing built-in
 from llama_index.embeddings.gemini import GeminiEmbedding
 from llama_index.llms.gemini import Gemini
 from lavague.contexts.openai import OpenaiContext
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from lavague.core import WebAgent, WorldModel, ActionEngine
 from lavague.drivers.selenium import SeleniumDriver
 
