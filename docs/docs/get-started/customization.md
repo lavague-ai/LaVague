@@ -1,6 +1,6 @@
 # Customizing your Agent
 
-When using our Web Agents, you can customize the LLM, multi-modal LLM (`mm_llm`), embedding model (`embedding`), retriever (`retriever`), prompt template (`prompt_template`) and clearning function (`extractor`) used as part of the Agent's AI pipeline.
+When using our Web Agents, you can customize the LLM, multi-modal LLM (`mm_llm`), embedding model (`embedding`), retriever (`retriever`), prompt template (`prompt_template`) and cleaning function (`extractor`) used as part of the Agent's AI pipeline.
 
 These are attributes of a `Context` object, which can be optionally passed to the `Action Engine` and `World Model`, which in turn are passed to the `Web Agent`.
 
