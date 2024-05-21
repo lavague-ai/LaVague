@@ -163,7 +163,7 @@ from selenium.webdriver.common.keys import Keys
                     os.mkdir("./logs")
                 with open(f"./logs/{run_id}.csv", "w", newline="") as output_file:
                     keys = log_lines[0].keys()
-                    dict_writer = csv.DictWriter(output_file, keys)
+                    dict_writer = csv.DictWriter(output_file, keys, delimiter=";")
                     dict_writer.writeheader()
                     dict_writer.writerows(log_lines)
                     print(f"Logs exported to logs/{run_id}.csv")
