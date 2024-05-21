@@ -10,7 +10,7 @@ The build command generates code for your actions and saves them to a file which
 
 1. Parse CLI arguments
 
-2. Configure our actionEngine based on config file (`--config` argument): `action_engine, get_driver = load_action_engine(config_path)`
+2. Configure our ActionEngine based on config file (`--config` argument): `action_engine, get_driver = load_action_engine(config_path)`
 
     This will set the LLM, the embedding model, the prompt, the cleaning function etc. to be used as specified in the config file - see the customization guide for full details.
 
@@ -34,7 +34,7 @@ For each instruction in your instructions file (file passed to `--instructions`)
 
 ### action_engine.get_action() method
 
-> See code in actionEngine.py
+> See code in ActionEngine.py
 
 This is a key method, where we:
 
@@ -52,9 +52,9 @@ The `lavague [OPTIONS] launch` command creates a Gradio demo which you can open 
 
 1. Parse CLI arguments
 
-2. Configure our actionEngine based on config file (--config argument): `action_engine, get_driver = load_action_engine(config_path)`
+2. Configure our ActionEngine based on config file (--config argument): `action_engine, get_driver = load_action_engine(config_path)`
 
-3. Initialize a Gradio command_center module with your actionEngine and driver: `command_center = GradioDemo(action_engine, driver)`
+3. Initialize a Gradio command_center module with your ActionEngine and driver: `command_center = GradioDemo(action_engine, driver)`
 
 4. Load url and instructions from instructions file (--instructions argument): `base_url, instructions = load_instructions(file_path)`
 
@@ -76,7 +76,7 @@ see the `__update_image_display()` method
 
 When user enters instruction:
 
-1. We generate code with LLM using streaming: The `process_instructions()` calls the actionEngine `get_action_streaming()` method - this is similar to the `get_action()` method but supports streaming so we can see the code generate in real-time in the Gradio
+1. We generate code with LLM using streaming: The `process_instructions()` calls the ActionEngine `get_action_streaming()` method - this is similar to the `get_action()` method but supports streaming so we can see the code generate in real-time in the Gradio
 
 2. We then execute the AI-generated python code: `exec(code)`
 
