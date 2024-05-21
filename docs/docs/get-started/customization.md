@@ -2,7 +2,14 @@
 
 Our Web Agents have the following modifiable elements:
 
-!!! tip "Modifiable elements"
+- LLM (`llm`)
+- Multi-modal LLM (`mm_llm`)
+- Embedding model (`embedding`)
+- Retriever (`retriever`)
+- Prompt template (`prompt_template`)
+- Clearning function (`extractor`)
+
+??? tip "Modifiable elements: details"
     - `llm`: The `LLM` used by the `Action Engine` to translate text instructions into automation code. You can set the `llm` to any `LlamaIndex LLM object`.
 
     - `mm_llm`: The `multi-modal LLM` used by the `World Model` to generate the next instruction to be enacted by the Action Engine based on the current state of the web page. You can set the `mm_llm` argument to any `LlamaIndex multi-modal LLM object`.
