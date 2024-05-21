@@ -15,6 +15,7 @@ USER_ID = str(uuid.uuid4())
 if UNIQUE_ID is not None:
     UNIQUE_ID = UNIQUE_ID[:256]
 
+
 def compress_img(img: Image):
     buffer: BytesIO = BytesIO()
     img_ret = img.resize((1024, 1024), Image.LANCZOS)

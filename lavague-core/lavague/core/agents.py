@@ -143,7 +143,7 @@ from selenium.webdriver.common.keys import Keys
                             multi_modal_model=world_model.mm_llm.metadata.model_name,
                             step_id=step_id,
                             run_id=run_id,
-                            log=log
+                            log=log,
                         )
                         send_telemetry_scr(
                             action_id,
@@ -157,11 +157,11 @@ from selenium.webdriver.common.keys import Keys
             else:
                 print("Objective reached")
                 break
-        
+
         if log:
             import csv
 
-            with open(f'./logs/{run_id}.csv', 'w', newline='') as output_file:
+            with open(f"./logs/{run_id}.csv", "w", newline="") as output_file:
                 keys = log_lines[0].keys()
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
