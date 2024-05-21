@@ -44,15 +44,16 @@ from lavague.drivers.selenium import SeleniumDriver
 # Initialize the default context
 context = OpenaiContext()
 
-# Customize the LLM and embedding models
+# Customize the LLM, multi-modal LLM and embedding models
 context.llm = Gemini(model_name="models/gemini-1.5-flash-latest")
 context.embedding = GeminiEmbedding(model_name="models/text-embedding-004")
+context.mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
 
 # Initialize the Selenium driver
 selenium_driver = SeleniumDriver()
 
-# Initialize a WorldModel an example from the hub
-world_model = WorldModel.from_hub("hf_example")
+# Initialize a WorldModel passing it the custom context
+world_model = WorldModel.from_hub("hf_example", context)
 
 # Create an ActionEngine with the customized context
 action_engine = ActionEngine(selenium_driver, context)
@@ -61,7 +62,7 @@ action_engine = ActionEngine(selenium_driver, context)
 agent = WebAgent(action_engine, world_model)
 ```
 
-Here, we modify the default `OpenaiContext` by replacing its LLM and embedding models. We can then pass this to our `Action Engine`.
+Here, we modify the default `OpenaiContext` by replacing its LLM, multi-modal LLM & embedding models. We can then pass this to our `Action Engine`.
 
 ## Creating a Context object from scratch
 
