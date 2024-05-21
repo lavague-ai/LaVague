@@ -19,9 +19,11 @@ class SeleniumDriver(BaseDriver):
         get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
         headless: bool = True,
         chrome_user_dir: Optional[str] = None,
+        debug_address: Optional[str] = None,
     ):
         self.headless = headless
         self.chrome_user_dir = chrome_user_dir
+        self.debug_address = debug_address
         super().__init__(url, get_selenium_driver)
 
     def default_init_code(self) -> Any:
@@ -37,6 +39,8 @@ class SeleniumDriver(BaseDriver):
             chrome_options.add_argument("--headless")
         if self.chrome_user_dir:
             chrome_options.add_argument(f"--user-data-dir={self.chrome_user_dir}")
+        if self.debug_address:
+            chrome_options.debugger_address = self.debug_address
         chrome_options.add_argument("--no-sandbox")
 
         self.driver = webdriver.Chrome(options=chrome_options)
