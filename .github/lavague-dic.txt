@@ -91,3 +91,5 @@ embeddings
 gemini
 llms
 openai
+OpenAIMultiModal
+gpt
