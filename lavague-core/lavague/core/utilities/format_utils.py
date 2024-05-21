@@ -62,15 +62,47 @@ def extract_imports_from_lines(lines: List[str]) -> str:
     )
 
 
-def extract_instruction(text):
+import re
+
+
+def extract_world_model_instruction(text):
     # Use a regular expression to find the content after "Instruction:"
-    match = re.search(r"Instruction:\s*(.*)", text)
-    if match:
-        return match.group(
-            1
-        ).strip()  # Return the matched group, stripping any excess whitespace
-    else:
-        raise ValueError("No instruction found in the text.")
+    instruction_patterns = [
+        r"Instruction:\s*((?:- .*\n?)+)",  # For multi-line hyphenated instructions
+        r"### Instruction:\s*((?:- .*\n?)+)",  # For multi-line hyphenated instructions with ### prefix
+        r"Instruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions
+        r"### Instruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions with ### prefix
+        r"Instruction:\s*(.*)",  # For single-line instructions
+        r"### Instruction:\s*(.*)",  # For single-line instructions with ### prefix
+    ]
+
+    for pattern in instruction_patterns:
+        instruction_match = re.search(pattern, text, re.MULTILINE)
+        if instruction_match:
+            instruction_text = instruction_match.group(1).strip()
+            # Check if the instruction is multi-line or single-line
+            if "\n" in instruction_text:
+                # Remove newlines and extra spaces for multi-line instructions
+                instruction_str = " ".join(
+                    line.strip() for line in instruction_text.split("\n")
+                )
+            else:
+                instruction_str = instruction_text
+            return instruction_str
+
+    raise ValueError("No instruction found in the text.")
+
+
+def extract_next_engine(text):
+    # Use a regular expression to find the content after "Next engine:"
+
+    next_engine_patterns = [r"Next engine:\s*(.*)", r"### Next Engine:\s*(.*)"]
+
+    for pattern in next_engine_patterns:
+        next_engine_match = re.search(pattern, text)
+        if next_engine_match:
+            return next_engine_match.group(1).strip()
+    raise ValueError("No next engine found in the text.")
 
 
 def clean_html(

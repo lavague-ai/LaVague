@@ -1,4 +1,4 @@
-from typing import Tuple, Any, Callable, Optional
+from typing import Any, Callable, Optional
 from abc import ABC, abstractmethod
 from lavague.core.utilities.format_utils import (
     extract_code_from_funct,
