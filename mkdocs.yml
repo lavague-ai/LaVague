@@ -115,6 +115,9 @@ nav:
 
 # - 🌎 Word Model:
 
+- 🧩 Modules:
+  - Driver: "docs/modules/driver.md"
+
 - ✅ Use cases:
   - Knowledge Retrieval:
     - Navigate through Notion: "docs/use-cases/notion.md"
