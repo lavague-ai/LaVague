@@ -9,8 +9,11 @@ from io import BytesIO
 from .version_checker import get_installed_version
 
 TELEMETRY_VAR = os.getenv("LAVAGUE_TELEMETRY")
+UNIQUE_ID = os.getenv("LAVAGUE_UNIQUE_USER_ID")
 USER_ID = str(uuid.uuid4())
 
+if UNIQUE_ID is not None:
+    UNIQUE_ID = UNIQUE_ID[:256]
 
 def compress_img(img: Image):
     buffer: BytesIO = BytesIO()
@@ -83,6 +86,7 @@ def send_telemetry(
                 "version": get_installed_version("lavague"),
                 "code_produced": code,
                 "llm": model_name,
+                "unique_id": UNIQUE_ID,
                 "user_id": USER_ID,
                 "origin": origin,
                 "url": url,
