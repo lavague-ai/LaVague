@@ -73,11 +73,13 @@ def send_telemetry(
     multi_modal_model: str = "",
     step_id: str = "",
     run_id: str = "",
+    log: bool = False,
 ):
     """
     Telemetry to help performance.
     Mandatory telemetry variables - DO NOT DELETE ANY, else telemetry will fail: model_name, code, screenshot, html, source_nodes, instruction, url, origin, success
     """
+    line = None
     success_str = str(success)
     try:
         if TELEMETRY_VAR is None:
@@ -116,3 +118,23 @@ def send_telemetry(
             print("Telemetry failed with ", e)
         else:
             raise ValueError("Telemetry failed with ", e)
+    if log:
+        line = {
+            "run_id": run_id,
+            "step_id": step_id,
+            "action_id": action_id,
+            "lavague_version": get_installed_version("lavague"),
+            "code_produced": code,
+            "llm": model_name,
+            "multi_modal_model": multi_modal_model,
+            "url": url,
+            "objective": main_objective,
+            "instruction": instruction,
+            "chain_of_thoughts": objectives,
+            "source_nodes": source_nodes,
+            "bounding_box": bounding_box,
+            "viewport_size": viewport_size,
+            "success": str(success),
+            "error_msg": error,
+        }
+    return line

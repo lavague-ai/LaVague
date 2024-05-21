@@ -31,9 +31,15 @@ class WebAgent:
     def get(self, url):
         self.driver.goto(url)
 
-    def run(self, objective, display=True):
+    def run(self, objective, display=True, log: bool = False):
         from selenium.webdriver.remote.webdriver import WebDriver
+        import os
 
+        log_lines = []
+
+        if log:
+            if os.path.isdir("./logs") == False:
+                os.mkdir("./logs")
         driver: WebDriver = self.driver.get_driver()
         action_engine: ActionEngine = self.action_engine
         world_model: WorldModel = self.world_model
@@ -74,6 +80,7 @@ class WebAgent:
                 context = "\n".join(nodes)
                 for _ in range(N_ATTEMPTS):
                     try:
+                        code = ""
                         image = None
                         screenshot_after_action = None
                         error = ""
@@ -118,7 +125,7 @@ from selenium.webdriver.common.keys import Keys
                         pass
                     finally:
                         action_id = str(uuid.uuid4())
-                        send_telemetry(
+                        line = send_telemetry(
                             model_name=action_engine.llm.metadata.model_name,
                             code=action,
                             instruction=instruction,
@@ -136,6 +143,7 @@ from selenium.webdriver.common.keys import Keys
                             multi_modal_model=world_model.mm_llm.metadata.model_name,
                             step_id=step_id,
                             run_id=run_id,
+                            log=log
                         )
                         send_telemetry_scr(
                             action_id,
@@ -143,6 +151,19 @@ from selenium.webdriver.common.keys import Keys
                             image,
                             screenshot_after_action,
                         )
+                        if log:
+                            log_lines.append(line)
+
             else:
                 print("Objective reached")
                 break
+        
+        if log:
+            import csv
+
+            with open(f'./logs/{run_id}.csv', 'w', newline='') as output_file:
+                keys = log_lines[0].keys()
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(log_lines)
+                print(f"Logs exported to logs/{run_id}.csv")
