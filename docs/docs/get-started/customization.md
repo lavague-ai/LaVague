@@ -34,8 +34,7 @@ Let's take a look at how we can modify specific elements of an existing built-in
 
 #### Example: Modifying a built in context
 
-```code
-python
+```python
 
 from llama_index.embeddings.gemini import GeminiEmbedding
 from llama_index.llms.gemini import Gemini
