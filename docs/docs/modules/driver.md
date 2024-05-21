@@ -12,7 +12,7 @@ At the moment, our Driver only supports Selenium Web Drivers. By default, it sta
 - **headless** (`bool` optional): hide/show the browser UI. `False` by default.
 - **user_data_dir** (`str` optional): start Chrome from an existing profile. 
 
-Provide the path to your chrome sessions to start Chrome with your profile. Leave it empty to start a fresh Chrome session everytime. This helps not having to log in to your sites everytime, or mitigate bot protection.
+Provide the path to your chrome sessions to start Chrome with your profile. Leave it empty to start a fresh Chrome session. This helps not having to log in to your sites each time you start a new agent, or mitigate bot protection.
 
 - **debug_address** (`str` optional): bind to an already running Chrome instance (has to be in debug mode)
 
