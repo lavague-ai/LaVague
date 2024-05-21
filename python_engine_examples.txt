@@ -1,0 +1,28 @@
+Capability: Answer questions using the content of an HTML page
+Instruction: Extract the content of the HTML page and do a call to OpenAI GPT-3.5 turbo to answer the question 'How was falcon-11B trained?'
+State:
+    html ('str'): The content of the HTML page being analyzed
+Code:
+# Let's think step by step
+# We first need to extract the text content of the HTML page. 
+# Then we will use an LLM to answer the question. Because the page content might not fit in the LLM context window, we will use Llama Index to perform RAG on the extracted text content.
+
+# First, We use the trafilatura library to extract the text content of the HTML page
+import trafilatura
+
+page_content = trafilatura.extract(html)
+
+# Next we will use Llama Index to perform RAG on the extracted text content
+from llama_index.core import Document, VectorStoreIndex
+
+documents = [Document(text=page_content)]
+
+# We then build index
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+
+# We will use the query engine to answer the question
+instruction = "How was falcon-11B trained?"
+
+# We finally store the output in the variable 'output'
+output = query_engine.query(instruction).response

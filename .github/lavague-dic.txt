@@ -2,7 +2,8 @@ LaVague
 Lavague
 LLM
 Gradio
-actionEngine
+ActionEngine
+PythonEngine
 config
 embedder
 py

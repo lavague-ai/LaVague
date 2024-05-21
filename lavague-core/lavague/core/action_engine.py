@@ -1,13 +1,27 @@
 from __future__ import annotations
 from typing import Optional, Generator, List
 from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.core import get_response_synthesizer, PromptTemplate, QueryBundle
+from llama_index.core import get_response_synthesizer, QueryBundle, PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from lavague.core.extractors import BaseExtractor
-from lavague.core.retrievers import BaseHtmlRetriever
+from lavague.core.extractors import BaseExtractor, PythonFromMarkdownExtractor
+from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.base_driver import BaseDriver
+from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
+
+ACTION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
+    """
+{driver_capability}
+
+HTML:
+{context_str}
+Query: {query_str}
+Completion:
+
+""",
+    PythonFromMarkdownExtractor(),
+)
 
 
 class ActionEngine:
@@ -17,23 +31,56 @@ class ActionEngine:
     Args:
         driver (`BaseDriver`):
             The Web driver used to interact with the headless browser
+        llm (`BaseLLM`)
+            llama-index LLM that will generate the action
+        embedding (`BaseEmbedding`)
+            llama-index Embedding model
+        retriever (`BaseHtmlRetriever`)
+            Specify which algorithm will be used for RAG
+        prompt_template (`PromptTemplate`)
+            Squelette of the final prompt
+        extractor (`BaseExtractor`)
+            Specify how to extract the final code from the llm answer
     """
 
     def __init__(
         self,
         driver: BaseDriver,
-        context: Optional[Context] = None,
+        llm: BaseLLM = get_default_context().llm,
+        embedding: BaseEmbedding = get_default_context().embedding,
+        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        prompt_template: PromptTemplate = ACTION_ENGINE_PROMPT_TEMPLATE.prompt_template,
+        extractor: BaseExtractor = ACTION_ENGINE_PROMPT_TEMPLATE.extractor,
     ):
-        if context is None:
-            context = get_default_context()
         self.driver: BaseDriver = driver
-        self.llm: BaseLLM = context.llm
-        self.embedding: BaseEmbedding = context.embedding
-        self.retriever: BaseHtmlRetriever = context.retriever
-        self.prompt_template: PromptTemplate = context.prompt_template.partial_format(
+        self.llm: BaseLLM = llm
+        self.embedding: BaseEmbedding = embedding
+        self.retriever: BaseHtmlRetriever = retriever
+        self.prompt_template: PromptTemplate = prompt_template.partial_format(
             driver_capability=driver.get_capability()
         )
-        self.extractor: BaseExtractor = context.extractor
+        self.extractor: BaseExtractor = extractor
+
+    @classmethod
+    def from_context(
+        cls,
+        context: Context,
+        driver: BaseDriver,
+        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        prompt_template: PromptTemplate = ACTION_ENGINE_PROMPT_TEMPLATE.prompt_template,
+        extractor: BaseExtractor = ACTION_ENGINE_PROMPT_TEMPLATE.extractor,
+    ) -> ActionEngine:
+        """
+        Create an ActionEngine from a context
+        """
+        return cls(
+            driver,
+            context.llm,
+            context.embedding,
+            retriever,
+            prompt_template,
+            extractor,
+        )
 
     def _get_query_engine(self, streaming: bool = True) -> RetrieverQueryEngine:
         """

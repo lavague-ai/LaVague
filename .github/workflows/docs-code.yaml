@@ -20,8 +20,9 @@ jobs:
         python-version: '3.10'
 
     - name: Extract Python code from README.md
+      # Remove headless=False if it is present
       run: |
-        sed -n '/```python/,/```/p' README.md | sed '/```*/d' > check-code.py
+        sed -n '/```python/,/```/p' README.md | sed '/```*/d' | sed 's/headless=False//g' > check-code.py
 
     - name: Install dependencies
       run: |
