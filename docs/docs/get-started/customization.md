@@ -1,15 +1,10 @@
 # Customizing your Agent
 
-Our Web Agents have the following modifiable elements:
+Our Web Agents have the following customizable elemnets: LLM, multi-modal LLM (`mm_llm`), embedding model (`embedding`), retriever (`retriever`), prompt template (`prompt_template`) & clearning function (`extractor`).
 
-- LLM (`llm`)
-- Multi-modal LLM (`mm_llm`)
-- Embedding model (`embedding`)
-- Retriever (`retriever`)
-- Prompt template (`prompt_template`)
-- Clearning function (`extractor`)
+These are the attributes of a `Context` object, which can be passed to the Action Engine and World Model.
 
-??? tip "Modifiable elements: details"
+!!! info "Modifiable elements"
     - `llm`: The `LLM` used by the `Action Engine` to translate text instructions into automation code. You can set the `llm` to any `LlamaIndex LLM object`.
 
     - `mm_llm`: The `multi-modal LLM` used by the `World Model` to generate the next instruction to be enacted by the Action Engine based on the current state of the web page. You can set the `mm_llm` argument to any `LlamaIndex multi-modal LLM object`.
@@ -24,7 +19,7 @@ Our Web Agents have the following modifiable elements:
 
 These elements are initialized in a `Context` object, which can optionally passed to both the `Action Engine` and `World Model` used by an Agent. If you don't pass them your own Context object, the default OpenaiContext will be used.
 
-??? note "Default Configuration"
+!!! abstract "Default Configuration"
 
     The default configuration is as follows:
 

@@ -36,10 +36,10 @@ theme:
 
   icon:
     admonition:
-      note: material/pencil-circle
+      note: material/pencil-circle # blue pencil
       abstract: material/list-box-outline
       info: material/information-outline
-      tip: material/fire
+      tip: material/fire #green fire
       success: material/check
       question: material/help-circle
       warning: material/alert
