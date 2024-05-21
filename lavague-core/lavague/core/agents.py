@@ -37,9 +37,6 @@ class WebAgent:
 
         log_lines = []
 
-        if log:
-            if os.path.isdir("./logs") == False:
-                os.mkdir("./logs")
         driver: WebDriver = self.driver.get_driver()
         action_engine: ActionEngine = self.action_engine
         world_model: WorldModel = self.world_model
@@ -160,7 +157,9 @@ from selenium.webdriver.common.keys import Keys
 
         if log:
             import csv
-
+            
+            if os.path.isdir("./logs") == False:
+                os.mkdir("./logs")
             with open(f"./logs/{run_id}.csv", "w", newline="") as output_file:
                 keys = log_lines[0].keys()
                 dict_writer = csv.DictWriter(output_file, keys)
