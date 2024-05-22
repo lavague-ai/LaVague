@@ -283,13 +283,10 @@ class GradioDemo:
 
         return init_driver_impl
 
-    def _process_URL(self):
-        def process_url_impl(query, url_input):
-            if url_input != self.action_engine.driver.get_url():
-                self.action_engine.driver.goto(url_input)
-    
     def _process_instructions(self):
         def process_instructions_impl(query, url_input):
+            if url_input != self.action_engine.driver.get_url():
+                self.action_engine.driver.goto(url_input)
             response = ""
             for text in self.action_engine.get_action_streaming(query):
                 # do something with text as they arrive.
