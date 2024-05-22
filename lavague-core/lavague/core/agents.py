@@ -215,7 +215,7 @@ from selenium.webdriver.common.keys import Keys
             elif "Navigation Controls" in next_engine:
                 navigation_control.execute_instruction(instruction)
                 self.driver.save_screenshot(screenshot_path)
-                screenshot_before_action = screenshot_after_action
+                
                 screenshot_after_action = Image.open(screenshot_path)
                 if display:
                     display_screenshot(screenshot_after_action)
