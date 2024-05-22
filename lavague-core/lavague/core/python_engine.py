@@ -1,61 +1,51 @@
-from llama_index.core import PromptTemplate
 from lavague.core.context import Context, get_default_context
 from llama_index.core.base.llms.base import BaseLLM
-import copy
-from lavague.core.action_template import ActionTemplate
-from lavague.core.extractors import PythonFromMarkdownExtractor, BaseExtractor
-
-PYTHON_ENGINE_EXAMPLES = """
-Capability: Answer questions using the content of an HTML page
-Instruction: Extract the content of the HTML page and do a call to OpenAI GPT-3.5 turbo to answer the question 'How was falcon-11B trained?'
-State:
-    html ('str'): The content of the HTML page being analyzed
-Code:
-# Let's think step by step
-# We first need to extract the text content of the HTML page. 
-# Then we will use an LLM to answer the question. Because the page content might not fit in the LLM context window, we will use Llama Index to perform RAG on the extracted text content.
-
-# First, We use the trafilatura library to extract the text content of the HTML page
-import trafilatura
-
-page_content = trafilatura.extract(html)
-
-# Next we will use Llama Index to perform RAG on the extracted text content
+from llama_index.core.agent import ReActAgent
 from llama_index.core import Document, VectorStoreIndex
+from llama_index.core.tools import FunctionTool
+import trafilatura
+import os
 
-documents = [Document(text=page_content)]
-
-# We then build index
-index = VectorStoreIndex.from_documents(documents)
-query_engine = index.as_query_engine()
-
-# We will use the query engine to answer the question
-instruction = "How was falcon-11B trained?"
-
-# We finally store the output in the variable 'output'
-output = query_engine.query(instruction).response
-"""
-
-PYTHON_ENGINE_ACTION_TEMPLATE = ActionTemplate(
+def extract_text_content(instruction, html_file):
     """
-You are an AI system specialized in Python code generation to answer user queries.
-The inputs are: an instruction, and the current state of the local variables available to the environment where your code will be executed.
-Your output is the code that will perform the action described in the instruction, using the variables available in the environment.
-You can import libraries and use any variables available in the environment.
-Detail thoroughly the steps to perform the action in the code you generate with comments.
-The last line of your code should be an assignment to the variable 'output' containing the result of the action.
-
-Here are previous examples:
-{examples}
-
-Instruction: {instruction}
-State:
-{state_description}
-Code:
-""",
-    PythonFromMarkdownExtractor(),
-)
-
+    Extract the text content of the HTML page
+    {
+        "user": "Use the content of the HTML page to answer the question 'How was falcon-11B trained?'",
+        "agent": "I need to use the 'extract_text_content' tool to get information about how Falcon-11B was trained.",
+        "action": "extract_text_content",
+        "action_input": {
+            "instruction": "How was Falcon-11B trained?",
+            "html_file": "example.html"
+        },
+    },
+    {
+        "user": "Use the content of the HTML page to answer the question 'What are the main types of renewable energy?'",
+        "agent": "I need to use the 'extract_text_content' tool to get information about the main types of renewable energy.",
+        "action": "extract_text_content",
+        "action_input": {
+            "instruction": "How was Falcon-11B trained?",
+            "html_file": "example.html"
+        },
+    },
+    {
+        "user": "Use the content of Yann LeCun's Wikipedia page to make a summary of his life.",
+        "agent": "I need to use the 'extract_text_content' tool to get information from Yann LeCun's Wikipedia page to make a summary of his life.",
+        "action": "extract_text_content",
+        "action_input": {
+            "instruction": "How was Falcon-11B trained?",
+            "html_file": "example.html"
+        },
+    }
+    """
+    with open(html_file, 'rb') as f:
+        html = f.read()
+        os.remove(html_file)
+    page_content = trafilatura.extract(html)
+    documents = [Document(text=page_content)]
+    index = VectorStoreIndex.from_documents(documents)
+    query_engine = index.as_query_engine()
+    output = query_engine.query(instruction).response
+    return output
 
 class PythonEngine:
     """
@@ -65,40 +55,18 @@ class PythonEngine:
     def __init__(
         self,
         llm: BaseLLM = get_default_context().llm,
-        prompt_template: PromptTemplate = PYTHON_ENGINE_ACTION_TEMPLATE.prompt_template,
-        examples: str = PYTHON_ENGINE_EXAMPLES,
-        extractor: BaseExtractor = PYTHON_ENGINE_ACTION_TEMPLATE.extractor,
     ):
         self.llm: BaseLLM = llm
-        self.extractor: PromptTemplate = extractor
-        self.prompt_template = prompt_template.partial_format(examples=examples)
+        self.extract_tool = FunctionTool.from_defaults(fn=extract_text_content, return_direct=True)
+        self.agent = ReActAgent.from_tools([self.extract_tool], llm=self.llm, verbose=True)
 
     @classmethod
     def from_context(
         cls,
         context: Context,
-        prompt_template: PromptTemplate = PYTHON_ENGINE_ACTION_TEMPLATE.prompt_template,
-        examples: str = PYTHON_ENGINE_EXAMPLES,
-        extractor: BaseExtractor = PYTHON_ENGINE_ACTION_TEMPLATE.extractor,
     ):
-        return cls(context.llm, prompt_template, examples, extractor)
+        return cls(context.llm)
+    
+    def run(self, instruction : str):
+        return self.agent.chat(instruction)
 
-    def generate_code(self, instruction: str, state: dict) -> str:
-        state_description = self.get_state_description(state)
-        prompt = self.prompt_template.format(
-            instruction=instruction, state_description=state_description
-        )
-        response = self.llm.complete(prompt).text
-        return response
-
-    def execute_code(self, code: str, state: dict):
-        local_scope = copy.deepcopy(state)
-        exec(code, local_scope, local_scope)
-        output = local_scope["output"]
-        return output
-
-    def get_state_description(self, state: dict) -> str:
-        """TO DO: provide more complex state descriptions"""
-        state_description = """
-    html ('str'): The content of the HTML page being analyzed"""
-        return state_description
