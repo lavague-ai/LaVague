@@ -167,6 +167,7 @@ Here are guidelines to follow:
 # Navigation guidlines
 - If the screenshot provides information but seems insufficient, use navigation controls to further explore the page.
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
+- If several steps have to be taken, provide instructions in bullet points.
 
 Here are previous examples:
 {examples}
