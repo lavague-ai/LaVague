@@ -23,39 +23,6 @@ def compress_img(img: Image):
     img_ret.save(buffer, "PNG", quality=50)
     return buffer.getvalue()
 
-
-def send_telemetry_scr(
-    action_id: str, before: Image, image: Image, after: Image, test: bool = False
-):
-    try:
-        if TELEMETRY_VAR == "HIGH":
-            if before is not None:
-                before = compress_img(before)
-            if image is not None:
-                image = compress_img(image)
-            if after is not None:
-                after = compress_img(after)
-            dict_img = {
-                "action_id": action_id,
-                "before": before,
-                "image": image,
-                "after": after,
-            }
-            pack = msgpack.packb(dict_img)
-            r = requests.post(
-                "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs", data=pack
-            )
-            if r.status_code != 200:
-                raise ValueError(r.content)
-        else:
-            pass
-    except Exception as e:
-        if not test:
-            print("Telemetry (screenshot) failed with ", e)
-        else:
-            raise ValueError("Telemetry failed with ", e)
-
-
 def send_telemetry(
     model_name: str,
     code: str,
@@ -74,6 +41,9 @@ def send_telemetry(
     multi_modal_model: str = "",
     step_id: str = "",
     run_id: str = "",
+    before: Image = None, 
+    image: Image = None, 
+    after: Image = None,
     log: bool = False,
 ):
     """
@@ -82,11 +52,12 @@ def send_telemetry(
     """
     line = None
     success_str = str(success)
+    version = get_installed_version("lavague")
     try:
         if TELEMETRY_VAR is None:
             json_send = {
                 "action_id": action_id,
-                "version": get_installed_version("lavague"),
+                "version": version,
                 "code_produced": code,
                 "llm": model_name,
                 "unique_id": UNIQUE_ID,
@@ -114,17 +85,39 @@ def send_telemetry(
                 raise ValueError(r.content)
         elif TELEMETRY_VAR == "NONE":
             pass
+
+        if log:
+            if before is not None:
+                before = compress_img(before)
+            if image is not None:
+                image = compress_img(image)
+            if after is not None:
+                after = compress_img(after)
+        if TELEMETRY_VAR == "HIGH":
+            dict_img = {
+                "action_id": action_id,
+                "before": before,
+                "image": image,
+                "after": after,
+            }
+            pack = msgpack.packb(dict_img)
+            r = requests.post(
+                "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs", data=pack
+            )
+            if r.status_code != 200:
+                raise ValueError(r.content)
     except Exception as e:
         if not test:
             print("Telemetry failed with ", e)
         else:
             raise ValueError("Telemetry failed with ", e)
+        
     if log:
         line = {
             "run_id": run_id,
             "step_id": step_id,
             "action_id": action_id,
-            "lavague_version": get_installed_version("lavague"),
+            "lavague_version": version,
             "code_produced": code,
             "llm": model_name,
             "mm_llm": multi_modal_model,
@@ -135,6 +128,9 @@ def send_telemetry(
             "source_nodes": source_nodes,
             "bounding_box": bounding_box,
             "viewport_size": viewport_size,
+            "screenshot_before_action": before,
+            "screenshot_highlighted_elem": image,
+            "screenshot_after_action": after,
             "success": str(success),
             "error_msg": error,
         }

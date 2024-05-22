@@ -1,5 +1,5 @@
 import uuid
-from lavague.core.utilities.telemetry import send_telemetry, send_telemetry_scr
+from lavague.core.utilities.telemetry import send_telemetry
 from lavague.core.utilities.web_utils import display_screenshot, encode_image
 from lavague.core.utilities.format_utils import extract_instruction
 from lavague.core import ActionEngine, WorldModel
@@ -141,12 +141,9 @@ from selenium.webdriver.common.keys import Keys
                             step_id=step_id,
                             run_id=run_id,
                             log=log,
-                        )
-                        send_telemetry_scr(
-                            action_id,
-                            screenshot_before_action,
-                            image,
-                            screenshot_after_action,
+                            before=screenshot_before_action,
+                            image=image,
+                            after=screenshot_after_action,
                         )
                         if log:
                             log_lines.append(line)
@@ -156,16 +153,23 @@ from selenium.webdriver.common.keys import Keys
                 break
 
         if log:
-            import csv
+            import pandas as pd
+            import fastparquet
 
             try:
                 if os.path.isdir("./logs") == False:
                     os.mkdir("./logs")
-                with open(f"./logs/{run_id}.csv", "w", newline="") as output_file:
-                    keys = log_lines[0].keys()
-                    dict_writer = csv.DictWriter(output_file, keys, delimiter=";")
-                    dict_writer.writeheader()
-                    dict_writer.writerows(log_lines)
-                    print(f"Logs exported to logs/{run_id}.csv")
-            except:
+                # Convert log_lines to a DataFrame
+                print(log_lines)
+                df = pd.DataFrame(log_lines)
+
+                print(df)
+                
+                # Write DataFrame to a Parquet file
+                df.to_parquet(f"./logs/{run_id}.parquet", engine='fastparquet', index=False)
+                
+                print(f"Logs exported to logs/{run_id}.parquet")
+
+            except Exception as e:
                 print("Logs couldn't be exported due to an error.")
+                print(e)

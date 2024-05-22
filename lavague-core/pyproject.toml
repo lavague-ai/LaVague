@@ -31,4 +31,4 @@ lxml = "^5.2.2"
 langchain = "^0.1.20"
 ipython = "^7.34.0"
 msgpack = "^1.0.8"
-
+fastparquet = "^2024.5.0"
