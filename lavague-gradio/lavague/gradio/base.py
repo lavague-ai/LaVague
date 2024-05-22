@@ -14,45 +14,19 @@ import base64
 
 from lavague.drivers.selenium.base import SeleniumDriver
 
-css = """body {
-    font-family: Arial, sans-serif; /* Sets the font for the page */
-    background-color: #1a1a1a; /* Dark background for the page */
-    color: #fff; /* White text color */
-    margin: 0;
-    padding: 0;
-}
-
-.list-container {
-    width: 300px; /* Set the width of the container */
-    background: #333; /* Darker background for the list */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Subtle shadow */
-    margin: 20px auto; /* Centering the list */
-    padding: 10px; /* Padding around the list */
-}
-
-ul {
-    list-style: none; /* Removes default bullet points */
-    padding: 0; /* Removes default padding */
-    margin: 0; /* Removes default margin */
-}
-
-li {
-    padding: 10px; /* Padding inside each list item */
-    border-bottom: 1px solid #444; /* Separator between items */
-    cursor: pointer; /* Pointer cursor on hover */
-}
-
-li:last-child {
-    border-bottom: none; /* Removes border from the last item */
-}
-"""
-
 html = """
 <div class="list-container">
     <ul>
     </ul>
 </div>
+"""
+
+css = """
+    .my-button {
+        max-height: 3rem !important;
+        max-width: 5rem !important;
+        min-width: min(100px,100%) !important;
+}
 """
 
 class GradioAgentDemo:
@@ -67,9 +41,13 @@ class GradioAgentDemo:
     """
 
     title = """
-    <div align="center">
-    <h1>🌊 Welcome to LaVague</h1>
-    <p>Redefining internet surfing by transforming natural language instructions into seamless browser interactions.</p>
+    <div class='parent' align="center">
+    <div class='child' style="display: inline-block !important;">
+    <img src="https://raw.githubusercontent.com/lavague-ai/LaVague/new_gradio/docs/assets/logo.png" width=40px/>
+    </div>
+    <div class='child' style="display: inline-block !important;">
+    <h1>LaVague</h1>
+    </div>
     </div>
     """
 
@@ -92,12 +70,9 @@ class GradioAgentDemo:
         def init_driver_impl(url):
             self.action_engine.driver.goto(url)
             self.action_engine.driver.save_screenshot("screenshot.png")
-            # This function is supposed to fetch and return the image from the URL.
-            # Placeholder function: replace with actual image fetching logic.
             return "screenshot.png"
-
         return init_driver_impl
-
+    
     def _process_instructions(self):
 
         def add_instruction(instruction, instructions_history):
@@ -137,26 +112,25 @@ class GradioAgentDemo:
 
                 output = world_model.get_instruction(state, objective)
                 instruction = extract_instruction(output)
-                print(output)
+                # Too long to print out all the thoughts unless for debug imo
+                # history[-1][1] = output
+                history[-1][1] = f"Step #{i + 1}: {instruction}"
                 yield objective, url_input, image_display, instructions_history, history
                 if instruction != "STOP":
-                    print("Instruction received")
                     html = driver.page_source
                     nodes = action_engine.get_nodes(instruction)
-                    print("Got nodes")
                     context = "\n".join(nodes)
-                    for _ in range(self.n_steps):
+                    for x in range(self.n_steps):
                         try:
-                            print("Step")
+                            history[-1][1] = "⏳ ..."
                             image = None
                             action = action_engine.get_action_from_context(context, instruction)
                             outputs = self.driver.get_highlighted_element(action)
                             image = outputs[-1]["image"]
-
                             image_display = image
                             yield objective, url_input, image_display, instructions_history, history
 
-                            time.sleep(1)
+                            # time.sleep(1)
 
                             local_scope = {"driver": driver}
 
@@ -175,16 +149,16 @@ from selenium.webdriver.common.keys import Keys
                             break
 
                         except Exception as e:
+                            history[-1][1] = f"⏳ Error occurred, trying again..."
                             print(e)
                             yield objective, url_input, image_display, instructions_history, history
                             image = None
                             pass
                 else:
                     break
-                instructions_history = add_instruction(instruction, instructions_history)
                 yield objective, url_input, image_display, instructions_history, history
 
-            history[-1][1] = "Done."
+            history[-1][1] = "✅ Done."
             yield objective, url_input, image_display, instructions_history, history
             
         return process_instructions_impl
@@ -205,61 +179,71 @@ from selenium.webdriver.common.keys import Keys
         
         return add_message
 
-    def launch(self, server_port: int = 7860, share=True, debug=True):
-        """
-        Launch the gradio demo
+    def launch(self, server_port=7860, share=True, debug=True):
+        def toggle_to_url():
+            return (
+                gr.update(visible=True), 
+                gr.update(visible=False),
+                gr.update(elem_classes=["selected", "my-button"]),
+                gr.update(elem_classes=["unselected", "my-button"])
+            )
 
-        Args:
-            base_url (`str`): the url placeholder
-            instructions (List[`str`]): List of default instructions
-            max_tokens
-        """
-        with gr.Blocks() as demo:
+        def toggle_to_objective():
+            return (
+                gr.update(visible=False), 
+                gr.update(visible=True),
+                gr.update(elem_classes=["unselected", "my-button"]),
+                gr.update(elem_classes=["selected", "my-button"])
+            )
+
+        with gr.Blocks(gr.themes.Default(primary_hue="blue", secondary_hue="neutral"), css=css) as demo:
             with gr.Tab("LaVague"):
                 with gr.Row():
                     gr.HTML(self.title)
-                with gr.Row():
-                    url_input = gr.Textbox(
-                        value="",
-                        label="Enter URL and press 'Enter' to load the page.",
-                    )
 
-                with gr.Row(variant="panel"):
-                    with gr.Column(scale=2):
-
-                        history_txt = gr.HTML(self.title_history)
-
-                        instructions_history = gr.HTML(html)
-
-                    with gr.Column(scale=8):
-                        image_display = gr.Image(label="Browser", interactive=False)
-
-                with gr.Row():
-                    with gr.Column(scale=8, variant="panel"):
+                with gr.Row(equal_height=False):
+                    with gr.Column():
+                        with gr.Row():
+                                url_button = gr.Button("URL", scale=0, variant="primary", elem_classes=["selected", "my-button"],)
+                                objective_button = gr.Button("Objective", scale=0, variant="secondary", elem_classes=["unselected", "my-button"])
+                                url_input = gr.Textbox(
+                                value="",
+                                scale=9,
+                                type="text",
+                                label="Enter URL and press 'Enter' to load the page.",
+                                visible=True
+                                )
+                                objective_input = gr.Textbox(
+                                    value="",
+                                    scale=9,
+                                    type="text",
+                                    label="Enter the objective and press 'Enter' to start processing it.",
+                                    visible=False
+                                )
+                with gr.Row(variant="panel", equal_height=True):
+                    with gr.Column(scale=7):
+                        image_display = gr.Image(label="Browser", interactive=False,  height="70%")
+                    with gr.Column(scale=3):
                         chatbot = gr.Chatbot(
                             [],
                             elem_id="chatbot",
                             bubble_full_width=True,
-                            height=250,
-                            placeholder="Your history of usage will be shown here",
+                            height="70%",
+                            placeholder="Agent output will be shown here\n",
                             layout="bubble"
                         )
-                        text_area = gr.Textbox(
-                            show_label=False,
-                            placeholder="Enter the objective and press 'Enter' to start processing it.",
-                        )
-
-            # Linking components
-            url_input.submit(
-                self._init_driver(),
-                inputs=[url_input],
-                outputs=[image_display],
-            )
-            text_area.submit(self.__add_message(), inputs=[chatbot, text_area, instructions_history], outputs=[chatbot, instructions_history]).then(
+                        instructions_history = gr.HTML("<div class='list-container'><ul></ul></div>")
+                url_button.click(toggle_to_url, [], [url_input, objective_input, url_button, objective_button])
+                objective_button.click(toggle_to_objective, [], [url_input, objective_input, url_button, objective_button])
+                
+                # objective submission handling
+                objective_input.submit(self.__add_message(), inputs=[chatbot, objective_input, instructions_history], outputs=[chatbot, instructions_history]).then(
                 self._process_instructions(),
-                inputs=[text_area, url_input, image_display, instructions_history, chatbot],
-                outputs=[text_area, url_input, image_display, instructions_history, chatbot],
+                inputs=[objective_input, url_input, image_display, instructions_history, chatbot],
+                outputs=[objective_input, url_input, image_display, instructions_history, chatbot],
             )
+                # submission handling
+                url_input.submit(self._init_driver(), inputs=[url_input], outputs=[image_display])
         demo.launch(server_port=server_port, share=True, debug=True)
 
 
@@ -299,10 +283,13 @@ class GradioDemo:
 
         return init_driver_impl
 
-    def _process_instructions(self):
-        def process_instructions_impl(query, url_input):
+    def _process_URL(self):
+        def process_url_impl(query, url_input):
             if url_input != self.action_engine.driver.get_url():
                 self.action_engine.driver.goto(url_input)
+    
+    def _process_instructions(self):
+        def process_instructions_impl(query, url_input):
             response = ""
             for text in self.action_engine.get_action_streaming(query):
                 # do something with text as they arrive.
