@@ -42,7 +42,7 @@ Here's an example of how to initialize `SeleniumDriver` to display the browser i
 driver = SeleniumDriver(headless=False, chrome_user_dir="path/to/your/chrome/profile")
 ```
 
-### Bind to an already exising instance running in debug mode
+### Bind to an already existing instance running in debug mode
 
 Here's how to bind to an already existing Chrome instance running in debug mode. 
 
