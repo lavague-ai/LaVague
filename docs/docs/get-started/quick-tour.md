@@ -37,6 +37,9 @@ selenium_driver = SeleniumDriver(headless=False)
 action_engine = ActionEngine(selenium_driver)
 ```
 
+!!! tip "Headless vs non-headless"
+    We use in this demo non-headless mode, aka you can see you driver being piloted. This is good for debug as you can see your agent live. However, it might not be optimal for performance, as headless requires fewer resources. You can learn more about headless vs non-headless [here](https://www.browserstack.com/guide/what-is-headless-browser-testing).
+
 ## Python Engine
 
 The python engine is responsible for generating code that doesn't interact with an html page.
@@ -73,6 +76,25 @@ agent.run("Go on the quicktour of PEFT")
 ```
 
 ![qt_output](../../assets/demo_agent_hf.gif)
+
+## Recap
+
+Here is the full code to create and run your agent using LaVague:
+
+```python
+from lavague.drivers.selenium import SeleniumDriver
+from lavague.core import ActionEngine, PythonEngine, WorldModel, WebAgent
+
+selenium_driver = SeleniumDriver(headless=False)
+action_engine = ActionEngine(selenium_driver)
+python_engine = PythonEngine()
+world_model = WorldModel()
+
+agent = WebAgent(world_model, action_engine, python_engine)
+
+agent.get("https://huggingface.co/docs")
+agent.run("Go on the quicktour of PEFT")
+```
 
 ## Learn
 
