@@ -130,7 +130,7 @@ class GradioAgentDemo:
                             image_display = image
                             yield objective, url_input, image_display, instructions_history, history
 
-                            # time.sleep(1)
+                            time.sleep(1)
 
                             local_scope = {"driver": driver}
 
