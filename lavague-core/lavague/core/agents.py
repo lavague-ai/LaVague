@@ -16,6 +16,7 @@ from lavague.core.utilities.format_utils import (
 import logging
 from lavague.core.utilities.web_utils import display_screenshot, get_highlighted_element
 from io import BytesIO
+import datetime
 
 try:
     from selenium.webdriver.remote.webdriver import WebDriver
@@ -245,11 +246,14 @@ from selenium.webdriver.common.keys import Keys
                     os.mkdir("./logs")
                 # Convert log_lines to a DataFrame
                 df = pd.DataFrame(log_lines)
+
+                now = datetime.datetime.now()
+                timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
                     
                 # Write DataFrame to a Parquet file
-                df.to_parquet(f"./logs/{run_id}.parquet", engine='fastparquet', index=False)
+                df.to_parquet(f"./logs/{timestamp}.parquet", engine='fastparquet', index=False)
                     
-                logger.info(f"Logs exported to logs/{run_id}.parquet")
+                logger.info(f"Logs exported to logs/{timestamp}.parquet")
 
             except Exception as e:
                 logger.warning(f"Logs couldn't be exported due to an error: {repr(e)}")
