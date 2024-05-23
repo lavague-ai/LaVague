@@ -86,7 +86,7 @@ def send_telemetry(
         elif TELEMETRY_VAR == "NONE":
             pass
 
-        if log:
+        if log or TELEMETRY_VAR == "HIGH":
             if before is not None:
                 before = compress_img(before)
             if image is not None:

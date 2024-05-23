@@ -5,10 +5,19 @@ from lavague.core.utilities.format_utils import extract_instruction
 from lavague.core import ActionEngine, WorldModel
 from PIL import Image
 import time
+import logging
 
 N_ATTEMPTS = 5
 N_STEPS = 5
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(format)
+logger.addHandler(ch)
+logger.propagate = False
 
 class WebAgent:
     """
@@ -58,7 +67,7 @@ class WebAgent:
             if display:
                 display_screenshot(screenshot_before_action)
 
-            print("Computing an action plan...")
+            logger.info("Computing an action plan...")
 
             # We get the current screenshot into base64 before sending to our World Model
             state = encode_image("screenshot_before_action.png")
@@ -66,9 +75,9 @@ class WebAgent:
             # We get the instruction for the action engine using the world model
             output = world_model.get_instruction(state, objective)
             instruction = extract_instruction(output)
-            print(instruction)
+            logger.info(instruction)
 
-            print("Thoughts:", output)
+            logger.info(f"Thoughts: {output}")
             if instruction != "STOP":
                 query = instruction
                 html = driver.page_source
@@ -92,7 +101,7 @@ class WebAgent:
                         if display:
                             display_screenshot(image)
 
-                        print("Showing the next element to interact with")
+                        logger.info("Showing the next element to interact with")
                         time.sleep(3)
 
                         local_scope = {"driver": driver}
@@ -115,7 +124,8 @@ from selenium.webdriver.common.keys import Keys
 
                     except Exception as e:
                         success = False
-                        print(f"Action execution failed with {e}.\n Retrying...")
+                        logger.error(f"Action execution failed with {e}.\n Retrying...")
+                        logger.info(f"Retrying...")
                         screenshot_after_action = None
                         image = None
                         error = repr(e)
@@ -149,7 +159,7 @@ from selenium.webdriver.common.keys import Keys
                             log_lines.append(line)
 
             else:
-                print("Objective reached")
+                logger.info("Objective reached")
                 break
 
         if log:
@@ -160,16 +170,12 @@ from selenium.webdriver.common.keys import Keys
                 if os.path.isdir("./logs") == False:
                     os.mkdir("./logs")
                 # Convert log_lines to a DataFrame
-                print(log_lines)
                 df = pd.DataFrame(log_lines)
-
-                print(df)
                 
                 # Write DataFrame to a Parquet file
                 df.to_parquet(f"./logs/{run_id}.parquet", engine='fastparquet', index=False)
                 
-                print(f"Logs exported to logs/{run_id}.parquet")
+                logger.info(f"Logs exported to logs/{run_id}.parquet")
 
             except Exception as e:
-                print("Logs couldn't be exported due to an error.")
-                print(e)
+                logger.warning("Logs couldn't be exported due to an error: " + e)
