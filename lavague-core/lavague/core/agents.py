@@ -2,7 +2,7 @@ import yaml
 import time
 import uuid
 from PIL import Image
-from lavague.core.utilities.telemetry import send_telemetry, send_telemetry_scr
+from lavague.core.utilities.telemetry import send_telemetry
 from pathlib import Path
 from llama_index.core import SimpleDirectoryReader
 from lavague.core.action_engine import ActionEngine
@@ -15,6 +15,7 @@ from lavague.core.utilities.format_utils import (
 )
 import logging
 from lavague.core.utilities.web_utils import display_screenshot, get_highlighted_element
+from io import BytesIO
 
 try:
     from selenium.webdriver.remote.webdriver import WebDriver
@@ -96,6 +97,8 @@ class WebAgent:
         Path("./screenshots").mkdir(exist_ok=True)
         self.driver.save_screenshot(screenshot_path)
         screenshot_before_action = Image.open(screenshot_path)
+        before_bytes = BytesIO(open(screenshot_path, "rb").read())
+        before = Image.open(before_bytes)
         if display:
             display_screenshot(screenshot_before_action)
         image_documents = SimpleDirectoryReader("./screenshots").load_data()
@@ -133,6 +136,7 @@ class WebAgent:
                         action_code = ""
                         image = None
                         screenshot_after_action = None
+                        after = None
                         error = ""
                         url = self.driver.current_url
                         success = True
@@ -157,16 +161,18 @@ from selenium.webdriver.common.keys import Keys
                         self.driver.save_screenshot(screenshot_path)
                         screenshot_before_action = screenshot_after_action
                         screenshot_after_action = Image.open(screenshot_path)
+                        after_bytes = BytesIO(open(screenshot_path, "rb").read())
+                        after = Image.open(after_bytes)
                         if display:
                             display_screenshot(screenshot_after_action)
                         success = True
                         break
                     except Exception as e:
+                        error = repr(e)
                         logging.error(f"Action execution failed. Retrying...")
-                        logging.error("Error: ", e)
+                        logging.error(f"Error: {error}")
                         screenshot_after_action = None
                         image = None
-                        error = repr(e)
                     finally:
                         action_id = str(uuid.uuid4())
                         line = send_telemetry(
@@ -188,9 +194,9 @@ from selenium.webdriver.common.keys import Keys
                             step_id=step_id,
                             run_id=run_id,
                             log=log,
-                            before=screenshot_before_action,
+                            before=before,
                             image=image,
-                            after=screenshot_after_action,
+                            after=after,
                         )
                         if log:
                             log_lines.append(line)
@@ -226,5 +232,26 @@ from selenium.webdriver.common.keys import Keys
 
             last_engine = next_engine
 
+
+
+
+        if log:
+            import pandas as pd
+            import fastparquet
+            import os
+
+            try:
+                if os.path.isdir("./logs") == False:
+                    os.mkdir("./logs")
+                # Convert log_lines to a DataFrame
+                df = pd.DataFrame(log_lines)
+                    
+                # Write DataFrame to a Parquet file
+                df.to_parquet(f"./logs/{run_id}.parquet", engine='fastparquet', index=False)
+                    
+                logger.info(f"Logs exported to logs/{run_id}.parquet")
+
+            except Exception as e:
+                logger.warning(f"Logs couldn't be exported due to an error: {repr(e)}")
         output = current_state["internal_state"]["agent_outputs"]
         return output
