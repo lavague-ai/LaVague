@@ -130,7 +130,7 @@ class WebAgent:
 
                 for _ in range(n_attempts):
                     try:
-                        code = ""
+                        action_code = ""
                         image = None
                         screenshot_after_action = None
                         error = ""
@@ -171,7 +171,7 @@ from selenium.webdriver.common.keys import Keys
                         action_id = str(uuid.uuid4())
                         line = send_telemetry(
                             model_name=action_engine.llm.metadata.model_name,
-                            code=action,
+                            code=action_code,
                             instruction=instruction,
                             url=url,
                             origin="Agent",
