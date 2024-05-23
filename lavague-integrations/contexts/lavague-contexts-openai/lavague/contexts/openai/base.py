@@ -5,18 +5,8 @@ from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
-from llama_index.core import PromptTemplate
 import os
-from lavague.core import (
-    OpsmSplitRetriever,
-    DefaultPromptTemplate,
-    PythonFromMarkdownExtractor,
-    Context,
-    get_default_context,
-)
-from lavague.core.extractors import BaseExtractor
-from lavague.core.retrievers import BaseHtmlRetriever
-from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
+from lavague.core.context import Context, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
 
 
 class OpenaiContext(Context):
@@ -26,9 +16,6 @@ class OpenaiContext(Context):
         llm: str = "gpt-3.5-turbo",
         mm_llm: str = "gpt-4o",
         embedding: str = "text-embedding-3-large",
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
-        prompt_template: PromptTemplate = DefaultPromptTemplate(),
-        extractor: BaseExtractor = PythonFromMarkdownExtractor(),
     ) -> Context:
         if api_key is None:
             api_key = os.getenv("OPENAI_API_KEY")
@@ -43,9 +30,6 @@ class OpenaiContext(Context):
             ),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
             OpenAIEmbedding(api_key=api_key, model=embedding),
-            retriever,
-            prompt_template,
-            extractor,
         )
 
 
@@ -58,9 +42,6 @@ class AzureOpenaiContext(Context):
         llm: Optional[str] = None,
         mm_llm: Optional[str] = None,
         embedding: BaseEmbedding = OpenAIEmbedding(model="text-embedding-3-large"),
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
-        prompt_template: PromptTemplate = DefaultPromptTemplate(),
-        extractor: BaseExtractor = PythonFromMarkdownExtractor(),
     ):
         if api_key is None:
             api_key = os.getenv("AZURE_OPENAI_KEY")
@@ -76,7 +57,4 @@ class AzureOpenaiContext(Context):
                 model=mm_llm, api_key=api_key, endpoint=endpoint, deployment=deployment
             ),
             embedding,
-            retriever,
-            prompt_template,
-            extractor,
         )

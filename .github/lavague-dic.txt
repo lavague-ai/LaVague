@@ -2,7 +2,8 @@ LaVague
 Lavague
 LLM
 Gradio
-actionEngine
+ActionEngine
+PythonEngine
 config
 embedder
 py
@@ -85,3 +86,11 @@ LeCun's
 webpage
 WaveHunter
 viewport
+GeminiEmbedding
+OpenaiContext
+embeddings
+gemini
+llms
+openai
+OpenAIMultiModal
+gpt

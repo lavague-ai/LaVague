@@ -4,7 +4,7 @@ requires = ["poetry-core"]
 
 [tool.poetry]
 name = "lavague-core"
-version = "0.1.4"
+version = "0.1.8"
 description = "automation code generation from text instructions"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -27,8 +27,9 @@ packages = [{include = "lavague/"}]
 python = "^3.10.0"
 llama-index = "^0.10.19"
 llama-index-retrievers-bm25 = "^0.1.3"
-lxml = "^5.2.2"
+lxml = "^5.1.1"
 langchain = "^0.1.20"
 ipython = "^7.34.0"
 msgpack = "^1.0.8"
+trafilatura = "^1.9.0"
 fastparquet = "^2024.5.0"

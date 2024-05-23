@@ -52,13 +52,15 @@ pip install lavague
 2. Use our framework to build a Web Agent and implement the objective:
 
 ```python
-from lavague.core import WebAgent, WorldModel, ActionEngine
+from lavague.core import  WorldModel, ActionEngine, PythonEngine
+from lavague.core.agents import WebAgent
 from lavague.drivers.selenium import SeleniumDriver
 
-selenium_driver = SeleniumDriver()
-world_model = WorldModel.from_hub("hf_example")
+selenium_driver = SeleniumDriver(headless=False)
+world_model = WorldModel()
 action_engine = ActionEngine(selenium_driver)
-agent = WebAgent(action_engine, world_model)
+python_engine = PythonEngine()
+agent = WebAgent(world_model, action_engine, python_engine)
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
 ```
