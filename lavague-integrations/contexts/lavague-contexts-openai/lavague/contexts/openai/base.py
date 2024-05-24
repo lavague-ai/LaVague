@@ -13,7 +13,7 @@ class OpenaiContext(Context):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        llm: str = "gpt-3.5-turbo",
+        llm: str = "gpt-4o",
         mm_llm: str = "gpt-4o",
         embedding: str = "text-embedding-3-large",
     ) -> Context:
