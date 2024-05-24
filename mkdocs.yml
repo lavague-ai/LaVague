@@ -121,6 +121,9 @@ nav:
   - Data Entry:
     - Fill out forms: "docs/use-cases/forms.md"
 
+- 📝 End to end examples:
+  - Automated job application: "docs/examples/job-application.md"
+
 - 🤗 Contributing:
   - Overview: "docs/contributing/contributing.md"
   - General guidelines: "docs/contributing/general.md"
