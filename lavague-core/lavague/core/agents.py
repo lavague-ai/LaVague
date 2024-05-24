@@ -137,8 +137,7 @@ class WebAgent:
                         action_code = f"""
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-                        {action}""".strip()
-
+{action}"""
                         local_scope = {"driver": self.driver}
                         exec(action_code, local_scope, local_scope)
                         time.sleep(time_between_actions)
