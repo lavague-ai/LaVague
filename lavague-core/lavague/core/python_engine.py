@@ -11,16 +11,16 @@ from llama_index.core.embeddings import BaseEmbedding
 import trafilatura
 from llama_index.core import Document, VectorStoreIndex
 
-class PythonEngine:
 
+class PythonEngine:
     llm: BaseLLM
     embedding: BaseEmbedding
-        
+
     def __init__(
         self,
         llm: BaseLLM = get_default_context().llm,
         embedding: BaseEmbedding = get_default_context().embedding,
-        ):
+    ):
         self.llm = llm
         self.embedding = embedding
 
@@ -30,11 +30,11 @@ class PythonEngine:
         context: Context,
     ):
         return cls(context.llm, context.embedding)
-        
+
     def extract_information(self, instruction: str, html: str) -> str:
         llm = self.llm
         embedding = self.embedding
-        
+
         page_content = trafilatura.extract(html)
         # Next we will use Llama Index to perform RAG on the extracted text content
 
@@ -46,5 +46,5 @@ class PythonEngine:
 
         # We finally store the output in the variable 'output'
         output = query_engine.query(instruction).response
-        
+
         return output
