@@ -24,4 +24,7 @@ def exec_warning():
 
 telemetry_warning()
 exec_warning()
-check_latest_version()
+try:
+    check_latest_version()
+except:
+    pass
