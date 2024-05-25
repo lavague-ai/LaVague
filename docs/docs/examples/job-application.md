@@ -1,6 +1,6 @@
 # Automated job application
 
-# Automatic form filling with LaVague
+## Automatic form filling with LaVague
 
 <a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/examples/Idefics_LaVague_notebook.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
@@ -15,7 +15,7 @@ You can run this example directly with a CLI script [available here](https://git
 
 This notebook will go through this example step by step to get into more details.
 
-## Pre-requisites
+### Pre-requisites
 
 **Note**: We use OpenAI's models, for the embedding, LLM and Vision model. You will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for this example to work.
 
@@ -23,21 +23,21 @@ If you don't have an OpenAI API key, please get one here: https://platform.opena
 
 You can also get a Hugging Face token here: https://huggingface.co/docs/hub/security-tokens
 
-# Installation
+## Installation
 
 For this example, we will use Hugging Face Inference API, OpenAI API, and LaVague.
 
 ```bash
-!pip install text-generation lavague
+pip install text-generation lavague
 ```
 
 
 We will need to set our OpenAI Key. If you are running this as a Colab, you can provide it through Colab secrets (see the key icon on the left-hand side of the Colab notebook) named 'OPENAI_API_KEY' and then convert it to an environment variable with the same name.
 
+```python
 import os
 
 # Check if running in Google Colab
-```python
 try:
     from google.colab import userdata
     IN_COLAB = True
@@ -55,11 +55,11 @@ from text_generation import Client
 os.environ["OPENAI_API_KEY"] = fetch_secret("OPENAI_API_KEY")
 ```
 
-# OCR with Hugging Face Idefics2-8b
+## OCR with Hugging Face Idefics2-8b
 
 We will use here Hugging Face Inference API to leverage the model Idefics2-8b, an open-source Multimodal LLM, in order to extract the description of the candidate from her resume.
 
-```python
+```
 from text_generation import Client
 import os
 
@@ -150,7 +150,7 @@ We provide a workaround by using Cloudinary to upload an image first and then ge
 You will need to look at https://cloudinary.com/documentation/image_upload_api_reference for more information to get your credentials.
 
 
-# AI Web Agent building with LaVague
+## AI Web Agent building with LaVague
 
 Here we will define and run an agent using LaVague.
 
@@ -160,10 +160,8 @@ LaVague has two main components:
 
 For this demo, we will use a local embedding model ([bge-small](https://huggingface.co/BAAI/bge-small-en-v1.5)) and GPT-3.5 for our Action Engine.
 
-
-
 ```python
-!pip install llama-index-embeddings-huggingface
+pip install llama-index-embeddings-huggingface
 
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
