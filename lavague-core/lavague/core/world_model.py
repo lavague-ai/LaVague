@@ -1,12 +1,14 @@
 from __future__ import annotations
-from typing import Optional
 from abc import ABC
-import os
-
+from PIL import Image
 from llama_index.core import PromptTemplate
 from llama_index.core.multi_modal_llms import MultiModalLLM
-
+from llama_index.core import SimpleDirectoryReader
+from pathlib import Path
 from lavague.core.context import Context, get_default_context
+from lavague.core.logger import AgentLogger
+import time
+import yaml
 
 WORLD_MODEL_GENERAL_EXAMPLES = """
 Objective:  Go to the first issue you can find
@@ -71,7 +73,7 @@ Next engine: Python Engine
 Instruction: Extract the code to get started with the Gemini API from the content of the page.
 -----
 Objective: Show what is the cheapest product
-Previous instructions: [NONE]
+Previous instructions: []
 Last engine: [NONE]
 Current state:
 external_observations:
@@ -127,7 +129,7 @@ internal_state:
 Thoughts:
 - The screenshot shows the description of the author.
 - The description of the author has been successfully extracted from the content of the page.
-- The objective has been reached.
+- The objective has been reached. The search bar of HF is syntaxic not semantic therefore I s
 Next engine: STOP
 Instruction: STOP
 """
@@ -193,11 +195,13 @@ class WorldModel(ABC):
         mm_llm: MultiModalLLM = get_default_context().mm_llm,
         prompt_template: PromptTemplate = WORLD_MODEL_PROMPT_TEMPLATE,
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
+        logger: AgentLogger = None,
     ):
         self.mm_llm: MultiModalLLM = mm_llm
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
             examples=examples
         )
+        self.logger: AgentLogger = logger
 
     @classmethod
     def from_context(
@@ -211,21 +215,47 @@ class WorldModel(ABC):
     def get_instruction(
         self,
         objective: str,
-        previous_instructions: str,
-        last_engine: str,
-        current_state: str,
-        image_documents: str,
+        current_state: dict,
+        past: dict,
+        observations: dict,
     ) -> str:
         """Use GPT*V to generate instruction from the current state and objective."""
         mm_llm = self.mm_llm
-
+        logger = self.logger
+        
+        previous_instructions = past["previous_instructions"]
+        last_engine = past["last_engine"]
+        
+        try:
+          current_state_str = yaml.dump(current_state, default_flow_style=False)
+        except:
+          raise Exception("Could not convert current state to YAML")
+        
+        screenshot: Image.Image = observations["screenshot"]
+        
+        Path("./screenshots").mkdir(exist_ok=True)
+        screenshot.save("./screenshots/screenshot.png")
+        image_documents = SimpleDirectoryReader("./screenshots").load_data()
+        
         prompt = self.prompt_template.format(
             objective=objective,
             previous_instructions=previous_instructions,
             last_engine=last_engine,
-            current_state=current_state,
+            current_state=current_state_str,
         )
 
+        start = time.time()
         mm_llm_output = mm_llm.complete(prompt, image_documents=image_documents).text
-
+        end = time.time()
+        world_model_inference_time = end - start
+        
+        if logger:
+            log = {
+              "world_model_prompt": prompt,
+              "world_model_input": screenshot,
+              "world_model_output": mm_llm_output,
+              "world_model_inference_time": world_model_inference_time,
+            }
+            logger.add_log(log)
+        
         return mm_llm_output

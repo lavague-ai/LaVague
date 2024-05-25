@@ -90,3 +90,8 @@ class BaseDriver(ABC):
     def get_capability(self) -> str:
         """Prompt to explain the llm which style of code he should output and which variables and imports he should expect"""
         pass
+
+    @abstractmethod
+    def get_obs(self) -> dict:
+        """Get the current observation of the driver"""
+        pass
