@@ -10,7 +10,7 @@ This will install a core bundle of lavague packages required for usage of lavagu
 
 !!! note "Optional lavague packages"
 
-    If you want to use packages not included in our default bundle, you will need to manually install the relevenat package.
+    If you want to use packages not included in our default bundle, you will need to manually install the relevant package.
 
     For example, if you want to use a non-default context such as the Gemini context. You would need to run:
 
