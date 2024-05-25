@@ -4,6 +4,7 @@ from lavague.core.context import Context, get_default_context
 from lavague.core.extractors import PythonFromMarkdownExtractor
 from lavague.core.retrievers import OpsmSplitRetriever
 from lavague.core.world_model import WorldModel
+from lavague.core.utilities.version_checker import check_latest_version
 
 import os
 import warnings
@@ -23,3 +24,4 @@ def exec_warning():
 
 telemetry_warning()
 exec_warning()
+check_latest_version()

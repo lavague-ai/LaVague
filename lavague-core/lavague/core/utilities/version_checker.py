@@ -1,5 +1,6 @@
 import requests
 import pkg_resources
+import warnings
 
 YELLOW = "\033[93m"
 RESET = "\033[0m"
@@ -36,15 +37,13 @@ def get_installed_version(dist_name, lookup_dirs=None):
 
 
 def check_latest_version():
-    package_version = get_installed_version("lavague")
-    url = "https://pypi.org/pypi/lavague/json"
+    package_version = get_installed_version("lavague-core")
+    url = "https://pypi.org/pypi/lavague-core/json"
     response = requests.get(url)
     data = response.json()
     latest_version = data["info"]["version"]
     if compare_versions(package_version, latest_version) < 0:
-        print(
-            YELLOW
-            + f"You are using lavague version {package_version}, however version {latest_version} is "
-            "available.\nYou should consider upgrading via the "
-            "'pip install --upgrade lavague' command." + RESET
-        )
+        warnings.warn(
+            YELLOW + f"You are using lavague-core version {package_version}, however version {latest_version} is "
+            "available. You should consider upgrading via the "
+            "'pip install --upgrade lavague-core' command." + RESET, UserWarning)
