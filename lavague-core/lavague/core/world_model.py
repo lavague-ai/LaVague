@@ -92,7 +92,7 @@ Thought:
 - Other strategies have to be pursued to reach the objective.
 - There seems to be a link at the end of the screen about departments, with mention of a 'Software development' section that could be promising.
 - The best next step is to explore this link to find information about the tech stack.
-Next engine: Navigation Controls
+Next engine: Navigation Engine
 Instruction: Click on the 'Software development' link.
 -----
 Objective: Provide a quick description of the author
@@ -117,9 +117,8 @@ The author is a software engineer with a passion for AI and machine learning. He
 ```
 -----
 Objective: Find the latest papers on KAN models
-Previous instructions:
-- Browse the whole page for more information
-Last engine: Navigation Controls
+Previous instructions: [NONE]
+Last engine: [NONE]
 Current state:
 external_observations:
   vision: '[SCREEENSHOTS]'
@@ -138,9 +137,8 @@ Next engine: Navigation Engine
 Instruction: Click on the 'Previous' button.
 -----
 Objective: Find the latest papers on Fine tuning
-Previous instructions:
-- Browse the whole page for more information
-Last engine: Navigation Controls
+Previous instructions: [NONE]
+Last engine: [NONE]
 Current state:
 external_observations:
   vision: '[SCREEENSHOTS]'
@@ -181,7 +179,6 @@ Here are the engines at your disposal:
 It does not impact the outside world and does not navigate.
 - Navigation Engine: This engine is used when the next step of the task requires further navigation to reach the goal. 
 For instance it can be used to click on a link or to fill a form on a webpage. This engine is heavy and will do complex processing of the current HTML to decide which element to interact with.
-- Navigation Controls: This is a simpler engine to do commands that does not require reasoning, such as 'WAIT'.
 
 Here are guidelines to follow:
 
@@ -196,7 +193,7 @@ Only provide directly the desired output in the instruction in cases where there
 - If the objective requires information gathering, and the previous step was a Navigation step, do not directly stop when seeing the information but use the Python Engine to gather as much information as possible.
 
 # Navigation guidlines
-- If the screenshot provides information but seems insufficient, use navigation controls to further explore the page.
+- You are provided with screenshots of the whole page. There is no need to try to scroll for more information. Leverage all the information in the screenshots to reach the objective.
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
 - If several steps have to be taken, provide instructions in bullet points.
 
