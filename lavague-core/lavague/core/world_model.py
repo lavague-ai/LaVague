@@ -1,12 +1,13 @@
 from __future__ import annotations
 from abc import ABC
+from typing import List
 from PIL import Image
 from llama_index.core import PromptTemplate
 from llama_index.core.multi_modal_llms import MultiModalLLM
 from llama_index.core import SimpleDirectoryReader
 from pathlib import Path
 from lavague.core.context import Context, get_default_context
-from lavague.core.logger import AgentLogger
+from lavague.core.logger import AgentLogger, Loggable
 import time
 import yaml
 
@@ -19,13 +20,13 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state: 
 external_observations:
-  vision: '[SCREEENSHOT]'
+  vision: '[SCREEENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
 
 Thoughts:
-- The current screenshot shows the issues page of the GitHub repository 'lavague-ai/LaVague'.
+- The current page shows the issues page of the GitHub repository 'lavague-ai/LaVague'.
 - The objective is to go to the first issue.
 - Previous instructions have been unsuccessful. A new approach should be used.
 - The '#225' seems not to be clickable and it might be relevant to devise an instruction that does not include it. 
@@ -38,13 +39,13 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state:
 external_observations:
-  vision: '[SCREEENSHOT]'
+  vision: '[SCREEENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
 
 Thoughts:
-- The current screenshot shows the model page for 'meta-llama/Meta-Llama-3-8B' on Hugging Face.
+- The current page shows the model page for 'meta-llama/Meta-Llama-3-8B' on Hugging Face.
 - Hugging Face, is a hub for AI models and datasets, where users can explore and interact with a variety of AI models.
 - I am therefore on the right page to find information about the release date of 'Meta-Llama-3-8B'.
 - To find the release date, I need to locate the relevant information in the content of the page.
@@ -72,24 +73,6 @@ Thoughts:
 Next engine: Python Engine
 Instruction: Extract the code to get started with the Gemini API from the content of the page.
 -----
-Objective: Show what is the cheapest product
-Previous instructions: []
-Last engine: [NONE]
-Current state:
-external_observations:
-  vision: '[SCREEENSHOT]'
-internal_state:
-  agent_outputs: []
-  user_inputs: []
-  
-Thoughts:
-- The screenshot shows an e-commerce website with various products.
-- To find the cheapest product, I need to identify the product with the lowest price.
-- There seems to be selectors for sorting products by price on the left side of the page.
-- The screenshot only shows part of the selectors for price. I should scroll down to see the full list of products and prices.
-Next engine: Navigation Controls
-Instruction: SCROLL_DOWN
------
 Objective: What tech stack do we use?
 Previous instructions: 
 - [FAILED] Locate and click on the "Technology Solutions" link or section to find information about the tech stack.
@@ -97,7 +80,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state: 
 external_observations:
-  vision: '[SCREEENSHOT]'
+  vision: '[SCREEENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -107,32 +90,77 @@ Thought:
 - It has information about the company, their services, and departments.
 - Previous instructions tried to click on "Technology Solutions" without success. This probably means that "Technology Solutions" is not clickable or reachable.
 - Other strategies have to be pursued to reach the objective.
-- There seems to be information at the end of the screen about departments, with mention of a 'Software development' section that could be promising.
-- The best next step is to scroll down to gather more information.
+- There seems to be a link at the end of the screen about departments, with mention of a 'Software development' section that could be promising.
+- The best next step is to explore this link to find information about the tech stack.
 Next engine: Navigation Controls
-Instruction: SCROLL_DOWN
+Instruction: Click on the 'Software development' link.
 -----
-Objective: Find the description of the author
+Objective: Provide a quick description of the author
 Previous instructions:
 - Click on 'About the author'
-- Extract the description of the author from the content of the page.
 Last engine: Python Engine
 Current state:
 external_observations:
-  vision: '[SCREEENSHOT]'
+  vision: '[SCREEENSHOTS]'
 internal_state:
-  agent_outputs: [
-    'The author is a software engineer with a passion for AI and machine learning. He has worked on various projects and has a blog where he shares his knowledge and experience.'
-  ]
+  agent_outputs: []
   user_inputs: []
 
 Thoughts:
-- The screenshot shows the description of the author.
-- The description of the author has been successfully extracted from the content of the page.
-- The objective has been reached. The search bar of HF is syntaxic not semantic therefore I s
+- The screenshot shows a personal biography of the author.
+- The goal is to provide a quick description of the author.
+- This description is brief and can be directly extracted.
 Next engine: STOP
-Instruction: STOP
+Instruction: 
+```
+The author is a software engineer with a passion for AI and machine learning. He has worked on various projects and has a blog where he shares his knowledge and experience.
+```
+-----
+Objective: Find the latest papers on KAN models
+Previous instructions:
+- Browse the whole page for more information
+Last engine: Navigation Controls
+Current state:
+external_observations:
+  vision: '[SCREEENSHOTS]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The screenshots show the papers page of Hugging Face.
+- The objective is to find the latest papers on KAN models.
+- The previous instruction was to browse the whole page for more information.
+- The screenshots show that the whole page has been scrolled through.
+- There has not been a paper mentioning KAN models.
+- The best next step is to go earlier in time by clicking on the 'Previous' button.
+Next engine: Navigation Engine
+Instruction: Click on the 'Previous' button.
+-----
+Objective: Find the latest papers on Fine tuning
+Previous instructions:
+- Browse the whole page for more information
+Last engine: Navigation Controls
+Current state:
+external_observations:
+  vision: '[SCREEENSHOTS]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The screenshots show the papers page of Hugging Face.
+- The objective is to find the latest papers on Fine tuning.
+- The previous instruction was to browse the whole page for more information.
+- The screenshots show that the whole page has been scrolled through.
+- There has been a paper mentioning Fine tuning called 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control'
+- The best next step is to go on the paper page and provide a summary.
+Next engine: Navigation Engine
+Instruction: Click on the paper 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control'
+-----
 """
+
+
 
 WORLD_MODEL_PROMPT_TEMPLATE = PromptTemplate(
     """
@@ -153,13 +181,14 @@ Here are the engines at your disposal:
 It does not impact the outside world and does not navigate.
 - Navigation Engine: This engine is used when the next step of the task requires further navigation to reach the goal. 
 For instance it can be used to click on a link or to fill a form on a webpage. This engine is heavy and will do complex processing of the current HTML to decide which element to interact with.
-- Navigation Controls: This is a simpler engine to do commands that does not require reasoning, which are 'SCROLL_DOWN', 'SCROLL_UP' and 'WAIT'.
+- Navigation Controls: This is a simpler engine to do commands that does not require reasoning, such as 'WAIT'.
 
 Here are guidelines to follow:
 
 # General guidelines
-- The instruction should be detailed as possible and only contain the next step. 
-- If the objective is already achieved in the screenshot, or the current state contains the demanded information, provide the next engine and instruction 'STOP'.
+- The instruction should be detailled as possible and only contain the next step. 
+- If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'STOP'. If information is to be returned, provide it in the instruction inside a code block.
+Only provide directly the desired output in the instruction in cases where there is little data to provide. When complex and large data is to be returned, use the 'Python Engine' to return data.
 - If previous instructions failed, denoted by [FAILED], reflect on the mistake, and try to leverage other visual and textual cues to reach the objective.
 
 # Python Engine guidelines
@@ -186,8 +215,20 @@ Thought:
 """
 )
 
+import os
+def clean_directory(path):
 
-class WorldModel(ABC):
+    # Get all the file names in the directory
+    file_names = os.listdir(path)
+
+    # Iterate over the file names and remove each file
+    for file_name in file_names:
+        file_path = os.path.join(path, file_name)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+
+class WorldModel(ABC, Loggable):
     """Abstract class for WorldModel"""
 
     def __init__(
@@ -211,7 +252,7 @@ class WorldModel(ABC):
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
     ) -> WorldModel:
         return cls(context.mm_llm, prompt_template, examples)
-
+    
     def get_instruction(
         self,
         objective: str,
@@ -231,10 +272,12 @@ class WorldModel(ABC):
         except:
           raise Exception("Could not convert current state to YAML")
         
-        screenshot: Image.Image = observations["screenshot"]
-        
-        Path("./screenshots").mkdir(exist_ok=True)
-        screenshot.save("./screenshots/screenshot.png")
+        screenshots: List[Image.Image] = observations["screenshots"]
+        clean_directory("./screenshots")
+        for i, screenshot in enumerate(screenshots):
+            Path("./screenshots").mkdir(exist_ok=True)
+            screenshot.save(f"./screenshots/screenshot_{i}.png")
+            
         image_documents = SimpleDirectoryReader("./screenshots").load_data()
         
         prompt = self.prompt_template.format(
@@ -252,7 +295,6 @@ class WorldModel(ABC):
         if logger:
             log = {
               "world_model_prompt": prompt,
-              "world_model_input": screenshot,
               "world_model_output": mm_llm_output,
               "world_model_inference_time": world_model_inference_time,
             }

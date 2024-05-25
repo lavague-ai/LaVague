@@ -1,10 +1,11 @@
 """TODO: Make this class generalizable"""
+from lavague.core.logger import AgentLogger, Loggable
 
-class ShortTermMemory:
+class ShortTermMemory(Loggable):
     """
     Short term memory module of the agent.
     """
-    def __init__(self, user_data=None) -> None:
+    def __init__(self, user_data=None, logger: AgentLogger = None) -> None:
         current_state = {
             "external_observations": {
                 "vision": "[SCREEENSHOT]",
@@ -14,6 +15,7 @@ class ShortTermMemory:
                 "agent_outputs": [],
             },
         }
+        self.logger = logger
         
         if user_data:
             current_state["internal_state"]["user_inputs"].append(user_data)
@@ -29,6 +31,15 @@ class ShortTermMemory:
             "previous_instructions": str(self.previous_instructions),
             "last_engine": self.last_engine,
         }
+        
+        logger = self.logger
+        
+        if logger:
+            log = {
+                "current_state": current_state,
+                "past": past,
+            }
+            logger.add_log(log)
         return current_state, past
     
     def update_state(self, instruction, last_engine, success, output):

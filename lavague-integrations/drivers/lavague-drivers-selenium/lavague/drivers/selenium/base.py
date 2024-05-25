@@ -1,9 +1,34 @@
+import time
 from typing import Any, Optional, Callable
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from lavague.core.base_driver import BaseDriver
 from PIL import Image
 from io import BytesIO
+
+def is_bottom_of_page(driver: WebDriver):
+    return driver.execute_script(
+        "return (window.innerHeight + window.scrollY) >= document.body.scrollHeight;")
+
+def get_screenshots(driver: WebDriver) -> list[Image.Image]:
+
+    screenshots = []
+    # Scroll and check if we reached the bottom of the page
+    while True:
+        # Scroll down by one screen size
+        screenshot = driver.get_screenshot_as_png()
+        screenshot = Image.open(BytesIO(screenshot))
+        screenshots.append(screenshot)
+        
+        driver.execute_script("window.scrollBy(0, (window.innerHeight / 1.5));")
+        
+        # Wait a little for the scroll action to complete
+        time.sleep(0.5)
+        
+        # Check if we have reached the bottom of the page
+        if is_bottom_of_page(driver):
+            break
+    return screenshots
 
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
@@ -68,13 +93,11 @@ class SeleniumDriver(BaseDriver):
         url = self.get_url()
         html = self.get_html()
         
-        screenshot = self.get_screenshot_as_png()
-        screenshot = BytesIO(screenshot)
-        screenshot = Image.open(screenshot)
+        screenshots = get_screenshots(self.driver)
 
         obs = {
             "html": html,
-            "screenshot": screenshot,
+            "screenshots": screenshots,
             "url": url,
         }
         
