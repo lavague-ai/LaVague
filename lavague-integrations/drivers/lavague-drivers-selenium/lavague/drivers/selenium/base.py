@@ -5,6 +5,7 @@ from lavague.core.base_driver import BaseDriver
 from PIL import Image
 from io import BytesIO
 
+
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
 
@@ -62,21 +63,18 @@ class SeleniumDriver(BaseDriver):
 
     def get_html(self) -> str:
         return self.driver.page_source
-    
+
     def get_obs(self) -> dict:
         driver = self.driver
-        
+
         html = driver.page_source
-        
+
         screenshot = driver.get_screenshot_as_png()
         screenshot = BytesIO(screenshot)
         screenshot = Image.open(screenshot)
 
-        obs = {
-            "html": html,
-            "screenshot": screenshot
-        }
-        
+        obs = {"html": html, "screenshot": screenshot}
+
         return obs
 
     def save_screenshot(self, filename: str) -> None:
@@ -112,8 +110,9 @@ class SeleniumDriver(BaseDriver):
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
-    
-SELENIUM_PROMPT_TEMPLATE = '''
+
+
+SELENIUM_PROMPT_TEMPLATE = """
 You are a Selenium expert in writing code to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to write Selenium code to answer queries. Your answer must be a Python markdown only.
 Always target elements by XPATH.
@@ -242,4 +241,4 @@ time_selector = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/main/di
 # Click on the time selector to open the time selection dropdown
 time_selector.click()
 ```python
-'''
+"""

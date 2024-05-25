@@ -44,6 +44,9 @@ def check_latest_version():
     latest_version = data["info"]["version"]
     if compare_versions(package_version, latest_version) < 0:
         warnings.warn(
-            YELLOW + f"You are using lavague-core version {package_version}, however version {latest_version} is "
+            YELLOW
+            + f"You are using lavague-core version {package_version}, however version {latest_version} is "
             "available. You should consider upgrading via the "
-            "'pip install --upgrade lavague-core' command." + RESET, UserWarning)
+            "'pip install --upgrade lavague-core' command." + RESET,
+            UserWarning,
+        )
