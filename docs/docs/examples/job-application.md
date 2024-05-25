@@ -59,7 +59,7 @@ os.environ["OPENAI_API_KEY"] = fetch_secret("OPENAI_API_KEY")
 
 We will use here Hugging Face Inference API to leverage the model Idefics2-8b, an open-source Multimodal LLM, in order to extract the description of the candidate from her resume.
 
-```
+```python
 from text_generation import Client
 import os
 
