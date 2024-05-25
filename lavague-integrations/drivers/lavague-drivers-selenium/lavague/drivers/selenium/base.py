@@ -5,7 +5,6 @@ from lavague.core.base_driver import BaseDriver
 from PIL import Image
 from io import BytesIO
 
-
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
 
@@ -63,6 +62,23 @@ class SeleniumDriver(BaseDriver):
 
     def get_html(self) -> str:
         return self.driver.page_source
+    
+    def get_obs(self) -> dict:
+        
+        url = self.get_url()
+        html = self.get_html()
+        
+        screenshot = self.get_screenshot_as_png()
+        screenshot = BytesIO(screenshot)
+        screenshot = Image.open(screenshot)
+
+        obs = {
+            "html": html,
+            "screenshot": screenshot,
+            "url": url,
+        }
+        
+        return obs
 
     def get_obs(self) -> dict:
         driver = self.driver
@@ -79,6 +95,9 @@ class SeleniumDriver(BaseDriver):
 
     def save_screenshot(self, filename: str) -> None:
         self.driver.save_screenshot(filename)
+        
+    def get_screenshot_as_png(self) -> bytes:
+        return self.driver.get_screenshot_as_png()
 
     def get_dummy_code(self) -> str:
         return 'driver.execute_script("window.scrollBy(0, 500)")'

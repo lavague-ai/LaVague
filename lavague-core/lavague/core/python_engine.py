@@ -60,7 +60,7 @@ class PythonEngine(BaseActionEngine):
                 },
                 "success": success,
                 "output": output,
-                "code": ""
+                "code": "" # TODO add code of Python engine. Issue is that it might be harder to make it re runnable as the pipeline is more complex than just navigation.
             }
             
             logger.add_log(log)
