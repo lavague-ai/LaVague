@@ -156,7 +156,7 @@ For instance it can be used to click on a link or to fill a form on a webpage. T
 Here are guidelines to follow:
 
 # General guidelines
-- The instruction should be detailled as possible and only contain the next step. 
+- The instruction should be detailed as possible and only contain the next step. 
 - If the objective is already achieved in the screenshot, or the current state contains the demanded information, provide the next engine and instruction 'STOP'.
 - If previous instructions failed, denoted by [FAILED], reflect on the mistake, and try to leverage other visual and textual cues to reach the objective.
 
