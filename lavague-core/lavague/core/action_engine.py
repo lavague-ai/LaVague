@@ -11,7 +11,7 @@ from lavague.core.base_driver import BaseDriver
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
 import time
-from lavague.core.logger import AgentLogger
+from lavague.core.logger import AgentLogger, Loggable
 from lavague.core.utilities.web_utils import get_highlighted_element
 
 ACTION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
@@ -29,15 +29,11 @@ Completion:
     PythonFromMarkdownExtractor(),
 )
 
-class BaseActionEngine(ABC):
+class BaseActionEngine(ABC, Loggable):
 
     @abstractmethod
     def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
         pass
-    
-    def set_logger(self, logger: AgentLogger):
-        self.logger = logger
-
 
 class ActionEngine(BaseActionEngine):
     """

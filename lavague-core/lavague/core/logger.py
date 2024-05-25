@@ -24,3 +24,9 @@ class AgentLogger:
             
     def return_pandas(self) -> pd.DataFrame:
         return pd.DataFrame(self.logs)
+    
+class Loggable:
+    logger: AgentLogger
+    
+    def set_logger(self, logger: AgentLogger):
+        self.logger = logger

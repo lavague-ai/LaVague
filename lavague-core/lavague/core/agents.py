@@ -14,11 +14,10 @@ from lavague.core.utilities.format_utils import (
     extract_next_engine,
     extract_world_model_instruction,
 )
-from lavague.core.utilities.web_utils import display_screenshot, get_highlighted_element
 from lavague.core.logger import AgentLogger
 from lavague.core.memory import ShortTermMemory
 from lavague.core.action_engine import BaseActionEngine
-
+from lavague.core.utilities.format_utils import extract_code_block
 from lavague.core.base_driver import BaseDriver
 
 class WebAgent:
@@ -37,16 +36,18 @@ class WebAgent:
         self.action_engine: ActionEngine = action_engine
         self.world_model: WorldModel = world_model
         self.navigation_control: NavigationControl = NavigationControl(self.driver)
+        self.st_memory = ShortTermMemory()
         self.python_engine: PythonEngine = python_engine
 
         self.n_steps = n_steps
         
         self.logger: AgentLogger = AgentLogger()
+        
         self.action_engine.set_logger(self.logger)
         self.python_engine.set_logger(self.logger)
         self.navigation_control.set_logger(self.logger)
-        
-        self.st_memory = ShortTermMemory()
+        self.world_model.set_logger(self.logger)
+        self.st_memory.set_logger(self.logger)
         
     def get(self, url):
         self.driver.goto(url)
@@ -79,7 +80,8 @@ class WebAgent:
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
-            if next_engine_name == "STOP" or instruction == "STOP":
+            if next_engine_name == "STOP":
+                output = extract_code_block(instruction)
                 print("Objective reached. Stopping...")
                 logger.end_step()
                 break
@@ -90,6 +92,9 @@ class WebAgent:
             st_memory.update_state(instruction, next_engine_name, 
                                     success, output)    
             
-            obs = driver.get_obs()
+            logger.add_log(obs)
             logger.end_step()
+            
+            obs = driver.get_obs()
+        
         return output

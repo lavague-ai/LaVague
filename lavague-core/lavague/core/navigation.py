@@ -29,7 +29,9 @@ class NavigationControl(BaseActionEngine):
         elif "SCROLL_UP" in instruction:
             code = """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
         elif "WAIT" in instruction:
-            code = f"time.sleep({self.time_between_actions})"
+            code = f"""
+import time
+time.sleep({self.time_between_actions})"""
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         
