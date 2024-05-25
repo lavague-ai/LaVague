@@ -2,7 +2,8 @@ from typing import Any, Optional, Callable
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from lavague.core.base_driver import BaseDriver
-
+from PIL import Image
+from io import BytesIO
 
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
@@ -61,6 +62,22 @@ class SeleniumDriver(BaseDriver):
 
     def get_html(self) -> str:
         return self.driver.page_source
+    
+    def get_obs(self) -> dict:
+        driver = self.driver
+        
+        html = driver.page_source
+        
+        screenshot = driver.get_screenshot_as_png()
+        screenshot = BytesIO(screenshot)
+        screenshot = Image.open(screenshot)
+
+        obs = {
+            "html": html,
+            "screenshot": screenshot
+        }
+        
+        return obs
 
     def save_screenshot(self, filename: str) -> None:
         self.driver.save_screenshot(filename)
@@ -94,203 +111,135 @@ class SeleniumDriver(BaseDriver):
         self.driver.set_window_size(width, targeted_height + height_difference)
 
     def get_capability(self) -> str:
-        return '''
-
-Your goal is to write Selenium code to answer queries.
-
-Your answer must be a Python markdown only.
-You can have access to external websites and libraries.
+        return SELENIUM_PROMPT_TEMPLATE
+    
+SELENIUM_PROMPT_TEMPLATE = '''
+You are a Selenium expert in writing code to interact with web pages. You have been given a series of HTML snippets and queries.
+Your goal is to write Selenium code to answer queries. Your answer must be a Python markdown only.
 Always target elements by XPATH.
 
-You can assume the following code has been executed:
-```python
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+Provide high level explanations about why you think this element is the right one.
+Your answer must be short and concise. 
 
-driver = webdriver.Firefox()
-```
-
----
+Here are examples of previous answers:
 
 HTML:
-<!DOCTYPE html>
-<html xpath="/html">
-<head xpath="/html/head">
-    <title xpath="/html/head/title">Mock Search Page</title>
-    <meta charset="utf-8" xpath="/html/head/meta[1]"/>
-</head>
-<body xpath="/html/body">
-    <h1 xpath="/html/body/h1">Search Page Example</h1>
-    <input id="searchBar" type="text" placeholder="Type here to search..." xpath="/html/body/input[1]"/>
-    <button id="searchButton" xpath="/html/body/button">Search</button>
-    <script xpath="/html/body/script">
-        document.getElementById('searchButton').onclick = function() {{
-            var searchText = document.getElementById('searchBar').value;
-            alert("Searching for: " + searchText);
-        }};
-    </script>
-</body>
-</html>
-
-Query: Click on the search bar 'Type here to search...', type 'selenium', and press the 'Enter' key
-
+<div class="QS5gu ud1jmf" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[1]/div/div/button/div">Inloggen</div></button></div></div></div><div class="GZ7xNe" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]"><h1 class="I90TVb" id="S3BnEe" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/h1">Voordat je verdergaat naar Google</h1><div class="AG96lb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div"><div class="eLZYyf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]">We gebruiken <a class="F4a1l" href="https://policies.google.com/technologies/cookies?utm_source=ucbs&amp;hl=nl" target="_blank" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/a">cookies</a> en gegevens voor het volgende:<ul class="dbXO9" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul"><li class="gowsYd ibCF0c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[1]">Google-services leveren en onderhouden</li><li class="gowsYd GwwhGf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[2]">Uitval bijhouden en bescherming bieden tegen spam, fraude en misbruik</li><li class="gowsYd v8Bpfb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[3]">Doelgroepbetrokkenheid en sitestatistieken meten om inzicht te krijgen in hoe onze services worden gebruikt en de kwaliteit van die services te verbeteren</li></ul></div><div class="eLZYyf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]">Als je Alles accepteren kiest, gebruiken we cookies en gegevens ook voor het volgende:<ul class="dbXO9" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul"><li class="gowsYd M6j9qf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[1]">Nieuwe services ontwikkelen en verbeteren</li><li class="gowsYd v8Bpfb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[2]">Advertenties laten zien en de effectiviteit ervan meten</li><li class="gowsYd e21Mac" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[3]">Gepersonaliseerde content laten zien (afhankelijk van je instellingen)</li><li class="gowsYd ohEWPc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[4]">Gepersonaliseerde advertenties laten zien (afhankelijk van je instellingen)</li></ul><div class="jLhwdc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/div">Als je Alles afwijzen kiest, gebruiken we cookies niet voor deze aanvullende doeleinden.</div></div><div class="yS1nld" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[3]">Niet-gepersonaliseerde content wordt beïnvloed door factoren zoals de content die je op dat moment bekijkt, activiteit in je actieve zoeksessie en je locatie. Niet-gepersonaliseerde advertenties worden beïnvloed door de content die je op dat moment bekijkt en je algemene locatie. Gepersonaliseerde content en advertenties kunnen ook relevantere resultaten, aanbevelingen en op jou toegespitste advertenties omvatten die zijn gebaseerd op eerdere activiteit van deze browser, zoals uitgevoerde Google-zoekopdrachten. We gebruiken cookies en gegevens ook om te zorgen dat de functionaliteit geschikt is voor je leeftijd, als dit relevant is.</div><div class="yS1nld" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[4]">Selecteer Meer opties om meer informatie te bekijken, waaronder over hoe je je privacyinstellingen beheert. Je kunt ook altijd naar <span xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[4]/span">g.co/privacytools</span> gaan.</div></div></div><div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]">
+<div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
+<div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
+Query: Click on the button labeled 'Alles accepteren' to accept all cookies.
 Completion:
 ```python
-# Let's proceed step by step.
-# First we need to identify the component first, then we can click on it.
+# Let's think step by step
 
-# We use the XPATH to identify the element
-search_bar = driver.find_element(By.XPATH, "/html/body/input[1]")
+# First, we notice that the query asks us to click on the button labeled 'Alles accepteren' to accept all cookies.
 
-search_bar.click()
+# In the provided HTML, we can see several button elements.
 
-# Now we can type the asked input
-search_bar.send_keys("selenium")
+# We need to identify the correct button labeled 'Alles accepteren'.
 
-# Finally we can press the 'Enter' key
-search_bar.send_keys(Keys.ENTER)
+# Upon examining the HTML structure, we see that the button with the text 'Alles accepteren' is located within a specific hierarchy.
+
+# We need to navigate through the hierarchy to accurately locate this button.
+
+# The correct button is located within a div element with a specific class and role attribute, which helps us ensure that we are targeting the right element.
+
+# Specifically, for 'Alles accepteren', there is a button element with a unique ID 'L2AGLb' which contains a div with the text 'Alles accepteren'.
+
+# We observe that this button element has the following XPath:
+# /html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]
+
+# Thus, we believe this is the correct element to be interacted with:
+accept_all_button = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]")
+
+# Then we can click on the button
+accept_all_button.click()
 ```
-
 ---
-
 HTML:
-<!DOCTYPE html>
-<html lang="en" xpath="/html">
-<head xpath="/html/head">
-    <meta charset="UTF-8" xpath="/html/head/meta[1]">
-    <title xpath="/html/head/title">Mock Page for Selenium</title>
-</head>
-<body xpath="/html/body">
-    <h1 xpath="/html/body/h1">Welcome to the Mock Page</h1>
-    <div id="links" xpath="/html/body/div">
-        <a href="#link1" id="link1" xpath="/html/body/div/a[1]">Link 1</a>
-        <br xpath="/html/body/div/br[1]">
-        <a href="#link2" class="link perf" xpath="/html/body/div/a[2]">Link 2</a>
-        <br xpath="/html/body/div/br[2]">
-    </div>
-</body>
-</html>
+<div class="devsite-top-logo-row-middle" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]">
+<div class="devsite-header-upper-tabs" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]">
+<devsite-tabs class="upper-tabs devsite-overflow-menu--open" connected="" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs">
+<nav aria-label="Upper tabs" class="devsite-tabs-wrapper" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav">
+<tab class="devsite-active" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[1]">
+<a aria-label="Gemini API, selected" class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Gemini API" href="https://ai.google.dev/gemini-api" track-metadata-eventdetail="https://ai.google.dev/gemini-api" track-metadata-module="primary nav" track-metadata-position="nav - gemini api" track-name="gemini api" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[1]/a">
+    Gemini API
+  
+    </a>
+</tab>
+<tab class="devsite-overflow-tab" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]"><!-- -->
+<a aria-label="Extended Navigation" class="devsite-icon devsite-icon-arrow-drop-down" href="#" style="border: 2px solid red;" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"><!--?lit$8296333005$-->More</a>
+<div class="devsite-tabs-overflow-menu" scrollbars="" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div">
+<tab xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]">
+<a class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Gemma" href="https://ai.google.dev/gemma" track-metadata-eventdetail="https://ai.google.dev/gemma" track-metadata-module="primary nav" track-metadata-position="nav - gemma" track-name="gemma" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a">
+    Gemma
+  
+    </a>
+</tab><tab xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[2]">
+<a class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Google AI Edge" href="https://ai.google.dev/edge" track-metadata-eventdetail="https://ai.google.dev/edge" track-metadata-module="primary nav" track-metadata-position="nav - google ai edge" track-name="google ai edge" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[2]/a">
+    Google AI Edge
+  
 
-Query: Click on the title Link 1 and then click on the title Link 2
-
+Query: Click on "Gemma" under the "More" dropdown menu.
 Completion:
 ```python
-# Let's proceed step by step.
-# First we need to identify the first component, then we can click on it. Then we can identify the second component and click on it.
+# Let's think step by step
 
-# We use the XPATH to identify the element
-link_to_click = driver.find_element(By.XPATH, "/html/body/div/a[1]")
+# First, we notice that the query asks us to click on the "Gemma" option under the "More" dropdown menu.
 
-# Then we click on the link
-link_to_click.click()
+# In the provided HTML, we see that the "More" dropdown menu is within a tab element with a specific class and role attribute.
 
-# We use the XPATH to identify the element
-link_to_click = driver.find_element(By.XPATH, "/html/body/div/a[2]")
+# The "More" dropdown menu can be identified by its class 'devsite-overflow-tab' and contains a link element with the text 'More'.
 
-# Click on the element found
-link_to_click.click()
+# We need to interact with this dropdown menu to reveal the hidden options.
+
+# Specifically, for the "More" dropdown menu, there is an anchor element within a tab element:
+# /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a
+
+# We can use this XPATH to identify and click on the "More" dropdown menu:
+more_dropdown = driver.find_element(By.XPATH, "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a")
+more_dropdown.click()
+
+# After clicking the "More" dropdown, we need to select the "Gemma" option from the revealed menu.
+
+# The "Gemma" option is located within the dropdown menu and can be identified by its anchor element with the corresponding text:
+# /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a
+
+# Thus, we use this XPATH to identify and click on the "Gemma" option:
+gemma_option = driver.find_element(By.XPATH, "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a")
+gemma_option.click()
 ```
-
 ---
-
 HTML:
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mock Page</title>
-</head>
-<body>
-    <p id="para1">This is the first paragraph.</p>
-    <p id="para2">This is the second paragraph.</p>
-    <p id="para3">This is the third paragraph, which we will select and copy.</p>
-    <p id="para4">This is the fourth paragraph.</p>
-</body>
-</html>
-
-Query: Select the text inside the third paragraph
-
+<div class="_8dhNBCZ2S74-" data-test="icCalendar-wrapper" style="border: 2px solid red;" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[1]/div"><span aria-hidden="true" class="irNswZTgdxU- ywR-N4gLSdc-" data-test="icCalendar" data-testid="icCalendar" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[1]/div/span"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[1]/div/span/svg"><path d="M7 4a1 1 0 0 1 2 0v1h6V4a1 1 0 1 1 2 0v1h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4ZM5 7v2h14V7H5Zm0 4v8h14v-8H5Z" fill="#2D333F" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[1]/div/span/svg/path"></path></svg></span><p class="Z5-QmB-1pug-" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[1]/div/p">Tue, May 21</p></div></li><li class="c2SNlvnt0Z4-" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]"><div class="_8dhNBCZ2S74-" data-test="icClock-wrapper" style="border: 2px solid red;" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]/div"><span aria-hidden="true" class="irNswZTgdxU- ywR-N4gLSdc-" data-test="icClock" data-testid="icClock" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]/div/span"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]/div/span/svg"><path d="M11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-5Z" fill="#2D333F" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]/div/span/svg/path[1]"></path><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-2 0a7 7 0 1 0-14 0 7 7 0 0 0 14 0Z" fill="#2D333F" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]/div/span/svg/path[2]"></path></svg></span><p class="Z5-QmB-1pug-" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]/div/p">8:30 PM</p></div></li><li class="c2SNlvnt0Z4-" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[3]"><div class="_8dhNBCZ2S74-" data-test="icPerson-wrapper" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[3]/div"><span aria-hidden="true" class="irNswZTgdxU- ywR-N4gLSdc-" data-test="icPerson" data-testid="icPerson" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[3]/div/span"><svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[3]/div/span/svg"><path d="M7.002 8a5 5 0 1 1 7.572 4.288c2.43.594 4.162 2.108 5.192 4.543A3 3 0 0 1 17.004 21H7a3 3 0 0 1-2.763-4.169c1.03-2.435 2.759-3.949 5.19-4.543A4.995 4.995 0 0 1 7.002 8Zm2 0A2.999 2.999 0 1 0 15 8a3 3 0 1 0-6 0Zm-2.31 10.949a.994.994 0 0 0 .316.051h9.987a1 1 0 0 0 .95-1.314C17.13 15.229 15.15 14 12.002 14c-3.15 0-5.13 1.229-5.943 3.686a.999.999 0 0 0 .634 1.263Z" fill="#2D333F" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[3]/div/span/svg/path"></path></svg></span><p class="Z5-QmB-1pug-" xpath="/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[3]/div/p">2 people</p></div></li></ul></div></div></div>
+<div id="onetrust-consent-sdk" xpath="/html/body/div[2]"><div class="onetrust-pc-dark-filter ot-hide ot-fade-in" xpath="/html/body/div[2]/div[1]"></div><div aria-label="Preference center" class="otPcCenter ot-hide ot-fade-in" id="onetrust-pc-sdk" lang="en" role="region" xpath="/html/body/div[2]/div[2]"><div aria-describedby="ot-pc-desc" aria-label="Privacy Preference Center" aria-modal="true" role="alertdialog" style="height: 100%;" xpath="/html/body/div[2]/div[2]/div"><!-- Close Button --><div class="ot-pc-header" xpath="/html/body/div[2]/div[2]/div/div[1]"><!-- Logo Tag --><div aria-label="Company Logo" class="ot-pc-logo" role="img" xpath="/html/body/div[2]/div[2]/div/div[1]/div"><img alt="Company Logo" src="https://cdn.cookielaw.org/logos/static/ot_company_logo.png" xpath="/html/body/div[2]/div[2]/div/div[1]/div/img"/></div><button aria-label="Close" class="ot-close-icon" id="close-pc-btn-handler" style='background-image: url("https://cdn.cookielaw.org/logos/static/ot_close.svg");' xpath="/html/body/div[2]/div[2]/div/div[1]/button"></button></div><!-- Close Button --><div class="ot-pc-scrollbar" id="ot-pc-content" xpath="/html/body/div[2]/div[2]/div/div[2]"><div class="ot-optout-signal ot-hide" xpath="/html/body/div[2]/div[2]/div/div[2]/div[1]"><div class="ot-optout-icon" xpath="/html/body/div[2]/div[2]/div/div[2]/div[1]/div"><svg xmlns="http://www.w3.org/2000/svg" xpath="/html/body/div[2]/div[2]/div/div[2]/div[1]/div/svg"><path class="ot-floating-button__svg-fill" d="M14.588 0l.445.328c1.807 1.303 3.961 2.533 6.461 3.688 2.015.93 4.576 1.746 7.682 2.446 0 14.178-4.73 24.133-14.19 29.864l-.398.236C4.863 30.87 0 20.837 0 6.462c3.107-.7 5.668-1.516 7.682-2.446 2.709-1.251 5.01-2.59 6.906-4.016zm5.87 13.88a.75.75 0 00-.974.159l-5.475 6.625-3.005-2.997-.077-.067a.75.75 0 00-.983 1.13l4.172 4.16 6.525-7.895.06-.083a.75.75 0 00-.16-.973z" fill="#FFF" fill-rule="evenodd" xpath="/html/body/div[2]/div[2]/div/div[2]/div[1]/div/svg/path"></path></svg></div><span xpath="/html/body/div[2]/div[2]/div/div[2]/div[1]/span"></span></div><h2 id="ot-pc-title" xpath="/html/body/div[2]/div[2]/div/div[2]/h2">Privacy Preference Center</h2><div id="ot-pc-desc" xpath="/html/body/div[2]/div[2]/div/div[2]/div[2]">When you visit any website, it may store or retrieve information on your browser, mostly in the form of cookies. This information might be about you, your preferences or your device and is mostly used to make the site work as you expect it to. The information does not usually directly identify you, but it can give you a more personalized web experience. Because we respect your right to privacy, you can choose not to allow some types of cookies. Click on the different category headings to find out more and change our default settings. However, blocking some types of cookies may impact your experience of the site and the services we are able to offer.
+For additional information, please visit our <a href="https://www.opentable.com/legal/cookie-policy" xpath="/html/body/div[2]/div[2]/div/div[2]/div[2]/a[1]">Cookies Policy</a> and our <a href="https://www.opentable.com/legal/privacy-policy" xpath="/html/body/div[2]/div[2]/div/div[2]/div[2]/a[2]">Privacy Policy</a>.</div><button id="accept-recommended-btn-handler" xpath="/html/body/div[2]/div[2]/div/div[2]/button">Allow All</button><section class="ot-sdk-row ot-cat-grp" xpath="/html/body/div[2]/div[2]/div/div[2]/section"><h3 id="ot-category-title" xpath="/html/body/div[2]/div[2]/div/div[2]/section/h3"> Manage Consent Preferences</h3><div class="ot-accordion-layout ot-cat-item ot-vs-config" data-optanongroupid="C0001" xpath="/html/body/div[2]/div[2]/div/div[2]/section/div[1]"><button aria-controls="ot-desc-id-C0001" aria-expanded="false" aria-labelledby="ot-header-id-C0001 ot-status-id-C0001" ot-accordion="true" xpath="/html/body/div[2]/div[2]/div/div[2]/section/div[1]/button"></button><!-- Accordion header -->
+Query: Click on the date selector and choose May 25th. Then, click on the time selector and choose 1:00 PM.
 Completion:
 ```python
-# Let's proceed step by step.
+# Let's think step by step
 
-# To select a paragraph, we can execute a JS script to select the text using the DOM
-# In the provided HTML, the third paragraph can be identified using the ID "para3"
-# We need to use getElementById to select the paragraph precisely
-js_script = """
-    // This part depends on the specific HTML, here is the identified ID "para3"
-    var para = document.getElementById('para3');
-    // The rest is standard
-    if (document.body.createTextRange) {{
-        var range = document.body.createTextRange();
-        range.moveToElementText(para);
-        range.select();
-    }} else if (window.getSelection) {{
-        var selection = window.getSelection();
-        var range = document.createRange();
-        range.selectNodeContents(para);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }}
-"""
+# The query asks us to first click on the date selector and choose May 25th. 
+# Then, we need to click on the time selector and choose 1:00 PM.
 
-# Then we execute JavaScript
-driver.execute_script(js_script)
-```
+# In the provided HTML, we can see the date selector and time selector elements within a list structure.
 
----
+# We need to identify the correct elements for both the date and time selectors.
 
-HTML:
+# First, we locate the date selector. It is inside a div element with a specific class and data-test attributes.
+# The date selector is found at the following XPath:
+date_selector = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[1]/div")
 
-Query: Scroll up a bit
+# Click on the date selector to open the date selection dropdown
+date_selector.click()
 
-Completion:
+# To choose May 25th, we would typically need to select it from the opened date picker. This part is omitted in the explanation for brevity.
+
+# Next, we locate the time selector. It is also inside a div element with specific class and data-test attributes.
+# The time selector is found at the following XPath:
+time_selector = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/main/div/div/div/section/div[1]/div[2]/div/ul/li[2]/div")
+
+# Click on the time selector to open the time selection dropdown
+time_selector.click()
 ```python
-# Let's proceed step by step.
-# We don't need to use the HTML data as this is a stateless operation.
-# 200 pixels should be sufficient. Let's execute the JavaScript to scroll up.
-
-driver.execute_script("window.scrollBy(0, 200)")
-```
-
----
-
----
-
-HTML:
-<!DOCTYPE html>
-<html lang="en" xpath="/html">
-<head xpath="/html/head">
-    <meta charset="UTF-8" xpath="/html/head/meta[1]">
-    <title xpath="/html/head/title">Enhanced Mock Page for Selenium Testing</title>
-</head>
-<body xpath="/html/body">
-    <h1 xpath="/html/body/h1">Enhanced Test Page for Selenium</h1>
-    <div class="container" xpath="/html/body/div[1]">
-        <button id="firstButton" onclick="alert('First button clicked!');" xpath="/html/body/div[1]/button[1]">First Button</button>
-        <!-- This is the button we're targeting with the class name "action-btn" -->
-        <button class="action-btn" onclick="alert('Action button clicked!');" xpath="/html/body/div[1]/button[2]">Action Button</button>
-        <div class="nested-container" xpath="/html/body/div[1]/div">
-            <button id="testButton" onclick="alert('Test Button clicked!');" xpath="/html/body/div[1]/div/button">Test Button</button>
-        </div>
-        <button class="hidden" onclick="alert('Hidden button clicked!');" xpath="/html/body/div[1]/button[3]">Hidden Button</button>
-    </div>
-</body>
-</html>
-
-
-Query: Click on the Button 'First Button'
-
-Completion:
-```python
-# Let's proceed step by step.
-# First we need to identify the button first, then we can click on it.
-
-# We use the XPATH to identify the element
-action_button = driver.find_element(By.XPATH, "/html/body/div[1]/button[2]")
-
-# Then we can click on it
-action_button.click()
-```
-
----
 '''
