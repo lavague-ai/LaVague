@@ -58,6 +58,6 @@ jobs:
       run: |
         jupyter nbconvert --to notebook --execute --inplace --output "quick-tour.ipynb" "docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
 
-  - name: Check new example
+    - name: Check new example
       run: |
         python github/new-code-check.py
