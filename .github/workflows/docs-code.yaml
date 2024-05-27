@@ -59,4 +59,4 @@ jobs:
 
     - name: Check new example
       run: |
-        python github/new-code-check.py
+        python .github/new-code-check.py
