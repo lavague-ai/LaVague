@@ -5,6 +5,7 @@ on:
     paths:
       - 'README.md'
       - 'docs/**'
+      - '.github/**'
   schedule:
     - cron: '20 8,17 * * *'
 
