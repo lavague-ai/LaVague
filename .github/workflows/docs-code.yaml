@@ -42,8 +42,7 @@ jobs:
         fi
 
     - name: Run the Python script
-      run: |
-        python check-code.py
+      run: python check-code.py
 
     - name: Install nbconvert
       run: pip install notebook nbconvert

@@ -38,5 +38,7 @@ sequences = pipeline(
 for seq in sequences:
     print(f"Result: {seq['generated_text']}")"""
 
-assert result.strip() == expected_output.strip(), f"Output does not match expected:\nExpected: {expected_output}\nActual: {result}"
+assert (
+    result.strip() == expected_output.strip()
+), f"Output does not match expected:\nExpected: {expected_output}\nActual: {result}"
 print("Output matches expected.")
