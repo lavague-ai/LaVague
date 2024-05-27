@@ -8,8 +8,8 @@ Note that LaVague is compatible with any `LlamaIndex.llm`!
 
 | LaVague tool         | Build (CLI) | Launch (CLI) |
 |----------------------|:-----------:|:------------:|
-| [LiteLLM](https://docs.lavague.ai/en/latest/docs/integrations/api/litellm/)          |     ✅      |     ✅       |
-| [OpenAI](https://docs.lavague.ai/en/latest/docs/integrations/api/openai/)           |     ✅      |     ✅       |
-| [Azure OpenAI](https://docs.lavague.ai/en/latest/docs/integrations/api/azure-openai/)     |     ✅      |     ✅       |
-| [DeepSeek coder (local)](https://docs.lavague.ai/en/latest/docs/integrations/local/local-inference/)    |     ✅      |     ✅       |
-| [HuggingFace API](https://docs.lavague.ai/en/latest/docs/integrations/api/hugging-face/)   |     ✅      |     ✅       |
+| [LiteLLM](https://docs.lavague.ai/en/latest/docs/action-engine/integrations/api/litellm/)          |     ✅      |     ✅       |
+| [OpenAI](https://docs.lavague.ai/en/latest/docs/action-engine/integrations/api/openai/)           |     ✅      |     ✅       |
+| [Azure OpenAI](https://docs.lavague.ai/en/latest/docs/action-engine/integrations/api/azure-openai/)     |     ✅      |     ✅       |
+| [DeepSeek coder (local)](https://docs.lavague.ai/en/latest/docs/action-engine/integrations/local/local-inference/)    |     ✅      |     ✅       |
+| [HuggingFace API](https://docs.lavague.ai/en/latest/docs/action-engine/integrations/api/hugging-face/)   |     ✅      |     ✅       |
