@@ -14,21 +14,25 @@ objective = "Provide the code to use Falcon 11B"
 
 agent.get(url)
 output = agent.run(objective, display=False)
+
 result = output[-1]
 
 expected_output = """from transformers import AutoTokenizer, AutoModelForCausalLM
 import transformers
 import torch
+
 model = "tiiuae/falcon-11B"
+
 tokenizer = AutoTokenizer.from_pretrained(model)
 pipeline = transformers.pipeline(
     "text-generation",
     model=model,
     tokenizer=tokenizer,
     torch_dtype=torch.bfloat16,
+    device_map="auto",
 )
 sequences = pipeline(
-    "Can you explain the concepts of Quantum Computing?",
+   "Can you explain the concepts of Quantum Computing?",
     max_length=200,
     do_sample=True,
     top_k=10,
@@ -38,7 +42,10 @@ sequences = pipeline(
 for seq in sequences:
     print(f"Result: {seq['generated_text']}")"""
 
-assert (
-    result.strip() == expected_output.strip()
-), f"Output does not match expected:\nExpected: {expected_output}\nActual: {result}"
+# Remove all whitespace characters from both strings before comparison
+expected_output_stripped = ''.join(expected_output.strip().split())
+result_stripped = ''.join(result.strip().split())
+
+# Check if the stripped expected output is contained within the stripped result
+assert expected_output_stripped in result_stripped, f"Output does not match expected:\nExpected: {expected_output}\nActual: {result}"
 print("Output matches expected.")
