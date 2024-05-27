@@ -5,7 +5,7 @@ on:
     paths:
       - 'README.md'
       - 'docs/**'
-      - '.github/**'
+      - '.github/workflows/docs-checker.yaml'
   schedule:
     - cron: '20 8,17 * * *'
 

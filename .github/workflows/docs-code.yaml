@@ -8,6 +8,7 @@ on:
       - '_lavague/**'
       - 'lavague-gradio/**'
       - 'pyproject.toml'
+      - '.github/workflows/docs-code.yaml'
     
 jobs:
   check-code:
