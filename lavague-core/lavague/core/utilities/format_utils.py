@@ -31,9 +31,9 @@ def return_assigned_variables(code_snippet):
     return visitor.output
 
 def extract_code_block(markdown_text):
-    """Returns the text inside the first block in a markdown text."""
+    """Returns the text inside the first code block in a markdown text."""
     pattern = re.compile(r'```(.*?)```', re.DOTALL)
-    match = re.search(pattern, markdown_text, re.DOTALL)
+    match = pattern.search(markdown_text)  # Use the compiled pattern directly
     if match:
         # Return the text inside the first code block
         return match.group(1).strip()

@@ -37,8 +37,9 @@ class PythonEngine(BaseActionEngine):
     def from_context(
         cls,
         context: Context,
+        driver: BaseDriver,
     ):
-        return cls(context.llm, context.embedding)
+        return cls(driver, context.llm, context.embedding)
     
     def execute_instruction(self, instruction: str):
         logger = self.logger
