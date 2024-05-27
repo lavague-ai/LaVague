@@ -2,7 +2,7 @@
 
 LaVague can be used to fill out simple forms automatically! Just provide the necessary information and ask LaVague to fill event registration forms, job applications, etc. 
 
-We have created a [sample job application form](https://form.jotform.com/241363523875359) you can use to try this use case. 
+We have created a [sample job application form](https://form.jotform.com/241472287797370) you can use to try this use case. 
 
 Here is our framework going through the form and filling it after being given the instruction: **"Fill out this form, my name is: John Doe, my email is john.doe@gmail.com, etc..."**. 
 
@@ -25,7 +25,7 @@ world_model = WorldModel.from_hub("data_entry_example")
 
 agent = WebAgent(action_engine, world_model)
 
-agent.get("https://form.jotform.com/241363523875359")
+agent.get("https://form.jotform.com/241472287797370")
 
 instruction = """
 Fill out this form
