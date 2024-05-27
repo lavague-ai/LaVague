@@ -2,12 +2,15 @@ name: spellcheck & link checker
 
 on:
   push:
+    branches:
+      - main
   schedule:
     - cron: '20 8,17 * * *'
 
 jobs:
   spellcheck:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -31,6 +34,7 @@ jobs:
 
   check-README-links:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,6 +47,7 @@ jobs:
 
   check-docs-links:
     runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -55,15 +60,15 @@ jobs:
       - name: Check links
         id: linkcheck
         run: linkchecker https://docs.lavague.ai/en/latest/
-  
-  notify:
+
+  check-bullet-points-format:
     runs-on: ubuntu-latest
-    needs: check-README-links
-    if: ${{ failure() || needs.check-README-links.outcome == 'failure' || needs.check-docs-links.outcome == 'failure' }}
+    if: github.event_name == 'push'
     steps:
-      - name: Send failure notification via Discord
-        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
-        with:
-          args: "The link check failed, please review."
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run markdown formatting check
+        run: |
+          chmod +x .github/bullet-points.sh
+          .github/bullet-points.sh

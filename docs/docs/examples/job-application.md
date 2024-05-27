@@ -155,6 +155,7 @@ You will need to look at https://cloudinary.com/documentation/image_upload_api_r
 Here we will define and run an agent using LaVague.
 
 LaVague has two main components:
+
 - **A World Model**: Module specialized in reasoning, which takes as input the user’s objective ("Fill this form") and the screenshot of the web driver, and produces instructions ("Click on Apply button") to our action engine. It is powered by OpenAI GPT-4o.
 - **An Action Engine**: Module specialized in turning instructions from the World Model into Selenium code. It is powered by [Llama Index](https://docs.llamaindex.ai/en/stable/) to perform RAG on the HTML.
 
