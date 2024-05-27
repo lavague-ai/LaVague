@@ -269,10 +269,10 @@ class WorldModel(ABC, Loggable):
         except:
           raise Exception("Could not convert current state to YAML")
         
+        Path("./screenshots").mkdir(exist_ok=True)
         screenshots: List[Image.Image] = observations["screenshots"]
         clean_directory("./screenshots")
         for i, screenshot in enumerate(screenshots):
-            Path("./screenshots").mkdir(exist_ok=True)
             screenshot.save(f"./screenshots/screenshot_{i}.png")
             
         image_documents = SimpleDirectoryReader("./screenshots").load_data()
