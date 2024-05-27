@@ -13,7 +13,7 @@ url = "https://huggingface.co"
 objective = "Provide the code to use Falcon 11B"
 
 agent.get(url)
-output = agent.run(objective, display=True)
+output = agent.run(objective, display=False)
 result = output[-1]
 
 expected_output = """from transformers import AutoTokenizer, AutoModelForCausalLM
