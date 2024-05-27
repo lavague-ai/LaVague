@@ -21,7 +21,7 @@ from lavague.drivers.selenium import SeleniumDriver
 
 selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
-world_model = WorldModel.from_hub("notion_example")
+world_model = WorldModel()
 
 agent = WebAgent(action_engine, world_model)
 
