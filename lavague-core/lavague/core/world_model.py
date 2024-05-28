@@ -20,13 +20,13 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state: 
 external_observations:
-  vision: '[SCREENSHOTS]'
+  vision: '[SCREENSHOT]'
 internal_state:
   agent_outputs: []
   user_inputs: []
 
 Thoughts:
-- The current page shows the issues page of the GitHub repository 'lavague-ai/LaVague'.
+- The current screenshot shows the issues page of the GitHub repository 'lavague-ai/LaVague'.
 - The objective is to go to the first issue.
 - Previous instructions have been unsuccessful. A new approach should be used.
 - The '#225' seems not to be clickable and it might be relevant to devise an instruction that does not include it. 
@@ -39,7 +39,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state:
 external_observations:
-  vision: '[SCREENSHOTS]'
+  vision: '[SCREENSHOT]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -57,6 +57,7 @@ Objective: Provide the code to get started with Gemini API
 Previous instructions:
 - Click on 'Read API docs'
 - Click on 'Gemini API quickstart' on the menu
+- SCAN
 Last engine: Navigation Engine
 Current state:
 external_observations:
@@ -66,7 +67,7 @@ internal_state:
   user_inputs: []
 
 Thoughts:
-- The current screenshot shows the documentation page for the getting started of Gemini API.
+- The whole page has been scanned and current screenshot show the documentation page for the getting started of Gemini API.
 - I am therefore on the right page to find the code to get started with the Gemini API.
 - The next step is to provide the code to get started with the Gemini API.
 - Therefore I need to use the Python Engine to generate the code to extract the code to get started with the Gemini API from this page.
@@ -80,7 +81,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state: 
 external_observations:
-  vision: '[SCREENSHOTS]'
+  vision: '[SCREENSHOT]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -98,10 +99,10 @@ Instruction: Click on the 'Software development' link.
 Objective: Provide a quick description of the author
 Previous instructions:
 - Click on 'About the author'
-Last engine: Python Engine
+Last engine: Navigation Engine
 Current state:
 external_observations:
-  vision: '[SCREENSHOTS]'
+  vision: '[SCREENSHOT]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -123,7 +124,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state:
 external_observations:
-  vision: '[SCREENSHOTS]'
+  vision: '[SCREENSHOT]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -137,68 +138,6 @@ Thoughts:
 Next engine: Navigation Controls
 Instruction: SCAN
 -----
-Objective: Find the latest trendy dataset Hugging Face
-Previous instructions: [NONE]
-Last engine: [NONE]
-Current state:
-external_observations:
-  vision: '[SCREENSHOTS]'
-internal_state:
-    agent_outputs: []
-    user_inputs: []
-
-Thoughts:
-- The screenshots show the main page of Hugging Face.
-- The trendiest models, spaces and datasets are listed under 'Trending ont his week'
-- Datasets are available under the 'Datasets' section.
-- Hugging Face datasets usually can be identified through their namespace, like HuggingFaceFW/fineweb.
-- Based on the screenshots, the latest trendy dataset is 'TIGER-Lab/MMLU-Pro'.
-- This information seems correct and we not need to use the Python Engine as it is sufficient.
-- We have therefore achieved the objective as we have found the latest trendy dataset.
-Next engine: Stop
-Instruction: 
-```
-TIGER-Lab/MMLU-Pro
-```
------
-Objective: Find the latest papers on Fine tuning
-Previous instructions: [NONE]
-Last engine: [NONE]
-Current state:
-external_observations:
-  vision: '[SCREENSHOTS]'
-internal_state:
-    agent_outputs: []
-    user_inputs: []
-
-Thoughts:
-- The screenshots show the papers page of Hugging Face.
-- The objective is to find the latest papers on Fine tuning.
-- There has been a paper mentioning Fine tuning called 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control'
-- The best next step is to go on the paper page and provide a summary.
-Next engine: Navigation Engine
-Instruction: Click on the paper 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control'
------
-Objective: Find the latest papers on Multi Modal Models
-Previous instructions:
-- SCAN
-Last engine: Navigation Controls
-Current state:
-external_observations:
-  vision: '[SCREENSHOTS]'
-internal_state:
-    agent_outputs: []
-    user_inputs: []
-
-Thoughts:
-- The current screenshots show a list of papers on Hugging Face.
-- The objective is to find the latest paper on Multi Modal Models.
-- None of the visible papers seem to mention In-context learning directly.
-- The whole page has been scanned and no information has been found.
-- One screenshot shows a 'Previous' button, which could be used to navigate to the previous page to find earlier papers.
-- The best next step is to click on the 'Previous' button to find the latest papers on Multi Modal Models.
-Next engine: Navigation Engine
-Instruction: Click on the 'Previous' button.
 """
 
 

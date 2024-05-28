@@ -36,7 +36,7 @@ class AgentLogger:
     def return_pandas(self) -> pd.DataFrame:
         df = pd.DataFrame(self.logs)
         df["screenshots"] = df["screenshots_path"].apply(load_images_from_folder)
-        return pd.DataFrame(self.logs)
+        return df
     
 class Loggable:
     logger: AgentLogger
