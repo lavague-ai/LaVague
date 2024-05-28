@@ -1,11 +1,4 @@
 from typing import Dict
-import yaml
-import time
-import uuid
-from PIL import Image
-from lavague.core.utilities.telemetry import send_telemetry, send_telemetry_scr
-from pathlib import Path
-from llama_index.core import SimpleDirectoryReader
 from lavague.core.action_engine import ActionEngine
 from lavague.core.python_engine import PythonEngine
 from lavague.core.world_model import WorldModel
@@ -83,6 +76,7 @@ class WebAgent:
             if next_engine_name == "STOP":
                 output = extract_code_block(instruction)
                 print("Objective reached. Stopping...")
+                
                 logger.end_step()
                 break
             

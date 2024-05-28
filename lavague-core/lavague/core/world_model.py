@@ -20,7 +20,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state: 
 external_observations:
-  vision: '[SCREEENSHOTS]'
+  vision: '[SCREENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -39,7 +39,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state:
 external_observations:
-  vision: '[SCREEENSHOTS]'
+  vision: '[SCREENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -48,10 +48,10 @@ Thoughts:
 - The current page shows the model page for 'meta-llama/Meta-Llama-3-8B' on Hugging Face.
 - Hugging Face, is a hub for AI models and datasets, where users can explore and interact with a variety of AI models.
 - I am therefore on the right page to find information about the release date of 'Meta-Llama-3-8B'.
-- To find the release date, I need to locate the relevant information in the content of the page.
-- Therefore the best next step is to use the Python Engine to extract the release date from the content of the page.
-Next engine: Python Engine
-Instruction: Extract the release date of 'Meta-Llama-3-8B' from the textual content of the page.
+- However, only information visible right now is about legal and licensing information.
+- Therefore the best next step is to use the 'SCAN' command to take a screenshots of the whole page to find the release date before taking further action.
+Next engine: Navigation Controls
+Instruction: SCAN
 -----
 Objective: Provide the code to get started with Gemini API
 Previous instructions:
@@ -60,7 +60,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state:
 external_observations:
-  vision: '[SCREEENSHOT]'
+  vision: '[SCREENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -80,7 +80,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state: 
 external_observations:
-  vision: '[SCREEENSHOTS]'
+  vision: '[SCREENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -101,7 +101,7 @@ Previous instructions:
 Last engine: Python Engine
 Current state:
 external_observations:
-  vision: '[SCREEENSHOTS]'
+  vision: '[SCREENSHOTS]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -116,32 +116,57 @@ Instruction:
 The author is a software engineer with a passion for AI and machine learning. He has worked on various projects and has a blog where he shares his knowledge and experience.
 ```
 -----
-Objective: Find the latest papers on KAN models
+Objective: Provide description and price of their products
+Previous instructions:
+- Click on 'Products' in the menu
+- Click on 'Platform overview' in the menu
+Last engine: Navigation Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOTS]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+  
+Thoughts:
+- The current page shows the product page of the company OpenAI
+- The objective is to provide a description and price of their products.
+- We seem to be on the right page to find the information.
+- However, to answer the objective, gathering as much information as possible is necessary.
+- The best next step is to use the Navigation Controls to take a screenshot of the whole page to extract the description and price of the products.
+Next engine: Navigation Controls
+Instruction: SCAN
+-----
+Objective: Find the latest trendy dataset Hugging Face
 Previous instructions: [NONE]
 Last engine: [NONE]
 Current state:
 external_observations:
-  vision: '[SCREEENSHOTS]'
+  vision: '[SCREENSHOTS]'
 internal_state:
     agent_outputs: []
     user_inputs: []
 
 Thoughts:
-- The screenshots show the papers page of Hugging Face.
-- The objective is to find the latest papers on KAN models.
-- The previous instruction was to browse the whole page for more information.
-- The screenshots show that the whole page has been scrolled through.
-- There has not been a paper mentioning KAN models.
-- The best next step is to go earlier in time by clicking on the 'Previous' button.
-Next engine: Navigation Engine
-Instruction: Click on the 'Previous' button.
+- The screenshots show the main page of Hugging Face.
+- The trendiest models, spaces and datasets are listed under 'Trending ont his week'
+- Datasets are available under the 'Datasets' section.
+- Hugging Face datasets usually can be identified through their namespace, like HuggingFaceFW/fineweb.
+- Based on the screenshots, the latest trendy dataset is 'TIGER-Lab/MMLU-Pro'.
+- This information seems correct and we not need to use the Python Engine as it is sufficient.
+- We have therefore achieved the objective as we have found the latest trendy dataset.
+Next engine: Stop
+Instruction: 
+```
+TIGER-Lab/MMLU-Pro
+```
 -----
 Objective: Find the latest papers on Fine tuning
 Previous instructions: [NONE]
 Last engine: [NONE]
 Current state:
 external_observations:
-  vision: '[SCREEENSHOTS]'
+  vision: '[SCREENSHOTS]'
 internal_state:
     agent_outputs: []
     user_inputs: []
@@ -149,13 +174,31 @@ internal_state:
 Thoughts:
 - The screenshots show the papers page of Hugging Face.
 - The objective is to find the latest papers on Fine tuning.
-- The previous instruction was to browse the whole page for more information.
-- The screenshots show that the whole page has been scrolled through.
 - There has been a paper mentioning Fine tuning called 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control'
 - The best next step is to go on the paper page and provide a summary.
 Next engine: Navigation Engine
 Instruction: Click on the paper 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control'
 -----
+Objective: Find the latest papers on Multi Modal Models
+Previous instructions:
+- SCAN
+Last engine: Navigation Controls
+Current state:
+external_observations:
+  vision: '[SCREENSHOTS]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The current screenshots show a list of papers on Hugging Face.
+- The objective is to find the latest paper on Multi Modal Models.
+- None of the visible papers seem to mention In-context learning directly.
+- The whole page has been scanned and no information has been found.
+- One screenshot shows a 'Previous' button, which could be used to navigate to the previous page to find earlier papers.
+- The best next step is to click on the 'Previous' button to find the latest papers on Multi Modal Models.
+Next engine: Navigation Engine
+Instruction: Click on the 'Previous' button.
 """
 
 
@@ -179,13 +222,16 @@ Here are the engines at your disposal:
 It does not impact the outside world and does not navigate.
 - Navigation Engine: This engine is used when the next step of the task requires further navigation to reach the goal. 
 For instance it can be used to click on a link or to fill a form on a webpage. This engine is heavy and will do complex processing of the current HTML to decide which element to interact with.
+- Navigation Controls: This engine is used to perform simple navigation. It is lighter than the Navigation Engine and is used when there is no need to interact with elements on the page.
+Current controls are WAIT (to wait for a certain amount of time), BACK (to go back in the browser history), and SCAN (to take screenshots of the whole page).
 
 Here are guidelines to follow:
 
 # General guidelines
 - The instruction should be detailled as possible and only contain the next step. 
 - If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'STOP'. If information is to be returned, provide it in the instruction inside a code block.
-Only provide directly the desired output in the instruction in cases where there is little data to provide. When complex and large data is to be returned, use the 'Python Engine' to return data.
+Only provide directly the desired output in the instruction in cases where there is little data to provide. 
+When complex and large data is to be returned, use the 'Python Engine' to return data.
 - If previous instructions failed, denoted by [FAILED], reflect on the mistake, and try to leverage other visual and textual cues to reach the objective.
 
 # Python Engine guidelines
@@ -193,9 +239,9 @@ Only provide directly the desired output in the instruction in cases where there
 - If the objective requires information gathering, and the previous step was a Navigation step, do not directly stop when seeing the information but use the Python Engine to gather as much information as possible.
 
 # Navigation guidlines
-- You are provided with screenshots of the whole page. There is no need to try to scroll for more information. Leverage all the information in the screenshots to reach the objective.
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
 - If several steps have to be taken, provide instructions in bullet points.
+- When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
 
 Here are previous examples:
 {examples}
@@ -269,13 +315,8 @@ class WorldModel(ABC, Loggable):
         except:
           raise Exception("Could not convert current state to YAML")
         
-        screenshots: List[Image.Image] = observations["screenshots"]
-        clean_directory("./screenshots")
-        for i, screenshot in enumerate(screenshots):
-            Path("./screenshots").mkdir(exist_ok=True)
-            screenshot.save(f"./screenshots/screenshot_{i}.png")
-            
-        image_documents = SimpleDirectoryReader("./screenshots").load_data()
+        screenshots_path: str = observations["screenshots_path"]
+        image_documents = SimpleDirectoryReader(screenshots_path).load_data()
         
         prompt = self.prompt_template.format(
             objective=objective,
