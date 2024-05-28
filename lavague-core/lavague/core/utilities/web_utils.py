@@ -10,6 +10,7 @@ from io import BytesIO
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.webdriver import WebDriver
 
+
 # Function to encode the image
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:

@@ -15,6 +15,7 @@ USER_ID = str(uuid.uuid4())
 if UNIQUE_ID is not None:
     UNIQUE_ID = UNIQUE_ID[:256]
 
+
 def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
     try:
         if TELEMETRY_VAR is None:
@@ -24,9 +25,11 @@ def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
             logger_telemetry = logger_telemetry.replace({np.nan: None})
 
             for index, row in logger_telemetry.iterrows():
-                logger_telemetry.at[index, 'unique_user_id'] = UNIQUE_ID
-                logger_telemetry.at[index, 'user_id'] = USER_ID
-                logger_telemetry.at[index, 'version'] = get_installed_version("lavague-core")
+                logger_telemetry.at[index, "unique_user_id"] = UNIQUE_ID
+                logger_telemetry.at[index, "user_id"] = USER_ID
+                logger_telemetry.at[index, "version"] = get_installed_version(
+                    "lavague-core"
+                )
                 t: Dict[str, Any] = row["engine_log"]
                 if t is not None:
                     if "vision_data" in t:
@@ -34,9 +37,9 @@ def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
                         for i in range(len(vision)):
                             if "screenshot" in vision[i]:
                                 del vision[i]["screenshot"]
-                        logger_telemetry.at[index, 'engine_log'] = t
+                        logger_telemetry.at[index, "engine_log"] = t
 
-            dic = logger_telemetry.to_dict('records')
+            dic = logger_telemetry.to_dict("records")
             pack = msgpack.packb(dic)
 
             r = requests.post(

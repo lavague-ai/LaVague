@@ -29,11 +29,12 @@ Completion:
     PythonFromMarkdownExtractor(),
 )
 
-class BaseActionEngine(ABC, Loggable):
 
+class BaseActionEngine(ABC, Loggable):
     @abstractmethod
     def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
         pass
+
 
 class ActionEngine(BaseActionEngine):
     """
@@ -171,11 +172,11 @@ class ActionEngine(BaseActionEngine):
         response = query_engine.query(query)
         code = response.response
         return self.extractor.extract(code)
-    
+
     def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
         """
         Generates code and executes it to answer the instruction
-        
+
         Args:
             instruction (`str`): The instruction to perform
 
@@ -183,34 +184,36 @@ class ActionEngine(BaseActionEngine):
             `bool`: True if the code was executed without error
             `Any`: The output of the code
         """
-        
+
         # Navigation has no output
-        
+
         output = None
         driver = self.driver.get_driver()
-        
+
         start = time.time()
         source_nodes = self.get_nodes(instruction)
         end = time.time()
         retrieval_time = end - start
-        
+
         llm_context = "\n".join(source_nodes)
         success = False
         logger = self.logger
-        
+
         navigation_log = {
             "navigation_engine_input": instruction,
             "retrieved_html": source_nodes,
             "retrieval_time": retrieval_time,
-            "retrieval_name": self.retriever.__class__.__name__
-            }
-        
+            "retrieval_name": self.retriever.__class__.__name__,
+        }
+
         action_outcomes = []
         for _ in range(self.n_attempts):
             if success:
                 break
             start = time.time()
-            prompt = self.prompt_template.format(context_str=llm_context, query_str=instruction)
+            prompt = self.prompt_template.format(
+                context_str=llm_context, query_str=instruction
+            )
             response = self.llm.complete(prompt).text
             action = self.extractor.extract(response)
             end = time.time()
@@ -219,7 +222,7 @@ class ActionEngine(BaseActionEngine):
                 "action": action,
                 "action_generation_time": action_generation_time,
                 "navigation_engine_full_prompt": prompt,
-                "navigation_engine_llm": get_model_name(self.llm)
+                "navigation_engine_llm": get_model_name(self.llm),
             }
             try:
                 local_scope = {"driver": driver}
@@ -228,7 +231,7 @@ class ActionEngine(BaseActionEngine):
 {action}"""
                 # Get information to see which elements are selected
                 vision_data = get_highlighted_element(driver, action)
-                
+
                 exec(code_to_execute, local_scope, local_scope)
                 time.sleep(self.time_between_actions)
                 success = True
@@ -237,11 +240,11 @@ class ActionEngine(BaseActionEngine):
             except Exception as e:
                 action_outcome["success"] = False
                 action_outcome["error"] = str(e)
-                
+
             action_outcomes.append(action_outcome)
-        
+
         navigation_log["action_outcomes"] = action_outcomes
-        
+
         if logger:
             log = {
                 "engine": "Navigation Engine",
@@ -249,12 +252,13 @@ class ActionEngine(BaseActionEngine):
                 "engine_log": navigation_log,
                 "success": success,
                 "output": None,
-                "code": action
+                "code": action,
             }
-            
+
             logger.add_log(log)
-        
+
         return success, output
+
 
 def get_model_name(llm: BaseLLM) -> str:
     try:
@@ -266,4 +270,3 @@ def get_model_name(llm: BaseLLM) -> str:
             return llm.model_name
         except AttributeError:
             return "Unknown"
-        

@@ -141,7 +141,6 @@ Instruction: SCAN
 """
 
 
-
 WORLD_MODEL_PROMPT_TEMPLATE = PromptTemplate(
     """
 You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans.
@@ -198,8 +197,9 @@ Thought:
 )
 
 import os
-def clean_directory(path):
 
+
+def clean_directory(path):
     # Get all the file names in the directory
     file_names = os.listdir(path)
 
@@ -234,7 +234,7 @@ class WorldModel(ABC, Loggable):
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
     ) -> WorldModel:
         return cls(context.mm_llm, prompt_template, examples)
-    
+
     def get_instruction(
         self,
         objective: str,
@@ -245,18 +245,18 @@ class WorldModel(ABC, Loggable):
         """Use GPT*V to generate instruction from the current state and objective."""
         mm_llm = self.mm_llm
         logger = self.logger
-        
+
         previous_instructions = past["previous_instructions"]
         last_engine = past["last_engine"]
-        
+
         try:
-          current_state_str = yaml.dump(current_state, default_flow_style=False)
+            current_state_str = yaml.dump(current_state, default_flow_style=False)
         except:
-          raise Exception("Could not convert current state to YAML")
-        
+            raise Exception("Could not convert current state to YAML")
+
         screenshots_path: str = observations["screenshots_path"]
         image_documents = SimpleDirectoryReader(screenshots_path).load_data()
-        
+
         prompt = self.prompt_template.format(
             objective=objective,
             previous_instructions=previous_instructions,
@@ -268,13 +268,13 @@ class WorldModel(ABC, Loggable):
         mm_llm_output = mm_llm.complete(prompt, image_documents=image_documents).text
         end = time.time()
         world_model_inference_time = end - start
-        
+
         if logger:
             log = {
-              "world_model_prompt": prompt,
-              "world_model_output": mm_llm_output,
-              "world_model_inference_time": world_model_inference_time,
+                "world_model_prompt": prompt,
+                "world_model_output": mm_llm_output,
+                "world_model_inference_time": world_model_inference_time,
             }
             logger.add_log(log)
-        
+
         return mm_llm_output
