@@ -22,8 +22,9 @@ from lavague.drivers.selenium import SeleniumDriver
 selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
 world_model = WorldModel()
+python_engine = PythonEngine()
 
-agent = WebAgent(action_engine, world_model)
+agent = WebAgent(world_model, action_engine, python_engine)
 
 agent.get("https://maize-paddleboat-93e.notion.site/Welcome-to-ACME-INC-0ac66cd290e3453b93a993e1a3ed272f")
 agent.run("What's the name of our Lead Developer ?")
