@@ -77,7 +77,7 @@ class SeleniumDriver(BaseDriver):
 
     def save_screenshot(self, current_screenshot_folder: Path) -> str:
         """Save the screenshot data to a file and return the path. If the screenshot already exists, return the path. If not save it to the folder."""
-        
+
         new_screenshot = self.get_screenshot_as_png()
         new_hash = self.compute_hash(new_screenshot)
         new_screenshot_name = f"{new_hash}.png"
@@ -85,12 +85,11 @@ class SeleniumDriver(BaseDriver):
 
         # If the screenshot does not exist, save it
         if not new_screenshot_full_path.exists():
-            with open(new_screenshot_full_path, 'wb') as f:
+            with open(new_screenshot_full_path, "wb") as f:
                 f.write(new_screenshot)
         return str(new_screenshot_full_path)
 
     def get_obs(self) -> dict:
-
         current_screenshot_folder = self.get_current_screenshot_folder()
         # We take a screenshot and computes its hash to see if it already exists
         self.save_screenshot(current_screenshot_folder)
@@ -101,40 +100,45 @@ class SeleniumDriver(BaseDriver):
             "html": html,
             "screenshots_path": str(current_screenshot_folder),
             "url": url,
-            "date": datetime.now().isoformat()
+            "date": datetime.now().isoformat(),
         }
-        
+
         return obs
 
     def is_bottom_of_page(self) -> bool:
         return self.driver.execute_script(
-            "return (window.innerHeight + window.scrollY) >= document.body.scrollHeight;")
+            "return (window.innerHeight + window.scrollY) >= document.body.scrollHeight;"
+        )
 
     def get_current_screenshot_folder(self) -> Path:
         url = self.get_url()
         screenshots_path = Path("./screenshots")
         screenshots_path.mkdir(exist_ok=True)
 
-        current_screenshot_folder = screenshots_path / url.replace("://", "_").replace("/", "_")
+        current_screenshot_folder = screenshots_path / url.replace("://", "_").replace(
+            "/", "_"
+        )
         current_screenshot_folder.mkdir(exist_ok=True)
         return current_screenshot_folder
-    
+
     def get_screenshots_whole_page(self) -> list[str]:
         screenshot_paths = []
-        
+
         current_screenshot_folder = self.get_current_screenshot_folder()
 
         while True:
             # Saves a screenshot
             screenshot_path = self.save_screenshot(current_screenshot_folder)
             screenshot_paths.append(screenshot_path)
-            self.driver.execute_script("window.scrollBy(0, (window.innerHeight / 1.5));")
+            self.driver.execute_script(
+                "window.scrollBy(0, (window.innerHeight / 1.5));"
+            )
             time.sleep(0.5)
-            
+
             if self.is_bottom_of_page():
                 break
         return screenshot_paths
-        
+
     def get_screenshot_as_png(self) -> bytes:
         return self.driver.get_screenshot_as_png()
 
@@ -168,8 +172,9 @@ class SeleniumDriver(BaseDriver):
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
-    
-SELENIUM_PROMPT_TEMPLATE = '''
+
+
+SELENIUM_PROMPT_TEMPLATE = """
 You are a Selenium expert in writing code to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to write Selenium code to answer queries. Your answer must be a Python markdown only.
 Always target elements by XPATH.
@@ -298,4 +303,4 @@ time_selector = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/main/di
 # Click on the time selector to open the time selection dropdown
 time_selector.click()
 ```python
-'''
+"""

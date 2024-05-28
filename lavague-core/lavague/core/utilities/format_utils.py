@@ -30,9 +30,10 @@ def return_assigned_variables(code_snippet):
 
     return visitor.output
 
+
 def extract_code_block(markdown_text):
     """Returns the text inside the first block in a markdown text."""
-    pattern = re.compile(r'```(.*?)```', re.DOTALL)
+    pattern = re.compile(r"```(.*?)```", re.DOTALL)
     match = re.search(pattern, markdown_text)
     if match:
         # Return the text inside the first code block
@@ -40,6 +41,7 @@ def extract_code_block(markdown_text):
     else:
         # Return None if no match is found
         return None
+
 
 def keep_assignments(code_snippet):
     # Regex to match variable assignments. This pattern assumes variable names are valid Python identifiers
@@ -87,7 +89,7 @@ def extract_world_model_instruction(text):
         r"Instruction:\s*(.*)",  # For single-line instructions
         r"### Instruction:\s*(.*)",  # For single-line instructions with ### prefix
     ]
-    
+
     longest_instruction = ""
 
     for pattern in instruction_patterns:
@@ -110,7 +112,6 @@ def extract_world_model_instruction(text):
         return longest_instruction
 
     raise ValueError("No instruction found in the text.")
-
 
 
 def extract_next_engine(text):

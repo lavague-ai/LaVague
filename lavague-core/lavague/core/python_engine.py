@@ -15,6 +15,7 @@ from llama_index.core import Document, VectorStoreIndex
 from lavague.core.logger import AgentLogger
 from lavague.core.action_engine import BaseActionEngine
 
+
 class PythonEngine(BaseActionEngine):
     llm: BaseLLM
     embedding: BaseEmbedding
@@ -39,18 +40,18 @@ class PythonEngine(BaseActionEngine):
         context: Context,
     ):
         return cls(context.llm, context.embedding)
-    
+
     def execute_instruction(self, instruction: str):
         logger = self.logger
-        
+
         html = self.driver.get_html()
         start = time.time()
         output = self.extract_information(instruction, html)
         end = time.time()
         action_time = end - start
-        
+
         success = True
-        
+
         if logger:
             log = {
                 "engine": "Python Engine",
@@ -60,13 +61,13 @@ class PythonEngine(BaseActionEngine):
                 },
                 "success": success,
                 "output": output,
-                "code": "" # TODO add code of Python engine. Issue is that it might be harder to make it re runnable as the pipeline is more complex than just navigation.
+                "code": "",  # TODO add code of Python engine. Issue is that it might be harder to make it re runnable as the pipeline is more complex than just navigation.
             }
-            
+
             logger.add_log(log)
-        
+
         return success, output
-        
+
     def extract_information(self, instruction: str, html: str) -> str:
         llm = self.llm
         embedding = self.embedding
