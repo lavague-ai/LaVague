@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Generator, List, Tuple
+from io import BytesIO
+from typing import Any, Dict, Optional, Generator, List, Tuple
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core import get_response_synthesizer, QueryBundle, PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
@@ -11,8 +12,9 @@ from lavague.core.base_driver import BaseDriver
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
 import time
+from PIL import Image
 from lavague.core.logger import AgentLogger, Loggable
-from lavague.core.utilities.web_utils import get_highlighted_element
+from lavague.core.utilities.web_utils import display_screenshot, get_highlighted_element, sort_files_by_creation
 
 ACTION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -62,6 +64,8 @@ class ActionEngine(BaseActionEngine):
     def __init__(
         self,
         driver: BaseDriver,
+        python_engine: 'BaseActionEngine' = None,
+        navigation_control: 'BaseActionEngine' = None,
         llm: BaseLLM = get_default_context().llm,
         embedding: BaseEmbedding = get_default_context().embedding,
         retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
@@ -70,7 +74,11 @@ class ActionEngine(BaseActionEngine):
         time_between_actions: float = 1.5,
         n_attempts: int = 5,
         logger: AgentLogger = None,
+        display: bool = False,
     ):
+        from lavague.core.navigation import NavigationControl
+        from lavague.core.python_engine import PythonEngine
+
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.embedding: BaseEmbedding = embedding
@@ -82,12 +90,26 @@ class ActionEngine(BaseActionEngine):
         self.time_between_actions = time_between_actions
         self.logger = logger
         self.n_attempts = n_attempts
+        if python_engine is None:
+            python_engine = PythonEngine(self.driver, llm, embedding)
+        if navigation_control is None:
+            navigation_control = NavigationControl(self.driver)
+        self.python_engine = python_engine
+        self.navigation_control = navigation_control
+        self.engines: Dict[str, BaseActionEngine] = {
+            "Navigation Engine": self,
+            "Python Engine": self.python_engine,
+            "Navigation Controls": self.navigation_control,
+        }
+        self.display = display
 
     @classmethod
     def from_context(
         cls,
         context: Context,
         driver: BaseDriver,
+        python_engine: BaseActionEngine = None,
+        navigation_control: BaseActionEngine = None,
         retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
         prompt_template: PromptTemplate = ACTION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = ACTION_ENGINE_PROMPT_TEMPLATE.extractor,
@@ -97,6 +119,8 @@ class ActionEngine(BaseActionEngine):
         """
         return cls(
             driver,
+            python_engine,
+            navigation_control,
             context.llm,
             context.embedding,
             retriever,
@@ -156,6 +180,14 @@ class ActionEngine(BaseActionEngine):
         response = self.llm.complete(prompt).text
         code = self.extractor.extract(response)
         return code
+    
+    def set_display(self, display: bool):
+        self.display = display
+
+    def set_logger_all(self, logger: AgentLogger):
+        self.set_logger(logger)
+        self.python_engine.set_logger(logger)
+        self.navigation_control.set_logger(logger)
 
     def get_action(self, query: str) -> Optional[str]:
         # TODO: Rename query to instruction to be consistent with other engines
@@ -172,6 +204,10 @@ class ActionEngine(BaseActionEngine):
         response = query_engine.query(query)
         code = response.response
         return self.extractor.extract(code)
+    
+    def dispatch_instruction(self, next_engine_name: str, instruction: str):
+        next_engine = self.engines[next_engine_name]
+        return next_engine.execute_instruction(instruction)
 
     def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
         """
@@ -210,6 +246,16 @@ class ActionEngine(BaseActionEngine):
         for _ in range(self.n_attempts):
             if success:
                 break
+            if self.display:
+                try:
+                    scr_path = self.driver.get_current_screenshot_folder()
+                    lst = sort_files_by_creation(scr_path)
+                    for scr in lst:
+                        img = Image.open(scr_path.as_posix() + "/" + scr)
+                        display_screenshot(img)
+                        time.sleep(0.2)
+                except:
+                    pass
             start = time.time()
             prompt = self.prompt_template.format(
                 context_str=llm_context, query_str=instruction
@@ -231,9 +277,21 @@ class ActionEngine(BaseActionEngine):
 {action}"""
                 # Get information to see which elements are selected
                 vision_data = get_highlighted_element(driver, action)
+                if self.display:
+                    for item in vision_data:
+                        display_screenshot(item["screenshot"])
+                        time.sleep(0.2)
 
                 exec(code_to_execute, local_scope, local_scope)
                 time.sleep(self.time_between_actions)
+                if self.display:
+                    try:
+                        screenshot = self.driver.get_screenshot_as_png()
+                        screenshot = BytesIO(screenshot)
+                        screenshot = Image.open(screenshot)
+                        display_screenshot(screenshot)
+                    except:
+                        pass
                 success = True
                 action_outcome["success"] = True
                 navigation_log["vision_data"] = vision_data
@@ -258,7 +316,6 @@ class ActionEngine(BaseActionEngine):
             logger.add_log(log)
 
         return success, output
-
 
 def get_model_name(llm: BaseLLM) -> str:
     try:

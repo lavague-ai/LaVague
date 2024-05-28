@@ -9,7 +9,16 @@ from lavague.core.utilities.format_utils import (
 from io import BytesIO
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.webdriver import WebDriver
+import os
 
+def sort_files_by_creation(directory):
+    def get_creation_time(item):
+        item_path = os.path.join(directory, item)
+        return os.path.getctime(item_path)
+
+    items = os.listdir(directory)
+    sorted_items = sorted(items, key=get_creation_time)
+    return sorted_items
 
 # Function to encode the image
 def encode_image(image_path):

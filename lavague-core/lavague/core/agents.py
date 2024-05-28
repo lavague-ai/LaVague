@@ -9,7 +9,6 @@ from lavague.core.utilities.format_utils import (
 )
 from lavague.core.logger import AgentLogger
 from lavague.core.memory import ShortTermMemory
-from lavague.core.action_engine import BaseActionEngine
 from lavague.core.base_driver import BaseDriver
 
 from lavague.core.utilities.telemetry import send_telemetry
@@ -23,23 +22,18 @@ class WebAgent:
         self,
         world_model: WorldModel,
         action_engine: ActionEngine,
-        python_engine: PythonEngine,
         n_steps: int = 10,
     ):
         self.driver: BaseDriver = action_engine.driver
         self.action_engine: ActionEngine = action_engine
         self.world_model: WorldModel = world_model
-        self.navigation_control: NavigationControl = NavigationControl(self.driver)
         self.st_memory = ShortTermMemory()
-        self.python_engine: PythonEngine = python_engine
 
         self.n_steps = n_steps
         
         self.logger: AgentLogger = AgentLogger()
         
-        self.action_engine.set_logger(self.logger)
-        self.python_engine.set_logger(self.logger)
-        self.navigation_control.set_logger(self.logger)
+        self.action_engine.set_logger_all(self.logger)
         self.world_model.set_logger(self.logger)
         self.st_memory.set_logger(self.logger)
         
@@ -50,18 +44,10 @@ class WebAgent:
         driver: BaseDriver = self.driver
         logger = self.logger
         n_steps = self.n_steps
+        self.action_engine.set_display(display)
         
         st_memory = self.st_memory
         world_model = self.world_model
-        navigation_control = self.navigation_control
-        python_engine = self.python_engine
-        action_engine = self.action_engine
-        
-        engines: Dict[str, BaseActionEngine] = {
-            "Navigation Engine": action_engine,
-            "Python Engine": python_engine,
-            "Navigation Controls": navigation_control,
-        }
         
         obs = driver.get_obs()
 
@@ -84,12 +70,10 @@ class WebAgent:
                 logger.end_step()
                 break
             
-            next_engine = engines[next_engine_name]
-            success, output = next_engine.execute_instruction(instruction)
-            
+            success, output = self.action_engine.dispatch_instruction(next_engine_name, instruction)
             st_memory.update_state(instruction, next_engine_name, 
                                     success, output)    
-            
+ 
             logger.add_log(obs)
             logger.end_step()
             

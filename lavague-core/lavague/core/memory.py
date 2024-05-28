@@ -11,7 +11,7 @@ class ShortTermMemory(Loggable):
     def __init__(self, user_data=None, logger: AgentLogger = None) -> None:
         current_state = {
             "external_observations": {
-                "vision": "[SCREEENSHOT]",
+                "vision": "[SCREENSHOT]",
             },
             "internal_state": {
                 "user_inputs": [],

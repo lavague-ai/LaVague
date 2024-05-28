@@ -28,11 +28,11 @@ class NavigationControl(BaseActionEngine):
         meta_driver: BaseDriver = self.driver
         driver: WebDriver = meta_driver.get_driver()
 
-        # if "SCROLL_DOWN" in instruction:
-        #     code = """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
-        # elif "SCROLL_UP" in instruction:
-        #     code = """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
-        if "WAIT" in instruction:
+        if "SCROLL_DOWN" in instruction:
+            code = """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
+        elif "SCROLL_UP" in instruction:
+            code = """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
+        elif "WAIT" in instruction:
             code = f"""
 import time
 time.sleep({self.time_between_actions})"""
