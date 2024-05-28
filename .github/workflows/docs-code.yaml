@@ -32,7 +32,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install .
+        pip install lavague-core
+        pip install lavague-integrations/contexts/lavague-contexts-openai
+        pip install lavague-integrations/drivers/lavague-drivers-selenium
+        pip install pip install lavague-integrations/retrievers/lavague-retrievers-cohere
 
     - name: Check code consistency with docs/index.md
       run: |
