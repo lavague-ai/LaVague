@@ -90,7 +90,6 @@ viewport_height = driver.execute_script("return window.innerHeight;")
         screenshot = local_scope["screenshot"]
         screenshot = BytesIO(screenshot)
         screenshot = Image.open(screenshot)
-        image = Image.open("screenshot.png")
         output = {
             "screenshot": screenshot,
             "bounding_box": bounding_box,

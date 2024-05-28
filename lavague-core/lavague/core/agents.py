@@ -12,6 +12,7 @@ from lavague.core.memory import ShortTermMemory
 from lavague.core.action_engine import BaseActionEngine
 from lavague.core.utilities.format_utils import extract_code_block
 from lavague.core.base_driver import BaseDriver
+from lavague.core.utilities.telemetry import send_telemetry
 
 class WebAgent:
     """
@@ -91,5 +92,6 @@ class WebAgent:
             logger.end_step()
             
             obs = driver.get_obs()
-        
+
+        send_telemetry(logger.return_pandas())
         return output

@@ -1,3 +1,4 @@
+from datetime import datetime
 import hashlib
 import os
 from pathlib import Path
@@ -100,6 +101,7 @@ class SeleniumDriver(BaseDriver):
             "html": html,
             "screenshots_path": str(current_screenshot_folder),
             "url": url,
+            "date": datetime.now().isoformat()
         }
         
         return obs

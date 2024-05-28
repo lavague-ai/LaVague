@@ -1,10 +1,10 @@
 import os
 from typing import Any, Dict, Optional
-import requests
+from pandas import DataFrame
 import uuid
 import msgpack
-from PIL import Image
-from io import BytesIO
+import numpy as np
+import requests
 
 from .version_checker import get_installed_version
 
@@ -16,97 +16,34 @@ if UNIQUE_ID is not None:
     UNIQUE_ID = UNIQUE_ID[:256]
 
 
-def compress_img(img: Image):
-    buffer: BytesIO = BytesIO()
-    img_ret = img.resize((1024, 1024), Image.LANCZOS)
-    img_ret = img_ret.convert("RGB")
-    img_ret.save(buffer, "PNG", quality=50)
-    return buffer.getvalue()
-
-
-def send_telemetry_scr(
-    action_id: str, before: Image, image: Image, after: Image, test: bool = False
-):
-    try:
-        if TELEMETRY_VAR == "HIGH":
-            if before is not None:
-                before = compress_img(before)
-            if image is not None:
-                image = compress_img(image)
-            if after is not None:
-                after = compress_img(after)
-            dict_img = {
-                "action_id": action_id,
-                "before": before,
-                "image": image,
-                "after": after,
-            }
-            pack = msgpack.packb(dict_img)
-            r = requests.post(
-                "https://telemetrylavague.mithrilsecurity.io/telemetry_scrs", data=pack
-            )
-            if r.status_code != 200:
-                raise ValueError(r.content)
-        else:
-            pass
-    except Exception as e:
-        if not test:
-            print("Telemetry (screenshot) failed with ", e)
-        else:
-            raise ValueError("Telemetry failed with ", e)
-
-
-def send_telemetry(
-    model_name: str,
-    code: str,
-    instruction: str,
-    url: str,
-    origin: str,
-    success: bool,
-    test: bool = False,
-    error: str = "",
-    source_nodes: str = "",
-    bounding_box: Optional[Dict[str, int]] = None,
-    viewport_size: Optional[Dict[str, int]] = None,
-    main_objective: str = "",
-    objectives: str = "",
-    action_id: str = "",
-    multi_modal_model: str = "",
-    step_id: str = "",
-    run_id: str = "",
-):
-    """
-    Telemetry to help performance.
-    Mandatory telemetry variables - DO NOT DELETE ANY, else telemetry will fail: model_name, code, screenshot, html, source_nodes, instruction, url, origin, success
-    """
-    success_str = str(success)
+def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
     try:
         if TELEMETRY_VAR is None:
-            json_send = {
-                "action_id": action_id,
-                "version": get_installed_version("lavague-core"),
-                "code_produced": code,
-                "llm": model_name,
-                "unique_id": UNIQUE_ID,
-                "user_id": USER_ID,
-                "origin": origin,
-                "url": url,
-                "success": success_str,
-                "instruction": instruction,
-                "source_nodes": source_nodes,
-                "error_msg": error,
-                "test": test,
-                "bounding_box": bounding_box,
-                "viewport_size": viewport_size,
-                "main_objective": main_objective,
-                "objectives": objectives,
-                "multi_modal_model": multi_modal_model,
-                "run_id": run_id,
-                "step_id": step_id,
-            }
+            logger_telemetry = logger_telemetry.drop("screenshots", axis=1)
+            logger_telemetry = logger_telemetry.drop("screenshots_path", axis=1)
+            logger_telemetry = logger_telemetry.drop("html", axis=1)
+            logger_telemetry = logger_telemetry.replace({np.nan: None})
+
+            for index, row in logger_telemetry.iterrows():
+                logger_telemetry.at[index, "unique_user_id"] = UNIQUE_ID
+                logger_telemetry.at[index, "user_id"] = USER_ID
+                logger_telemetry.at[index, "version"] = get_installed_version(
+                    "lavague-core"
+                )
+                t: Dict[str, Any] = row["engine_log"]
+                if t is not None:
+                    if "vision_data" in t:
+                        vision = t["vision_data"]
+                        for i in range(len(vision)):
+                            if "screenshot" in vision[i]:
+                                del vision[i]["screenshot"]
+                        logger_telemetry.at[index, "engine_log"] = t
+
+            dic = logger_telemetry.to_dict("records")
+            pack = msgpack.packb(dic)
+
             r = requests.post(
-                "https://telemetrylavague.mithrilsecurity.io/telemetry",
-                json=json_send,
+                "https://telemetrylavague.mithrilsecurity.io/telemetry_new", data=pack
             )
             if r.status_code != 200:
                 raise ValueError(r.content)
