@@ -6,6 +6,20 @@ from lavague.core.utilities.format_utils import (
     return_assigned_variables,
     keep_assignments,
 )
+from io import BytesIO
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.remote.webdriver import WebDriver
+import os
+
+
+def sort_files_by_creation(directory):
+    def get_creation_time(item):
+        item_path = os.path.join(directory, item)
+        return os.path.getctime(item_path)
+
+    items = os.listdir(directory)
+    sorted_items = sorted(items, key=get_creation_time)
+    return sorted_items
 
 
 # Function to encode the image
@@ -26,14 +40,8 @@ def display_screenshot(img: PngImageFile):
         img.show()
 
 
-def get_highlighted_element(driver, generated_code):
-    try:
-        from selenium.webdriver.remote.webelement import WebElement
-    except ImportError:
-        raise ImportError(
-            "`lavague-drivers-selenium` package not found, "
-            "please run `pip install lavague-drivers-selenium`"
-        )
+def get_highlighted_element(driver: WebDriver, generated_code):
+    # TODO: Make code function with abstract driver
     # Extract the assignments from the generated code
     assignment_code = keep_assignments(generated_code)
 
@@ -42,8 +50,7 @@ def get_highlighted_element(driver, generated_code):
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-{assignment_code}
-    """.strip()
+{assignment_code}""".strip()
 
     local_scope = {"driver": driver}
 
@@ -70,7 +77,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 element = {element_name}
 driver.execute_script("arguments[0].setAttribute('style', arguments[1]);", element, "border: 2px solid red;")
 driver.execute_script("arguments[0].scrollIntoView({{block: 'center'}});", element)
-driver.save_screenshot("screenshot.png")
+screenshot = driver.get_screenshot_as_png()
 
 x1 = element.location['x']
 y1 = element.location['y']
@@ -92,9 +99,11 @@ viewport_height = driver.execute_script("return window.innerHeight;")
             "width": local_scope["viewport_width"],
             "height": local_scope["viewport_height"],
         }
-        image = Image.open("screenshot.png")
+        screenshot = local_scope["screenshot"]
+        screenshot = BytesIO(screenshot)
+        screenshot = Image.open(screenshot)
         output = {
-            "image": image,
+            "screenshot": screenshot,
             "bounding_box": bounding_box,
             "viewport_size": viewport_size,
         }

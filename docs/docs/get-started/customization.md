@@ -32,7 +32,7 @@ Let's take a look at how we can modify specific elements of an existing built-in
 from llama_index.embeddings.gemini import GeminiEmbedding
 from llama_index.llms.gemini import Gemini
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
-from lavague.core import WorldModel, ActionEngine, PythonEngine
+from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
 from lavague.contexts.openai import OpenaiContext
 from lavague.drivers.selenium import SeleniumDriver
@@ -53,7 +53,7 @@ world_model = WorldModel.from_context(context)
 action_engine = ActionEngine.from_context(context, selenium_driver)
 
 # Create your agent
-agent = WebAgent(world_model, action_engine, PythonEngine())
+agent = WebAgent(world_model, action_engine)
 
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")

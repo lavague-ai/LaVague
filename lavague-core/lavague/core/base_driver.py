@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Callable, Optional
 from abc import ABC, abstractmethod
 from lavague.core.utilities.format_utils import (
@@ -89,4 +90,17 @@ class BaseDriver(ABC):
     @abstractmethod
     def get_capability(self) -> str:
         """Prompt to explain the llm which style of code he should output and which variables and imports he should expect"""
+        pass
+
+    @abstractmethod
+    def get_obs(self) -> dict:
+        """Get the current observation of the driver"""
+        pass
+
+    @abstractmethod
+    def get_current_screenshot_folder(self) -> Path:
+        pass
+
+    @abstractmethod
+    def get_screenshot_as_png(self) -> bytes:
         pass

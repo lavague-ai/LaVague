@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Callable, Optional
 from playwright.sync_api import Page
 from lavague.core.base_driver import BaseDriver
@@ -28,6 +29,12 @@ class PlaywrightDriver(BaseDriver):
 
     def get_driver(self) -> Page:
         return self.driver
+
+    def get_current_screenshot_folder(self) -> Path:
+        pass
+
+    def get_screenshot_as_png(self) -> bytes:
+        pass
 
     def resize_driver(self, width, height) -> None:
         self.driver.set_viewport_size({"width": width, "height": height})
