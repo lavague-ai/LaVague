@@ -31,12 +31,12 @@ def return_assigned_variables(code_snippet):
     return visitor.output
 
 def extract_code_block(markdown_text):
-    """Returns the text inside the first code block in a markdown text."""
+    """Returns the text inside the first block in a markdown text."""
     pattern = re.compile(r'```(.*?)```', re.DOTALL)
-    match = pattern.search(markdown_text)  # Use the compiled pattern directly
+    match = re.search(pattern, markdown_text)
     if match:
         # Return the text inside the first code block
-        return match.group(1).strip()
+        return match.group(1)
     else:
         # Return None if no match is found
         return None
@@ -82,25 +82,35 @@ def extract_world_model_instruction(text):
         r"### Instruction:\s*((?:- .*\n?)+)",  # For multi-line hyphenated instructions with ### prefix
         r"Instruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions
         r"### Instruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions with ### prefix
+        r"Instruction:\s*```(.*?)```",  # For block of text within triple backticks
+        r"### Instruction:\s*```(.*?)```",  # For block of text within triple backticks with ### prefix
         r"Instruction:\s*(.*)",  # For single-line instructions
         r"### Instruction:\s*(.*)",  # For single-line instructions with ### prefix
     ]
+    
+    longest_instruction = ""
 
     for pattern in instruction_patterns:
-        instruction_match = re.search(pattern, text, re.MULTILINE)
-        if instruction_match:
-            instruction_text = instruction_match.group(1).strip()
+        matches = re.findall(pattern, text, re.MULTILINE | re.DOTALL)
+        for instruction_text in matches:
+            instruction_text = instruction_text
             # Check if the instruction is multi-line or single-line
             if "\n" in instruction_text:
                 # Remove newlines and extra spaces for multi-line instructions
                 instruction_str = " ".join(
-                    line.strip() for line in instruction_text.split("\n")
+                    line for line in instruction_text.split("\n")
                 )
             else:
                 instruction_str = instruction_text
-            return instruction_str
+            # Update longest_instruction if the current one is longer
+            if len(instruction_str) > len(longest_instruction):
+                longest_instruction = instruction_str
+
+    if longest_instruction:
+        return longest_instruction
 
     raise ValueError("No instruction found in the text.")
+
 
 
 def extract_next_engine(text):

@@ -77,6 +77,7 @@ class WebAgent:
             if next_engine_name == "STOP":
                 output = extract_code_block(instruction)
                 print("Objective reached. Stopping...")
+                logger.add_log(obs)
                 logger.end_step()
                 break
             

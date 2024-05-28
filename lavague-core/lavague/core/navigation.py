@@ -21,21 +21,28 @@ class NavigationControl(BaseActionEngine):
     
     def execute_instruction(self, instruction: str):
         logger = self.logger
+        meta_driver: BaseDriver = self.driver
+        driver: WebDriver = meta_driver.get_driver()
         
         driver: WebDriver = self.driver.get_driver()
         
-        if "SCROLL_DOWN" in instruction:
-            code = """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
-        elif "SCROLL_UP" in instruction:
-            code = """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
-        elif "WAIT" in instruction:
+        # if "SCROLL_DOWN" in instruction:
+        #     code = """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
+        # elif "SCROLL_UP" in instruction:
+        #     code = """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
+        if "WAIT" in instruction:
             code = f"""
 import time
 time.sleep({self.time_between_actions})"""
+        elif "BACK" in instruction:
+            code = """driver.back()"""
+        elif "SCAN" in instruction:
+        # TODO: Should scan be in the navigation controls or in the driver?
+            code = """meta_driver.get_screenshots_whole_page()"""
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         
-        local_scope = {"driver": driver}
+        local_scope = {"driver": driver, "meta_driver": meta_driver}
         exec(code, local_scope, local_scope)
         success = True
         output = None

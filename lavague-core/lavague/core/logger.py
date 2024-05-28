@@ -1,5 +1,16 @@
 import uuid
 import pandas as pd
+import os
+from PIL import Image
+
+def load_images_from_folder(folder_path):
+    images = []
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".png") or filename.endswith(".jpg") or filename.endswith(".jpeg"):
+            img_path = os.path.join(folder_path, filename)
+            img = Image.open(img_path)
+            images.append(img)
+    return images
 
 class AgentLogger:
     def __init__(self):
@@ -23,7 +34,9 @@ class AgentLogger:
             self.current_row[k] = v
             
     def return_pandas(self) -> pd.DataFrame:
-        return pd.DataFrame(self.logs)
+        df = pd.DataFrame(self.logs)
+        df["screenshots"] = df["screenshots_path"].apply(load_images_from_folder)
+        return df
     
 class Loggable:
     logger: AgentLogger
