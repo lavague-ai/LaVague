@@ -135,6 +135,81 @@ Thoughts:
 Next engine: Navigation Controls
 Instruction: SCAN
 -----
+Objective: Provide the company’s mission statement
+Previous instructions:
+- Extract the text of the mission statement
+Last engine: Python Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: ["Our mission is to innovate and lead in the technology sector, creating solutions that drive progress and improve lives."]
+  user_inputs: []
+
+Thoughts:
+- The current screenshot shows the page about the company's vision and mision.
+- The Python Engine was previously called to extract the mission statement.
+- The agent_outputs contains the correct mission statement.
+- Therefore, the goal has been achieved and we can output the mission statement.
+Next engine: STOP
+Instruction: Our mission is to innovate and lead in the technology sector, creating solutions that drive progress and improve lives.
+-----
+Objective: Provide the address of the headquarters
+Previous instructions:
+- Click on 'Contact Us'
+Last engine: Navigation Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Thoughts:
+
+- The screenshot shows the 'Contact Us' section of the website.
+- The address of the headquarters is visible directly in the screenshot.
+- The visual information is sufficient to extract and provide the address.
+- No further processing is required as the address can be directly read from the screenshot.
+Next engine: STOP
+Instruction: The address of the headquarters is 1234 Elm Street, Springfield, IL, 62701.
+-----
+Objective: Identify the list of services provided by the company
+Previous instructions:
+- Click on 'Services' in the menu
+- SCAN
+Last engine: Navigation Engine
+Current state:
+- external_observations:
+  vision: '[SCREENSHOTS]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Thoughts:
+
+- The whole page has been scanned, and the current screenshots show the services page of the company.
+- The objective is to identify the list of services provided by the company.
+- Since there is likely to be a significant amount of data to gather, it is better to use the Python Engine to extract this information reliably rather than directly using vision on it.
+Next engine: Python Engine
+Instruction: Extract the list of services provided by the company from the content of the page.
+-----
+Objective: Provide the date and location of the next company event
+Previous instructions:
+- Click on 'Events' in the menu
+Last engine: Navigation Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Thoughts:
+
+- The current screenshot shows the 'Events' page.
+- The objective is to provide the date and location of the next company event.
+- The date and location of the next event are clearly mentioned in the screenshot.
+- The objective can be easily achieved by directly reading the information from the screenshot.
+Next engine: STOP
+Instruction: The next company event is on June 10, 2024, at the Downtown Convention Center, New York.
 """
 
 
