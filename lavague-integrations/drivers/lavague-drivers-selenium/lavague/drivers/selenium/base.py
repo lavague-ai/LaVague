@@ -166,14 +166,8 @@ class SeleniumDriver(BaseDriver):
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
-<<<<<<< HEAD
     
 SELENIUM_PROMPT_TEMPLATE = '''
-=======
-
-
-SELENIUM_PROMPT_TEMPLATE = """
->>>>>>> 6ccb026e8070d98c8f93896f369ee06a2affec56
 You are a Selenium expert in writing code to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to write Selenium code to answer queries. Your answer must be a Python markdown only.
 Always target elements by XPATH.
@@ -302,8 +296,4 @@ time_selector = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/main/di
 # Click on the time selector to open the time selection dropdown
 time_selector.click()
 ```python
-<<<<<<< HEAD
 '''
-=======
-"""
->>>>>>> 6ccb026e8070d98c8f93896f369ee06a2affec56
