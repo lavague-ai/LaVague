@@ -15,11 +15,11 @@ USER_ID = str(uuid.uuid4())
 if UNIQUE_ID is not None:
     UNIQUE_ID = UNIQUE_ID[:256]
 
-def send_telemetry(logger: DataFrame, test: bool = False):
+def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
     try:
         if TELEMETRY_VAR is None:
-            logger_telemetry = logger.copy()
             logger_telemetry = logger_telemetry.drop("screenshots", axis=1)
+            logger_telemetry = logger_telemetry.drop("screenshots_path", axis=1)
             logger_telemetry = logger_telemetry.drop("html", axis=1)
             logger_telemetry = logger_telemetry.replace({np.nan: None})
 
