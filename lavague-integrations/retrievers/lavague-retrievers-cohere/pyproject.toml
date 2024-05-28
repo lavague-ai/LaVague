@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-retriever-cohere"
-version = "0.1.2"
+version = "0.2.0"
 description = "Cohere retriever for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -21,7 +21,7 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.1.1"
+lavague-core = "^0.2.0"
 cohere = "^5.4.0"
 
 [build-system]
