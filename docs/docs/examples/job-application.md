@@ -11,7 +11,7 @@ You can see it in action below:
 
 !["idefics demo"](../../assets/demo_lavague_form_idefics.gif)
 
-You can run this example directly with a CLI script [available here](https://github.com/lavague-ai/LaVague/blob/docs-add-end2end/examples/idefics_example.py)
+You can run this example directly with a [CLI script available here](https://github.com/lavague-ai/LaVague/blob/docs-add-end2end/examples/idefics_example.py)
 
 This notebook will go through this example step by step to get into more details.
 
@@ -19,9 +19,9 @@ This notebook will go through this example step by step to get into more details
 
 **Note**: We use OpenAI's models, for the embedding, LLM and Vision model. You will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for this example to work.
 
-If you don't have an OpenAI API key, please get one here: https://platform.openai.com/docs/quickstart/developer-quickstart
+If you don't have an OpenAI API key, please [get one here](https://platform.openai.com/docs/quickstart/developer-quickstart).
 
-You can also get a Hugging Face token here: https://huggingface.co/docs/hub/security-tokens
+You can also [get a Hugging Face token here](https://huggingface.co/docs/hub/security-tokens)
 
 ## Installation
 
@@ -183,7 +183,7 @@ world_model = WorldModel()
 
 agent = WebAgent(world_model, action_engine, python_engine)
 
-url = "https://form.jotform.com/241363523875359"
+url = "https://form.jotform.com/241472287797370"
 objective = "Fill out this form. Do not provide a cover letter"
 
 agent.get(url)
