@@ -2,7 +2,7 @@
 
 When using our Web Agents, you can customize the LLM (`llm`), multi-modal LLM (`mm_llm`) and embedding model (`embedding`).
 
-These are attributes of a `Context` object, which can be optionally passed to the `Action Engine` and `World Model`, which in turn are passed to the `Web Agent`.
+These are attributes of a `Context` object, which can be optionally passed to the `Action Engine` and `World Model` using their `from_context()` initializing methods. The `Action Engine` and `World Model` are then in turn are passed to the `Web Agent`.
 
 !!! info "Modifiable elements"
 
@@ -34,29 +34,33 @@ from llama_index.llms.gemini import Gemini
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from lavague.core import WorldModel, ActionEngine, PythonEngine
 from lavague.core.agents import WebAgent
-from lavague.contexts.openai import OpenaiContext
+from lavague.core.context import Context
 from lavague.drivers.selenium import SeleniumDriver
 
-# Initialize the default context
-context = OpenaiContext()
 
 # Customize the LLM, multi-modal LLM and embedding models
-context.llm = Gemini(model_name="models/gemini-1.5-flash-latest")
-context.mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
-context.embedding = GeminiEmbedding(model_name="models/text-embedding-004")
+llm = Gemini(model_name="models/gemini-1.5-flash-latest")
+mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
+embedding = GeminiEmbedding(model_name="models/text-embedding-004")
+
+# Initialize context
+context = Context(llm, mm_llm, embedding)
 
 # Initialize the Selenium driver
-selenium_driver = SeleniumDriver(headless=False)
+selenium_driver = SeleniumDriver()
 
 # Initialize a WorldModel passing it the custom context
-world_model = WorldModel(context)
+world_model = WorldModel.from_context(context)
 
 
 # Initialize an ActionEngine with the customized context
-action_engine = ActionEngine(selenium_driver, context)
+action_engine = ActionEngine.from_context(context, selenium_driver)
 
 # Create your agent
 agent = WebAgent(world_model, action_engine, PythonEngine())
+
+agent.get("https://huggingface.co/docs")
+agent.run("Go on the quicktour of PEFT")
 ```
 
 Here, we modify the default `OpenaiContext` by replacing its LLM, multi-modal LLM & embedding models. We can then pass this to our `Action Engine`.
@@ -68,6 +72,40 @@ Alternative, you can create a `Context` from scratch by initializing a `lavague.
 - `llm`
 - `mm_llm`
 - `embedding`
+
+#### Example: Creating a fully custom context
+
+```python
+from llama_index.embeddings.gemini import GeminiEmbedding
+from llama_index.llms.gemini import Gemini
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from lavague.core import WorldModel, ActionEngine, PythonEngine
+from lavague.core.agents import WebAgent
+from lavague.core.context import Context
+from lavague.drivers.selenium import SeleniumDriver
+
+
+# Customize the LLM, multi-modal LLM and embedding models
+llm = Gemini(model_name="models/gemini-1.5-flash-latest")
+mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
+embedding = GeminiEmbedding(model_name="models/text-embedding-004")
+
+# Initialize context with our custom elements
+context = Context(llm, mm_llm, embedding)
+
+# Initialize the Selenium driver
+selenium_driver = SeleniumDriver()
+
+# Initialize a WorldModel and ActionEnginem passing them the custom context
+world_model = WorldModel.from_context(context)
+action_engine = ActionEngine.from_context(context, selenium_driver)
+
+# Create your agent
+agent = WebAgent(world_model, action_engine, PythonEngine())
+
+agent.get("https://huggingface.co/docs")
+agent.run("Go on the quicktour of PEFT")
+```
 
 ## Summary
 
