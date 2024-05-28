@@ -49,6 +49,10 @@ class ActionEngine(BaseActionEngine):
     Args:
         driver (`BaseDriver`):
             The Web driver used to interact with the headless browser
+        python_engine (`BaseActionEngine`)
+            Python Engine for generating code that doesn't interact with an html page.
+        navigation_control (`BaseActionEngine`)
+            Navigation Control
         llm (`BaseLLM`)
             llama-index LLM that will generate the action
         embedding (`BaseEmbedding`)
@@ -210,6 +214,18 @@ class ActionEngine(BaseActionEngine):
         return self.extractor.extract(code)
 
     def dispatch_instruction(self, next_engine_name: str, instruction: str):
+        """
+        Dispatch the instruction to the appropriate ActionEngine
+
+        Args:
+            next_engine_name (`str`): The name of the engine to call
+            instruction (`str`): The instruction to perform
+
+        Return:
+            `bool`: True if the code was executed without error
+            `Any`: The output of the code
+        """
+
         next_engine = self.engines[next_engine_name]
         return next_engine.execute_instruction(instruction)
 
