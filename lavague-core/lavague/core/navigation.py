@@ -8,6 +8,7 @@ from lavague.core.action_engine import BaseActionEngine
 from lavague.core.base_driver import BaseDriver
 from PIL import Image
 
+
 class NavigationControl(BaseActionEngine):
     driver: BaseDriver
     time_between_actions: float
@@ -35,9 +36,13 @@ class NavigationControl(BaseActionEngine):
         display_page = False
 
         if "SCROLL_DOWN" in instruction:
-            code = """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
+            code = (
+                """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
+            )
         elif "SCROLL_UP" in instruction:
-            code = """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
+            code = (
+                """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
+            )
         elif "WAIT" in instruction:
             code = f"""
 import time

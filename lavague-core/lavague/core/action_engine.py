@@ -14,7 +14,11 @@ from lavague.core.context import Context, get_default_context
 import time
 from PIL import Image
 from lavague.core.logger import AgentLogger, Loggable
-from lavague.core.utilities.web_utils import display_screenshot, get_highlighted_element, sort_files_by_creation
+from lavague.core.utilities.web_utils import (
+    display_screenshot,
+    get_highlighted_element,
+    sort_files_by_creation,
+)
 
 ACTION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -64,8 +68,8 @@ class ActionEngine(BaseActionEngine):
     def __init__(
         self,
         driver: BaseDriver,
-        python_engine: 'BaseActionEngine' = None,
-        navigation_control: 'BaseActionEngine' = None,
+        python_engine: "BaseActionEngine" = None,
+        navigation_control: "BaseActionEngine" = None,
         llm: BaseLLM = get_default_context().llm,
         embedding: BaseEmbedding = get_default_context().embedding,
         retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
@@ -180,7 +184,7 @@ class ActionEngine(BaseActionEngine):
         response = self.llm.complete(prompt).text
         code = self.extractor.extract(response)
         return code
-    
+
     def set_display(self, display: bool):
         self.display = display
 
@@ -204,7 +208,7 @@ class ActionEngine(BaseActionEngine):
         response = query_engine.query(query)
         code = response.response
         return self.extractor.extract(code)
-    
+
     def dispatch_instruction(self, next_engine_name: str, instruction: str):
         next_engine = self.engines[next_engine_name]
         return next_engine.execute_instruction(instruction)
@@ -316,6 +320,7 @@ class ActionEngine(BaseActionEngine):
             logger.add_log(log)
 
         return success, output
+
 
 def get_model_name(llm: BaseLLM) -> str:
     try:

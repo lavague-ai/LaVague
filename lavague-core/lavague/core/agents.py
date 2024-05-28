@@ -15,6 +15,7 @@ from lavague.core.base_driver import BaseDriver
 
 from lavague.core.utilities.telemetry import send_telemetry
 
+
 class WebAgent:
     """
     Web agent class, for now only works with selenium.
@@ -32,13 +33,13 @@ class WebAgent:
         self.st_memory = ShortTermMemory()
 
         self.n_steps = n_steps
-        
+
         self.logger: AgentLogger = AgentLogger()
-        
+
         self.action_engine.set_logger_all(self.logger)
         self.world_model.set_logger(self.logger)
         self.st_memory.set_logger(self.logger)
-        
+
     def get(self, url):
         self.driver.goto(url)
 
@@ -49,7 +50,7 @@ class WebAgent:
         self.action_engine.set_display(display)
         self.action_engine.navigation_control.set_display(display)
         self.action_engine.python_engine.set_display(display)
-        
+
         st_memory = self.st_memory
         world_model = self.world_model
 
@@ -58,13 +59,13 @@ class WebAgent:
                 shutil.rmtree("screenshots")
         except:
             pass
-        
+
         obs = driver.get_obs()
 
         logger.new_run()
         for _ in range(n_steps):
             current_state, past = st_memory.get_state()
-            
+
             world_model_output = world_model.get_instruction(
                 objective, current_state, past, obs
             )
@@ -75,18 +76,19 @@ class WebAgent:
             if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                 output = instruction
                 print("Objective reached. Stopping...")
-                
+
                 logger.add_log(obs)
                 logger.end_step()
                 break
-            
-            success, output = self.action_engine.dispatch_instruction(next_engine_name, instruction)
-            st_memory.update_state(instruction, next_engine_name, 
-                                    success, output)    
- 
+
+            success, output = self.action_engine.dispatch_instruction(
+                next_engine_name, instruction
+            )
+            st_memory.update_state(instruction, next_engine_name, success, output)
+
             logger.add_log(obs)
             logger.end_step()
-            
+
             obs = driver.get_obs()
         send_telemetry(logger.return_pandas())
         return output

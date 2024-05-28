@@ -18,6 +18,7 @@ from lavague.core.logger import AgentLogger
 from lavague.core.action_engine import BaseActionEngine
 from PIL import Image
 
+
 class PythonEngine(BaseActionEngine):
     llm: BaseLLM
     embedding: BaseEmbedding

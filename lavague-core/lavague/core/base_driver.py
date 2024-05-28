@@ -101,6 +101,6 @@ class BaseDriver(ABC):
     def get_current_screenshot_folder(self) -> Path:
         pass
 
-    @abstractmethod    
+    @abstractmethod
     def get_screenshot_as_png(self) -> bytes:
         pass

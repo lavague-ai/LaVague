@@ -320,15 +320,15 @@ class WorldModel(ABC, Loggable):
 
         previous_instructions = past["previous_instructions"]
         last_engine = past["last_engine"]
-        
+
         try:
-          current_state_str = yaml.dump(current_state, default_flow_style=False)
+            current_state_str = yaml.dump(current_state, default_flow_style=False)
         except:
-          raise Exception("Could not convert current state to YAML")
-        
+            raise Exception("Could not convert current state to YAML")
+
         screenshots_path: str = observations["screenshots_path"]
         image_documents = SimpleDirectoryReader(screenshots_path).load_data()
-        
+
         prompt = self.prompt_template.format(
             objective=objective,
             previous_instructions=previous_instructions,
@@ -340,13 +340,13 @@ class WorldModel(ABC, Loggable):
         mm_llm_output = mm_llm.complete(prompt, image_documents=image_documents).text
         end = time.time()
         world_model_inference_time = end - start
-        
+
         if logger:
             log = {
-              "world_model_prompt": prompt,
-              "world_model_output": mm_llm_output,
-              "world_model_inference_time": world_model_inference_time,
+                "world_model_prompt": prompt,
+                "world_model_output": mm_llm_output,
+                "world_model_inference_time": world_model_inference_time,
             }
             logger.add_log(log)
-        
+
         return mm_llm_output
