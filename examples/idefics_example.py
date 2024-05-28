@@ -116,9 +116,7 @@ def main():
     selenium_driver = SeleniumDriver(headless=False)
     action_engine = ActionEngine(selenium_driver, embedding=embedding)
     world_model = WorldModel()
-    agent = WebAgent(
-        world_model, action_engine, time_between_actions=2.5
-    )
+    agent = WebAgent(world_model, action_engine, time_between_actions=2.5)
 
     form_url = "https://form.jotform.com/241363523875359"
     objective = "Fill out this form. Do not provide a cover letter"
