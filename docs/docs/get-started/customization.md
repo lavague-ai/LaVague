@@ -34,26 +34,22 @@ from llama_index.llms.gemini import Gemini
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from lavague.core import WorldModel, ActionEngine, PythonEngine
 from lavague.core.agents import WebAgent
-from lavague.core.context import Context
+from lavague.contexts.openai import OpenaiContext
 from lavague.drivers.selenium import SeleniumDriver
 
+# Initialize the default context
+context = OpenaiContext()
 
-# Customize the LLM, multi-modal LLM and embedding models
-llm = Gemini(model_name="models/gemini-1.5-flash-latest")
-mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
-embedding = GeminiEmbedding(model_name="models/text-embedding-004")
-
-# Initialize context
-context = Context(llm, mm_llm, embedding)
+# Customizing the LLM, multi-modal LLM and embedding models
+context.llm = Gemini(model_name="models/gemini-1.5-flash-latest")
+context.mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
+context.embedding = GeminiEmbedding(model_name="models/text-embedding-004")
 
 # Initialize the Selenium driver
 selenium_driver = SeleniumDriver()
 
-# Initialize a WorldModel passing it the custom context
+# Initialize the WorldModel and ActionEngine, passing it the custom context
 world_model = WorldModel.from_context(context)
-
-
-# Initialize an ActionEngine with the customized context
 action_engine = ActionEngine.from_context(context, selenium_driver)
 
 # Create your agent
