@@ -253,7 +253,7 @@ class ActionEngine(BaseActionEngine):
                     for scr in lst:
                         img = Image.open(scr_path.as_posix() + "/" + scr)
                         display_screenshot(img)
-                        time.sleep(0.2)
+                        time.sleep(0.35)
                 except:
                     pass
             start = time.time()

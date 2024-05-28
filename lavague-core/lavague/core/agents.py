@@ -1,3 +1,5 @@
+import os
+import shutil
 from typing import Dict
 from lavague.core.action_engine import ActionEngine
 from lavague.core.python_engine import PythonEngine
@@ -45,9 +47,17 @@ class WebAgent:
         logger = self.logger
         n_steps = self.n_steps
         self.action_engine.set_display(display)
+        self.action_engine.navigation_control.set_display(display)
+        self.action_engine.python_engine.set_display(display)
         
         st_memory = self.st_memory
         world_model = self.world_model
+
+        try:
+            if os.path.isdir("screenshots"):
+                shutil.rmtree("screenshots")
+        except:
+            pass
         
         obs = driver.get_obs()
 
@@ -62,7 +72,7 @@ class WebAgent:
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
-            if next_engine_name == "COMPLETE":
+            if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                 output = instruction
                 print("Objective reached. Stopping...")
                 

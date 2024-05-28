@@ -239,7 +239,7 @@ Here are guidelines to follow:
 
 # General guidelines
 - The instruction should be detailled as possible and only contain the next step. 
-- If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'SUCCESS'.
+- If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'COMPLETE'.
 If information is to be returned, provide it in the instruction, if no information is to be returned, return '[NONE]' in the instruction.
 Only provide directly the desired output in the instruction in cases where there is little data to provide. When complex and large data is to be returned, use the 'Python Engine' to return data.
 - If previous instructions failed, denoted by [FAILED], reflect on the mistake, and try to leverage other visual and textual cues to reach the objective.

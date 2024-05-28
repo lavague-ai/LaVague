@@ -4,8 +4,10 @@ We will revisit this in the future to be able to have both:
 - Capabilities that can be provided by others
 - State management that can allow a complex agentic workflow"""
 
+from io import BytesIO
 import time
 from lavague.core.context import Context, get_default_context
+from lavague.core.utilities.web_utils import display_screenshot
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
 from lavague.core.base_driver import BaseDriver
@@ -14,7 +16,7 @@ import trafilatura
 from llama_index.core import Document, VectorStoreIndex
 from lavague.core.logger import AgentLogger
 from lavague.core.action_engine import BaseActionEngine
-
+from PIL import Image
 
 class PythonEngine(BaseActionEngine):
     llm: BaseLLM
@@ -33,6 +35,7 @@ class PythonEngine(BaseActionEngine):
         self.embedding = embedding
         self.driver = driver
         self.logger = logger
+        self.display = False
 
     @classmethod
     def from_context(
@@ -68,9 +71,21 @@ class PythonEngine(BaseActionEngine):
 
         return success, output
 
+    def set_display(self, display: bool):
+        self.display = display
+
     def extract_information(self, instruction: str, html: str) -> str:
         llm = self.llm
         embedding = self.embedding
+
+        if self.display:
+            try:
+                screenshot = self.driver.get_screenshot_as_png()
+                screenshot = BytesIO(screenshot)
+                screenshot = Image.open(screenshot)
+                display_screenshot(screenshot)
+            except:
+                pass
 
         page_content = trafilatura.extract(html)
         # Next we will use Llama Index to perform RAG on the extracted text content
