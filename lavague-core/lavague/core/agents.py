@@ -76,7 +76,7 @@ class WebAgent:
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
-            if next_engine_name == "STOP":
+            if next_engine_name == "COMPLETE":
                 output = instruction
                 print("Objective reached. Stopping...")
                 

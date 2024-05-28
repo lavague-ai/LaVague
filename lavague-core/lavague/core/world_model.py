@@ -111,7 +111,7 @@ Thoughts:
 - The screenshot shows a personal biography of the author.
 - The goal is to provide a quick description of the author.
 - This description is brief and can be directly extracted.
-Next engine: STOP
+Next engine: COMPLETE
 Instruction: The author is a software engineer with a passion for AI and machine learning. He has worked on various projects and has a blog where he shares his knowledge and experience.
 -----
 Objective: Provide description and price of their products
@@ -151,7 +151,7 @@ Thoughts:
 - The Python Engine was previously called to extract the mission statement.
 - The agent_outputs contains the correct mission statement.
 - Therefore, the goal has been achieved and we can output the mission statement.
-Next engine: STOP
+Next engine: COMPLETE
 Instruction: Our mission is to innovate and lead in the technology sector, creating solutions that drive progress and improve lives.
 -----
 Objective: Provide the address of the headquarters
@@ -170,7 +170,7 @@ Thoughts:
 - The address of the headquarters is visible directly in the screenshot.
 - The visual information is sufficient to extract and provide the address.
 - No further processing is required as the address can be directly read from the screenshot.
-Next engine: STOP
+Next engine: COMPLETE
 Instruction: The address of the headquarters is 1234 Elm Street, Springfield, IL, 62701.
 -----
 Objective: Identify the list of services provided by the company
@@ -208,7 +208,7 @@ Thoughts:
 - The objective is to provide the date and location of the next company event.
 - The date and location of the next event are clearly mentioned in the screenshot.
 - The objective can be easily achieved by directly reading the information from the screenshot.
-Next engine: STOP
+Next engine: COMPLETE
 Instruction: The next company event is on June 10, 2024, at the Downtown Convention Center, New York.
 """
 
@@ -239,7 +239,7 @@ Here are guidelines to follow:
 
 # General guidelines
 - The instruction should be detailled as possible and only contain the next step. 
-- If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'STOP'.
+- If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'SUCCESS'.
 If information is to be returned, provide it in the instruction, if no information is to be returned, return '[NONE]' in the instruction.
 Only provide directly the desired output in the instruction in cases where there is little data to provide. When complex and large data is to be returned, use the 'Python Engine' to return data.
 - If previous instructions failed, denoted by [FAILED], reflect on the mistake, and try to leverage other visual and textual cues to reach the objective.
