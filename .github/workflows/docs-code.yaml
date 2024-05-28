@@ -2,9 +2,15 @@ name: Python Code Check in docs and README
 
 on:
   push:
-    branches:
-      - main
-
+    paths:
+      - 'lavague-core/**'
+      - 'lavague-integrations/**'
+      - '_lavague/**'
+      - 'lavague-gradio/**'
+      - 'pyproject.toml'
+      - '.github/workflows/docs-code.yaml'
+      - '.github/new-code-check.py'
+    
 jobs:
   check-code:
     runs-on: ubuntu-latest
@@ -26,7 +32,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install lavague
+        pip install .
 
     - name: Check code consistency with docs/index.md
       run: |
@@ -36,36 +42,21 @@ jobs:
         fi
 
     - name: Run the Python script
-      run: |
-        python check-code.py
-    
-  execute-notebook:
-    runs-on: ubuntu-latest
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10' 
+      run: python check-code.py
 
-    - name: Install Python dependencies and nbconvert
-      run: pip install notebook nbconvert lavague
+    - name: Install nbconvert
+      run: pip install notebook nbconvert
+
+    # Run quick tour with local code not pypi package
+    - name: Skip install from pypi
+      run: |
+        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
+        sed -i '0,/^!pip install lavague$/s/^!pip install lavague$/# &/' "$notebook_path"
 
     - name: Execute the notebook
-      run: jupyter nbconvert --to notebook --execute --inplace --output executed_notebook.ipynb docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb
+      run: |
+        jupyter nbconvert --to notebook --execute --inplace --output "quick-tour.ipynb" "docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
 
-  notify:
-    runs-on: ubuntu-latest
-    needs: [ check-code]
-    if: ${{ failure() || needs.check-code.outcome == 'failure' || needs.execute-notebook.outcome == 'failure'}}
-    steps:
-      - name: Send failure notification via Discord
-        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9
-        with:
-          args: "The code in the README fails or differs from the code on docs home - please fix!"
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+    - name: Check new example
+      run: |
+        python .github/new-code-check.py

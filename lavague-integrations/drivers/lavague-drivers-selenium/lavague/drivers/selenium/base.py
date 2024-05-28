@@ -68,6 +68,7 @@ class SeleniumDriver(BaseDriver):
     def get_html(self) -> str:
         return self.driver.page_source
 
+<<<<<<< HEAD
     def compute_hash(self, screenshot: bytes) -> str:
         """Computes hash of a file."""
         hasher = hashlib.md5()
@@ -135,6 +136,23 @@ class SeleniumDriver(BaseDriver):
         
     def get_screenshot_as_png(self) -> bytes:
         return self.driver.get_screenshot_as_png()
+=======
+    def get_obs(self) -> dict:
+        driver = self.driver
+
+        html = driver.page_source
+
+        screenshot = driver.get_screenshot_as_png()
+        screenshot = BytesIO(screenshot)
+        screenshot = Image.open(screenshot)
+
+        obs = {"html": html, "screenshot": screenshot}
+
+        return obs
+
+    def save_screenshot(self, filename: str) -> None:
+        self.driver.save_screenshot(filename)
+>>>>>>> 6ccb026e8070d98c8f93896f369ee06a2affec56
 
     def get_dummy_code(self) -> str:
         return 'driver.execute_script("window.scrollBy(0, 500)")'
@@ -166,8 +184,14 @@ class SeleniumDriver(BaseDriver):
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
+<<<<<<< HEAD
     
 SELENIUM_PROMPT_TEMPLATE = '''
+=======
+
+
+SELENIUM_PROMPT_TEMPLATE = """
+>>>>>>> 6ccb026e8070d98c8f93896f369ee06a2affec56
 You are a Selenium expert in writing code to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to write Selenium code to answer queries. Your answer must be a Python markdown only.
 Always target elements by XPATH.
@@ -296,4 +320,8 @@ time_selector = driver.find_element(By.XPATH, "/html/body/div[1]/div/div/main/di
 # Click on the time selector to open the time selection dropdown
 time_selector.click()
 ```python
+<<<<<<< HEAD
 '''
+=======
+"""
+>>>>>>> 6ccb026e8070d98c8f93896f369ee06a2affec56

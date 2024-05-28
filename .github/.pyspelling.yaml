@@ -1,19 +1,34 @@
 matrix:
 - name: Markdown
-  hunspell:
+  apell:
     d: en_US
   dictionary:
     wordlists:
     - .github/lavague-dic.txt
     output: build/dictionary/python.dic
   pipeline:
-    - pyspelling.filters.markdown:
-    - pyspelling.filters.url:
-    - pyspelling.filters.html:
-        comments: false
-        ignores:
-          - code
-          - pre
+  - pyspelling.filters.url:
+  - pyspelling.filters.context:
+      context_visible_first: true
+      delimiters:
+      # Ignore Python code blocks
+      - open: '(?s)^(?P<open> *`{3,})(python)?$'
+        close: '^(?P=open)$'
+      # Ignore Bash code blocks
+      - open: '(?s)^(?P<open> *`{3,})(bash)?$'
+        close: '^(?P=open)$'
+      # Ignore ``` code blocks
+      - open: '```'
+        close: '```'
+      # Ignore words in `
+      - open: '`'
+        close: '`' 
+    # Ignore Markdown links: [Link text](URL)
+      - open: '\[.*\]\('
+        close: '\)'
+    # Ignore HTML tags
+      - open: '\<'
+        close: '\>' 
   sources:
     - 'docs/**/*.md'
     - 'README.md'
