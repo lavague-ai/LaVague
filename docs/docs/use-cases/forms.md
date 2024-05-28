@@ -22,9 +22,7 @@ from lavague.drivers.selenium import SeleniumDriver
 selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
 world_model = WorldModel()
-python_engine = PythonEngine()
-
-agent = WebAgent(world_model, action_engine, python_engine)
+agent = WebAgent(world_model, action_engine)
 
 agent.get("https://form.jotform.com/241472287797370")
 
