@@ -173,15 +173,14 @@ We can now run the model using the previously extracted data.
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
-from lavague.core import ActionEngine, PythonEngine, WorldModel
+from lavague.core import ActionEngine, WorldModel
 from lavague.core.agents import WebAgent
 
 selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver, embedding=embedding)
-python_engine = PythonEngine(embedding=embedding)
 world_model = WorldModel()
 
-agent = WebAgent(world_model, action_engine, python_engine)
+agent = WebAgent(world_model, action_engine)
 
 url = "https://form.jotform.com/241472287797370"
 objective = "Fill out this form. Do not provide a cover letter"

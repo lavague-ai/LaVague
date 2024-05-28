@@ -25,7 +25,7 @@ pip install lavague
 
 ## Action Engine
 
-**An agent is made up of three components: an `Action Engine`, a `Python Engine` and a `World Model`.**
+**An agent is made up of two key components: an `Action Engine` and a `World Model`.**
 
 Let's start by initializing an `ActionEngine`, which is responsible for generating automation code for text instructions and executing them.
 
@@ -39,16 +39,6 @@ action_engine = ActionEngine(selenium_driver)
 
 !!! tip "Headless vs non-headless"
     We use in this demo non-headless mode, aka you can see you driver being piloted. This is good for debug as you can see your agent live. However, it might not be optimal for performance, as headless requires fewer resources. You can learn more about headless vs non-headless [here](https://www.browserstack.com/guide/what-is-headless-browser-testing).
-
-## Python Engine
-
-The python engine is responsible for generating code that doesn't interact with an html page.
-
-```python
-from lavague.core import PythonEngine
-
-python_engine = PythonEngine()
-```
 
 ## World Model
 
@@ -69,7 +59,7 @@ In the following example, we show how our agent can achieve a user-defined goal,
 ```python
 from lavague.core.agents import WebAgent
 
-agent = WebAgent(world_model, action_engine, python_engine)
+agent = WebAgent(world_model, action_engine)
 
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
@@ -83,15 +73,14 @@ Here is the full code to create and run your agent using LaVague:
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
-from lavague.core import ActionEngine, PythonEngine, WorldModel
+from lavague.core import ActionEngine WorldModel
 from lavague.core.agents import WebAgent
 
 selenium_driver = SeleniumDriver(headless=False)
 action_engine = ActionEngine(selenium_driver)
-python_engine = PythonEngine()
 world_model = WorldModel()
 
-agent = WebAgent(world_model, action_engine, python_engine)
+agent = WebAgent(world_model, action_engine)
 
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")

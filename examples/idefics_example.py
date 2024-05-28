@@ -103,7 +103,7 @@ def main():
 
     from llama_index.embeddings.openai import OpenAIEmbedding
     from lavague.drivers.selenium import SeleniumDriver
-    from lavague.core import ActionEngine, PythonEngine, WorldModel
+    from lavague.core import ActionEngine, WorldModel
     from lavague.core.agents import WebAgent
 
     if args.local:
@@ -115,10 +115,9 @@ def main():
 
     selenium_driver = SeleniumDriver(headless=False)
     action_engine = ActionEngine(selenium_driver, embedding=embedding)
-    python_engine = PythonEngine(embedding=embedding)
     world_model = WorldModel()
     agent = WebAgent(
-        world_model, action_engine, python_engine, time_between_actions=2.5
+        world_model, action_engine, time_between_actions=2.5
     )
 
     form_url = "https://form.jotform.com/241363523875359"

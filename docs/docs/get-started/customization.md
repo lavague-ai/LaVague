@@ -32,7 +32,7 @@ Let's take a look at how we can modify specific elements of an existing built-in
 from llama_index.embeddings.gemini import GeminiEmbedding
 from llama_index.llms.gemini import Gemini
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
-from lavague.core import WorldModel, ActionEngine, PythonEngine
+from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
 from lavague.contexts.openai import OpenaiContext
 from lavague.drivers.selenium import SeleniumDriver
@@ -56,7 +56,7 @@ world_model = WorldModel(context)
 action_engine = ActionEngine(selenium_driver, context)
 
 # Create your agent
-agent = WebAgent(world_model, action_engine, PythonEngine())
+agent = WebAgent(world_model, action_engine)
 ```
 
 Here, we modify the default `OpenaiContext` by replacing its LLM, multi-modal LLM & embedding models. We can then pass this to our `Action Engine`.

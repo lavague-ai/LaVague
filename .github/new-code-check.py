@@ -1,13 +1,12 @@
 from lavague.drivers.selenium import SeleniumDriver
-from lavague.core import ActionEngine, PythonEngine, WorldModel
+from lavague.core import ActionEngine, WorldModel
 from lavague.core.agents import WebAgent
 
 selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
-python_engine = PythonEngine()
 world_model = WorldModel()
 
-agent = WebAgent(world_model, action_engine, python_engine)
+agent = WebAgent(world_model, action_engine)
 
 url = "https://huggingface.co"
 objective = "Provide the code to use Falcon 11B"
