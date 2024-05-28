@@ -31,18 +31,6 @@ def return_assigned_variables(code_snippet):
     return visitor.output
 
 
-def extract_code_block(markdown_text):
-    """Returns the text inside the first block in a markdown text."""
-    pattern = re.compile(r"```(.*?)```", re.DOTALL)
-    match = re.search(pattern, markdown_text)
-    if match:
-        # Return the text inside the first code block
-        return match.group(1)
-    else:
-        # Return None if no match is found
-        return None
-
-
 def keep_assignments(code_snippet):
     # Regex to match variable assignments. This pattern assumes variable names are valid Python identifiers
     # and captures typical assignment statements, excluding those that might appear in comments or strings.

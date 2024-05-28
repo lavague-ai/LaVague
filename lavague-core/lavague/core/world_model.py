@@ -112,10 +112,7 @@ Thoughts:
 - The goal is to provide a quick description of the author.
 - This description is brief and can be directly extracted.
 Next engine: STOP
-Instruction: 
-```
-The author is a software engineer with a passion for AI and machine learning. He has worked on various projects and has a blog where he shares his knowledge and experience.
-```
+Instruction: The author is a software engineer with a passion for AI and machine learning. He has worked on various projects and has a blog where he shares his knowledge and experience.
 -----
 Objective: Provide description and price of their products
 Previous instructions:
@@ -167,9 +164,9 @@ Here are guidelines to follow:
 
 # General guidelines
 - The instruction should be detailled as possible and only contain the next step. 
-- If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'STOP'. If information is to be returned, provide it in the instruction inside a code block.
-Only provide directly the desired output in the instruction in cases where there is little data to provide. 
-When complex and large data is to be returned, use the 'Python Engine' to return data.
+- If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'STOP'.
+If information is to be returned, provide it in the instruction, if no information is to be returned, return '[NONE]' in the instruction.
+Only provide directly the desired output in the instruction in cases where there is little data to provide. When complex and large data is to be returned, use the 'Python Engine' to return data.
 - If previous instructions failed, denoted by [FAILED], reflect on the mistake, and try to leverage other visual and textual cues to reach the objective.
 
 # Python Engine guidelines
@@ -248,15 +245,15 @@ class WorldModel(ABC, Loggable):
 
         previous_instructions = past["previous_instructions"]
         last_engine = past["last_engine"]
-
+        
         try:
-            current_state_str = yaml.dump(current_state, default_flow_style=False)
+          current_state_str = yaml.dump(current_state, default_flow_style=False)
         except:
-            raise Exception("Could not convert current state to YAML")
-
+          raise Exception("Could not convert current state to YAML")
+        
         screenshots_path: str = observations["screenshots_path"]
         image_documents = SimpleDirectoryReader(screenshots_path).load_data()
-
+        
         prompt = self.prompt_template.format(
             objective=objective,
             previous_instructions=previous_instructions,
@@ -268,13 +265,13 @@ class WorldModel(ABC, Loggable):
         mm_llm_output = mm_llm.complete(prompt, image_documents=image_documents).text
         end = time.time()
         world_model_inference_time = end - start
-
+        
         if logger:
             log = {
-                "world_model_prompt": prompt,
-                "world_model_output": mm_llm_output,
-                "world_model_inference_time": world_model_inference_time,
+              "world_model_prompt": prompt,
+              "world_model_output": mm_llm_output,
+              "world_model_inference_time": world_model_inference_time,
             }
             logger.add_log(log)
-
+        
         return mm_llm_output
