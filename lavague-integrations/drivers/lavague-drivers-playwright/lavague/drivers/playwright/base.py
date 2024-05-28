@@ -29,7 +29,6 @@ class PlaywrightDriver(BaseDriver):
 
     def get_driver(self) -> Page:
         return self.driver
-    
 
     def get_current_screenshot_folder(self) -> Path:
         pass
