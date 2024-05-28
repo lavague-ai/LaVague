@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from lavague.core.base_driver import BaseDriver
 from PIL import Image
 from io import BytesIO
+from datetime import datetime
+
 
 def is_bottom_of_page(driver: WebDriver):
     return driver.execute_script(
@@ -99,21 +101,9 @@ class SeleniumDriver(BaseDriver):
             "html": html,
             "screenshots": screenshots,
             "url": url,
+            "date": datetime.now()
         }
         
-        return obs
-
-    def get_obs(self) -> dict:
-        driver = self.driver
-
-        html = driver.page_source
-
-        screenshot = driver.get_screenshot_as_png()
-        screenshot = BytesIO(screenshot)
-        screenshot = Image.open(screenshot)
-
-        obs = {"html": html, "screenshot": screenshot}
-
         return obs
 
     def save_screenshot(self, filename: str) -> None:

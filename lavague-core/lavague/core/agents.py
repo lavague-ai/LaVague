@@ -1,11 +1,6 @@
 from typing import Dict
-import yaml
-import time
-import uuid
-from PIL import Image
-from lavague.core.utilities.telemetry import send_telemetry, send_telemetry_scr
-from pathlib import Path
-from llama_index.core import SimpleDirectoryReader
+from lavague.core.base_driver import BaseDriver
+from lavague.core.utilities.telemetry import send_telemetry
 from lavague.core.action_engine import ActionEngine
 from lavague.core.python_engine import PythonEngine
 from lavague.core.world_model import WorldModel
@@ -18,7 +13,6 @@ from lavague.core.logger import AgentLogger
 from lavague.core.memory import ShortTermMemory
 from lavague.core.action_engine import BaseActionEngine
 from lavague.core.utilities.format_utils import extract_code_block
-from lavague.core.base_driver import BaseDriver
 
 class WebAgent:
     """
@@ -97,4 +91,5 @@ class WebAgent:
             
             obs = driver.get_obs()
         
+        send_telemetry(logger.return_pandas())
         return output
