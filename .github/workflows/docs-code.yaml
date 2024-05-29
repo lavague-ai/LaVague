@@ -35,7 +35,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install ./lavague-core
-        pip install ./lavague-integrations/contexts/lavague-contexts/gemini
+        pip install ./lavague-integrations/contexts/lavague-contexts-gemini
         pip install ./lavague-integrations/drivers/lavague-drivers-selenium
         pip freeze | grep lavague
         git log | head -1
