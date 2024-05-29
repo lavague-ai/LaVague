@@ -26,6 +26,7 @@ class WebAgent:
         world_model: WorldModel,
         action_engine: ActionEngine,
         n_steps: int = 10,
+        clean_screenshot_folder: bool = True,
     ):
         self.driver: BaseDriver = action_engine.driver
         self.action_engine: ActionEngine = action_engine
@@ -39,6 +40,7 @@ class WebAgent:
         self.action_engine.set_logger_all(self.logger)
         self.world_model.set_logger(self.logger)
         self.st_memory.set_logger(self.logger)
+        self.clean_screenshot_folder = clean_screenshot_folder
 
     def get(self, url):
         self.driver.goto(url)
@@ -54,11 +56,13 @@ class WebAgent:
         st_memory = self.st_memory
         world_model = self.world_model
 
-        try:
-            if os.path.isdir("screenshots"):
-                shutil.rmtree("screenshots")
-        except:
-            pass
+        if self.clean_screenshot_folder:
+            try:
+                if os.path.isdir("screenshots"):
+                    shutil.rmtree("screenshots")
+                print("Screenshot folder cleared")
+            except:
+                pass
 
         obs = driver.get_obs()
 
