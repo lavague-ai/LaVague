@@ -54,7 +54,7 @@ jobs:
         sed -i 's/agent = WebAgent(world_model, action_engine)/world_model = WorldModel.from_context(gemini_context)\nagent = WebAgent(world_model, action_engine)/' check-code.py
     
     - name: Check code
-     run: cat check-code.py
+      run: cat check-code.py
     
     - name: Run the Python script
       run: python check-code.py
