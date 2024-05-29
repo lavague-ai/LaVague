@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Any, Dict
 from pandas import DataFrame
@@ -15,6 +16,14 @@ USER_ID = str(uuid.uuid4())
 if UNIQUE_ID is not None:
     UNIQUE_ID = UNIQUE_ID[:256]
 
+logging_print = logging.getLogger(__name__)
+logging_print.setLevel(logging.INFO)
+format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(format)
+logging_print.addHandler(ch)
+logging_print.propagate = False
 
 def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
     try:
@@ -47,10 +56,12 @@ def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
             )
             if r.status_code != 200:
                 raise ValueError(r.content)
+            else:
+                logging_print.debug("Telemetry sent successfully")
         elif TELEMETRY_VAR == "NONE":
             pass
     except Exception as e:
         if not test:
-            print("Telemetry failed with ", e)
+            logging_print.warning(f"Telemetry failed with {e}")
         else:
             raise ValueError("Telemetry failed with ", e)
