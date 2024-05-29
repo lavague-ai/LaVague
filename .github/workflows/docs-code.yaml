@@ -72,7 +72,7 @@ jobs:
     - name: Swap OpenAI with Gemini
       run: |
         notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        sed -i 's/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.Gemini import GeminiContext\ngemini_context = GeminiContext()\naction_engine = ActionEngine.from_context(gemini_context, selenium_driver)/' "$notebook_path"
+        sed -i 's/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.Gemini import GeminiContext\n\ngemini_context = GeminiContext()\naction_engine = ActionEngine.from_context(gemini_context, selenium_driver)/' "$notebook_path"
         sed -i 's/world_model = WorldModel()/world_model = WorldModel.from_context(gemini_context)/' "$notebook_path"
 
 
