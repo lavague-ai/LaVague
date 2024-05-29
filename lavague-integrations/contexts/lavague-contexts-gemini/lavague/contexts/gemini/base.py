@@ -10,7 +10,7 @@ class GeminiContext(Context):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        llm: str = "models/gemini-1.5-pro-latest",
+        llm: str = "models/gemini-1.5-flash-latest",
         mm_llm: str = "models/gemini-1.5-pro-latest",
         embedding: str = "models/text-embedding-004",
     ) -> Context:
