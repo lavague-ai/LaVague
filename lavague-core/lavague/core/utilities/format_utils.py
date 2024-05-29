@@ -30,6 +30,16 @@ def return_assigned_variables(code_snippet):
 
     return visitor.output
 
+def extract_next_engine(text):
+    # Use a regular expression to find the content after "Next engine:"
+
+    next_engine_patterns = [r"Next engine:\s*(.*)", r"### Next Engine:\s*(.*)"]
+
+    for pattern in next_engine_patterns:
+        next_engine_match = re.search(pattern, text)
+        if next_engine_match:
+            return next_engine_match.group(1).strip()
+    raise ValueError("No next engine found in the text.")
 
 def keep_assignments(code_snippet):
     # Regex to match variable assignments. This pattern assumes variable names are valid Python identifiers
@@ -64,6 +74,18 @@ def extract_imports_from_lines(lines: List[str]) -> str:
 
 import re
 
+def extract_and_eval(string):
+    # Regular expression to match a list inside a string
+    match = re.search(r'\[.*?\]', string, re.DOTALL)
+    if match:
+        list_string = match.group(0)
+        try:
+            result = ast.literal_eval(list_string)
+            return result
+        except (SyntaxError, ValueError):
+            return "Error: The extracted string is not a valid Python literal."
+    else:
+        return "Error: No list found in the string."
 
 def extract_world_model_instruction(text):
     # Use a regular expression to find the content after "Instruction:"
@@ -100,18 +122,6 @@ def extract_world_model_instruction(text):
         return longest_instruction
 
     raise ValueError("No instruction found in the text.")
-
-
-def extract_next_engine(text):
-    # Use a regular expression to find the content after "Next engine:"
-
-    next_engine_patterns = [r"Next engine:\s*(.*)", r"### Next Engine:\s*(.*)"]
-
-    for pattern in next_engine_patterns:
-        next_engine_match = re.search(pattern, text)
-        if next_engine_match:
-            return next_engine_match.group(1).strip()
-    raise ValueError("No next engine found in the text.")
 
 
 def clean_html(

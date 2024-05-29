@@ -39,14 +39,23 @@ def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
                 logger_telemetry.at[index, "version"] = get_installed_version(
                     "lavague-core"
                 )
-                t: Dict[str, Any] = row["engine_log"]
+                t = row["engine_log"]
                 if t is not None:
-                    if "vision_data" in t:
-                        vision = t["vision_data"]
-                        for i in range(len(vision)):
-                            if "screenshot" in vision[i]:
-                                del vision[i]["screenshot"]
+                    if isinstance(t, list):
+                        for t_obj in t:
+                            if "vision_data" in t_obj:
+                                vision = t_obj["vision_data"]
+                                for i in range(len(vision)):
+                                    if "screenshot" in vision[i]:
+                                        del vision[i]["screenshot"]        
                         logger_telemetry.at[index, "engine_log"] = t
+                    else:
+                        if "vision_data" in t:
+                            vision = t["vision_data"]
+                            for i in range(len(vision)):
+                                if "screenshot" in vision[i]:
+                                    del vision[i]["screenshot"]
+                            logger_telemetry.at[index, "engine_log"] = t
 
             dic = logger_telemetry.to_dict("records")
             pack = msgpack.packb(dic)
