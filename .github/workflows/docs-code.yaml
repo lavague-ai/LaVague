@@ -50,7 +50,7 @@ jobs:
 
     - name: Replace OpenAI with Gemini
       run: |
-        sed -i 's/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.gemini import GeminiContext\ngemini_context = GeminiContext()\naction_engine = ActionEngine.from_context(selenium_driver, gemini_context)/' check-code.py
+        sed -i 's/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.gemini import GeminiContext\ngemini_context = GeminiContext()\naction_engine = ActionEngine.from_context(gemini_context, selenium_driver)/' check-code.py
         sed -i 's/agent = WebAgent(world_model, action_engine)/world_model = WorldModel.from_context(gemini_context)\nagent = WebAgent(world_model, action_engine)/' check-code.py
     
     - name: Check code
