@@ -72,15 +72,22 @@ jobs:
     - name: Swap OpenAI with Gemini
       run: |
         notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        sed -i 's/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.Gemini import GeminiContext\n\ngemini_context = GeminiContext()\naction_engine = ActionEngine.from_context(gemini_context, selenium_driver)/' "$notebook_path"
+        sed -i '/action_engine = ActionEngine(selenium_driver)/i from lavague.contexts.Gemini import GeminiContext\ngemini_context = GeminiContext()' "$notebook_path"
+        sed -i 's/action_engine = ActionEngine(selenium_driver)/action_engine = ActionEngine.from_context(gemini_context, selenium_driver)/' "$notebook_path"
         sed -i 's/world_model = WorldModel()/world_model = WorldModel.from_context(gemini_context)/' "$notebook_path"
 
+    - name: Print code blocks from the notebook
+      run: |
+        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
+        jq -r '.cells[] | select(.cell_type=="code") | .source[]' "$notebook_path"
+
+    - name: Validate JSON format
+      run: |
+        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
+        cat "$notebook_path" | jq empty
 
     - name: Execute the notebook
       run: |
         jupyter nbconvert --to notebook --execute --inplace --output "quick-tour.ipynb" "docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
   
-    - name: Print code blocks from the notebook
-      run: |
-        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        jq -r '.cells[] | select(.cell_type=="code") | .source[]' "$notebook_path"
+
