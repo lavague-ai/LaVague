@@ -36,6 +36,7 @@ jobs:
       run: |
         pip install ./lavague-core
         pip install ./lavague-integrations/contexts/lavague-contexts-gemini
+        pip install ./lavague-integrations/contexts/lavague-contexts-openai
         pip install ./lavague-integrations/drivers/lavague-drivers-selenium
         pip freeze | grep lavague
         git log | head -1
@@ -51,6 +52,9 @@ jobs:
       run: |
         sed -i 's/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.gemini import GeminiContext\ngemini_context = GeminiContext()\naction_engine = ActionEngine.from_context(selenium_driver, gemini_context)/' check-code.py
         sed -i 's/agent = WebAgent(world_model, action_engine)/world_model = WorldModel.from_context(gemini_context)\nagent = WebAgent(world_model, action_engine)/' check-code.py
+    
+    - name: Check code
+     run: cat check-code.py
     
     - name: Run the Python script
       run: python check-code.py
