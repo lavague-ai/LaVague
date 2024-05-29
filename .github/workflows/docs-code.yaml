@@ -81,11 +81,6 @@ jobs:
         notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
         jq -r '.cells[] | select(.cell_type=="code") | .source[]' "$notebook_path"
 
-    - name: Validate JSON format
-      run: |
-        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        cat "$notebook_path" | jq empty
-
     - name: Execute the notebook
       run: |
         jupyter nbconvert --to notebook --execute --inplace --output "quick-tour.ipynb" "docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
