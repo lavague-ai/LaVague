@@ -48,8 +48,6 @@ class WebAgent:
         logger = self.logger
         n_steps = self.n_steps
         self.action_engine.set_display(display)
-        self.action_engine.navigation_control.set_display(display)
-        self.action_engine.python_engine.set_display(display)
 
         st_memory = self.st_memory
         world_model = self.world_model
