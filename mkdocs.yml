@@ -126,10 +126,9 @@ nav:
   - QA Automation: "docs/examples/qa-automation.md"
 
 - 🤗 Contributing:
-  - Overview: "docs/contributing/contributing.md"
+  - Home: "docs/contributing/contributing.md"
   - General guidelines: "docs/contributing/general.md"
-  - Pathways:
-    - Documentation: "docs/contributing/documentation.md"
+  - Documentation: "docs/contributing/documentation.md"
   
 - 🛠️ API reference:
   - API reference home: 'docs/core/index.html'
