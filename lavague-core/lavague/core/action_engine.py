@@ -12,7 +12,8 @@ from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 
-class ActionEngine():
+
+class ActionEngine:
     """
     ActionEngine is a wrapper that instantiate every other engines (Navigation Engine, Python Engine, Navigation Control)
 
