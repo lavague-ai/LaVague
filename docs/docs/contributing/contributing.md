@@ -44,7 +44,7 @@ Get involved by:
 We want help to explore adding integrations in three key areas:
 
 - `Tools`: Tools to be used by our agents to enable them to interact with specific services (like Gmail)
-- `Exports`: Export functions such as packagaing the code produced by the agent to create APIs with FastAPI, export to Docker, or Pytest
+- `Exports`: Export functions such as packaging the code produced by the agent to create APIs with FastAPI, export to Docker, or Pytest
 - `Imports`: Import functions to feed data in specific formats to the model, such as from a PDF
 
 Get involved by:
