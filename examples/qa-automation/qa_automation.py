@@ -7,72 +7,82 @@ from PIL import Image
 import base64
 from io import BytesIO
 
-from lavague.core import  WorldModel, ActionEngine
+from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
 from lavague.drivers.selenium import SeleniumDriver
+
 
 def main(url, file_path):
     # parse feature file
     feature_name, feature_file_name, test_case = parse_feature_file(file_path)
-    
+
     # initialize the agent
     selenium_driver = SeleniumDriver(headless=False)
     world_model = WorldModel()
     action_engine = ActionEngine(selenium_driver)
     agent = WebAgent(world_model, action_engine)
     objective = f"Run this test case: \n\n{test_case}"
-    
+
     # run the case case with the agent
     print("--------------------------")
     print(f"Running test case:\n{test_case}")
     agent.get(url)
     agent.run(objective)
-    
+
     # perform RAG on final state of HTML page using the action engine
     print("--------------------------")
     print(f"Processing run...\n{test_case}")
-    nodes = action_engine.get_nodes(f"We have ran the test case, generate the final assert statement.\n\ntest case:\n{test_case}")
-    
+    nodes = action_engine.get_nodes(
+        f"We have ran the test case, generate the final assert statement.\n\ntest case:\n{test_case}"
+    )
+
     # parse logs
     logs = agent.logger.return_pandas()
     last_screenshot_path = get_latest_screenshot_path(logs.iloc[-1]["screenshots_path"])
     b64_img = pil_image_to_base64(last_screenshot_path)
-    selenium_code = "\n".join(logs['code'].dropna())
-    
+    selenium_code = "\n".join(logs["code"].dropna())
+
     print("--------------------------")
     print(f"Generating pytest code")
-    
+
     # generate test code
-    code = generate_pytest_code(url, feature_file_name, test_case, selenium_code, nodes, b64_img)
+    code = generate_pytest_code(
+        url, feature_file_name, test_case, selenium_code, nodes, b64_img
+    )
     code = code.replace("```python", "").replace("```", "").replace("```\n", "").strip()
-    
+
     # write test code to file
     with open(f"./tests/{feature_name}.py", "w") as f:
         f.write(code)
-        
+
     print("--------------------------")
-    print(f"Test code for feature: {feature_name} has been generated in tests/{feature_name}.py")
+    print(
+        f"Test code for feature: {feature_name} has been generated in tests/{feature_name}.py"
+    )
+
 
 def parse_feature_file(file_path):
     feature_file_name = os.path.basename(file_path)
     feature_name = feature_file_name.split(".")[0]
-    with open(file_path, 'r') as file:
+    with open(file_path, "r") as file:
         file_contents = file.read()
-    print("Parsed feature file: ", feature_file_name) 
+    print("Parsed feature file: ", feature_file_name)
 
     return feature_name, feature_file_name, file_contents
+
 
 def get_latest_screenshot_path(directory):
     # List all files in the directory
     files = os.listdir(directory)
-    
+
     # Get the full path of the files
     full_paths = [os.path.join(directory, f) for f in files]
-    
+
     # Find the most recently modified file
     latest_file = max(full_paths, key=os.path.getmtime)
-    
+
     return latest_file
+
 
 def pil_image_to_base64(image_path):
     # Open the image file
@@ -85,25 +95,33 @@ def pil_image_to_base64(image_path):
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
     return img_str
 
+
 # Generates pytest code using the OpenAI API
 def generate_pytest_code(url, feature_name, test_case, selenium_code, nodes, b64_img):
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     completion = client.chat.completions.create(
         model="gpt-4o",
-        messages=[{
-                "role": "system", 
-                "content": SYSTEM_PROMPT
-            },
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
             {
-                "role": "user", 
+                "role": "user",
                 "content": [
-                    {"type": "text", "text": build__prompt(url, feature_name, test_case, selenium_code, nodes)},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}}
-                ]
-            }
-        ]
+                    {
+                        "type": "text",
+                        "text": build__prompt(
+                            url, feature_name, test_case, selenium_code, nodes
+                        ),
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"},
+                    },
+                ],
+            },
+        ],
     )
     return completion.choices[0].message.content
+
 
 def build__prompt(url, feature_file_name, test_case, selenium_code, nodes):
     return f"""Generate a valid pytest-bdd file with the following inputs and examples to guide you:
@@ -114,6 +132,7 @@ Already executed code:\n{selenium_code}\n
 selected html of the last page:{nodes}\n
 Examples:\n\n{EXAMPLES}
 """
+
 
 SYSTEM_PROMPT = """
 You are an expert in software testing frameworks and Python code generation. You answer in python markdown only. Your task is to:
@@ -204,9 +223,18 @@ def i_should_see_error_message(browser):
 
 if __name__ == "__main__":
     os.environ["OPENAI_API_KEY"] = fetch_secret("OPENAI_API_KEY")
-    parser = argparse.ArgumentParser(description="Process a URL and a file path to generate pytest-bdd test cases")
-    parser.add_argument('--url', type=str, required=True, help="The start URL for your test cases")
-    parser.add_argument('--feature_file_path', type=str, required=True, help="The path of the .feature file with your test cases")
+    parser = argparse.ArgumentParser(
+        description="Process a URL and a file path to generate pytest-bdd test cases"
+    )
+    parser.add_argument(
+        "--url", type=str, required=True, help="The start URL for your test cases"
+    )
+    parser.add_argument(
+        "--feature_file_path",
+        type=str,
+        required=True,
+        help="The path of the .feature file with your test cases",
+    )
 
     args = parser.parse_args()
     main(args.url, args.feature_file_path)
