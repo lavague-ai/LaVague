@@ -1,10 +1,13 @@
 from io import BytesIO
 import time
 from typing import Any, List, Optional, Tuple
+from string import Template
+import ast
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
 from lavague.core.extractors import BaseExtractor, PythonFromMarkdownExtractor
 from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
+from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
     display_screenshot,
     get_highlighted_element,
@@ -168,6 +171,41 @@ class NavigationEngine(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
+    def rephrase_query(self, query: str) -> List[dict]:
+        """
+        Rephrase the query
+        Args:
+            query (`str`): The query to rephrase
+        Return:
+            `List[dict]`: The rephrased query as a list of dictionaries
+        """     
+        rephrase_prompt = Template("""
+        You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
+        Here are previous examples:
+        Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
+        Standardized instruction: [{'query':'input"Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
+        Text instruction: Click on the search bar with placeholder "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter.
+        Standardized instruction: [{'query':'input"Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
+        Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
+        Standardized instruction: [{'query':'button"Installation"', 'action':'Click on "Installation"'}]
+        
+        Text instruction:  Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
+        Standardized instruction: [{'query':'input"Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'}, {'query':'input"First name"', 'action':'Click on the input "First name" and type "John"'}, {'query':'input"Last name"', 'action':'Click on the input "Last name" and type "Doe"'}, {'query':'input"Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}]
+        Text instruction: In the login form, locate the input element labeled “Username” and type “user123”. Locate the input element labeled “Password” and type “pass456”.
+        Standardized instruction: [{'query':'input”Username”', 'action':'Click on the input “Username” and type “user123”'}, {'query':'input”Password”', 'action':'Click on the input “Password” and type “pass456”'}]
+        
+        Text instruction: Press the button labeled “Submit” at the bottom of the form.
+        Standardized instruction: [{'query':'button”Submit”', 'action':'Click on the button “Submit”'}]
+        
+        Text instruction: ${instruction}
+        Standardized instruction:
+        """)       
+        rephrase_prompt = rephrase_prompt.safe_substitute(instruction=query)
+        response = self.llm.complete(rephrase_prompt).text
+        response = response.strip('```json\n').strip('\n``` \n')
+        rephrased_query = extract_and_eval(response)
+        return rephrased_query
+
     def get_action(self, query: str) -> Optional[str]:
         # TODO: Rename query to instruction to be consistent with other engines
         """
@@ -198,92 +236,102 @@ class NavigationEngine(BaseEngine):
 
         # Navigation has no output
 
-
         output = None
         driver = self.driver.get_driver()
-
-        start = time.time()
-        source_nodes = self.get_nodes(instruction)
-        end = time.time()
-        retrieval_time = end - start
-
-        llm_context = "\n".join(source_nodes)
         success = False
-        logger = self.logger
-        
-        navigation_log = {
-            "navigation_engine_input": instruction,
-            "retrieved_html": source_nodes,
-            "retrieval_time": retrieval_time,
-            "retrieval_name": self.retriever.__class__.__name__,
-        }
 
-        action_outcomes = []
-        for _ in range(self.n_attempts):
-            if success:
-                break
-            if self.display:
-                try:
-                    scr_path = self.driver.get_current_screenshot_folder()
-                    lst = sort_files_by_creation(scr_path)
-                    for scr in lst:
-                        img = Image.open(scr_path.as_posix() + "/" + scr)
-                        display_screenshot(img)
-                        time.sleep(0.35)
-                except:
-                    pass
+        list_instructions = self.rephrase_query(instruction)
+        original_instruction = instruction
+        action_nb = 0
+        navigation_log_total = []
+
+        for action in list_instructions:
+            instruction = action["action"]
             start = time.time()
-            prompt = self.prompt_template.format(
-                context_str=llm_context, query_str=instruction
-            )
-            response = self.llm.complete(prompt).text
-            action = self.extractor.extract(response)
+            source_nodes = self.get_nodes(instruction)
             end = time.time()
-            action_generation_time = end - start
-            action_outcome = {
-                "action": action,
-                "action_generation_time": action_generation_time,
-                "navigation_engine_full_prompt": prompt,
-                "navigation_engine_llm": get_model_name(self.llm),
-            }
-            try:
-                local_scope = {"driver": driver}
-                code_to_execute = f"""
-{self.driver.import_lines}
-{action}"""
-                # Get information to see which elements are selected
-                vision_data = get_highlighted_element(driver, action)
-                if self.display:
-                    for item in vision_data:
-                        display_screenshot(item["screenshot"])
-                        time.sleep(0.2)
+            retrieval_time = end - start
 
-                exec(code_to_execute, local_scope, local_scope)
-                time.sleep(self.time_between_actions)
+            llm_context = "\n".join(source_nodes)
+            success = False
+            logger = self.logger
+
+            navigation_log = {
+                "original_instruction": original_instruction,
+                "navigation_engine_input": instruction,
+                "retrieved_html": source_nodes,
+                "retrieval_time": retrieval_time,
+                "retrieval_name": self.retriever.__class__.__name__,
+            }
+
+            action_outcomes = []
+            for _ in range(self.n_attempts):
+                if success:
+                    break
                 if self.display:
                     try:
-                        screenshot = self.driver.get_screenshot_as_png()
-                        screenshot = BytesIO(screenshot)
-                        screenshot = Image.open(screenshot)
-                        display_screenshot(screenshot)
+                        scr_path = self.driver.get_current_screenshot_folder()
+                        lst = sort_files_by_creation(scr_path)
+                        for scr in lst:
+                            img = Image.open(scr_path.as_posix() + "/" + scr)
+                            display_screenshot(img)
+                            time.sleep(0.35)
                     except:
                         pass
-                success = True
-                action_outcome["success"] = True
-                navigation_log["vision_data"] = vision_data
-            except Exception as e:
-                action_outcome["success"] = False
-                action_outcome["error"] = str(e)
+                start = time.time()
+                prompt = self.prompt_template.format(
+                    context_str=llm_context, query_str=instruction
+                )
+                response = self.llm.complete(prompt).text
+                action = self.extractor.extract(response)
+                end = time.time()
+                action_generation_time = end - start
+                action_outcome = {
+                    "action": action,
+                    "action_generation_time": action_generation_time,
+                    "navigation_engine_full_prompt": prompt,
+                    "navigation_engine_llm": get_model_name(self.llm),
+                }
+                try:
+                    local_scope = {"driver": driver}
+                    code_to_execute = f"""
+{self.driver.import_lines}
+{action}"""
+                    # Get information to see which elements are selected
+                    vision_data = get_highlighted_element(driver, action)
+                    if self.display:
+                        for item in vision_data:
+                            display_screenshot(item["screenshot"])
+                            time.sleep(0.2)
 
-            action_outcomes.append(action_outcome)
+                    exec(code_to_execute, local_scope, local_scope)
+                    time.sleep(self.time_between_actions)
+                    if self.display:
+                        try:
+                            screenshot = self.driver.get_screenshot_as_png()
+                            screenshot = BytesIO(screenshot)
+                            screenshot = Image.open(screenshot)
+                            display_screenshot(screenshot)
+                        except:
+                            pass
+                    success = True
+                    action_outcome["success"] = True
+                    navigation_log["vision_data"] = vision_data
+                except Exception as e:
+                    action_outcome["success"] = False
+                    action_outcome["error"] = str(e)
 
-        navigation_log["action_outcomes"] = action_outcomes
+                action_outcomes.append(action_outcome)
 
+            navigation_log["action_outcomes"] = action_outcomes
+            navigation_log["action_nb"] = action_nb
+            action_nb += 1
+            navigation_log_total.append(navigation_log)
         if logger:
             log = {
                 "engine": "Navigation Engine",
                 "instruction": instruction,
-                "engine_log": navigation_log,
+                "engine_log": navigation_log_total,
                 "success": success,
                 "output": None,
                 "code": action,
@@ -292,7 +340,6 @@ class NavigationEngine(BaseEngine):
             logger.add_log(log)
 
         return success, output
-
 
 class NavigationControl(BaseEngine):
     driver: BaseDriver

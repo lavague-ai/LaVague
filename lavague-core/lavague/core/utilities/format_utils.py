@@ -113,6 +113,18 @@ def extract_next_engine(text):
             return next_engine_match.group(1).strip()
     raise ValueError("No next engine found in the text.")
 
+def extract_and_eval(string):
+    # Regular expression to match a list inside a string
+    match = re.search(r'\[.*?\]', string, re.DOTALL)
+    if match:
+        list_string = match.group(0)
+        try:
+            result = ast.literal_eval(list_string)
+            return result
+        except (SyntaxError, ValueError):
+            return "Error: The extracted string is not a valid Python literal."
+    else:
+        return "Error: No list found in the string."
 
 def clean_html(
     html_to_clean: str,
