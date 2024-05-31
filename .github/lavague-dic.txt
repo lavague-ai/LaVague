@@ -89,3 +89,6 @@ FastAPI
 Gmail
 Pytest
 scalable
+UI
+OSX
+dir
