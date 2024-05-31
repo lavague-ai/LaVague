@@ -84,7 +84,7 @@ After running the test case we retrieve relevant nodes from the final state of t
 This helps in understanding the changes made to the state of the web page as a result of running the test case.
 
 ```python
-nodes = action_engine.get_nodes(f"We have ran the test case, generate the final assert statement.")
+nodes = action_engine.navigation_engine.get_nodes(f"We have ran the test case, generate the final assert statement.")
 ```
 
 We parse the logs recorded by the agent to retrieve the screenshot of the final state of the page. This screenshot will be used in our call to GPT4o to generate the pytest file. 

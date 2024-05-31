@@ -32,7 +32,7 @@ def main(url, file_path):
     # perform RAG on final state of HTML page using the action engine
     print("--------------------------")
     print(f"Processing run...\n{test_case}")
-    nodes = action_engine.get_nodes(
+    nodes = action_engine.navigation_engine.get_nodes(
         f"We have ran the test case, generate the final assert statement.\n\ntest case:\n{test_case}"
     )
 
@@ -135,7 +135,7 @@ Examples:\n\n{EXAMPLES}
 
 
 SYSTEM_PROMPT = """
-You are an expert in software testing frameworks and Python code generation. You answer in python markdown only. Your task is to:
+You are an expert in software testing frameworks and Python code generation. You answer in python code only and nothing else. Your task is to:
 
 1. Process a Gherkin test, existing Selenium code that was ran during the test by an agent, relevant HTML nodes, and the screenshot of the last state of the page.
 2. Generate an assert statement for the last condition of the test case.
@@ -148,7 +148,7 @@ Requirements:
 - Use try-except blocks to catch exceptions and raise pytest.fail for assert condition steps as needed.
 - Do not generate asserts for 'Given', 'When', or 'And' steps; only generate asserts for 'Then' steps.
 - Always use provided selenium code that was already executed to find valid selectors for the final pytestfile. 
-- Never output antyhing other than markdown python code.
+- You answer in python code only and nothing else.
 """
 
 EXAMPLES = """
@@ -222,7 +222,7 @@ def i_should_see_error_message(browser):
 """
 
 if __name__ == "__main__":
-    os.environ["OPENAI_API_KEY"] = fetch_secret("OPENAI_API_KEY")
+    os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY")
     parser = argparse.ArgumentParser(
         description="Process a URL and a file path to generate pytest-bdd test cases"
     )
