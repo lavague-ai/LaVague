@@ -43,7 +43,7 @@ Completion:
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
-format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 ch.setFormatter(format)
@@ -87,10 +87,10 @@ class NavigationEngine(BaseEngine):
         logger: AgentLogger = None,
         display: bool = False,
     ):
-        if llm is None: 
-            llm: BaseLLM = get_default_context().llm,
+        if llm is None:
+            llm: BaseLLM = (get_default_context().llm,)
         if embedding is None:
-            embedding: BaseEmbedding = get_default_context().embedding,
+            embedding: BaseEmbedding = (get_default_context().embedding,)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.embedding: BaseEmbedding = embedding
@@ -188,7 +188,7 @@ class NavigationEngine(BaseEngine):
             query (`str`): The query to rephrase
         Return:
             `List[dict]`: The rephrased query as a list of dictionaries
-        """     
+        """
         rephrase_prompt = Template("""
         You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
         Here are previous examples:
@@ -209,10 +209,10 @@ class NavigationEngine(BaseEngine):
         
         Text instruction: ${instruction}
         Standardized instruction:
-        """)       
+        """)
         rephrase_prompt = rephrase_prompt.safe_substitute(instruction=query)
         response = self.llm.complete(rephrase_prompt).text
-        response = response.strip('```json\n').strip('\n``` \n')
+        response = response.strip("```json\n").strip("\n``` \n")
         rephrased_query = extract_and_eval(response)
         return rephrased_query
 
@@ -351,6 +351,7 @@ class NavigationEngine(BaseEngine):
             logger.add_log(log)
 
         return success, output
+
 
 class NavigationControl(BaseEngine):
     driver: BaseDriver

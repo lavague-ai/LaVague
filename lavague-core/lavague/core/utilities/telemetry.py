@@ -18,12 +18,13 @@ if UNIQUE_ID is not None:
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
-format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 ch.setFormatter(format)
 logging_print.addHandler(ch)
 logging_print.propagate = False
+
 
 def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
     try:
@@ -47,7 +48,7 @@ def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
                                 vision = t_obj["vision_data"]
                                 for i in range(len(vision)):
                                     if "screenshot" in vision[i]:
-                                        del vision[i]["screenshot"]        
+                                        del vision[i]["screenshot"]
                         logger_telemetry.at[index, "engine_log"] = t
                     else:
                         if "vision_data" in t:

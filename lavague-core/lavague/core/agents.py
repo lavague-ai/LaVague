@@ -18,12 +18,13 @@ from lavague.core.utilities.telemetry import send_telemetry
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
-format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
 ch.setFormatter(format)
 logging_print.addHandler(ch)
 logging_print.propagate = False
+
 
 class WebAgent:
     """
@@ -63,7 +64,6 @@ class WebAgent:
 
         st_memory = self.st_memory
         world_model = self.world_model
-
 
         if self.clean_screenshot_folder:
             try:
