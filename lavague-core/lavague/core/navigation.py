@@ -1,4 +1,5 @@
 from io import BytesIO
+import logging
 import time
 from typing import Any, List, Optional, Tuple
 from string import Template
@@ -39,6 +40,15 @@ Completion:
 """,
     PythonFromMarkdownExtractor(),
 )
+
+logging_print = logging.getLogger(__name__)
+logging_print.setLevel(logging.INFO)
+format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(format)
+logging_print.addHandler(ch)
+logging_print.propagate = False
 
 
 class NavigationEngine(BaseEngine):
@@ -246,6 +256,7 @@ class NavigationEngine(BaseEngine):
         navigation_log_total = []
 
         for action in list_instructions:
+            logging_print.debug("Rephrased instruction: " + action["action"])
             instruction = action["action"]
             start = time.time()
             source_nodes = self.get_nodes(instruction)

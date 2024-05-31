@@ -73,12 +73,6 @@ class WebAgent:
             except:
                 pass
 
-        try:
-            if os.path.isdir("screenshots"):
-                shutil.rmtree("screenshots")
-        except:
-            pass
-
         obs = driver.get_obs()
 
         logger.new_run()
@@ -88,13 +82,13 @@ class WebAgent:
             world_model_output = world_model.get_instruction(
                 objective, current_state, past, obs
             )
-            logging.info(world_model_output)
+            logging_print.info(world_model_output)
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
             if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                 output = instruction
-                logging.info("Objective reached. Stopping...")
+                logging_print.info("Objective reached. Stopping...")
 
                 logger.add_log(obs)
                 logger.end_step()
