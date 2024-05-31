@@ -74,10 +74,10 @@ class NavigationEngine(BaseEngine):
         logger: AgentLogger = None,
         display: bool = False,
     ):
-        if llm is None: 
-            llm: BaseLLM = get_default_context().llm,
+        if llm is None:
+            llm: BaseLLM = (get_default_context().llm,)
         if embedding is None:
-            embedding: BaseEmbedding = get_default_context().embedding,
+            embedding: BaseEmbedding = (get_default_context().embedding,)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.embedding: BaseEmbedding = embedding
@@ -198,7 +198,6 @@ class NavigationEngine(BaseEngine):
 
         # Navigation has no output
 
-
         output = None
         driver = self.driver.get_driver()
 
@@ -210,7 +209,7 @@ class NavigationEngine(BaseEngine):
         llm_context = "\n".join(source_nodes)
         success = False
         logger = self.logger
-        
+
         navigation_log = {
             "navigation_engine_input": instruction,
             "retrieved_html": source_nodes,
