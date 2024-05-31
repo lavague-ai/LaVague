@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 from typing import Dict
@@ -15,6 +16,15 @@ from lavague.core.base_driver import BaseDriver
 
 from lavague.core.utilities.telemetry import send_telemetry
 
+logging_print = logging.getLogger(__name__)
+logging_print.setLevel(logging.INFO)
+format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(format)
+logging_print.addHandler(ch)
+logging_print.propagate = False
+
 
 class WebAgent:
     """
@@ -26,6 +36,7 @@ class WebAgent:
         world_model: WorldModel,
         action_engine: ActionEngine,
         n_steps: int = 10,
+        clean_screenshot_folder: bool = True,
     ):
         self.driver: BaseDriver = action_engine.driver
         self.action_engine: ActionEngine = action_engine
@@ -33,6 +44,8 @@ class WebAgent:
         self.st_memory = ShortTermMemory()
 
         self.n_steps = n_steps
+
+        self.clean_screenshot_folder = clean_screenshot_folder
 
         self.logger: AgentLogger = AgentLogger()
 
@@ -52,11 +65,13 @@ class WebAgent:
         st_memory = self.st_memory
         world_model = self.world_model
 
-        try:
-            if os.path.isdir("screenshots"):
-                shutil.rmtree("screenshots")
-        except:
-            pass
+        if self.clean_screenshot_folder:
+            try:
+                if os.path.isdir("screenshots"):
+                    shutil.rmtree("screenshots")
+                logging_print.info("Screenshot folder cleared")
+            except:
+                pass
 
         obs = driver.get_obs()
 
@@ -67,13 +82,13 @@ class WebAgent:
             world_model_output = world_model.get_instruction(
                 objective, current_state, past, obs
             )
-            print(world_model_output)
+            logging_print.info(world_model_output)
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
             if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                 output = instruction
-                print("Objective reached. Stopping...")
+                logging_print.info("Objective reached. Stopping...")
 
                 logger.add_log(obs)
                 logger.end_step()
