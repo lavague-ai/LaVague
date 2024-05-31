@@ -287,11 +287,13 @@ class WorldModel(ABC, Loggable):
 
     def __init__(
         self,
-        mm_llm: MultiModalLLM = get_default_context().mm_llm,
+        mm_llm: MultiModalLLM = None,
         prompt_template: PromptTemplate = WORLD_MODEL_PROMPT_TEMPLATE,
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
         logger: AgentLogger = None,
     ):
+        if mm_llm is None:
+            mm_llm = get_default_context().mm_llm
         self.mm_llm: MultiModalLLM = mm_llm
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
             examples=examples

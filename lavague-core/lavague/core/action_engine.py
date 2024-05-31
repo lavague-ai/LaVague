@@ -48,8 +48,8 @@ class ActionEngine:
         navigation_engine: "BaseEngine" = None,
         python_engine: "BaseEngine" = None,
         navigation_control: "BaseEngine" = None,
-        llm: BaseLLM = get_default_context().llm,
-        embedding: BaseEmbedding = get_default_context().embedding,
+        llm: BaseLLM = None,
+        embedding: BaseEmbedding = None,
         retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
@@ -59,6 +59,12 @@ class ActionEngine:
     ):
         from lavague.core.navigation import NavigationControl, NavigationEngine
         from lavague.core.python_engine import PythonEngine
+
+        if llm is None:
+            llm = get_default_context().llm
+
+        if embedding is None:
+            embedding = get_default_context().embedding
 
         self.driver = driver
         if navigation_engine is None:
@@ -119,7 +125,7 @@ class ActionEngine:
         self.navigation_control.set_display(display)
 
     def set_logger_all(self, logger: AgentLogger):
-        self.navigation_control.set_logger(logger)
+        self.navigation_engine.set_logger(logger)
         self.python_engine.set_logger(logger)
         self.navigation_control.set_logger(logger)
 

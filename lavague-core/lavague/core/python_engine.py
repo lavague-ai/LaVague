@@ -28,10 +28,14 @@ class PythonEngine(BaseEngine):
     def __init__(
         self,
         driver: BaseDriver,
-        llm: BaseLLM = get_default_context().llm,
-        embedding: BaseEmbedding = get_default_context().embedding,
+        llm: BaseLLM = None,
+        embedding: BaseEmbedding = None,
         logger: AgentLogger = None,
     ):
+        if llm is None:
+            llm = get_default_context().llm
+        if embedding is None:
+            embedding = get_default_context().embedding
         self.llm = llm
         self.embedding = embedding
         self.driver = driver
