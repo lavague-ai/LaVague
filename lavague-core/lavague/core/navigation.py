@@ -88,9 +88,9 @@ class NavigationEngine(BaseEngine):
         display: bool = False,
     ):
         if llm is None:
-            llm: BaseLLM = get_default_context().llm,
+            llm: BaseLLM = get_default_context().llm
         if embedding is None:
-            embedding: BaseEmbedding = get_default_context().embedding,
+            embedding: BaseEmbedding = get_default_context().embedding
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.embedding: BaseEmbedding = embedding
