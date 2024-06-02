@@ -73,7 +73,7 @@ Here is the full code to create and run your agent using LaVague:
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
-from lavague.core import ActionEngine WorldModel
+from lavague.core import ActionEngine, WorldModel
 from lavague.core.agents import WebAgent
 
 selenium_driver = SeleniumDriver(headless=False)
