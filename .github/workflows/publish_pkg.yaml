@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - pypi_release!
 
 jobs:
   publish_packages:
