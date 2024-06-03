@@ -1,16 +1,17 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
-from io import BytesIO
-from typing import Any, Dict, Optional, Generator, List, Tuple
-from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.core import get_response_synthesizer, QueryBundle, PromptTemplate
+from typing import Dict
+from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from lavague.core.extractors import BaseExtractor, PythonFromMarkdownExtractor
+from lavague.core.extractors import BaseExtractor
 from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
-from lavague.core.logger import AgentLogger, Loggable
+from lavague.core.logger import AgentLogger
+from lavague.core.base_engine import BaseEngine
+from lavague.core.navigation import NAVIGATION_ENGINE_PROMPT_TEMPLATE
+from lavague.core.navigation import NavigationControl, NavigationEngine
+from lavague.core.python_engine import PythonEngine
 
 
 class ActionEngine:
@@ -40,14 +41,12 @@ class ActionEngine:
             Logger to log the actions taken by the agent
     """
 
-    from lavague.core.navigation import NAVIGATION_ENGINE_PROMPT_TEMPLATE
-
     def __init__(
         self,
         driver: BaseDriver,
-        navigation_engine: "BaseEngine" = None,
-        python_engine: "BaseEngine" = None,
-        navigation_control: "BaseEngine" = None,
+        navigation_engine: BaseEngine = None,
+        python_engine: BaseEngine = None,
+        navigation_control: BaseEngine = None,
         llm: BaseLLM = None,
         embedding: BaseEmbedding = None,
         retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
@@ -57,9 +56,6 @@ class ActionEngine:
         n_attempts: int = 5,
         logger: AgentLogger = None,
     ):
-        from lavague.core.navigation import NavigationControl, NavigationEngine
-        from lavague.core.python_engine import PythonEngine
-
         if llm is None:
             llm = get_default_context().llm
 
@@ -144,6 +140,3 @@ class ActionEngine:
 
         next_engine = self.engines[next_engine_name]
         return next_engine.execute_instruction(instruction)
-
-    def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
-        pass
