@@ -3,7 +3,6 @@ import logging
 import time
 from typing import Any, List, Optional, Tuple
 from string import Template
-import ast
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
 from lavague.core.extractors import BaseExtractor, PythonFromMarkdownExtractor
@@ -189,7 +188,8 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[dict]`: The rephrased query as a list of dictionaries
         """
-        rephrase_prompt = Template("""
+        rephrase_prompt = Template(
+            """
         You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
         Here are previous examples:
         Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
@@ -209,7 +209,8 @@ class NavigationEngine(BaseEngine):
         
         Text instruction: ${instruction}
         Standardized instruction:
-        """)
+        """
+        )
         rephrase_prompt = rephrase_prompt.safe_substitute(instruction=query)
         response = self.llm.complete(rephrase_prompt).text
         response = response.strip("```json\n").strip("\n``` \n")

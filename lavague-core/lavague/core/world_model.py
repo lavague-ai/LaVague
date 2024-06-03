@@ -1,11 +1,8 @@
 from __future__ import annotations
 from abc import ABC
-from typing import List
-from PIL import Image
 from llama_index.core import PromptTemplate
 from llama_index.core.multi_modal_llms import MultiModalLLM
 from llama_index.core import SimpleDirectoryReader
-from pathlib import Path
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 import time
