@@ -48,12 +48,7 @@ jobs:
           echo "The Python code blocks in README.md and docs/index.md do not match."
           exit 1
         fi
-
-    - name: Replace OpenAI with Gemini
-      run: |
-        sed -i 's/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.gemini import GeminiContext\ngemini_context = GeminiContext()\naction_engine = ActionEngine.from_context(gemini_context, selenium_driver)/' check-code.py
-        sed -i 's/agent = WebAgent(world_model, action_engine)/world_model = WorldModel.from_context(gemini_context)\nagent = WebAgent(world_model, action_engine)/' check-code.py
-    
+        
     - name: Check code
       run: cat check-code.py
     
