@@ -10,7 +10,6 @@ from lavague.core.base_driver import BaseDriver
 from PIL import Image
 from io import BytesIO
 
-
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
 
