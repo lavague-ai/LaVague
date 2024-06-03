@@ -250,6 +250,7 @@ class NavigationEngine(BaseEngine):
         output = None
         driver = self.driver.get_driver()
         success = False
+        action_full = ""
 
         list_instructions = self.rephrase_query(instruction)
         original_instruction = instruction
@@ -311,6 +312,7 @@ class NavigationEngine(BaseEngine):
 {action}"""
                     # Get information to see which elements are selected
                     vision_data = get_highlighted_element(driver, action)
+                    action_full += action
                     if self.display:
                         for item in vision_data:
                             display_screenshot(item["screenshot"])
@@ -346,7 +348,7 @@ class NavigationEngine(BaseEngine):
                 "engine_log": navigation_log_total,
                 "success": success,
                 "output": None,
-                "code": action,
+                "code": action_full,
             }
 
             logger.add_log(log)
