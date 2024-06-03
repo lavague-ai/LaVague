@@ -21,6 +21,9 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
+
+    - name: Set env
+      run: echo "LAVAGUE_UNIQUE_USER_ID=GITHUB_CI" >> $GITHUB_ENV
       
     - name: Set up Python
       uses: actions/setup-python@v3
@@ -48,7 +51,7 @@ jobs:
           echo "The Python code blocks in README.md and docs/index.md do not match."
           exit 1
         fi
-        
+
     - name: Check code
       run: cat check-code.py
     
