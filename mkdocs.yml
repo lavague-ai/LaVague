@@ -100,8 +100,9 @@ nav:
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
-  - Browser Drivers: 'docs/learn/browser-drivers.md'
-# - 🚀 Action Engine:
+  - Drivers: 'docs/learn/browser-drivers.md'
+  - Action Engine: 'docs/learn/action-engine.md'
+  - Logger: 'docs/learn/local-log.md'
 # - 🤝 Integrations:
 #   - Overview: 'docs/integrations/home.md'
 #   - API:
