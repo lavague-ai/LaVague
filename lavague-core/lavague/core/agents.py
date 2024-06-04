@@ -61,6 +61,9 @@ class WebAgent:
         st_memory = self.st_memory
         world_model = self.world_model
 
+        if user_data:
+            self.st_memory.set_user_data(user_data)
+
         if self.clean_screenshot_folder:
             try:
                 if os.path.isdir("screenshots"):

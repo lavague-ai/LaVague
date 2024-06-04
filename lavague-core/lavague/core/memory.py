@@ -28,6 +28,10 @@ class ShortTermMemory(Loggable):
         self.previous_instructions: str = "[NONE]"
         self.last_engine: str = "[NONE]"
 
+    def set_user_data(self, user_data=None):
+        if user_data:
+            self.current_state["internal_state"]["user_inputs"].append(user_data)
+
     def get_state(self):
         current_state = self.current_state
         past = {
