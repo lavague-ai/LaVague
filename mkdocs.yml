@@ -124,6 +124,7 @@ nav:
 
 - 📝 End to end examples:
   - Automated job application: "docs/examples/job-application.md"
+  - QA Automation: "docs/examples/qa-automation.md"
 
 - 🤗 Contributing:
   - Home: "docs/contributing/contributing.md"
