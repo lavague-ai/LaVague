@@ -9,6 +9,13 @@
 
     If you don't have an OpenAI API key, please get one [here](https://platform.openai.com/docs/quickstart/developer-quickstart)
 
+    create or append the following to the .env file at the root directory of the project
+    
+    .env
+    ```bash
+    OPENAI_API_KEY=<YOUR_API_KEY>
+    ```
+
     - Our package currently only supports python versions 3.10 or greater. Please upgrade your python version if you are using a version below this.
 
 ## Installation
