@@ -84,6 +84,11 @@ OpenaiContext
 PythonFromMarkdownExtractor
 Pre
 PythonEngine
+BDD
+JIRA
+Pytest
+pytest
+replayable
 APIs
 FastAPI
 Gmail
