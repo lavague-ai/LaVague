@@ -26,6 +26,16 @@ If you want to install from source, you can do so by cloning the repo and runnin
 pip install -e .
 ```
 
+## Installing Selenium driver
+
+If you are using an environment that does not have a browser you will require additional components for Selenium. Installation guidelines could be found on https://wiki.gnome.org/Projects/GnomeShellIntegration/Installation
+
+Example for ubuntu:
+```bash
+apt-get update
+sudo apt-get install gnome-browser-connector
+```
+
 ## Dev environment
 
 If you plan to modify local files, we recommend you follow our [dev environment guidelines](../contributing/general.md)
