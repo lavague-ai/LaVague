@@ -8,10 +8,10 @@ This DataFrame is accessible via the `agent.logging.return_pandas()` method and 
     - `current_state:` This contains information about the external or internal observations the World Model used for this step
     - `past`: history of instructions sent to the Action Engine by the World Model and whether they succeeded or failed
     - `world_model_prompt`: The prompt sent to the World Model to generate the next instruction for the Action Engine needed to achieve the global objective.
-    - `world_model_output`: The reasonsing of the World Model, the engine it selected to carry out the next instruction and the instruction itself
+    - `world_model_output`: The reasoning of the World Model, the engine it selected to carry out the next instruction and the instruction itself
     - `world_model_inference_time`: Time taken for World Model inference
     - `engine_log`: contains logs related to the specific Action Engine sub-engine used.
-    - `success`: Whether the step was succesful or not in achieving objective
+    - `success`: Whether the step was successful or not in achieving objective
     - `output`: Output of the step, if relevant (for example, information scraped from a web page)
     - `code`: The code generated for this step
     - `html`: The code retrieved from the web page and sent as context for the action
