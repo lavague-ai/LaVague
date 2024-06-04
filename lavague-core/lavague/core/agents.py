@@ -10,7 +10,6 @@ from lavague.core.utilities.format_utils import (
 from lavague.core.logger import AgentLogger
 from lavague.core.memory import ShortTermMemory
 from lavague.core.base_driver import BaseDriver
-
 from lavague.core.utilities.telemetry import send_telemetry
 
 logging_print = logging.getLogger(__name__)
