@@ -1,7 +1,7 @@
 from io import BytesIO
 import logging
 import time
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Tuple
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
@@ -20,10 +20,9 @@ from lavague.core.logger import AgentLogger
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from lavague.core.base_engine import BaseEngine
 from lavague.core.base_driver import BaseDriver
-from llama_index.core import get_response_synthesizer, QueryBundle, PromptTemplate
+from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
-from llama_index.core.query_engine import RetrieverQueryEngine
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -38,6 +37,30 @@ Completion:
 
 """,
     PythonFromMarkdownExtractor(),
+)
+
+REPHRASE_PROMPT = Template(
+    """
+You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
+Here are previous examples:
+Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
+Standardized instruction: [{'query':'input"Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
+Text instruction: Click on the search bar with placeholder "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter.
+Standardized instruction: [{'query':'input"Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
+Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
+Standardized instruction: [{'query':'button"Installation"', 'action':'Click on "Installation"'}]
+
+Text instruction:  Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
+Standardized instruction: [{'query':'input"Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'}, {'query':'input"First name"', 'action':'Click on the input "First name" and type "John"'}, {'query':'input"Last name"', 'action':'Click on the input "Last name" and type "Doe"'}, {'query':'input"Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}]
+Text instruction: In the login form, locate the input element labeled “Username” and type “user123”. Locate the input element labeled “Password” and type “pass456”.
+Standardized instruction: [{'query':'input”Username”', 'action':'Click on the input “Username” and type “user123”'}, {'query':'input”Password”', 'action':'Click on the input “Password” and type “pass456”'}]
+
+Text instruction: Press the button labeled “Submit” at the bottom of the form.
+Standardized instruction: [{'query':'button”Submit”', 'action':'Click on the button “Submit”'}]
+
+Text instruction: ${instruction}
+Standardized instruction:
+"""
 )
 
 logging_print = logging.getLogger(__name__)
@@ -124,34 +147,6 @@ class NavigationEngine(BaseEngine):
             extractor,
         )
 
-    def _get_query_engine(self, streaming: bool = True) -> RetrieverQueryEngine:
-        """
-        Get the llama-index query engine
-
-        Args:
-            html: (`str`)
-            streaming (`bool`)
-
-        Return:
-            `RetrieverQueryEngine`
-        """
-
-        response_synthesizer = get_response_synthesizer(
-            streaming=streaming, llm=self.llm
-        )
-
-        # assemble query engine
-        query_engine = RetrieverQueryEngine(
-            retriever=self.retriever.to_llama_index(self.driver, self.embedding),
-            response_synthesizer=response_synthesizer,
-        )
-
-        query_engine.update_prompts(
-            {"response_synthesizer:text_qa_template": self.prompt_template}
-        )
-
-        return query_engine
-
     def get_nodes(self, query: str) -> List[str]:
         """
         Get the nodes from the html page
@@ -188,50 +183,11 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[dict]`: The rephrased query as a list of dictionaries
         """
-        rephrase_prompt = Template(
-            """
-        You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
-        Here are previous examples:
-        Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
-        Standardized instruction: [{'query':'input"Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
-        Text instruction: Click on the search bar with placeholder "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter.
-        Standardized instruction: [{'query':'input"Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
-        Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
-        Standardized instruction: [{'query':'button"Installation"', 'action':'Click on "Installation"'}]
-        
-        Text instruction:  Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
-        Standardized instruction: [{'query':'input"Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'}, {'query':'input"First name"', 'action':'Click on the input "First name" and type "John"'}, {'query':'input"Last name"', 'action':'Click on the input "Last name" and type "Doe"'}, {'query':'input"Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}]
-        Text instruction: In the login form, locate the input element labeled “Username” and type “user123”. Locate the input element labeled “Password” and type “pass456”.
-        Standardized instruction: [{'query':'input”Username”', 'action':'Click on the input “Username” and type “user123”'}, {'query':'input”Password”', 'action':'Click on the input “Password” and type “pass456”'}]
-        
-        Text instruction: Press the button labeled “Submit” at the bottom of the form.
-        Standardized instruction: [{'query':'button”Submit”', 'action':'Click on the button “Submit”'}]
-        
-        Text instruction: ${instruction}
-        Standardized instruction:
-        """
-        )
-        rephrase_prompt = rephrase_prompt.safe_substitute(instruction=query)
+        rephrase_prompt = REPHRASE_PROMPT.safe_substitute(instruction=query)
         response = self.llm.complete(rephrase_prompt).text
         response = response.strip("```json\n").strip("\n``` \n")
         rephrased_query = extract_and_eval(response)
         return rephrased_query
-
-    def get_action(self, query: str) -> Optional[str]:
-        # TODO: Rename query to instruction to be consistent with other engines
-        """
-        Generate the code from a query
-
-        Args:
-            query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
-
-        Return:
-            `str`: The generated code
-        """
-        query_engine = self._get_query_engine(streaming=False)
-        response = query_engine.query(query)
-        code = response.response
-        return self.extractor.extract(code)
 
     def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
         """
