@@ -230,11 +230,11 @@ if __name__ == "__main__":
         "--url", type=str, required=True, help="The start URL for your test cases"
     )
     parser.add_argument(
-        "--feature_file_path",
+        "--feature_file",
         type=str,
         required=True,
         help="The path of the .feature file with your test cases",
     )
 
     args = parser.parse_args()
-    main(args.url, args.feature_file_path)
+    main(args.url, args.feature_file)
