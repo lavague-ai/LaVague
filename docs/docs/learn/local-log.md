@@ -70,7 +70,7 @@ image = 0
 display(df_logs["screenshots"][row][image])
 ```
 This will display the following image.
-![screenshot](../../assets/screenshot.png)
+![screenshot](../../assets/screenshot-2.png)
 
 Finally, let's take a look at the World model's reasoning for the first step:
 
