@@ -1,4 +1,4 @@
-# pip install gherkin_parser
+# This script is an example of how to use LaVague and GPT4o generate pytest-bdd test cases for QA automation
 
 import argparse
 import os
@@ -230,7 +230,7 @@ if __name__ == "__main__":
         "--url", type=str, required=True, help="The start URL for your test cases"
     )
     parser.add_argument(
-        "--feature_file",
+        "--feature-file",
         type=str,
         required=True,
         help="The path of the .feature file with your test cases",

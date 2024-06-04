@@ -6,7 +6,7 @@ See it in action processing one use case to generate an automated login test:
 
 !["qa_automation_demo"](../../assets/qa_automation_demo.gif)
 
-You can run this example directly with a [CLI script available here](https://github.com/lavague-ai/LaVague/blob/main/examples/qa-automation/)
+You can run this example directly with a [CLI script available here](https://github.com/lavague-ai/LaVague/blob/main/examples/qa-automation/). We provide a sample `.feature` file containing a single use case. You can try it on this demo url: https://www.saucedemo.com/
 
 This documentation will dive deeper in the code of our example script to give you a better understanding of how LaVague can automate testing. 
 
@@ -49,7 +49,7 @@ Feature: Swag Labs Login
 
 We provide the path to this file and the URL of the associated websites as inputs to our script. 
 ```bash
-python qa_automation_example.py --url https://www.saucedemo.com --feature_file_path tests/test_swag_labs.feature
+python qa_automation_example.py --url https://www.saucedemo.com --feature-file tests/test_swag_labs.feature
 ```
 
 ### Using LaVague to run the test case once
