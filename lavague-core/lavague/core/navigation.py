@@ -1,7 +1,7 @@
 from io import BytesIO
 import logging
 import time
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
@@ -20,9 +20,10 @@ from lavague.core.logger import AgentLogger
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from lavague.core.base_engine import BaseEngine
 from lavague.core.base_driver import BaseDriver
-from llama_index.core import QueryBundle, PromptTemplate
+from llama_index.core import QueryBundle, PromptTemplate, get_response_synthesizer
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
+from llama_index.core.query_engine import RetrieverQueryEngine
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -188,6 +189,42 @@ class NavigationEngine(BaseEngine):
         response = response.strip("```json\n").strip("\n``` \n")
         rephrased_query = extract_and_eval(response)
         return rephrased_query
+
+    def _get_query_engine(self, streaming: bool = True) -> RetrieverQueryEngine:
+        """
+        Get the llama-index query engine
+        Args:
+            html: (`str`)
+            streaming (`bool`)
+        Return:
+            `RetrieverQueryEngine`
+        """
+
+        response_synthesizer = get_response_synthesizer(
+            streaming=streaming, llm=self.llm
+        )
+        query_engine = RetrieverQueryEngine(
+            retriever=self.retriever.to_llama_index(self.driver, self.embedding),
+            response_synthesizer=response_synthesizer,
+        )
+        query_engine.update_prompts(
+            {"response_synthesizer:text_qa_template": self.prompt_template}
+        )
+        return query_engine
+
+    def get_action(self, query: str) -> Optional[str]:
+        # TODO: Rename query to instruction to be consistent with other engines
+        """
+        Generate the code from a query
+        Args:
+            query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
+        Return:
+            `str`: The generated code
+        """
+        query_engine = self._get_query_engine(streaming=False)
+        response = query_engine.query(query)
+        code = response.response
+        return self.extractor.extract(code)
 
     def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
         """
