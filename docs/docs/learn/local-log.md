@@ -11,7 +11,7 @@ This DataFrame is accessible via the `agent.logging.return_pandas()` method and 
     - `world_model_output`: The reasonsing of the World Model, the engine it selected to carry out the next instruction and the instruction itself
     - `world_model_inference_time`: Time taken for World Model inference
     - `engine_log`: contains logs related to the specific Action Engine sub-engine used.
-    - `success`: Whether the step was succesfull or not in achieveing objective
+    - `success`: Whether the step was succesful or not in achieving objective
     - `output`: Output of the step, if relevant (for example, information scraped from a web page)
     - `code`: The code generated for this step
     - `html`: The code retrieved from the web page and sent as context for the action
@@ -46,7 +46,7 @@ agent.run("Go to the first Model in the Models section")
 df_logs = agent.logger.return_pandas()
 ```
 
-Now, let's look at the code for the last step ran from within our log DatFrame:
+Now, let's look at the code for the last step ran from within our log DataFrame:
 ```python
 # Pandas option to ensure we show all text in column
 import pandas as pd
