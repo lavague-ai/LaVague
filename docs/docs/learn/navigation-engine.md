@@ -23,7 +23,7 @@ nav_engine = NavigationEngine(selenium_driver)
 
 The first task handled by the Navigation Engine is to perform RAG on the web page to collect the most relevant chunks, or nodes, of HTML code.
 
-The Navigation Engine's embedder is used at this stage (here we use the default embedding model, OpenAI's `text-embedding-3-large`).
+The Navigation Engine's embedding model is used at this stage (here we use the default embedding model, OpenAI's `text-embedding-3-large`).
 
 ```python
 instruction = "Click on the PEFT section."
@@ -68,7 +68,7 @@ We see that prompt is made up of three parts:
 - The `context string`, or retrieved nodes
 - The `query` itself - this will the original instruction received by the Navigation Engine after passing through the `rephrase_query` method which standardizes and optimizes instructions for best AI Performance
 
-We can see the default Selenium driver prompte template with the following code (or view the full code [here](https://github.com/lavague-ai/LaVague/blob/9764805bd756d15c83943baa968d35f979242314/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177)):
+We can see the default Selenium driver prompt template with the following code (or view the full code [here](https://github.com/lavague-ai/LaVague/blob/9764805bd756d15c83943baa968d35f979242314/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177)):
 
 ```python
 from lavague.drivers.selenium import SELENEIUM_PROMPT_TEMPLATE
