@@ -26,6 +26,9 @@ This DataFrame is accessible via the `agent.logging.return_pandas()` method and 
 
 Let's take a look at how we can access the logs after using `agent.run()` and examine specific information from the logs.
 
+If you prefer to run the example code as a notebook, you can view our Google Colab notebook [here](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/learn/notebooks/logger.ipynb)!
+
+
 Firstly, we need to use our agent as usual, and then retrieve the logs DataFrame:
 
 ```python
@@ -67,7 +70,7 @@ from IPython.display import display
 
 step = 0
 image = 0
-display(df_logs["screenshots"][row][image])
+display(df_logs["screenshots"][step][image])
 ```
 This will display the following image.
 ![screenshot](../../assets/screenshot-2.png)
