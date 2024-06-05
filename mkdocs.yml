@@ -103,6 +103,7 @@ nav:
   - Drivers: 'docs/learn/browser-drivers.md'
   - Action Engine: 'docs/learn/action-engine.md'
   - Logger: 'docs/learn/local-log.md'
+  - World Model: 'docs/learn/world-model.md'
 # - 🤝 Integrations:
 #   - Overview: 'docs/integrations/home.md'
 #   - API:
