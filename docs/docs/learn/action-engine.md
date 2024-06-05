@@ -2,15 +2,17 @@
 
 ### What is the Action Engine?
 
-The Action Engine module is responsible for transforming natural lanagueg instructions into code and executing it.
+The Action Engine module is responsible for transforming natural language instructions into code and executing it.
 
-An Action Engine has three sub-engines at its disposal:
+The Action Engine module contains three sub-engines:
 
 - 🚄 Navigation Engine: Generates and executes Selenium code to perform an action on a web page
 - 🐍 Python Engine: Generates and executes code for tasks that do not involve navigating or interacting with a web page, such as extracting information
 - 🕹️ Navigation Control: Performs frequently required navigation tasks without needing to make any extra LLM calls. So far we cover: scroll up, scroll down & wait
 
-In our agentic workflow, the agent gets the next instruction and the name of the next sub-engine to be used from the WorldModel. This information is then sent to the Action Engine using the `dispatch_instruction` method. 
+In our agentic workflow, the agent first gets the next instruction and the name of the next sub-engine to be used from the World Model. 
+
+This information is then sent to the Action Engine through the `dispatch_instruction` method. 
 
 We can test out this method directly with the Action Engine:
 
@@ -31,25 +33,75 @@ instruction = "Click on the Models button in the top menu"
 success, output = action_engine.dispatch_instruction(engine_name, instruction)
 ```
 
-When we call the `dispatch_instruction` method, the following key steps take place: 
+The `dispatch_instruction` method will call the `execute_instruction` method for the relevant sub-engine, which will:
 
-- We perform RAG on the web page's source code to get the information needed for our task
-- We query the LLM to generate the code needed to perform our action
-- We run a cleaning function to ensure we extract code only from our LLM response
-- We execute the code
-- Information about the Action Engine and code generated are stored with out local logger
-- The `dispatch_instruction` method returns:
-    - a boolean value letting us know if the action was succesful or not
+In the case of the Navigation and Python engines:
+
+- Performs RAG - it is at this point we use the Action Engine's `embedding` model
+- Query the `LLM` with our `prompt template` to generate the code needed to perform our action
+- Run the `extractor` or cleaning function to extract code only from our LLM response
+
+And in all cases then:
+
+- Execute the code using the Action Engine's `driver`
+- Log information about the action process with the Engine's `logger`
+
+The `dispatch_instruction` method returns:
+    - A boolean value letting us know if the action was succesful or not
     - the output of the code, where relevant, such as the result of a knowledge retrieval action using the Python Engine
 
-> Note that the Navigation Control was designed to skip the RAG and LLM steps and pre-defined common navigation methods
+> Note, the Navigation Control skips the RAG and LLM query steps by using pre-defined code for common navigation tasks
 
-### Inspecting the Action Engine with the local logger
+### Customizing an Action Engine's 
 
-In the previous code block, we get the results of the code executed and whether the execution was succesful. But to get more information from our Action Engine, such as viewing the code generated, we need to plug in our `logger` module when running our code.
+#### Action Engine from Context
 
-### Customizing an Action Engine
+You can customize the `LLM` and `embedding model` used by the Action Engine by instantiating it with the `ActionEngine.from_context` method and passing it a `Context`.
+
+Details on how to do this are provided in our [customization guide](../get-started/customization.md).
+
+#### Action Engine optional parameters
+
+There are also numerous optional arguments that can be passed to the Action Engine, alongside the required `driver` argument.
+
+!!! note "Action Engine optional parameters"
+
+    - `navigation_engine:` The Navigation Engine to be used
+    - `python_engine:` The Python Engine to be used
+    - `navigation_control:` The Navigation Control to be used
+
+    Relevant for Navigation Engine & Python Engine:
+    
+    - `llm:` The LLM to be used - by default this is OpenAI's `gpt-4o`. You can pass this with any `llama_index.llms' LLM object.
+    - `embedding:` The embedding model to be used - by default this is OpenAI's `text-embedding-3-large`. You can pass this any `llama_index.embeddings' embedding model object.
+
+    Relevant when using Navigation Engine only:
+
+    - `retriever:` The `Retriever` to be used by the Navigation Engine for RAG - by default we use the [OpsmSplitRetriever](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/retrievers.py#L86)
+    - `prompt_template:` The prompt_template to be used by the Navigation Engine to query the LLM. You can view our default Navigation Engine prompt template [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177)
+    - `extractor:` The cleaning function to run on the LLM reponse before executing the generated code. You can view our default extractor [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/extractors.py#L11)
+    - `time_between_actions:` A float value for the time in seconds to wait between actions - this can be useful where you want to enforce a delay between actions to allow elements more time to load - by default, this is 1.5 seconds
+    - `n_attempts:` The number of attemps the Navigation Engine should take to succesfully perform an action - by default, this is 5
+    - `logger:` The AgentLogger instance used to log information about the Action Engine
+
+> For guidance on using the Agent Logger module to get more information about our Action Engine, such as viewing the code generated, see our [Agent Logger guide](./local-log.md)
+
+!!! tip "Navigation and Python Engines"
+    You can find out more details about the Navigation Engine and Python Engine in their [module guides](Coming soon).
 
 ### Display mode
 
+A final thing to note is the Action Engine's `set_display` method. 
 
+This method is used by the `Web Agent` when its `run` method is passed a `display=True` boolean value:
+
+```python
+agent.run(objective, display=True)
+```
+
+When `display` is set to True, the ACtion Engine will display images updated in real-time as actions are performed on our browser. This can be useful when we are using the driver in headless mode and still want to visually see the impact of our actions.
+
+We can also use this method directly on the Action Engine with the following code:
+```python
+action_engine.set_display(True)
+```

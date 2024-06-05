@@ -20,6 +20,7 @@ integrations
 OpenAI
 lavague
 repo
+boolean
 codebase
 macos
 sandboxed
