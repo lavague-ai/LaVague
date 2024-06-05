@@ -28,10 +28,9 @@ class SeleniumDriver(BaseDriver):
         self.user_data_dir = user_data_dir
         super().__init__(url, get_selenium_driver)
 
-
-#   Default code to init the driver.
-#   Before making any change to this, make sure it is compatible with code_for_init, which parses the code of this function
-#   These imports are necessary as they will be pasted to the output
+    #   Default code to init the driver.
+    #   Before making any change to this, make sure it is compatible with code_for_init, which parses the code of this function
+    #   These imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Any:
         from selenium import webdriver
         from selenium.webdriver.common.by import By
@@ -57,7 +56,9 @@ class SeleniumDriver(BaseDriver):
         keep_next = True
         for line in init_lines:
             if "--user-data-dir" in line:
-                line = line.replace(f"{{self.user_data_dir}}", f'"{self.user_data_dir}"')
+                line = line.replace(
+                    f"{{self.user_data_dir}}", f'"{self.user_data_dir}"'
+                )
             if "if" in line:
                 if ("headless" in line and not self.headless) or (
                     "user_data_dir" in line and self.user_data_dir is None

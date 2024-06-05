@@ -19,7 +19,7 @@ class PlaywrightDriver(BaseDriver):
         url: Optional[str] = None,
         get_sync_playwright_page: Optional[Callable[[], Page]] = None,
         headless: bool = True,
-        user_data_dir: Optional[str] = None
+        user_data_dir: Optional[str] = None,
     ):
         os.environ[
             "PW_TEST_SCREENSHOT_NO_FONTS_READY"
@@ -41,7 +41,9 @@ class PlaywrightDriver(BaseDriver):
         if self.user_data_dir is None:
             browser = p.chromium.launch(headless=self.headless)
         else:
-            browser = p.chromium.launch_persistent_context(user_data_dir=self.user_data_dir, headless=self.headless)
+            browser = p.chromium.launch_persistent_context(
+                user_data_dir=self.user_data_dir, headless=self.headless
+            )
         page = browser.new_page()
         self.page = page
         self.resize_driver(1080, 1080)
@@ -49,7 +51,10 @@ class PlaywrightDriver(BaseDriver):
 
     def code_for_init(self) -> str:
         init_lines = extract_code_from_funct(self.init_function)
-        code_lines = ["from playwright.sync_api import sync_playwright", "",]
+        code_lines = [
+            "from playwright.sync_api import sync_playwright",
+            "",
+        ]
         keep_next = True
         keep_else = False
         start = False
