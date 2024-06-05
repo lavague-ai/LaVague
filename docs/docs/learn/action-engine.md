@@ -82,7 +82,8 @@ There are also numerous optional arguments that can be passed to the Action Engi
     - `extractor:` The cleaning function to run on the LLM response before executing the generated code. You can view our default extractor [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/extractors.py#L11)
     - `time_between_actions:` A float value for the time in seconds to wait between actions - this can be useful where you want to enforce a delay between actions to allow elements more time to load - by default, this is 1.5 seconds
     - `n_attempts:` The number of attempts the Navigation Engine should take to successfully perform an action - by default, this is 5
-    - `logger:` The AgentLogger instance used to log information about the Action Engine
+
+    - `logger:` The AgentLogger instance used to log information about the Action Engine (relevant to all sub-engines) 
 
 > For guidance on using the Agent Logger module to get more information about our Action Engine, such as viewing the code generated, see our [Agent Logger guide](./local-log.md)
 
