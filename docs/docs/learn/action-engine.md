@@ -47,7 +47,7 @@ And in all cases then:
 - Log information about the action process with the Engine's `logger`
 
 The `dispatch_instruction` method returns:
-    - A boolean value letting us know if the action was succesful or not
+    - A boolean value letting us know if the action was successful or not
     - the output of the code, where relevant, such as the result of a knowledge retrieval action using the Python Engine
 
 > Note, the Navigation Control skips the RAG and LLM query steps by using pre-defined code for common navigation tasks
@@ -79,9 +79,9 @@ There are also numerous optional arguments that can be passed to the Action Engi
 
     - `retriever:` The `Retriever` to be used by the Navigation Engine for RAG - by default we use the [OpsmSplitRetriever](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/retrievers.py#L86)
     - `prompt_template:` The prompt_template to be used by the Navigation Engine to query the LLM. You can view our default Navigation Engine prompt template [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177)
-    - `extractor:` The cleaning function to run on the LLM reponse before executing the generated code. You can view our default extractor [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/extractors.py#L11)
+    - `extractor:` The cleaning function to run on the LLM response before executing the generated code. You can view our default extractor [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/extractors.py#L11)
     - `time_between_actions:` A float value for the time in seconds to wait between actions - this can be useful where you want to enforce a delay between actions to allow elements more time to load - by default, this is 1.5 seconds
-    - `n_attempts:` The number of attemps the Navigation Engine should take to succesfully perform an action - by default, this is 5
+    - `n_attempts:` The number of attemtps the Navigation Engine should take to successfully perform an action - by default, this is 5
     - `logger:` The AgentLogger instance used to log information about the Action Engine
 
 > For guidance on using the Agent Logger module to get more information about our Action Engine, such as viewing the code generated, see our [Agent Logger guide](./local-log.md)
@@ -99,7 +99,7 @@ This method is used by the `Web Agent` when its `run` method is passed a `displa
 agent.run(objective, display=True)
 ```
 
-When `display` is set to True, the ACtion Engine will display images updated in real-time as actions are performed on our browser. This can be useful when we are using the driver in headless mode and still want to visually see the impact of our actions.
+When `display` is set to True, the Action Engine will display images updated in real-time as actions are performed on our browser. This can be useful when we are using the driver in headless mode and still want to visually see the impact of our actions.
 
 We can also use this method directly on the Action Engine with the following code:
 ```python

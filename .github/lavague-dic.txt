@@ -5,6 +5,8 @@ LaVague
 ActionEngine
 Gradio
 py
+pre
+embeddings
 config
 bashrc
 init
