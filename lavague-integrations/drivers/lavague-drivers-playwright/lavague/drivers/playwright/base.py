@@ -53,6 +53,10 @@ class PlaywrightDriver(BaseDriver):
     def get_html(self) -> str:
         return self.driver.content()
 
+    def get_obs(self) -> dict:
+        # TODO
+        return {}
+
     def save_screenshot(self, filename: str) -> None:
         return self.driver.screenshot(path=filename)
 
