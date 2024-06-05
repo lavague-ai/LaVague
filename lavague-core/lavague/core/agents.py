@@ -50,7 +50,7 @@ class WebAgent:
         self.st_memory.set_logger(self.logger)
 
     def get(self, url):
-        self.driver.goto(url)
+        self.driver.get(url)
 
     def run(self, objective: str, user_data=None, display: bool = False):
         driver: BaseDriver = self.driver
