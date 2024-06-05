@@ -38,13 +38,13 @@ The `dispatch_instruction` method will call the `execute_instruction` method for
 In the case of the Navigation and Python engines:
 
 - Performs RAG - it is at this point we use the Action Engine's `embedding` model
-- Query the `LLM` with our `prompt template` to generate the code needed to perform our action
-- Run the `extractor` or cleaning function to extract code only from our LLM response
+- Queries the `LLM` with our `prompt template` to generate the code needed to perform our action
+- Runs the `extractor` or cleaning function to extract code only from our LLM response
 
 And in all cases then:
 
-- Execute the code using the Action Engine's `driver`
-- Log information about the action process with the Engine's `logger`
+- Executes the code using the Action Engine's `driver`
+- Logs information about the action process with the Engine's `logger`
 
 The `dispatch_instruction` method returns:
     - A boolean value letting us know if the action was successful or not
