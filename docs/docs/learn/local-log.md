@@ -85,7 +85,7 @@ This gives us the following output.
 
 ??? tip "Advanced"
 
-    The logger runs automatically whenever you use the `agent.run()` method and is accessible via `agent.logger`. However, you can directly instantiate and use our `AgentLogger` class to log information for lower-level components in our framework, such as the Action Engine.
+    The logger runs automatically whenever you use the `agent.run()` method and is accessible via `agent.logger`. However, if you are using an Action Engine, Navigation Engine, Navigation Control or Python Engine directly, rather than via our Agent wrapper, you can directly instantiate and use our `AgentLogger` class directly with manually trigger information to be logged when using them.
 
     Let's take a look at an example of how we can do this by with the Action Engine.
 

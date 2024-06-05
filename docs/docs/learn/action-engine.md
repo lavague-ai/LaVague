@@ -38,13 +38,13 @@ The `dispatch_instruction` method will call the `execute_instruction` method for
 In the case of the Navigation and Python engines:
 
 - Performs RAG - it is at this point we use the Action Engine's `embedding` model
-- Query the `LLM` with our `prompt template` to generate the code needed to perform our action
-- Run the `extractor` or cleaning function to extract code only from our LLM response
+- Queries the `LLM` with our `prompt template` to generate the code needed to perform our action
+- Runs the `extractor` or cleaning function to extract code only from our LLM response
 
 And in all cases then:
 
-- Execute the code using the Action Engine's `driver`
-- Log information about the action process with the Engine's `logger`
+- Executes the code using the Action Engine's `driver`
+- Logs information about the action process with the Engine's `logger`
 
 The `dispatch_instruction` method returns:
     - A boolean value letting us know if the action was successful or not
@@ -82,7 +82,8 @@ There are also numerous optional arguments that can be passed to the Action Engi
     - `extractor:` The cleaning function to run on the LLM response before executing the generated code. You can view our default extractor [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/extractors.py#L11)
     - `time_between_actions:` A float value for the time in seconds to wait between actions - this can be useful where you want to enforce a delay between actions to allow elements more time to load - by default, this is 1.5 seconds
     - `n_attempts:` The number of attempts the Navigation Engine should take to successfully perform an action - by default, this is 5
-    - `logger:` The AgentLogger instance used to log information about the Action Engine
+
+    - `logger:` The AgentLogger instance used to log information about the Action Engine (relevant to all sub-engines) 
 
 > For guidance on using the Agent Logger module to get more information about our Action Engine, such as viewing the code generated, see our [Agent Logger guide](./local-log.md)
 
