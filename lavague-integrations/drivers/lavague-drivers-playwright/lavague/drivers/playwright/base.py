@@ -11,7 +11,7 @@ from lavague.core.base_driver import BaseDriver
 
 
 class PlaywrightDriver(BaseDriver):
-    driver: Page
+    page: Page
 
     def __init__(
         self,
@@ -33,45 +33,45 @@ class PlaywrightDriver(BaseDriver):
             ) from error
         p = sync_playwright().__enter__()
         browser = p.chromium.launch(headless=headless)
-        self.driver = browser.new_page()
+        self.page = browser.new_page()
         self.resize_driver(1080, 1080)
-        return self.driver
+        return self.page
 
     def get_driver(self) -> Page:
-        return self.driver
+        return self.page
 
     def get_screenshot_as_png(self) -> bytes:
-        return self.driver.screenshot(animations="disabled")
+        return self.page.screenshot(animations="disabled")
 
     def resize_driver(self, width, height) -> None:
-        self.driver.set_viewport_size({"width": width, "height": height})
+        self.page.set_viewport_size({"width": width, "height": height})
 
     def get_url(self) -> Optional[str]:
-        if self.driver.url == "about:blank":
+        if self.page.url == "about:blank":
             return None
-        return self.driver.url
+        return self.page.url
 
     def code_for_get(self, url: str) -> str:
         return f'page.goto("{url}")'
 
     def get(self, url: str) -> None:
-        return self.driver.goto(url)
+        return self.page.goto(url)
 
     def back(self) -> None:
-        return self.driver.go_back()
+        return self.page.go_back()
 
     def code_for_back(self) -> None:
         return "page.go_back()"
 
     def get_html(self) -> str:
-        return self.driver.content()
+        return self.page.content()
 
     def destroy(self) -> None:
-        self.driver.close()
+        self.page.close()
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            return self.driver.locator(f"xpath={xpath}").is_visible()
+            return self.page.locator(f"xpath={xpath}").is_visible()
         except:
             return False
 
@@ -129,7 +129,7 @@ class PlaywrightDriver(BaseDriver):
         locals: Mapping[str, object] = None,
     ):
         exec(self.import_lines)
-        page = self.driver
+        page = self.page
         exec(code, globals, locals)
 
     def execute_script(self, js_code: str, *args) -> Any:
@@ -138,7 +138,7 @@ class PlaywrightDriver(BaseDriver):
             if type(arg) == Locator:
                 args[i] = arg.element_handle()  # playwright only accept element_handles
         script = f"(arguments) => {{{js_code}}}"
-        return self.driver.evaluate(script, args)
+        return self.page.evaluate(script, args)
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
