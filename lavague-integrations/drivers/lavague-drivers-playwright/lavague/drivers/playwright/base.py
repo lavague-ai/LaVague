@@ -19,6 +19,8 @@ class PlaywrightDriver(BaseDriver):
         url: Optional[str] = None,
         get_sync_playwright_page: Optional[Callable[[], Page]] = None,
         headless: bool = True,
+        width: int = 1080,
+        height: int = 1080,
         user_data_dir: Optional[str] = None,
     ):
         os.environ[
@@ -26,6 +28,8 @@ class PlaywrightDriver(BaseDriver):
         ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
         self.headless = headless
         self.user_data_dir = user_data_dir
+        self.width = 1080
+        self.height = 1080
         super().__init__(url, get_sync_playwright_page)
 
     # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
@@ -46,7 +50,7 @@ class PlaywrightDriver(BaseDriver):
             )
         page = browser.new_page()
         self.page = page
-        self.resize_driver(1080, 1080)
+        self.resize_driver(self.width, self.height)
         return self.page
 
     def code_for_init(self) -> str:
@@ -55,13 +59,13 @@ class PlaywrightDriver(BaseDriver):
             "from playwright.sync_api import sync_playwright",
             "",
         ]
-        keep_next = True
+        ignore_next = 0
         keep_else = False
         start = False
         for line in init_lines:
             if "__enter__()" in line:
                 start = True
-            if not start:
+            elif not start:
                 continue
             if "self.headless" in line:
                 line = line.replace("self.headless", str(self.headless))
@@ -69,16 +73,17 @@ class PlaywrightDriver(BaseDriver):
                 line = line.replace("self.user_data_dir", f'"{self.user_data_dir}"')
             if "if" in line:
                 if self.user_data_dir is not None:
-                    keep_next = False
+                    ignore_next = 1
                     keep_else = True
             elif "else" in line:
                 if not keep_else:
-                    keep_next = False
-            elif keep_next:
+                    ignore_next = 3
+            elif ignore_next <= 0:
                 if "self" not in line:
                     code_lines.append(line.strip())
             else:
-                keep_next = True
+                ignore_next -= 1
+        code_lines.append(self.code_for_resize(self.width, self.height))
         return "\n".join(code_lines) + "\n"
 
     def get_driver(self) -> Page:
@@ -87,8 +92,13 @@ class PlaywrightDriver(BaseDriver):
     def get_screenshot_as_png(self) -> bytes:
         return self.page.screenshot(animations="disabled")
 
-    def resize_driver(self, width, height) -> None:
+    def resize_driver(self, width: int, height: int) -> None:
+        self.width = width
+        self.height = height
         self.page.set_viewport_size({"width": width, "height": height})
+
+    def code_for_resize(self, width, height) -> str:
+        return f'page.set_viewport_size({{"width": {width}, "height": {height}}})'
 
     def get_url(self) -> Optional[str]:
         if self.page.url == "about:blank":

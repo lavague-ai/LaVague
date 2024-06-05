@@ -23,9 +23,13 @@ class SeleniumDriver(BaseDriver):
         get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
         headless: bool = True,
         user_data_dir: Optional[str] = None,
+        width: int = 1080,
+        height: int = 1080,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
+        self.width = width
+        self.height = height
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -47,7 +51,7 @@ class SeleniumDriver(BaseDriver):
 
         driver = webdriver.Chrome(options=chrome_options)
         self.driver = driver
-        self.resize_driver(1024, 1024)
+        self.resize_driver(self.width, self.height)
         return self.driver
 
     def code_for_init(self) -> str:
@@ -69,6 +73,7 @@ class SeleniumDriver(BaseDriver):
                     code_lines.append(line.strip())
             else:
                 keep_next = True
+        code_lines.append(self.code_for_resize(self.width, self.height))
         return "\n".join(code_lines) + "\n"
 
     def get_driver(self) -> WebDriver:
@@ -81,6 +86,16 @@ class SeleniumDriver(BaseDriver):
 
         height_difference = height - viewport_height
         self.driver.set_window_size(width, height + height_difference)
+        self.width = width
+        self.height = height
+
+    def code_for_resize(self, width, height) -> str:
+        return f"""
+driver.set_window_size({width}, {height})
+viewport_height = driver.execute_script("return window.innerHeight;")
+height_difference = {height} - viewport_height
+driver.set_window_size({width}, {height} + height_difference)
+"""
 
     def get_url(self) -> Optional[str]:
         if self.driver.current_url == "data:,":
