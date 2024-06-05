@@ -11,6 +11,8 @@ In our agentic workflow, the Agent will get the next instruction and engine to b
 
 ### Getting started with the World Model 
 
+Prefer to run the example code as a notebook? Click[here](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/learn/notebooks/WorldModel.ipynb)!
+
 Let's now create an instance of World Model that we can work with directly to understand better how it works.
 
 ```python
@@ -29,12 +31,14 @@ Before we can start using our World Model, we first need to generate these obser
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
+from lavague.core.memory import ShortTermMemory
 
-selenium_driver = SeleniumDriver(headless=True)
+selenium_driver = SeleniumDriver(headless=True, url="https://huggingface.co/")
+st_memory = ShortTermMemory()
 
 # Generate observations & set objective
 objective = "Go on the quicktour of PEFT"
-current_state, past = agent.st_memory.get_state()
+current_state, past = st_memory.get_state()
 obs = selenium_driver.get_obs()
 ```
 
@@ -43,9 +47,10 @@ To understand what inputs the World Model receives, we can visualize the screens
 ```python
 # Visualize the screenshot
 from lavague.core.logger import load_images_from_folder
+from IPython.display import display 
 
 images = load_images_from_folder(obs["screenshots_path"])
-images[0]
+display(images[0])
 ```
 ![world model screenshot](../../assets/world-model-screenshot.png)
 
@@ -55,7 +60,6 @@ The World Model receives multiple inputs to make informed decisions:
 - Past with previous instructions
 
 ```python
-
 print("Objective: ", objective)
 print("Current State: ", current_state)
 print("Past: ", past)
@@ -79,7 +83,6 @@ print(world_model_output)
 The generated instruction provides insights into the World Model's thought process, including the recommended engine and instruction for the agent.
 
 ```python
-
 from lavague.core.utilities.format_utils import (
     extract_next_engine,
     extract_world_model_instruction,
@@ -111,15 +114,38 @@ print(WORLD_MODEL_PROMPT_TEMPLATE.template)
 This shows us the overall guidelines. Let's now see now how [examples](https://github.com/lavague-ai/LaVague/blob/d046e6ccba87bc629b8608046b5001020fa5382e/lavague-core/lavague/core/world_model.py#L11) are provided to provide world knowledge:
 
 ```python
+from lavague.core.world_model import WORLD_MODEL_GENERAL_EXAMPLES
+
 print(WORLD_MODEL_GENERAL_EXAMPLES)
 ```
 
 ![world model examples](../../assets/world-model-examples.png)
 
-
 If we wanted to add knowledge to our World Model prompt template, we could do so with the following code:
 
 ```python
+added_knoweldge = """
+Objective: Find the latest papers on Fine tuning
+Previous instructions:
+- SCAN
+- Click on 'Previous'
+Last engine: [NONE]
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The current screenshot shows the top of a page showing papers papers published on the 22nd May 2024 on Hugging Face.
+- The objective is to find the latest papers on Fine tuning.
+- As we need to find the latest papers, the best next step is to gather more information to see if this page contains the information we need.
+- The best next step is to use the Navigation Controls to take a screenshot of the whole page to find the latest papers on Fine tuning.
+Next engine: Navigation Controls
+Instruction: SCAN
+"""
+
 examples = WORLD_MODEL_GENERAL_EXAMPLES + added_knoweldge
 world_model = WorldModel(examples=examples)
 ```
