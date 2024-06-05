@@ -87,7 +87,7 @@ There are also numerous optional arguments that can be passed to the Action Engi
 > For guidance on using the Agent Logger module to get more information about our Action Engine, such as viewing the code generated, see our [Agent Logger guide](./local-log.md)
 
 !!! tip "Navigation and Python Engines"
-    You can find out more details about the Navigation Engine and Python Engine in their [module guides](Coming soon).
+    You can find out more details about the Navigation Engine and Python Engine in their module guides (**Coming soon**).
 
 ### Display mode
 
