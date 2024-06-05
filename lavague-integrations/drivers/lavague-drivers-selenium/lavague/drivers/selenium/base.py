@@ -10,6 +10,7 @@ from io import BytesIO
 from lavague.core.utilities.format_utils import (
     return_assigned_variables,
     keep_assignments,
+    extract_code_from_funct,
 )
 
 
@@ -21,14 +22,17 @@ class SeleniumDriver(BaseDriver):
         url: Optional[str] = None,
         get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
         headless: bool = True,
-        chrome_user_dir: Optional[str] = None,
+        user_data_dir: Optional[str] = None,
     ):
         self.headless = headless
-        self.chrome_user_dir = chrome_user_dir
+        self.user_data_dir = user_data_dir
         super().__init__(url, get_selenium_driver)
 
+
+#   Default code to init the driver.
+#   Before making any change to this, make sure it is compatible with code_for_init, which parses the code of this function
+#   These imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Any:
-        # these imports are necessary as they will be pasted to the output
         from selenium import webdriver
         from selenium.webdriver.common.by import By
         from selenium.webdriver.chrome.options import Options
@@ -38,13 +42,33 @@ class SeleniumDriver(BaseDriver):
         chrome_options = Options()
         if self.headless:
             chrome_options.add_argument("--headless")
-        if self.chrome_user_dir:
-            chrome_options.add_argument(f"--user-data-dir={self.chrome_user_dir}")
+        if self.user_data_dir:
+            chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
         chrome_options.add_argument("--no-sandbox")
 
-        self.driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
+        self.driver = driver
         self.resize_driver(1024, 1024)
         return self.driver
+
+    def code_for_init(self) -> str:
+        init_lines = extract_code_from_funct(self.init_function)
+        code_lines = []
+        keep_next = True
+        for line in init_lines:
+            if "--user-data-dir" in line:
+                line = line.replace(f"{{self.user_data_dir}}", f'"{self.user_data_dir}"')
+            if "if" in line:
+                if ("headless" in line and not self.headless) or (
+                    "user_data_dir" in line and self.user_data_dir is None
+                ):
+                    keep_next = False
+            elif keep_next:
+                if "self" not in line:
+                    code_lines.append(line.strip())
+            else:
+                keep_next = True
+        return "\n".join(code_lines) + "\n"
 
     def get_driver(self) -> WebDriver:
         return self.driver

@@ -14,7 +14,7 @@ from lavague.core.utilities.web_utils import (
 )
 from lavague.core.logger import AgentLogger
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from lavague.core.base_engine import BaseEngine
+from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.base_driver import BaseDriver
 from llama_index.core import QueryBundle, PromptTemplate, get_response_synthesizer
 from PIL import Image
@@ -222,7 +222,7 @@ class NavigationEngine(BaseEngine):
         code = response.response
         return self.extractor.extract(code)
 
-    def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
+    def execute_instruction(self, instruction: str) -> ActionResult:
         """
         Generates code and executes it to answer the instruction
 
@@ -335,7 +335,12 @@ class NavigationEngine(BaseEngine):
 
             logger.add_log(log)
 
-        return success, None
+        return ActionResult(
+            instruction=instruction,
+            code=action_full,
+            success=success,
+            output=None,
+        )
 
 
 class NavigationControl(BaseEngine):
@@ -357,7 +362,7 @@ class NavigationControl(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
-    def execute_instruction(self, instruction: str):
+    def execute_instruction(self, instruction: str) -> ActionResult:
         logger = self.logger
         display_page = False
 
@@ -393,20 +398,20 @@ time.sleep({self.time_between_actions})"""
             except:
                 pass
         success = True
-        output = None
-
         if logger:
             log = {
                 "engine": "Navigation Controls",
                 "instruction": instruction,
                 "engine_log": None,
                 "success": success,
-                "output": output,
+                "output": None,
                 "code": code,
             }
             logger.add_log(log)
 
-        return success, output
+        return ActionResult(
+            instruction=instruction, code=code, success=success, output=None
+        )
 
 
 def get_model_name(llm: BaseLLM) -> str:

@@ -3,6 +3,7 @@ import os
 from PIL import Image
 from typing import Callable, Optional, Any, Mapping
 from lavague.core.utilities.format_utils import (
+    extract_code_from_funct,
     keep_assignments,
     return_assigned_variables,
 )
@@ -17,14 +18,19 @@ class PlaywrightDriver(BaseDriver):
         self,
         url: Optional[str] = None,
         get_sync_playwright_page: Optional[Callable[[], Page]] = None,
+        headless: bool = True,
+        user_data_dir: Optional[str] = None
     ):
         os.environ[
             "PW_TEST_SCREENSHOT_NO_FONTS_READY"
         ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        self.headless = headless
+        self.user_data_dir = user_data_dir
         super().__init__(url, get_sync_playwright_page)
 
-    def default_init_code(self, headless=False, chromium_user_dir=None) -> Page:
-        # these imports are necessary as they will be pasted to the output
+    # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
+    # these imports are necessary as they will be pasted to the output
+    def default_init_code(self) -> Page:
         try:
             from playwright.sync_api import sync_playwright
         except (ImportError, ModuleNotFoundError) as error:
@@ -32,10 +38,43 @@ class PlaywrightDriver(BaseDriver):
                 "Please install playwright using `pip install playwright` and then `playwright install chromium` to install the necessary browser drivers"
             ) from error
         p = sync_playwright().__enter__()
-        browser = p.chromium.launch(headless=headless)
-        self.page = browser.new_page()
+        if self.user_data_dir is None:
+            browser = p.chromium.launch(headless=self.headless)
+        else:
+            browser = p.chromium.launch_persistent_context(user_data_dir=self.user_data_dir, headless=self.headless)
+        page = browser.new_page()
+        self.page = page
         self.resize_driver(1080, 1080)
         return self.page
+
+    def code_for_init(self) -> str:
+        init_lines = extract_code_from_funct(self.init_function)
+        code_lines = ["from playwright.sync_api import sync_playwright", "",]
+        keep_next = True
+        keep_else = False
+        start = False
+        for line in init_lines:
+            if "__enter__()" in line:
+                start = True
+            if not start:
+                continue
+            if "self.headless" in line:
+                line = line.replace("self.headless", str(self.headless))
+            if "self.user_data_dir" in line:
+                line = line.replace("self.user_data_dir", f'"{self.user_data_dir}"')
+            if "if" in line:
+                if self.user_data_dir is not None:
+                    keep_next = False
+                    keep_else = True
+            elif "else" in line:
+                if not keep_else:
+                    keep_next = False
+            elif keep_next:
+                if "self" not in line:
+                    code_lines.append(line.strip())
+            else:
+                keep_next = True
+        return "\n".join(code_lines) + "\n"
 
     def get_driver(self) -> Page:
         return self.page
