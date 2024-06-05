@@ -10,15 +10,11 @@ from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
     display_screenshot,
-    get_highlighted_element,
     sort_files_by_creation,
 )
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 from lavague.core.logger import AgentLogger
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from lavague.core.base_engine import BaseEngine
+from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.base_driver import BaseDriver
 from llama_index.core import QueryBundle, PromptTemplate, get_response_synthesizer
 from PIL import Image
@@ -226,7 +222,7 @@ class NavigationEngine(BaseEngine):
         code = response.response
         return self.extractor.extract(code)
 
-    def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
+    def execute_instruction(self, instruction: str) -> ActionResult:
         """
         Generates code and executes it to answer the instruction
 
@@ -235,13 +231,9 @@ class NavigationEngine(BaseEngine):
 
         Return:
             `bool`: True if the code was executed without error
-            `Any`: The output of the code
+            `Any`: The output of navigation is always None
         """
 
-        # Navigation has no output
-
-        output = None
-        driver = self.driver.get_driver()
         success = False
         action_full = ""
 
@@ -299,19 +291,15 @@ class NavigationEngine(BaseEngine):
                     "navigation_engine_llm": get_model_name(self.llm),
                 }
                 try:
-                    local_scope = {"driver": driver}
-                    code_to_execute = f"""
-{self.driver.import_lines}
-{action}"""
                     # Get information to see which elements are selected
-                    vision_data = get_highlighted_element(driver, action)
+                    vision_data = self.driver.get_highlighted_element(action)
                     action_full += action
                     if self.display:
                         for item in vision_data:
                             display_screenshot(item["screenshot"])
                             time.sleep(0.2)
 
-                    exec(code_to_execute, local_scope, local_scope)
+                    self.driver.exec_code(action)
                     time.sleep(self.time_between_actions)
                     if self.display:
                         try:
@@ -325,6 +313,7 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
+                    print("Navigation error:", e)
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
 
@@ -346,7 +335,12 @@ class NavigationEngine(BaseEngine):
 
             logger.add_log(log)
 
-        return success, output
+        return ActionResult(
+            instruction=instruction,
+            code=action_full,
+            success=success,
+            output=None,
+        )
 
 
 class NavigationControl(BaseEngine):
@@ -368,36 +362,31 @@ class NavigationControl(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
-    def execute_instruction(self, instruction: str):
+    def execute_instruction(self, instruction: str) -> ActionResult:
         logger = self.logger
-        # TODO: Not clean the fact that we have driver / meta_driver around. Should settle for better names
-        meta_driver: BaseDriver = self.driver
-        driver: WebDriver = meta_driver.get_driver()
         display_page = False
 
         if "SCROLL_DOWN" in instruction:
-            code = (
-                """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
+            code = self.driver.code_for_execute_script(
+                "window.scrollBy(0, window.innerHeight);"
             )
         elif "SCROLL_UP" in instruction:
-            code = (
-                """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
+            code = self.driver.code_for_execute_script(
+                "window.scrollBy(0, -window.innerHeight);"
             )
         elif "WAIT" in instruction:
             code = f"""
 import time
 time.sleep({self.time_between_actions})"""
         elif "BACK" in instruction:
-            code = """driver.back()"""
+            code = self.driver.code_for_back()
         elif "SCAN" in instruction:
-            # TODO: Should scan be in the navigation controls or in the driver?
-            code = """meta_driver.get_screenshots_whole_page()"""
+            code = ""
+            self.driver.get_screenshots_whole_page()
             display_page = True
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
-
-        local_scope = {"driver": driver, "meta_driver": meta_driver}
-        exec(code, local_scope, local_scope)
+        self.driver.exec_code(code)
         if display_page and self.display:
             try:
                 scr_path = self.driver.get_current_screenshot_folder()
@@ -409,20 +398,20 @@ time.sleep({self.time_between_actions})"""
             except:
                 pass
         success = True
-        output = None
-
         if logger:
             log = {
                 "engine": "Navigation Controls",
                 "instruction": instruction,
                 "engine_log": None,
                 "success": success,
-                "output": output,
+                "output": None,
                 "code": code,
             }
             logger.add_log(log)
 
-        return success, output
+        return ActionResult(
+            instruction=instruction, code=code, success=success, output=None
+        )
 
 
 def get_model_name(llm: BaseLLM) -> str:
