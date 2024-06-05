@@ -78,7 +78,7 @@ world_model_output = world_model.get_instruction(
 print(world_model_output)
 ```
 
-![world model outputs](../../assets/world-model-outputs.png)
+![world model outputs](../../assets/world-model-output.png)
 
 The generated instruction provides insights into the World Model's thought process, including the recommended engine and instruction for the agent.
 
@@ -109,7 +109,7 @@ from lavague.core.world_model import WORLD_MODEL_PROMPT_TEMPLATE
 print(WORLD_MODEL_PROMPT_TEMPLATE.template)
 ```
 
-![world model template](../../assets/world-model-template.png)
+![world model template](../../assets/world-model-prompte-template.png)
 
 This shows us the overall guidelines. Let's now see now how [examples](https://github.com/lavague-ai/LaVague/blob/d046e6ccba87bc629b8608046b5001020fa5382e/lavague-core/lavague/core/world_model.py#L11) are provided to provide world knowledge:
 
