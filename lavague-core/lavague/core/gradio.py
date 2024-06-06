@@ -205,7 +205,7 @@ class GradioAgentDemo:
                         chatbot = gr.Chatbot(
                             [],
                             elem_id="chatbot",
-                            bubble_full_width=True,
+                            bubble_full_width=False,
                             height="70%",
                             placeholder="Agent output will be shown here\n",
                             layout="bubble",
