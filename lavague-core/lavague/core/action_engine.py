@@ -78,7 +78,9 @@ class ActionEngine:
         if python_engine is None:
             python_engine = PythonEngine(driver, llm, embedding)
         if navigation_control is None:
-            navigation_control = NavigationControl(driver)
+            navigation_control = NavigationControl(
+                driver, time_between_actions=time_between_actions
+            )
         self.navigation_engine = navigation_engine
         self.python_engine = python_engine
         self.navigation_control = navigation_control
