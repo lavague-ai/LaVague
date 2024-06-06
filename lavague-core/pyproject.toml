@@ -3,8 +3,8 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [tool.poetry]
-name = "lavague-core"
-version = "0.2.7"
+name = "lavague-core-test"
+version = "0.2.8-dev1"
 description = "automation code generation from text instructions"
 authors = ["lavague-ai"]
 readme = "README.md"

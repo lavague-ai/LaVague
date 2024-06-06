@@ -119,7 +119,9 @@ class WebAgent:
             img = Image.open(img)
             image_queue.put(img)
 
-            history[-1][1] = f"⏳ Step {curr_step + 1}. Current instruction: {instruction}..."
+            history[-1][1] = (
+                f"⏳ Step {curr_step + 1}. Current instruction: {instruction}..."
+            )
 
             yield objective_obj, url_input, instructions_history, history, output
 
