@@ -24,6 +24,7 @@ ch.setFormatter(format)
 logging_print.addHandler(ch)
 logging_print.propagate = False
 
+
 class WebAgent:
     """
     Web agent class, for now only works with selenium.
@@ -56,13 +57,25 @@ class WebAgent:
     def get(self, url):
         self.driver.goto(url)
 
-    def demo(self, objective: str, user_data=None, instructions: Optional[List[str]] = None):
+    def demo(
+        self, objective: str, user_data=None, instructions: Optional[List[str]] = None
+    ):
         from lavague.core.gradio import GradioAgentDemo
 
         grad = GradioAgentDemo(objective, instructions, self)
         grad.launch()
 
-    def run_demo(self, objective: str, user_data=None, display: bool = False, objective_obj: Any = None, url_input: Any = None, image_display: Any = None, instructions_history: Any = None, history: Any = None):
+    def run_demo(
+        self,
+        objective: str,
+        user_data=None,
+        display: bool = False,
+        objective_obj: Any = None,
+        url_input: Any = None,
+        image_display: Any = None,
+        instructions_history: Any = None,
+        history: Any = None,
+    ):
         from lavague.core.gradio import image_queue
 
         driver: BaseDriver = self.driver

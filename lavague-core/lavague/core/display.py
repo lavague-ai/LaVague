@@ -1,5 +1,6 @@
 from typing import Any
 
+
 class Display:
     display: bool = False
     gradio_mode: bool = False

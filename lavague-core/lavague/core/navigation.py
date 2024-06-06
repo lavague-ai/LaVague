@@ -313,7 +313,6 @@ class NavigationEngine(BaseEngine):
                             display_screenshot(item["screenshot"])
                             time.sleep(0.2)
 
-
                     if self.gradio_mode:
                         for item in vision_data:
                             image_queue.put(item["screenshot"])
