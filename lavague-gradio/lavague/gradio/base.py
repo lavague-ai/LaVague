@@ -7,7 +7,6 @@ from PIL import Image
 
 image_queue = queue.Queue()
 
-
 class GradioAgentDemo:
     """
     Launch an agent gradio demo of lavague

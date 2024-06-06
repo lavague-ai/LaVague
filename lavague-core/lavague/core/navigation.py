@@ -238,8 +238,6 @@ class NavigationEngine(BaseEngine):
             `Any`: The output of the code
         """
 
-        from lavague.core.gradio import image_queue
-
         # Navigation has no output
 
         output = None
@@ -314,6 +312,7 @@ class NavigationEngine(BaseEngine):
                             time.sleep(0.2)
 
                     if self.gradio_mode:
+                        from lavague.gradio import image_queue
                         for item in vision_data:
                             image_queue.put(item["screenshot"])
                             time.sleep(0.2)

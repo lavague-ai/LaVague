@@ -63,10 +63,17 @@ class WebAgent:
         user_data=None,
         instructions: Optional[List[str]] = None,
     ):
-        from lavague.core.gradio import GradioAgentDemo
+        try:
+            from lavague.gradio import GradioAgentDemo
 
-        grad = GradioAgentDemo(objective, instructions, self, user_data)
-        grad.launch()
+            grad = GradioAgentDemo(objective, instructions, self, user_data)
+            grad.launch()
+        except ImportError:
+            raise ImportError(
+                "`lavague-gradio` package not found, "
+                "please run `pip install lavague-contexts-gradio`"
+            )
+        
 
     def run_demo(
         self,
@@ -78,7 +85,7 @@ class WebAgent:
         instructions_history: Any = None,
         history: Any = None,
     ):
-        from lavague.core.gradio import image_queue
+        from lavague.gradio import image_queue
 
         driver: BaseDriver = self.driver
         logger = self.logger
