@@ -298,7 +298,7 @@ class NavigationEngine(BaseEngine):
                         for item in vision_data:
                             display_screenshot(item["screenshot"])
                             time.sleep(0.2)
-                            
+
                     if self.gradio_mode:
                         from lavague.gradio import image_queue
 
@@ -348,6 +348,7 @@ class NavigationEngine(BaseEngine):
             success=success,
             output=None,
         )
+
 
 class NavigationControl(BaseEngine):
     driver: BaseDriver
@@ -407,6 +408,7 @@ time.sleep({self.time_between_actions})"""
         return ActionResult(
             instruction=instruction, code=code, success=success, output=None
         )
+
 
 def get_model_name(llm: BaseLLM) -> str:
     try:

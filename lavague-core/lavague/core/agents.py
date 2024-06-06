@@ -145,10 +145,10 @@ class WebAgent:
             action_result = self.action_engine.dispatch_instruction(
                 next_engine_name, instruction
             )
-            
+
             success = action_result.success
             output = action_result.output
-            
+
             st_memory.update_state(
                 instruction,
                 next_engine_name,
