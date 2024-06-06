@@ -1,27 +1,33 @@
 # Agent Logger
 
+### What is the Agent Logger?
+
 When you use `agent.run()`, the `AgentLogger` captures information about the last agentic run, which can be retrieved and viewed as a Panda's DataFrame. 
 
-This DataFrame is accessible via the `agent.logging.return_pandas()` method and contains the following columns of information per step in the agentic run attempted:
+This DataFrame is accessible via the `agent.logging.return_pandas()` method.
 
-| Field Name                   | Description                                                                                                     |
-|------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `current_state:`             | Contains information about the external or internal observations the World Model used for this step              |
-| `past`                       | History of instructions sent to the Action Engine by the World Model and whether they succeeded or failed       |
-| `world_model_prompt`         | The prompt sent to the World Model to generate the next instruction for the Action Engine needed to achieve the global objective |
-| `world_model_output`         | The reasoning of the World Model, the engine it selected to carry out the next instruction, and the instruction itself |
-| `world_model_inference_time` | Time taken for World Model inference                                                                            |
-| `engine_log`                 | Contains logs related to the specific Action Engine sub-engine used                                            |
-| `success`                    | Whether the step was successful or not in achieving the objective                                              |
-| `output`                     | Output of the step, if relevant (for example, information scraped from a web page)                              |
-| `code`                       | The code generated for this step                                                                                |
-| `html`                       | The code retrieved from the web page and sent as context for the action                                          |
-| `screenshots_path`           | The path where your screenshots are stored locally                                                             |
-| `url`                        | The URL on which the action was run                                                                             |
-| `date`                       | The date and time at which the action was run                                                                   |
-| `run_id`                     | The unique ID for the agent run                                                                                 |
-| `step`                       | An integer representing which step this row refers to in a multi-step pipeline                                   |
-| `screenshots`                | All screenshots taken during the run                                                                            |
+You can view the columns of information added to the log per step in the agentic run attempted here:
+
+??? note "Logger columns"
+
+    | Column Name                   | Description                                                                                                     |
+    |------------------------------|-----------------------------------------------------------------------------------------------------------------|
+    | `current_state:`             | Contains information about the external or internal observations the World Model used for this step              |
+    | `past`                       | History of instructions sent to the Action Engine by the World Model and whether they succeeded or failed       |
+    | `world_model_prompt`         | The prompt sent to the World Model to generate the next instruction for the Action Engine needed to achieve the global objective |
+    | `world_model_output`         | The reasoning of the World Model, the engine it selected to carry out the next instruction, and the instruction itself |
+    | `world_model_inference_time` | Time taken for World Model inference                                                                            |
+    | `engine_log`                 | Contains logs related to the specific Action Engine sub-engine used                                            |
+    | `success`                    | Whether the step was successful or not in achieving the objective                                              |
+    | `output`                     | Output of the step, if relevant (for example, information scraped from a web page)                              |
+    | `code`                       | The code generated for this step                                                                                |
+    | `html`                       | The code retrieved from the web page and sent as context for the action                                          |
+    | `screenshots_path`           | The path where your screenshots are stored locally                                                             |
+    | `url`                        | The URL on which the action was run                                                                             |
+    | `date`                       | The date and time at which the action was run                                                                   |
+    | `run_id`                     | The unique ID for the agent run                                                                                 |
+    | `step`                       | An integer representing which step this row refers to in a multi-step pipeline                                   |
+    | `screenshots`                | All screenshots taken during the run                                                                            |
 
 ## Examples
 
