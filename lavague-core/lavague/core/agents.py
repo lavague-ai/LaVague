@@ -75,7 +75,6 @@ class WebAgent:
         display: bool = False,
         objective_obj: Any = None,
         url_input: Any = None,
-        image_display: Any = None,
         instructions_history: Any = None,
         history: Any = None,
     ):
@@ -86,6 +85,7 @@ class WebAgent:
         n_steps = self.n_steps
         self.action_engine.set_display_all(display)
         output = ""
+        success = True
 
         st_memory = self.st_memory
         world_model = self.world_model
@@ -104,7 +104,7 @@ class WebAgent:
         obs = driver.get_obs()
 
         logger.new_run()
-        for _ in range(n_steps):
+        for curr_step in range(n_steps):
             current_state, past = st_memory.get_state()
 
             world_model_output = world_model.get_instruction(
@@ -118,6 +118,8 @@ class WebAgent:
             img = BytesIO(img)
             img = Image.open(img)
             image_queue.put(img)
+
+            history[-1][1] = f"⏳ Step {curr_step + 1}. Current instruction: {instruction}..."
 
             yield objective_obj, url_input, instructions_history, history, output
 
@@ -147,10 +149,20 @@ class WebAgent:
             yield objective_obj, url_input, instructions_history, history, output
         send_telemetry(logger.return_pandas())
         url_input = self.action_engine.driver.get_url()
-        if len(output) > 0 and output != "[NONE]":
-            history[-1][1] = output
-        elif len(output) == 0 or output == "[NONE]":
-            history[-1][1] = "✅ Done."
+        if output is not None:
+            if len(output) > 0 and output.strip() != "[NONE]":
+                history[-1][1] = output
+            elif len(output) == 0 or output.strip() == "[NONE]":
+                if success:
+                    history[-1][1] = "🌊 Objective reached"
+                else:
+                    history[-1][1] = "❌ Failed to reach objective"
+        else:
+            if success:
+                history[-1][1] = "🌊 Objective reached"
+            else:
+                history[-1][1] = "❌ Failed to reach objective"
+
         yield objective_obj, url_input, instructions_history, history, output
 
     def run(self, objective: str, user_data=None, display: bool = False):

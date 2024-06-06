@@ -106,7 +106,6 @@ class GradioAgentDemo:
                 False,
                 objective,
                 url_input,
-                None,
                 instructions_history,
                 history,
             )
