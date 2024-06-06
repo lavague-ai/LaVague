@@ -200,7 +200,7 @@ class WebAgent:
     def run(
         self, objective: str, user_data=None, display: bool = False
     ) -> ActionResult:
-        self.action_engine.set_display(display)
+        self.action_engine.set_display_all(display)
         action_result: ActionResult
 
         st_memory = self.st_memory
