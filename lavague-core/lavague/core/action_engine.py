@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict
+from typing import Any, Dict
 from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
@@ -115,7 +115,12 @@ class ActionEngine:
             extractor,
         )
 
-    def set_display(self, display: bool):
+    def set_gradio_mode_all(self, gradio_mode: bool, image_display: Any = None):
+        self.navigation_engine.set_gradio_mode(gradio_mode, image_display)
+        self.python_engine.set_gradio_mode(gradio_mode, image_display)
+        self.navigation_control.set_gradio_mode(gradio_mode, image_display)
+
+    def set_display_all(self, display: bool):
         self.navigation_engine.set_display(display)
         self.python_engine.set_display(display)
         self.navigation_control.set_display(display)
@@ -139,4 +144,5 @@ class ActionEngine:
         """
 
         next_engine = self.engines[next_engine_name]
-        return next_engine.execute_instruction(instruction)
+        ret = next_engine.execute_instruction(instruction)
+        return ret
