@@ -299,6 +299,13 @@ class NavigationEngine(BaseEngine):
                             display_screenshot(item["screenshot"])
                             time.sleep(0.2)
 
+                    if self.gradio_mode:
+                        from lavague.gradio import image_queue
+
+                        for item in vision_data:
+                            image_queue.put(item["screenshot"])
+                            time.sleep(0.2)
+
                     self.driver.exec_code(action)
                     time.sleep(self.time_between_actions)
                     if self.display:
@@ -383,20 +390,9 @@ time.sleep({self.time_between_actions})"""
         elif "SCAN" in instruction:
             code = ""
             self.driver.get_screenshots_whole_page()
-            display_page = True
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         self.driver.exec_code(code)
-        if display_page and self.display:
-            try:
-                scr_path = self.driver.get_current_screenshot_folder()
-                lst = sort_files_by_creation(scr_path)
-                for scr in lst:
-                    img = Image.open(scr_path.as_posix() + "/" + scr)
-                    display_screenshot(img)
-                    time.sleep(0.35)
-            except:
-                pass
         success = True
         if logger:
             log = {
