@@ -93,14 +93,6 @@ class WebAgent:
         if user_data:
             self.st_memory.set_user_data(user_data)
 
-        if self.clean_screenshot_folder:
-            try:
-                if os.path.isdir("screenshots"):
-                    shutil.rmtree("screenshots")
-                logging_print.info("Screenshot folder cleared")
-            except:
-                pass
-
         obs = driver.get_obs()
 
         logger.new_run()
