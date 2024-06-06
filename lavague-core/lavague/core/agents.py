@@ -12,6 +12,7 @@ from lavague.core.utilities.format_utils import (
 from lavague.core.logger import AgentLogger
 from lavague.core.memory import ShortTermMemory
 from lavague.core.base_driver import BaseDriver
+from lavague.core.base_engine import ActionResult
 from lavague.core.utilities.telemetry import send_telemetry
 from PIL import Image
 
@@ -54,8 +55,16 @@ class WebAgent:
         self.world_model.set_logger(self.logger)
         self.st_memory.set_logger(self.logger)
 
+        self.result = ActionResult(
+            instruction=None,
+            code=self.driver.code_for_init(),
+            success=False,
+            output=None,
+        )
+
     def get(self, url):
-        self.driver.goto(url)
+        self.driver.get(url)
+        self.result.code += self.driver.code_for_get(url) + "\n"
 
     def demo(
         self,
@@ -133,10 +142,19 @@ class WebAgent:
                 logger.end_step()
                 break
 
-            success, output = self.action_engine.dispatch_instruction(
+            action_result = self.action_engine.dispatch_instruction(
                 next_engine_name, instruction
             )
-            st_memory.update_state(instruction, next_engine_name, success, output)
+            
+            success = action_result.success
+            output = action_result.output
+            
+            st_memory.update_state(
+                instruction,
+                next_engine_name,
+                action_result.success,
+                action_result.output,
+            )
 
             img = self.driver.get_screenshot_as_png()
             img = BytesIO(img)
@@ -179,11 +197,11 @@ class WebAgent:
 
         yield objective_obj, url_input, instructions_history, history, output
 
-    def run(self, objective: str, user_data=None, display: bool = False):
-        driver: BaseDriver = self.driver
-        logger = self.logger
-        n_steps = self.n_steps
-        self.action_engine.set_display_all(display)
+    def run(
+        self, objective: str, user_data=None, display: bool = False
+    ) -> ActionResult:
+        self.action_engine.set_display(display)
+        action_result: ActionResult
 
         st_memory = self.st_memory
         world_model = self.world_model
@@ -199,10 +217,10 @@ class WebAgent:
             except:
                 pass
 
-        obs = driver.get_obs()
+        obs = self.driver.get_obs()
 
-        logger.new_run()
-        for _ in range(n_steps):
+        self.logger.new_run()
+        for _ in range(self.n_steps):
             current_state, past = st_memory.get_state()
 
             world_model_output = world_model.get_instruction(
@@ -213,21 +231,28 @@ class WebAgent:
             instruction = extract_world_model_instruction(world_model_output)
 
             if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
-                output = instruction
+                self.result.success = True
                 logging_print.info("Objective reached. Stopping...")
-
-                logger.add_log(obs)
-                logger.end_step()
+                self.logger.add_log(obs)
+                self.logger.end_step()
                 break
 
-            success, output = self.action_engine.dispatch_instruction(
+            action_result = self.action_engine.dispatch_instruction(
                 next_engine_name, instruction
             )
-            st_memory.update_state(instruction, next_engine_name, success, output)
+            if action_result.success:
+                self.result.code += action_result.code
+                self.result.output = action_result.output
+            st_memory.update_state(
+                instruction,
+                next_engine_name,
+                action_result.success,
+                action_result.output,
+            )
 
-            logger.add_log(obs)
-            logger.end_step()
+            self.logger.add_log(obs)
+            self.logger.end_step()
 
-            obs = driver.get_obs()
-        send_telemetry(logger.return_pandas())
-        return output
+            obs = self.driver.get_obs()
+        send_telemetry(self.logger.return_pandas())
+        return self.result

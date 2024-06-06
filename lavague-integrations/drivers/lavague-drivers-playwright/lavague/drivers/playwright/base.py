@@ -1,77 +1,201 @@
-from pathlib import Path
-from typing import Callable, Optional
-from playwright.sync_api import Page
+from io import BytesIO
+import os
+from PIL import Image
+from typing import Callable, Optional, Any, Mapping
+from lavague.core.utilities.format_utils import (
+    extract_code_from_funct,
+    keep_assignments,
+    return_assigned_variables,
+)
+from playwright.sync_api import Page, Locator
 from lavague.core.base_driver import BaseDriver
 
 
 class PlaywrightDriver(BaseDriver):
-    driver: Page
+    page: Page
 
     def __init__(
         self,
         url: Optional[str] = None,
         get_sync_playwright_page: Optional[Callable[[], Page]] = None,
+        headless: bool = True,
+        width: int = 1080,
+        height: int = 1080,
+        user_data_dir: Optional[str] = None,
     ):
+        os.environ[
+            "PW_TEST_SCREENSHOT_NO_FONTS_READY"
+        ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        self.headless = headless
+        self.user_data_dir = user_data_dir
+        self.width = 1080
+        self.height = 1080
         super().__init__(url, get_sync_playwright_page)
 
+    # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
+    # these imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Page:
-        # these imports are necessary as they will be pasted to the output
         try:
             from playwright.sync_api import sync_playwright
         except (ImportError, ModuleNotFoundError) as error:
             raise ImportError(
-                "Please install playwright using `pip install playwright` and then `playwright install` to install the necessary browser drivers"
+                "Please install playwright using `pip install playwright` and then `playwright install chromium` to install the necessary browser drivers"
             ) from error
         p = sync_playwright().__enter__()
-        browser = p.chromium.launch()
+        if self.user_data_dir is None:
+            browser = p.chromium.launch(headless=self.headless)
+        else:
+            browser = p.chromium.launch_persistent_context(
+                user_data_dir=self.user_data_dir, headless=self.headless
+            )
         page = browser.new_page()
-        return page
+        self.page = page
+        self.resize_driver(self.width, self.height)
+        return self.page
+
+    def code_for_init(self) -> str:
+        init_lines = extract_code_from_funct(self.init_function)
+        code_lines = [
+            "from playwright.sync_api import sync_playwright",
+            "",
+        ]
+        ignore_next = 0
+        keep_else = False
+        start = False
+        for line in init_lines:
+            if "__enter__()" in line:
+                start = True
+            elif not start:
+                continue
+            if "self.headless" in line:
+                line = line.replace("self.headless", str(self.headless))
+            if "self.user_data_dir" in line:
+                line = line.replace("self.user_data_dir", f'"{self.user_data_dir}"')
+            if "if" in line:
+                if self.user_data_dir is not None:
+                    ignore_next = 1
+                    keep_else = True
+            elif "else" in line:
+                if not keep_else:
+                    ignore_next = 3
+            elif ignore_next <= 0:
+                if "self" not in line:
+                    code_lines.append(line.strip())
+            else:
+                ignore_next -= 1
+        code_lines.append(self.code_for_resize(self.width, self.height))
+        return "\n".join(code_lines) + "\n"
 
     def get_driver(self) -> Page:
-        return self.driver
-
-    def get_current_screenshot_folder(self) -> Path:
-        pass
+        return self.page
 
     def get_screenshot_as_png(self) -> bytes:
-        pass
+        return self.page.screenshot(animations="disabled")
 
-    def resize_driver(self, width, height) -> None:
-        self.driver.set_viewport_size({"width": width, "height": height})
+    def resize_driver(self, width: int, height: int) -> None:
+        self.width = width
+        self.height = height
+        self.page.set_viewport_size({"width": width, "height": height})
+
+    def code_for_resize(self, width, height) -> str:
+        return f'page.set_viewport_size({{"width": {width}, "height": {height}}})'
 
     def get_url(self) -> Optional[str]:
-        if self.driver.url == "about:blank":
+        if self.page.url == "about:blank":
             return None
-        return self.driver.url
+        return self.page.url
 
-    def go_to_url_code(self, url: str) -> str:
+    def code_for_get(self, url: str) -> str:
         return f'page.goto("{url}")'
 
-    def goto(self, url: str) -> None:
-        return self.driver.goto(url)
+    def get(self, url: str) -> None:
+        return self.page.goto(url)
+
+    def back(self) -> None:
+        return self.page.go_back()
+
+    def code_for_back(self) -> None:
+        return "page.go_back()"
 
     def get_html(self) -> str:
-        return self.driver.content()
-
-    def save_screenshot(self, filename: str) -> None:
-        return self.driver.screenshot(path=filename)
-
-    def get_dummy_code(self) -> str:
-        return "page.mouse.wheel(delta_x=0, delta_y=500)"
+        return self.page.content()
 
     def destroy(self) -> None:
-        self.driver.close()
+        self.page.close()
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            return self.driver.locator(f"xpath={xpath}").is_visible()
+            return self.page.locator(f"xpath={xpath}").is_visible()
         except:
             return False
 
-    def exec_code(self, code: str):
+    def get_highlighted_element(self, generated_code: str):
+        local_scope = {"page": self.get_driver()}
+        assignment_code = keep_assignments(generated_code)
+        self.exec_code(assignment_code, locals=local_scope)
+        variable_names = return_assigned_variables(generated_code)
+        elements = []
+        for variable_name in variable_names:
+            var = local_scope[variable_name]
+            if type(var) == Locator:
+                elements.append(var)
+        if len(elements) == 0:
+            raise ValueError(f"No element found.")
+
+        outputs = []
+        for element in elements:
+            element: Locator
+
+            bounding_box = {}
+            viewport_size = {}
+
+            self.execute_script(
+                "arguments[0].setAttribute('style', arguments[1]);",
+                element,
+                "border: 2px solid red;",
+            )
+            self.execute_script(
+                "arguments[0].scrollIntoView({block: 'center'});", element
+            )
+            screenshot = self.get_screenshot_as_png()
+
+            bounding_box["x1"] = element.bounding_box()["x"]
+            bounding_box["y1"] = element.bounding_box()["y"]
+            bounding_box["x2"] = bounding_box["x1"] + element.bounding_box()["width"]
+            bounding_box["y2"] = bounding_box["y1"] + element.bounding_box()["height"]
+
+            viewport_size["width"] = self.execute_script("return window.innerWidth;")
+            viewport_size["height"] = self.execute_script("return window.innerHeight;")
+            screenshot = BytesIO(screenshot)
+            screenshot = Image.open(screenshot)
+            output = {
+                "screenshot": screenshot,
+                "bounding_box": bounding_box,
+                "viewport_size": viewport_size,
+            }
+            outputs.append(output)
+        return outputs
+
+    def exec_code(
+        self,
+        code: str,
+        globals: dict[str, Any] = None,
+        locals: Mapping[str, object] = None,
+    ):
         exec(self.import_lines)
-        page = self.driver
-        exec(code)
+        page = self.page
+        exec(code, globals, locals)
+
+    def execute_script(self, js_code: str, *args) -> Any:
+        args = list(arg for arg in args)
+        for i, arg in enumerate(args):
+            if type(arg) == Locator:
+                args[i] = arg.element_handle()  # playwright only accept element_handles
+        script = f"(arguments) => {{{js_code}}}"
+        return self.page.evaluate(script, args)
+
+    def code_for_execute_script(self, js_code: str, *args) -> str:
+        return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
 
     def get_capability(self) -> str:
         return """

@@ -5,6 +5,8 @@ LaVague
 ActionEngine
 Gradio
 py
+pre
+embeddings
 config
 bashrc
 init
@@ -20,6 +22,7 @@ integrations
 OpenAI
 lavague
 repo
+boolean
 codebase
 macos
 sandboxed
@@ -97,3 +100,6 @@ scalable
 UI
 OSX
 dir
+AgentLogger
+DataFrame
+agentic

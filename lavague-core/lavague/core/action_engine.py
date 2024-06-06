@@ -8,7 +8,7 @@ from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger
-from lavague.core.base_engine import BaseEngine
+from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.navigation import NAVIGATION_ENGINE_PROMPT_TEMPLATE
 from lavague.core.navigation import NavigationControl, NavigationEngine
 from lavague.core.python_engine import PythonEngine
@@ -130,7 +130,9 @@ class ActionEngine:
         self.python_engine.set_logger(logger)
         self.navigation_control.set_logger(logger)
 
-    def dispatch_instruction(self, next_engine_name: str, instruction: str):
+    def dispatch_instruction(
+        self, next_engine_name: str, instruction: str
+    ) -> ActionResult:
         """
         Dispatch the instruction to the appropriate ActionEngine
 
