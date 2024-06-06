@@ -41,7 +41,7 @@ def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
                     "lavague-core"
                 )
 
-                if "engine_log" in t:
+                if "engine_log" in row:
                     t = row["engine_log"]
                     if t is not None:
                         if isinstance(t, list):
