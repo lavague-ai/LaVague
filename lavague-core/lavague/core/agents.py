@@ -122,8 +122,7 @@ class WebAgent:
             if "[NONE]" in instruction == False:
                 history[-1] = (
                     history[-1][0],
-                    f"⏳ Step {curr_step + 1}:
-                    Current instruction: {instruction}..."
+                    f"⏳ Step {curr_step + 1}:\nCurrent instruction: {instruction}..."
                 )
 
             yield objective_obj, url_input, instructions_history, history, output
@@ -154,14 +153,12 @@ class WebAgent:
             if success:
                 history[-1] = (
                     history[-1][0],
-                    f"✅ Step {curr_step + 1}: 
-                    Current instruction: {instruction}"
+                    f"✅ Step {curr_step + 1}:\nCurrent instruction: {instruction}"
                 )
             else:
                 history[-1] = (
                     history[-1][0],
-                    f"❌ Step {curr_step + 1}: 
-                    Current instruction: {instruction}"
+                    f"❌ Step {curr_step + 1}:\nCurrent instruction: {instruction}"
                 )
             history.append((None, None))
             history[-1] = (
