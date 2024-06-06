@@ -58,7 +58,7 @@ class WebAgent:
         self.driver.goto(url)
 
     def demo(
-        self, objective: str, user_data=None, instructions: Optional[List[str]] = None
+        self, objective: str = "", user_data=None, instructions: Optional[List[str]] = None
     ):
         from lavague.core.gradio import GradioAgentDemo
 
