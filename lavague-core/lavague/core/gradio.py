@@ -184,7 +184,7 @@ class GradioAgentDemo:
                                 visible=True,
                             )
                             objective_input = gr.Textbox(
-                                value="",
+                                value=self.objective,
                                 scale=9,
                                 type="text",
                                 label="Enter the objective and press 'Enter' to start processing it.",
