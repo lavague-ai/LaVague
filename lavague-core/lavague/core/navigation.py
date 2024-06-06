@@ -313,6 +313,7 @@ class NavigationEngine(BaseEngine):
 
                     if self.gradio_mode:
                         from lavague.gradio import image_queue
+
                         for item in vision_data:
                             image_queue.put(item["screenshot"])
                             time.sleep(0.2)

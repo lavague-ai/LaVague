@@ -73,7 +73,6 @@ class WebAgent:
                 "`lavague-gradio` package not found, "
                 "please run `pip install lavague-contexts-gradio`"
             )
-        
 
     def run_demo(
         self,
@@ -121,7 +120,7 @@ class WebAgent:
             if instruction.find("[NONE]") == -1:
                 history[-1] = (
                     history[-1][0],
-                    f"⏳ Step {curr_step + 1}:\n{instruction}..."
+                    f"⏳ Step {curr_step + 1}:\n{instruction}...",
                 )
 
             yield objective_obj, url_input, instructions_history, history, output
@@ -152,18 +151,15 @@ class WebAgent:
             if success:
                 history[-1] = (
                     history[-1][0],
-                    f"✅ Step {curr_step + 1}:\n{instruction}"
+                    f"✅ Step {curr_step + 1}:\n{instruction}",
                 )
             else:
                 history[-1] = (
                     history[-1][0],
-                    f"❌ Step {curr_step + 1}:\n{instruction}"
+                    f"❌ Step {curr_step + 1}:\n{instruction}",
                 )
             history.append((None, None))
-            history[-1] = (
-                history[-1][0],
-                "⏳ ..."
-            )
+            history[-1] = (history[-1][0], "⏳ ...")
             yield objective_obj, url_input, instructions_history, history, output
         send_telemetry(logger.return_pandas())
         url_input = self.action_engine.driver.get_url()
