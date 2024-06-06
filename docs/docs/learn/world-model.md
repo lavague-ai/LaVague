@@ -170,6 +170,6 @@ Alternatively, you can pass your World Model class any of the four key customiza
 - `mm_llm`: A Multi-modal LLM. This can be any `llama_index.multi_modal_llms` object. By default, we use OpenAI's gpt-4o.
 - `prompt_template`: The prompt template used to query the multi-model LLM to generate the next instruction
 - `examples`: A string containing examples of how we expect the WorldModel to reason and produce a good next instruction
-- `logger:`: An AgentLogger which records information about the World Model
+- `logger`: An AgentLogger which records information about the World Model
 
 Once initialized, the World Model can be used as seen previously.
