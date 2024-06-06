@@ -66,7 +66,7 @@ class GradioAgentDemo:
 
     def _init_driver(self):
         def init_driver_impl(url):
-            self.agent.action_engine.driver.goto(url)
+            self.agent.action_engine.driver.get(url)
             ret = self.agent.action_engine.driver.get_screenshot_as_png()
             ret = BytesIO(ret)
             ret = Image.open(ret)
