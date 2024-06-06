@@ -4,20 +4,6 @@ from lavague.core.agents import WebAgent
 import gradio as gr
 
 image_queue = queue.Queue()
-previous_val = None
-
-def refresh(image_display):
-    global previous_val
-    image = image_display
-    try:
-        image = image_queue.get(False)
-    except:
-        pass
-    if image is not None:
-        previous_val = image
-    else:
-        image = previous_val
-    return image
 
 class GradioAgentDemo:
     """
@@ -68,6 +54,7 @@ class GradioAgentDemo:
         self.instructions = instructions
         self.agent = agent
         self.user_data = user_data
+        self.previous_val = None
 
     def _init_driver(self):
         def init_driver_impl(url):
@@ -118,6 +105,18 @@ class GradioAgentDemo:
             return history, instructions_history
         
         return add_message
+    
+    def refresh_img_dislay(self, image_display):
+        image = image_display
+        try:
+            image = image_queue.get(False)
+        except:
+            pass
+        if image is not None:
+            self.previous_val = image
+        else:
+            image = self.previous_val
+        return image
 
     def launch(self, server_port=7860, share=True, debug=True):
         def toggle_to_url():
@@ -182,7 +181,7 @@ class GradioAgentDemo:
                 inputs=[objective_input, url_input, instructions_history, chatbot],
                 outputs=[objective_input, url_input, instructions_history, chatbot],
             )
-                demo.load(fn=refresh, inputs=image_display, outputs=image_display, show_progress=False, every=1)
+                demo.load(fn=self.refresh_img_dislay, inputs=image_display, outputs=image_display, show_progress=False, every=1)
                 # Use the image_updater generator function
                 # submission handling
                 url_input.submit(self._init_driver(), inputs=[url_input], outputs=[image_display])
