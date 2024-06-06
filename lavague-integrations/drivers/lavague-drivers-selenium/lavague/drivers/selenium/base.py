@@ -81,12 +81,11 @@ class SeleniumDriver(BaseDriver):
         new_screenshot = self.get_screenshot_as_png()
         new_hash = self.compute_hash(new_screenshot)
         new_screenshot_name = f"{new_hash}.png"
-        new_screenshot_full_path = current_screenshot_folder + "/" + new_screenshot_name
-        new_screenshot_full_path = Path(new_screenshot_full_path)
+        new_screenshot_full_path = current_screenshot_folder / new_screenshot_name
 
         # If the screenshot does not exist, save it
         if not new_screenshot_full_path.exists():
-            with open(new_screenshot_full_path, "wb+") as f:
+            with open(new_screenshot_full_path, "wb") as f:
                 f.write(new_screenshot)
         return str(new_screenshot_full_path)
 
