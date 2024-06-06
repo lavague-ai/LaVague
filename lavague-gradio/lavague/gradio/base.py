@@ -100,7 +100,7 @@ class GradioAgentDemo:
             history[-1][1] = "⏳ ..."
             self.agent.action_engine.set_gradio_mode_all(True, None)
             self.agent.clean_screenshot_folder = False
-            yield from self.agent.run_demo(
+            yield from self.agent._run_demo(
                 objective,
                 self.user_data,
                 False,

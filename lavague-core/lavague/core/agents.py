@@ -55,6 +55,14 @@ class WebAgent:
         self.world_model.set_logger(self.logger)
         self.st_memory.set_logger(self.logger)
 
+        if self.clean_screenshot_folder:
+            try:
+                if os.path.isdir("screenshots"):
+                    shutil.rmtree("screenshots")
+                logging_print.info("Screenshot folder cleared")
+            except:
+                pass
+
         self.result = ActionResult(
             instruction=None,
             code=self.driver.code_for_init(),
@@ -83,7 +91,7 @@ class WebAgent:
                 "please run `pip install lavague-contexts-gradio`"
             )
 
-    def run_demo(
+    def _run_demo(
         self,
         objective: str,
         user_data=None,
@@ -93,6 +101,7 @@ class WebAgent:
         instructions_history: Any = None,
         history: Any = None,
     ):
+        """Internal run method for the gradio demo. Do not use directly. Use run instead."""
         from lavague.gradio import image_queue
 
         driver: BaseDriver = self.driver
@@ -208,14 +217,6 @@ class WebAgent:
 
         if user_data:
             self.st_memory.set_user_data(user_data)
-
-        if self.clean_screenshot_folder:
-            try:
-                if os.path.isdir("screenshots"):
-                    shutil.rmtree("screenshots")
-                logging_print.info("Screenshot folder cleared")
-            except:
-                pass
 
         obs = self.driver.get_obs()
 

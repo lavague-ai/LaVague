@@ -23,7 +23,6 @@ class AgentLogger:
         self.logs = []
 
     def new_run(self):
-        self.logs = []
         self.run_id = str(uuid.uuid4())
         self.current_row = {}
         self.current_step = 0
