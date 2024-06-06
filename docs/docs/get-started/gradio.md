@@ -14,9 +14,20 @@ You can take a quick look at this feature in the video below:
   </video>
 </figure>
 
-### How to a LaVague Agent demo
+### How to launch a LaVague Agent demo
 
-TO get started with our `demo` mode, you can use the same code as you would when [getting started with our agent](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) in the standard way, but we replace the `agent.run()` method with our `agent.demo()` method.
+TO get started with our `demo` mode, you will firstly need to install the `lavague-gradio` package (as well as the `lavague` package): 
+
+```bash
+pip install lavague lavague-gradio
+```
+
+If you already had the `lavague` package installed, make sure your driver package is on the latest version to avoid compatibility issues:
+```bash
+pip install --upgrade lavague-drivers-selenium
+```
+
+You can now use the same code as you would when [getting started with our agent](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) in the standard way, but we replace the `agent.run()` method with our `agent.demo()` method.
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
