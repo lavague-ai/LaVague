@@ -93,11 +93,15 @@ print(df_logs.at[step, 'world_model_output'])
 This gives us the following output.
 ![code](../../assets/thoughts.png)
 
-??? tip "Advanced"
+### Advanced: Manually logging sub-components
 
-    The logger runs automatically whenever you use the `agent.run()` method and is accessible via `agent.logger`. However, if you are using an Action Engine, Navigation Engine, Navigation Control or Python Engine directly, rather than via our Agent wrapper, you can directly instantiate and use our `AgentLogger` class directly with manually trigger information to be logged when using them.
+The logger runs automatically whenever you use the `agent.run()` method and is accessible via `agent.logger`. 
 
-    Let's take a look at an example of how we can do this by with the Action Engine.
+However, if you are using an `Action Engine`, `Navigation Engine`, `Navigation Control`, `Python Engine` or `World Model` directly, rather than via our `Agent` wrapper, you can directly instantiate and use our `AgentLogger` class directly with them to manage the logging of these components.
+
+Below, we take a look at an example of how we can do this by with the Action Engine.
+
+??? tip "Advanced example"
 
     Firstly, let's create out Action Engine and instance of AgentLogger:
 
