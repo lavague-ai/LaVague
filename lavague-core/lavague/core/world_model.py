@@ -305,6 +305,12 @@ class WorldModel(ABC, Loggable):
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
     ) -> WorldModel:
         return cls(context.mm_llm, prompt_template, examples)
+      
+    def add_knowledge(self, file_path: str):
+        """Add knowledge to the world model from an example file."""
+        with open(file_path, "r") as file:
+          knowledge = file.read()
+        self.prompt_template.kwargs["examples"] += knowledge
 
     def get_instruction(
         self,
