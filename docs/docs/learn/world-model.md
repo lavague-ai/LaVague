@@ -55,6 +55,7 @@ display(images[0])
 ![world model screenshot](../../assets/world-model-screenshot.png)
 
 The World Model receives multiple inputs to make informed decisions:
+
 - Objective
 - Internal and external state that comprises the current HTML, screenshot, some internal memory in agent_outputs and user provided data with user_inputs
 - Past with previous instructions
