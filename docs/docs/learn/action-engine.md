@@ -6,9 +6,14 @@ The Action Engine module is responsible for transforming natural language instru
 
 The Action Engine module contains three sub-engines:
 
+![action engine diagram](../../assets/action-engine-diagram.png)
+
 - 🚄 Navigation Engine: Generates and executes Selenium code to perform an action on a web page
 - 🐍 Python Engine: Generates and executes code for tasks that do not involve navigating or interacting with a web page, such as extracting information
 - 🕹️ Navigation Control: Performs frequently required navigation tasks without needing to make any extra LLM calls. So far we cover: scroll up, scroll down & wait
+
+
+### Getting started with the Action Engine
 
 In our agentic workflow, the agent first gets the next instruction and the name of the next sub-engine to be used from the World Model. 
 
@@ -62,33 +67,28 @@ Details on how to do this are provided in our [customization guide](../get-start
 
 #### Action Engine optional parameters
 
-There are also numerous optional arguments that can be passed to the Action Engine, alongside the required `driver` argument.
+There are also numerous optional arguments that can be passed to the Action Engine, alongside the required `driver` argument, which you can view here:
 
-!!! note "Action Engine optional parameters"
+??? note "Optional arguments"
+    | Parameter               | Description                                                                                                                                                                                                                                  |
+    |-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | navigation_engine     | The Navigation Engine to be used                                                                                                                                                                                                             |
+    | python_engine         | The Python Engine to be used                                                                                                                                                                                                                 |
+    | navigation_control    | The Navigation Control to be used                                                                                                                                                                                                            |
+    | llm                   | The LLM to be used - by default this is OpenAI's `gpt-4o`. You can pass this with any `llama_index.llms` LLM object.                                                                                                                          |
+    | embedding             | The embedding model to be used - by default this is OpenAI's `text-embedding-3-large`. You can pass this any `llama_index.embeddings` embedding model object.                                                                                 |
+    | retriever             | The `Retriever` to be used by the Navigation Engine for RAG - by default we use the [OpsmSplitRetriever](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/retrievers.py#L86).    |
+    | prompt_template       | The prompt template to be used by the Navigation Engine to query the LLM. You can view our default Navigation Engine prompt template [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177). |
+    | extractor             | The cleaning function to run on the LLM response before executing the generated code. You can view our default extractor [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/extractors.py#L11).                       |
+    | time_between_actions  | A float value for the time in seconds to wait between actions - this can be useful where you want to enforce a delay between actions to allow elements more time to load - by default, this is 1.5 seconds                                     |
+    | n_attempts            | The number of attempts the Navigation Engine should take to successfully perform an action - by default, this is 5                                                                                                                             |
+    | logger                | The AgentLogger instance used to log information about the Action Engine                                                                                                                                        |
 
-    - `navigation_engine:` The Navigation Engine to be used
-    - `python_engine:` The Python Engine to be used
-    - `navigation_control:` The Navigation Control to be used
 
-    Relevant for Navigation Engine & Python Engine:
+!!! tip "More info"
+    For guidance on using the Agent Logger module to get more information about our Action Engine, such as viewing the code generated, see our [Agent Logger guide](./local-log.md)
     
-    - `llm:` The LLM to be used - by default this is OpenAI's `gpt-4o`. You can pass this with any `llama_index.llms' LLM object.
-    - `embedding:` The embedding model to be used - by default this is OpenAI's `text-embedding-3-large`. You can pass this any `llama_index.embeddings' embedding model object.
-
-    Relevant when using Navigation Engine only:
-
-    - `retriever:` The `Retriever` to be used by the Navigation Engine for RAG - by default we use the [OpsmSplitRetriever](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/retrievers.py#L86)
-    - `prompt_template:` The prompt_template to be used by the Navigation Engine to query the LLM. You can view our default Navigation Engine prompt template [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177)
-    - `extractor:` The cleaning function to run on the LLM response before executing the generated code. You can view our default extractor [here](https://github.com/lavague-ai/LaVague/blob/4768a09ae282f078dbf0edd9c9ee6f7bdf8be48f/lavague-core/lavague/core/extractors.py#L11)
-    - `time_between_actions:` A float value for the time in seconds to wait between actions - this can be useful where you want to enforce a delay between actions to allow elements more time to load - by default, this is 1.5 seconds
-    - `n_attempts:` The number of attempts the Navigation Engine should take to successfully perform an action - by default, this is 5
-
-    - `logger:` The AgentLogger instance used to log information about the Action Engine (relevant to all sub-engines) 
-
-> For guidance on using the Agent Logger module to get more information about our Action Engine, such as viewing the code generated, see our [Agent Logger guide](./local-log.md)
-
-!!! tip "Navigation and Python Engines"
-    You can find out more details about the Navigation Engine and Python Engine in their module guides (**Coming soon**).
+    For more details about the Navigation Engine, see our [Navigation Engine module guide](./navigation-engine.md).
 
 ### Display mode
 
