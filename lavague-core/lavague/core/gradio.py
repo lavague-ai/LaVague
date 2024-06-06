@@ -125,7 +125,8 @@ class GradioAgentDemo:
 
         def add_message(history, message, instructions_history):
             instructions_history = clear_instructions("", instructions_history)
-            history.append((message, None))
+            history.clear()
+            history.append((None, None))
             return history, instructions_history
 
         return add_message
@@ -162,39 +163,29 @@ class GradioAgentDemo:
         with gr.Blocks(
             gr.themes.Default(primary_hue="blue", secondary_hue="neutral"), css=self.css
         ) as demo:
-            with gr.Tab("LaVague"):
+            with gr.Tab(""):
                 with gr.Row():
                     gr.HTML(self.title)
 
                 with gr.Row(equal_height=False):
                     with gr.Column():
                         with gr.Row():
-                            url_button = gr.Button(
-                                "URL",
-                                scale=0,
-                                variant="primary",
-                                elem_classes=["selected", "my-button"],
-                            )
-                            objective_button = gr.Button(
-                                "Objective",
-                                scale=0,
-                                variant="secondary",
-                                elem_classes=["unselected", "my-button"],
-                            )
-                            url_input = gr.Textbox(
-                                value=self.agent.action_engine.driver.get_url(),
-                                scale=9,
-                                type="text",
-                                label="Enter URL and press 'Enter' to load the page.",
-                                visible=True,
-                            )
-                            objective_input = gr.Textbox(
-                                value=self.objective,
-                                scale=9,
-                                type="text",
-                                label="Enter the objective and press 'Enter' to start processing it.",
-                                visible=False,
-                            )
+                            with gr.Tab("URL"):
+                                url_input = gr.Textbox(
+                                    value=self.agent.action_engine.driver.get_url(),
+                                    scale=9,
+                                    type="text",
+                                    label="Enter URL and press 'Enter' to load the page.",
+                                    visible=True,
+                                )
+                            with gr.Tab("Objective"):
+                                objective_input = gr.Textbox(
+                                    value=self.objective,
+                                    scale=9,
+                                    type="text",
+                                    label="Enter the objective and press 'Enter' to start processing it.",
+                                    visible=True,
+                                )
                 with gr.Row(variant="panel", equal_height=True):
                     with gr.Column(scale=7):
                         image_display = gr.Image(
@@ -203,7 +194,7 @@ class GradioAgentDemo:
                     with gr.Column(scale=3):
                         chatbot = gr.Chatbot(
                             [],
-                            elem_id="chatbot",
+                            elem_id="history",
                             bubble_full_width=False,
                             height="70%",
                             placeholder="Agent output will be shown here\n",
@@ -212,17 +203,6 @@ class GradioAgentDemo:
                         instructions_history = gr.HTML(
                             "<div class='list-container'><ul></ul></div>"
                         )
-                url_button.click(
-                    toggle_to_url,
-                    [],
-                    [url_input, objective_input, url_button, objective_button],
-                )
-                objective_button.click(
-                    toggle_to_objective,
-                    [],
-                    [url_input, objective_input, url_button, objective_button],
-                )
-
                 # objective submission handling
                 objective_input.submit(
                     self.__add_message(),

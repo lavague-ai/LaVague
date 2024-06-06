@@ -119,9 +119,12 @@ class WebAgent:
             img = Image.open(img)
             image_queue.put(img)
 
-            history[-1][1] = (
-                f"⏳ Step {curr_step + 1}. Current instruction: {instruction}..."
-            )
+            if "[NONE]" in instruction == False:
+                history[-1] = (
+                    history[-1][0],
+                    f"⏳ Step {curr_step + 1}:
+                    Current instruction: {instruction}..."
+                )
 
             yield objective_obj, url_input, instructions_history, history, output
 
@@ -148,22 +151,39 @@ class WebAgent:
 
             obs = driver.get_obs()
             url_input = self.action_engine.driver.get_url()
+            if success:
+                history[-1] = (
+                    history[-1][0],
+                    f"✅ Step {curr_step + 1}: 
+                    Current instruction: {instruction}"
+                )
+            else:
+                history[-1] = (
+                    history[-1][0],
+                    f"❌ Step {curr_step + 1}: 
+                    Current instruction: {instruction}"
+                )
+            history.append((None, None))
+            history[-1] = (
+                history[-1][0],
+                "⏳ ..."
+            )
             yield objective_obj, url_input, instructions_history, history, output
         send_telemetry(logger.return_pandas())
         url_input = self.action_engine.driver.get_url()
         if output is not None:
             if len(output) > 0 and output.strip() != "[NONE]":
-                history[-1][1] = output
+                history[-1] = (history[-1][0], output)
             elif len(output) == 0 or output.strip() == "[NONE]":
                 if success:
-                    history[-1][1] = "🌊 Objective reached"
+                    history[-1] = (history[-1][0], "🌊 Objective reached")
                 else:
-                    history[-1][1] = "❌ Failed to reach objective"
-        else:
-            if success:
-                history[-1][1] = "🌊 Objective reached"
+                    history[-1] = (history[-1][0], "❌ Failed to reach objective")
             else:
-                history[-1][1] = "❌ Failed to reach objective"
+                if success:
+                    history[-1] = (history[-1][0], "🌊 Objective reached")
+                else:
+                    history[-1] = (history[-1][0], "❌ Failed to reach objective")
 
         yield objective_obj, url_input, instructions_history, history, output
 
