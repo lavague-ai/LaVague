@@ -65,7 +65,7 @@ class WebAgent:
     ):
         from lavague.core.gradio import GradioAgentDemo
 
-        grad = GradioAgentDemo(objective, instructions, self)
+        grad = GradioAgentDemo(objective, instructions, self, user_data)
         grad.launch()
 
     def run_demo(
@@ -119,10 +119,10 @@ class WebAgent:
             img = Image.open(img)
             image_queue.put(img)
 
-            if "[NONE]" in instruction == False:
+            if instruction.find("[NONE]") == -1:
                 history[-1] = (
                     history[-1][0],
-                    f"⏳ Step {curr_step + 1}:\nCurrent instruction: {instruction}..."
+                    f"⏳ Step {curr_step + 1}:\n{instruction}..."
                 )
 
             yield objective_obj, url_input, instructions_history, history, output
@@ -153,12 +153,12 @@ class WebAgent:
             if success:
                 history[-1] = (
                     history[-1][0],
-                    f"✅ Step {curr_step + 1}:\nCurrent instruction: {instruction}"
+                    f"✅ Step {curr_step + 1}:\n{instruction}"
                 )
             else:
                 history[-1] = (
                     history[-1][0],
-                    f"❌ Step {curr_step + 1}:\nCurrent instruction: {instruction}"
+                    f"❌ Step {curr_step + 1}:\n{instruction}"
                 )
             history.append((None, None))
             history[-1] = (
