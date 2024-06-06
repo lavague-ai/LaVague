@@ -6,7 +6,7 @@ Our agents have a `demo` method, which will provide us with a local and public U
 
 We can test out different objectives and URLs and view the Agent's progress and output in a chat user interface.
 
-Here's a sneak peak of the feature:
+You can take a quick look at this feature in the video below:
 
 <figure class="video_container">
   <video controls="true" allowfullscreen="true">
