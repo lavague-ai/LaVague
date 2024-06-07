@@ -97,7 +97,7 @@ Next let's look at the nodes, or HTML components, collected by our retriever for
 
 The nodes sent to our Navigation Engine's LLM for each attempt to generate code for an action are stored in the `engine_log` column of our log.
 
-In some cases, the Navigation Engine's work may be broken down into multiple sub-instructions by our Rephraser, so this is why we have an additional index before getting our `retrieved_html` information.
+In some cases, the Navigation Engine's work may be broken down into multiple sub-instructions by our `Rephraser`, so this is why we have an additional index before getting our `retrieved_html` information.
 
 ```python
 # Print the code generated for step 0 of our run
@@ -116,7 +116,7 @@ for node in df_logs.at[attempt, 'engine_log'][sub_instruction]['retrieved_html']
 
 This gives us an output as follows:
 
-If you are using the logs to debug and find that the nodes do not show the relevant HTML componenets to complete the instruction, we know that the task has failed because of the performance of the `Retriever`.
+If you are using the logs to debug and find that the nodes do not show the relevant HTML components to complete the instruction, we know that the task has failed because of the performance of the `Retriever`.
 
 ### Advanced: Manually logging sub-components
 
