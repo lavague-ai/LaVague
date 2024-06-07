@@ -97,7 +97,8 @@ class GradioAgentDemo:
         def process_instructions_impl(
             objective, url_input, instructions_history, history
         ):
-            history[-1][1] = "⏳ ..."
+            history[-1][1] = "⏳ Thinking of next steps..."
+            yield objective, url_input, instructions_history, history
             self.agent.action_engine.set_gradio_mode_all(True, None)
             self.agent.clean_screenshot_folder = False
             yield from self.agent._run_demo(
@@ -231,4 +232,10 @@ class GradioAgentDemo:
                 url_input.submit(
                     self._init_driver(), inputs=[url_input], outputs=url_input
                 )
+                if self.agent.action_engine.driver.get_url() is not None:
+                    ret = self.agent.action_engine.driver.get_screenshot_as_png()
+                ret = BytesIO(ret)
+                ret = Image.open(ret)
+                self.previous_val = ret
+                image_queue.put(ret)
         demo.launch(server_port=server_port, share=True, debug=True)

@@ -193,7 +193,7 @@ class WebAgent:
                     f"❌ Step {curr_step + 1}:\n{instruction}",
                 )
             history.append((None, None))
-            history[-1] = (history[-1][0], "⏳ ...")
+            history[-1] = (history[-1][0], "⏳ Thinking of next steps...")
             yield objective_obj, url_input, instructions_history, history, output
         send_telemetry(logger.return_pandas())
         url_input = self.action_engine.driver.get_url()
