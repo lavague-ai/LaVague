@@ -170,7 +170,11 @@ class GradioAgentDemo:
                 with gr.Row(equal_height=False):
                     with gr.Column():
                         with gr.Row():
-                            with gr.Tabs(selected=1 if self.agent.action_engine.driver.get_url() is not None else 0) as tabs:
+                            with gr.Tabs(
+                                selected=1
+                                if self.agent.action_engine.driver.get_url() is not None
+                                else 0
+                            ) as tabs:
                                 with gr.Tab("URL", id=0):
                                     url_input = gr.Textbox(
                                         value=self.agent.action_engine.driver.get_url(),
