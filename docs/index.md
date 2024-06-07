@@ -43,6 +43,9 @@ action_engine = ActionEngine(selenium_driver)
 agent = WebAgent(world_model, action_engine)
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
+
+# Launch Gradio Agent Demo
+agent.demo("Go on the quicktour of PEFT")
 ```
 
 For more information on this example and how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
