@@ -6,7 +6,133 @@ LaVague is a great tool to help you write and maintain automated tests more effi
 
 LaVague can generate reusable `pytest-bdd` code from a test case description written in `Gherkin`. If the page changes, simply re-run LaVague to update your test scripts. 
 
-We will then walk through the code step by step. 
+??? note "Example file generated from a Gherkin test case with two scenarios"
+    `test_login.py` 
+    ```python
+    import pytest
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from pytest_bdd import scenarios, given, when, then
+
+    # Constants
+    BASE_URL = "https://saucedemo.com"
+
+    # Scenarios
+    scenarios("test_login.feature")
+
+
+    # Fixtures
+    @pytest.fixture
+    def browser():
+        driver = webdriver.Chrome()
+        driver.implicitly_wait(10)
+        driver.get(BASE_URL)
+        yield driver
+        driver.quit()
+
+
+    # Steps
+    @given("the user is on the Swag Labs login page")
+    def user_on_login_page(browser):
+        pass
+
+
+    @when('the user enters "standard_user" as the username')
+    def enter_standard_username(browser):
+        username_input = browser.find_element(
+            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input"
+        )
+        username_input.click()
+        username_input.send_keys("standard_user")
+
+
+    @when('the user enters "secret_sauce" as the password')
+    def enter_standard_password(browser):
+        password_input = browser.find_element(
+            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input"
+        )
+        password_input.click()
+        password_input.send_keys("secret_sauce")
+
+
+    @when('the user enters "invalid_user" as the username')
+    def enter_invalid_username(browser):
+        username_input = browser.find_element(
+            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input"
+        )
+        username_input.click()
+        username_input.send_keys("invalid_user")
+
+
+    @when('the user enters "wrong_password" as the password')
+    def enter_wrong_password(browser):
+        password_input = browser.find_element(
+            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input"
+        )
+        password_input.click()
+        password_input.send_keys("wrong_password")
+
+
+    @when("the user clicks the login button")
+    def click_login_button(browser):
+        login_button = browser.find_element(
+            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/input"
+        )
+        try:
+            browser.execute_script("arguments[0].scrollIntoView(true);", login_button)
+            browser.execute_script("arguments[0].click();", login_button)
+        except Exception as e:
+            pytest.fail(f"Failed to click login button: {e}")
+
+
+    @then("the user should be redirected to the home page")
+    def redirected_to_home_page(browser):
+        try:
+            WebDriverWait(browser, 10).until(EC.url_contains("/inventory.html"))
+        except Exception as e:
+            pytest.fail(f"Redirection to home page failed: {e}")
+
+
+    @then("the user should see the product inventory")
+    def see_product_inventory(browser):
+        try:
+            inventory_container = browser.find_element(
+                By.XPATH, "//div[@class='inventory_container']"
+            )
+            assert inventory_container.is_displayed(), "Product inventory not displayed"
+        except Exception as e:
+            pytest.fail(f"Product inventory check failed: {e}")
+
+
+    @then("the user should see an error message")
+    def see_error_message(browser):
+        try:
+            error_message = browser.find_element(
+                By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[3]/h3"
+            )
+            assert error_message.is_displayed()
+        except Exception as e:
+            pytest.fail(f"Error message not displayed: {e}")
+
+
+    @then(
+        'the error message should say "Username and password do not match any user in this service."'
+    )
+    def verify_error_message_text(browser):
+        try:
+            error_message = browser.find_element(
+                By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[3]/h3"
+            )
+            assert (
+                error_message.text
+                == "Epic sadface: Username and password do not match any user in this service"
+            )
+        except Exception as e:
+            pytest.fail(f"Error message text does not match: {e}")
+
+    ```
 
 ## Demo
 
