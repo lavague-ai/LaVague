@@ -13,7 +13,7 @@ We have two Driver options:
 
 The SeleniumDriver is installed by default when you install `lavague`.
 
-You then need to initalize the Driver and pass it to your Action Engine with the following code:
+You then need to initialize the Driver and pass it to your Action Engine with the following code:
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
