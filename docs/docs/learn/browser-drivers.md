@@ -6,12 +6,13 @@ Drivers are interfaces for interacting with web browsers autonomously.
 Our Driver modules are used to perform actions on web browsers and to get information from our current web page.
 
 We have two Driver options:
-- SeleniumDriver: When the SeleniumDriver is used, our Action Engine will generate and execute code using Selenium
+
+- ✅ SeleniumDriver: When the SeleniumDriver is used, our Action Engine will generate and execute code using Selenium
 - 🎭 PlaywrightDriver: When the PlaywrightDriver is used, our Action Engine will generate and execute code using Playwright
 
-## SeleniumDriver
+## Selenium Driver
 
-The SeleniumDriver is installed by default when you install `lavague`.
+The Selenium Driver is installed by default when you install `lavague`.
 
 You then need to initialize the Driver and pass it to your Action Engine with the following code:
 
@@ -51,6 +52,16 @@ action_engine = ActionEngine(playwright_driver)
 ```
 
 You can then use LaVague as usual (see the final example of the Selenium Driver section).
+
+!!! note "Playwright Driver limitations"
+    The Playwright Driver is not compatible with:
+
+        - running LaVague in Google Colabs/notebooks
+        - with the Gradio demo launched via the `agent.demo()` method
+        
+    This is due to compatibility issues with the Playwright async API. 
+
+    > If you want us to work on implementing a fix by supporting the Playwright sync API, please open a feature request on GitHub so we can gauge interest.
 
 ## Optional arguments
 
