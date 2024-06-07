@@ -234,8 +234,8 @@ class GradioAgentDemo:
                 )
                 if self.agent.action_engine.driver.get_url() is not None:
                     ret = self.agent.action_engine.driver.get_screenshot_as_png()
-                ret = BytesIO(ret)
-                ret = Image.open(ret)
-                self.previous_val = ret
-                image_queue.put(ret)
+                    ret = BytesIO(ret)
+                    ret = Image.open(ret)
+                    self.previous_val = ret
+                    image_queue.put(ret)
         demo.launch(server_port=server_port, share=True, debug=True)
