@@ -19,18 +19,7 @@ You can take a quick look at this feature in the video below:
 <a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/notebooks/Gradio.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open code example in Colab"></a>
 
-TO get started with our `demo` mode, you will firstly need to install the `lavague-gradio` package (as well as the `lavague` package): 
-
-```bash
-pip install lavague lavague-gradio
-```
-
-If you already had the `lavague` package installed, make sure your driver package is on the latest version to avoid compatibility issues:
-```bash
-pip install --upgrade lavague-drivers-selenium
-```
-
-You can now use the same code as you would when [getting started with our agent](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/) in the standard way, but we replace the `agent.run()` method with our `agent.demo()` method.
+To launch a LaVague Agent demo, we set up our Agent as in the usual way, as seen in the [quick tour guide](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/). Once we have our Agent, we can run the `agent.demo()` method to launch our Gradio Agent Demo.
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
