@@ -123,10 +123,10 @@ print(WORLD_MODEL_GENERAL_EXAMPLES)
 
 ![world model examples](../../assets/world-model-examples.png)
 
-If we wanted to add knowledge to our World Model prompt template, we could do so with the following code:
+If we wanted to add knowledge to our World Model prompt template, we can do so with the `add_knowledge` method:
 
 ```python
-added_knoweldge = """
+extra_knowledge = """
 Objective: Find the latest papers on Fine tuning
 Previous instructions:
 - SCAN
@@ -148,12 +148,18 @@ Next engine: Navigation Controls
 Instruction: SCAN
 """
 
-examples = WORLD_MODEL_GENERAL_EXAMPLES + added_knoweldge
-world_model = WorldModel(examples=examples)
+world_model.add_knowledge(extra_knowledge)
 ```
 
 !!! tip "Improving performance"
     By adding knowledge, we can improve the World Model's performance where it is failing to generate correct next instructions.
+
+If you want to replace the default examples passed to the World Model entirely, you can do so by initializing your `WorldModel` and passing your examples as a string as an `examples` optional argument:
+
+```python
+new_examples = "[YOUR_EXAMPLES_HERE]"
+world_model = WorldModel(examples=new_examples)
+```
 
 ### Customizing your World Model
 
