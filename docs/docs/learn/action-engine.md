@@ -51,9 +51,11 @@ And in all cases then:
 - Executes the code using the Action Engine's `driver`
 - Logs information about the action process with the Engine's `logger`
 
-The `dispatch_instruction` method returns:
-    - A boolean value letting us know if the action was successful or not
-    - the output of the code, where relevant, such as the result of a knowledge retrieval action using the Python Engine
+The `dispatch_instruction` method returns an ActionResult object, which contains:
+    - instruction: the instruction an action was generated for
+    - code: the generated code for the actoin
+    - success: whether the code was executed succesfully or not
+    - output: the output of executing the action where relevant, such as the result of a knowledge retrieval action using the Python Engine
 
 > Note, the Navigation Control skips the RAG and LLM query steps by using pre-defined code for common navigation tasks
 

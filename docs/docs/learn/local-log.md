@@ -93,6 +93,31 @@ print(df_logs.at[step, 'world_model_output'])
 This gives us the following output.
 ![code](../../assets/thoughts.png)
 
+Next let's look at the nodes, or HTML components, collected by our retriever for our task.
+
+The nodes sent to our Navigation Engine's LLM for each attempt to generate code for an action are stored in the `engine_log` column of our log.
+
+In some cases, the Navigation Engine's work may be broken down into multiple sub-instructions by our Rephraser, so this is why we have an additional index before getting our `retrieved_html` information.
+
+```python
+# Print the code generated for step 0 of our run
+attempt = 0
+from IPython.display import display, HTML, Code
+
+# An instruction can be split into sub-instructions by the rephraser, but in this case there is just one instruction
+sub_instruction = 0
+x = 0
+for node in df_logs.at[attempt, 'engine_log'][sub_instruction]['retrieved_html']:
+    print(f"node {x}")
+    x = x + 1
+    display(HTML(node)) # Display node as visual element
+    display(Code(node, language="html")) # Display code
+```
+
+This gives us an output as follows:
+
+If you are using the logs to debug and find that the nodes do not show the relevant HTML componenets to complete the instruction, we know that the task has failed because of the performance of the `Retriever`.
+
 ### Advanced: Manually logging sub-components
 
 The logger runs automatically whenever you use the `agent.run()` method and is accessible via `agent.logger`. 
@@ -136,10 +161,10 @@ Below, we take a look at an example of how we can do this by with the Action Eng
     ```python
     # Engine & instruction
     engine_name = "Navigation Engine"
-    instruction = "scroll down by 200px"
+    instruction = "Show me the top model"
 
     # Execute the instruction
-    success, output = action_engine.dispatch_instruction(engine_name, instruction)
+    ret = action_engine.dispatch_instruction(engine_name, instruction)
 
     # Add required driver info to logs and end the logging step
     logger.add_log(obs)
