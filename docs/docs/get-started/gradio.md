@@ -10,7 +10,7 @@ You can take a quick look at this feature in the video below:
 
 <figure class="video_container">
   <video controls="true" allowfullscreen="true">
-    <source src="https://github.com/lavague-ai/LaVague/blob/gradio_new/docs/assets/gradio.webm?raw=true" type="video/webm">
+    <source src="https://github.com/lavague-ai/LaVague/blob/main/docs/assets/gradio.webm?raw=true" type="video/webm">
   </video>
 </figure>
 

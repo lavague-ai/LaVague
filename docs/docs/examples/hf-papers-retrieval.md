@@ -13,7 +13,7 @@ You can see in the demo below how our agent is able to outperform both Gemini an
 
 <figure class="video_container">
   <video controls="true" allowfullscreen="true">
-    <source src="https://github.com/lavague-ai/LaVague/blob/add-example/docs/assets/hf_demo_papers.mp4?raw=true" type="video/mp4">
+    <source src="https://github.com/lavague-ai/LaVague/blob/main/docs/assets/hf_demo_papers.mp4?raw=true" type="video/mp4">
   </video>
 </figure>
 
