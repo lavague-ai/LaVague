@@ -170,22 +170,23 @@ class GradioAgentDemo:
                 with gr.Row(equal_height=False):
                     with gr.Column():
                         with gr.Row():
-                            with gr.Tab("URL"):
-                                url_input = gr.Textbox(
-                                    value=self.agent.action_engine.driver.get_url(),
-                                    scale=9,
-                                    type="text",
-                                    label="Enter URL and press 'Enter' to load the page.",
-                                    visible=True,
-                                )
-                            with gr.Tab("Objective"):
-                                objective_input = gr.Textbox(
-                                    value=self.objective,
-                                    scale=9,
-                                    type="text",
-                                    label="Enter the objective and press 'Enter' to start processing it.",
-                                    visible=True,
-                                )
+                            with gr.Tabs(selected=1 if self.agent.action_engine.driver.get_url() is not None else 0) as tabs:
+                                with gr.Tab("URL", id=0):
+                                    url_input = gr.Textbox(
+                                        value=self.agent.action_engine.driver.get_url(),
+                                        scale=9,
+                                        type="text",
+                                        label="Enter URL and press 'Enter' to load the page.",
+                                        visible=True,
+                                    )
+                                with gr.Tab("Objective", id=1) as tab:
+                                    objective_input = gr.Textbox(
+                                        value=self.objective,
+                                        scale=9,
+                                        type="text",
+                                        label="Enter the objective and press 'Enter' to start processing it.",
+                                        visible=True,
+                                    )
                 with gr.Row(variant="panel", equal_height=True):
                     with gr.Column(scale=7):
                         image_display = gr.Image(
@@ -194,6 +195,7 @@ class GradioAgentDemo:
                     with gr.Column(scale=3):
                         chatbot = gr.Chatbot(
                             [],
+                            label="Agent output",
                             elem_id="history",
                             bubble_full_width=False,
                             height="70%",
@@ -225,5 +227,4 @@ class GradioAgentDemo:
                 url_input.submit(
                     self._init_driver(), inputs=[url_input], outputs=url_input
                 )
-
         demo.launch(server_port=server_port, share=True, debug=True)
