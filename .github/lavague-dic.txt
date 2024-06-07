@@ -96,6 +96,7 @@ replayable
 APIs
 FastAPI
 Gmail
+ChatGPT
 Pytest
 scalable
 UI
