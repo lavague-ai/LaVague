@@ -11,18 +11,24 @@ from lavague.drivers.selenium import SeleniumDriver
 TEMP_FILES_DIR = "./generated_files"
 TESTS_DIR = "./tests"
 
+
 def main(url, feature_file):
     feature_name, feature_file_name, scenarios = parse_feature_file(feature_file)
 
     for scenario in scenarios:
         try:
             nodes, screenshot, selenium_code = run_test_case(url, scenario)
-            code = generate_temp_code(url, feature_name, scenario, selenium_code, nodes, screenshot)
-            write_temp_file(feature_name, scenario['name'], code)
+            code = generate_temp_code(
+                url, feature_name, scenario, selenium_code, nodes, screenshot
+            )
+            write_temp_file(feature_name, scenario["name"], code)
         except Exception as e:
             print(f"-- Failed to process test case {scenario['name']}: {e}")
 
-    merge_and_write_final_code(feature_file, feature_name, feature_file_name, len(scenarios))
+    merge_and_write_final_code(
+        feature_file, feature_name, feature_file_name, len(scenarios)
+    )
+
 
 def parse_feature_file(file_path):
     feature_file_name = os.path.basename(file_path)
@@ -33,14 +39,17 @@ def parse_feature_file(file_path):
     scenarios = file_contents.split("Scenario:")
     parsed_scenarios = []
     for scenario in scenarios[1:]:
-        scenario_name, *scenario_steps = scenario.strip().split('\n')
-        parsed_scenarios.append({
-            "name": scenario_name.strip(),
-            "steps": [step.strip() for step in scenario_steps]
-        })
+        scenario_name, *scenario_steps = scenario.strip().split("\n")
+        parsed_scenarios.append(
+            {
+                "name": scenario_name.strip(),
+                "steps": [step.strip() for step in scenario_steps],
+            }
+        )
 
     print(f"-- Parsed feature file: {feature_file_name}")
     return feature_name, feature_file_name, parsed_scenarios
+
 
 def run_test_case(url, scenario):
     test_case = "\n".join(scenario["steps"])
@@ -69,16 +78,19 @@ def run_test_case(url, scenario):
 
     return nodes, b64_img, selenium_code
 
+
 def get_latest_screenshot_path(directory):
     files = os.listdir(directory)
     full_paths = [os.path.join(directory, f) for f in files]
     return max(full_paths, key=os.path.getmtime)
+
 
 def pil_image_to_base64(image_path):
     with Image.open(image_path) as img:
         buffered = BytesIO()
         img.save(buffered, format="PNG")
         return base64.b64encode(buffered.getvalue()).decode("utf-8")
+
 
 def generate_temp_code(url, feature_name, test_case, selenium_code, nodes, b64_img):
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -91,13 +103,17 @@ def generate_temp_code(url, feature_name, test_case, selenium_code, nodes, b64_i
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"},
+                    },
                 ],
             },
         ],
     )
     code = completion.choices[0].message.content.strip()
     return code.replace("```python", "").replace("```", "").replace("```\n", "")
+
 
 def write_temp_file(feature_name, scenario_name, code):
     if not os.path.exists(TEMP_FILES_DIR):
@@ -108,8 +124,13 @@ def write_temp_file(feature_name, scenario_name, code):
         file.write(code)
     print(f"-- Test case written to {file_path}")
 
-def merge_and_write_final_code(feature_file, feature_name, feature_file_name, scenario_count):
-    print(f"-- Merging {scenario_count} scenarios into a single file for feature: {feature_file_name}")
+
+def merge_and_write_final_code(
+    feature_file, feature_name, feature_file_name, scenario_count
+):
+    print(
+        f"-- Merging {scenario_count} scenarios into a single file for feature: {feature_file_name}"
+    )
 
     final_code = merge_files(feature_file)
     if not os.path.exists(TESTS_DIR):
@@ -120,15 +141,22 @@ def merge_and_write_final_code(feature_file, feature_name, feature_file_name, sc
         file.write(final_code)
     print(f"-- Final test cases written to {final_file_path}")
 
+
 def merge_files(feature_file_path):
     with open(feature_file_path, "r") as file:
         feature_file_content = file.read()
 
-    file_paths = [os.path.join(TEMP_FILES_DIR, file) for file in os.listdir(TEMP_FILES_DIR) if file.endswith('.py')]
+    file_paths = [
+        os.path.join(TEMP_FILES_DIR, file)
+        for file in os.listdir(TEMP_FILES_DIR)
+        if file.endswith(".py")
+    ]
     base_prompt = f"Merge the following pytest-bdd files into a single file with unique steps for the following feature, only output python code and nothing else:\n\nfeature file:\n\n{feature_file_content}\n\n"
 
-    code_contents = [open(file_path, 'r').read() for file_path in file_paths]
-    combined_prompt = base_prompt + "\n\n".join(f"Code File {i+1}:\n{content}\n\n" for i, content in enumerate(code_contents))
+    code_contents = [open(file_path, "r").read() for file_path in file_paths]
+    combined_prompt = base_prompt + "\n\n".join(
+        f"Code File {i+1}:\n{content}\n\n" for i, content in enumerate(code_contents)
+    )
 
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     completion = client.chat.completions.create(
@@ -141,6 +169,7 @@ def merge_files(feature_file_path):
     code = completion.choices[0].message.content.strip()
     return code.replace("```python", "").replace("```", "").replace("```\n", "")
 
+
 def build_prompt(url, feature_file_name, test_case, selenium_code, nodes):
     return f"""Generate a valid pytest-bdd file with the following inputs and examples to guide you:
 Base url: {url}\n
@@ -150,6 +179,7 @@ Already executed code:\n{selenium_code}\n
 selected html of the last page: {nodes}\n
 Examples:\n\n{EXAMPLES}
 """
+
 
 SYSTEM_PROMPT = """
 You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else, don't include anything after the last backticks. Your task is to:
@@ -227,9 +257,18 @@ def i_should_see_error_message(browser):
 
 if __name__ == "__main__":
     os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY")
-    parser = argparse.ArgumentParser(description="Process a URL and a file path to generate pytest-bdd test cases")
-    parser.add_argument("--feature", type=str, required=True, help="The path of the .feature file with your test cases")
-    parser.add_argument("--url", type=str, required=True, help="The start URL for your test cases")
+    parser = argparse.ArgumentParser(
+        description="Process a URL and a file path to generate pytest-bdd test cases"
+    )
+    parser.add_argument(
+        "--feature",
+        type=str,
+        required=True,
+        help="The path of the .feature file with your test cases",
+    )
+    parser.add_argument(
+        "--url", type=str, required=True, help="The start URL for your test cases"
+    )
 
     args = parser.parse_args()
     main(args.url, args.feature)

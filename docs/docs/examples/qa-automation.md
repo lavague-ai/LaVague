@@ -6,7 +6,7 @@ LaVague is a great tool to help you write and maintain automated tests more effi
 
 LaVague can generate reusable `pytest-bdd` code from a test case description written in `Gherkin`. If the page changes, simply re-run LaVague to update your test scripts. 
 
-We will then walkthrough the code step by step. 
+We will then walk through the code step by step. 
 
 ## Demo
 
@@ -43,7 +43,7 @@ python qa_automation.py --url https://saucedemo.com --feature tests/test_login.f
 | Parameter                  | Description                                                                                                                                                  |
 |----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | url (str)                        | The URL of the website you'd like to generate tests for                                              |
-| feature (str)  | The filepath of your `.feature` file containing your Gherkin scenarios |
+| feature (str)  | The file path of your `.feature` file containing your Gherkin scenarios |
 
 By default, temporary files are generated under `./generated_file` and final test code is created in `./tests`. 
 
@@ -115,7 +115,7 @@ TESTS_DIR = "./tests"
     ```
 
 
-## Script walkthrough
+## Script walk through
 
 Let's walk through some of the core components of our script to give you a better understanding of how we use LaVague to make you more efficient at testing your web apps. 
 
