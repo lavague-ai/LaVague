@@ -240,6 +240,7 @@ class WebAgent:
 
             if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                 self.result.success = True
+                self.result.output = instruction
                 logging_print.info("Objective reached. Stopping...")
                 self.logger.add_log(obs)
                 self.logger.end_step()
