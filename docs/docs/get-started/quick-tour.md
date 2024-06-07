@@ -97,7 +97,7 @@ The World Model is responsible for converting the user's global objective into t
 
 The World Model uses a multi-modal model to do this conversion. This is GPT-4o by default, but you can try using it with custom models in our [customization guide](./customization.md).
 
-To find out more about the World Model, see our [World Model guide](../learn/worl-model.md).
+To find out more about the World Model, see our [World Model guide](../learn/world-model.md).
 
 ### Web Agent
 
