@@ -78,12 +78,11 @@ class WebAgent:
         self,
         objective: str = "",
         user_data=None,
-        instructions: Optional[List[str]] = None,
     ):
         try:
             from lavague.gradio import GradioAgentDemo
 
-            grad = GradioAgentDemo(objective, instructions, self, user_data)
+            grad = GradioAgentDemo(objective, None, self, user_data)
             grad.launch()
         except ImportError:
             raise ImportError(
@@ -111,15 +110,23 @@ class WebAgent:
         output = ""
         success = True
 
+        try:
+            if os.path.isdir("screenshots"):
+                shutil.rmtree("screenshots")
+            logging_print.info("Screenshot folder cleared")
+        except:
+            pass
+
+        self.st_memory = ShortTermMemory()
         st_memory = self.st_memory
         world_model = self.world_model
 
         if user_data:
-            self.st_memory.set_user_data(user_data)
+            st_memory.set_user_data(user_data)
 
         obs = driver.get_obs()
 
-        logger.new_run()
+        logger.clear_logs()
         for curr_step in range(n_steps):
             current_state, past = st_memory.get_state()
 

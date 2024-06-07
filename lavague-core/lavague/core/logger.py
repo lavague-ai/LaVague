@@ -22,6 +22,12 @@ class AgentLogger:
     def __init__(self):
         self.logs = []
 
+    def clear_logs(self):
+        self.run_id = str(uuid.uuid4())
+        self.logs = []
+        self.current_row = {}
+        self.current_step = 0
+
     def new_run(self):
         self.run_id = str(uuid.uuid4())
         self.current_row = {}
