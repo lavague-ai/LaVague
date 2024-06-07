@@ -1,6 +1,6 @@
 # Hugging Face Papers retrieval
 
-<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/add-example/docs/docs/examples/notebooks/paper-retrieval-example.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/add-example/docs/docs/examples/notebooks/hf-paper-retrieval-example.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 This notebook shows how one can use LaVague to create an agent that can outperform Gemni or ChatGPT on the task of finding the latest hotest papers on [HuggingFace Papers](https://huggingface.co/papers)!
