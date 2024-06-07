@@ -47,6 +47,7 @@ Roadmap
 LLMs
 DeepSeek
 LiteLLM
+PlaywrightDriver
 PyPi
 WorldModel
 WebAgent
