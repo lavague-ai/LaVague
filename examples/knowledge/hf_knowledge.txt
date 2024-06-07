@@ -52,6 +52,8 @@ Thoughts:
 - The current screenshots show a list of papers on Hugging Face.
 - The objective is to find the latest paper on Multi Modal Models.
 - The whole page has been scanned and no relevant paper has been found.
-- One screenshot shows a 'Previous' button. As the current page seems to show the papers of the day, and we haven't found any matching our objective, the best next step is to click on the 'Previous' button to find earlier papers on Multi Modal Models.
+- As the current page seems to show the latest papers of the day, and we haven't found any matching our objective, we need to find older papers.
+- The 'Previous' button allows you to navigate to pages containing older papers.
+- Therefore, the best next step is to click on the 'Previous' button to find papers on Multi-Modal Models.
 Next engine: Navigation Engine
 Instruction: Click on the 'Previous' button.
