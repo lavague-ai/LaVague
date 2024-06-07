@@ -148,5 +148,4 @@ class ActionEngine:
         """
 
         next_engine = self.engines[next_engine_name]
-        ret = next_engine.execute_instruction(instruction)
-        return ret
+        return next_engine.execute_instruction(instruction)
