@@ -30,7 +30,6 @@ VSCode
 GPT
 linux
 Colab
-Colabs
 json
 devcontainer
 dev
@@ -97,6 +96,7 @@ replayable
 APIs
 FastAPI
 Gmail
+ChatGPT
 Pytest
 scalable
 UI
@@ -106,4 +106,5 @@ AgentLogger
 DataFrame
 agentic
 str
+Colabs
 async
