@@ -5,9 +5,6 @@ from lavague.core.agents import WebAgent
 import gradio as gr
 from PIL import Image
 
-image_queue = queue.Queue()
-
-
 class GradioAgentDemo:
     """
     Launch an agent gradio demo of lavague
@@ -65,14 +62,18 @@ class GradioAgentDemo:
         self.previous_val = None
 
     def _init_driver(self):
-        def init_driver_impl(url):
+        def init_driver_impl(url, img):
+            from selenium.webdriver.support.ui import WebDriverWait
             self.agent.action_engine.driver.get(url)
+            
+            WebDriverWait(self.agent.driver.get_driver(), 30).until(
+                lambda d: d.execute_script('return document.readyState') == 'complete'
+            )
             ret = self.agent.action_engine.driver.get_screenshot_as_png()
             ret = BytesIO(ret)
             ret = Image.open(ret)
-            self.previous_val = ret
-            image_queue.put(ret)
-            return url
+            img = ret
+            return url, img
 
         return init_driver_impl
 
@@ -95,11 +96,11 @@ class GradioAgentDemo:
             return output
 
         def process_instructions_impl(
-            objective, url_input, instructions_history, history
+            objective, url_input, image_display, instructions_history, history
         ):
             history[-1][1] = "⏳ Thinking of next steps..."
-            yield objective, url_input, instructions_history, history
-            self.agent.action_engine.set_gradio_mode_all(True, None)
+            yield objective, url_input, image_display, instructions_history, history
+            self.agent.action_engine.set_gradio_mode_all(True, objective, url_input, image_display, instructions_history, history)
             self.agent.clean_screenshot_folder = False
             yield from self.agent._run_demo(
                 objective,
@@ -107,10 +108,11 @@ class GradioAgentDemo:
                 False,
                 objective,
                 url_input,
+                image_display,
                 instructions_history,
                 history,
             )
-            return objective, url_input, instructions_history, history
+            return objective, url_input, image_display, instructions_history, history
 
         return process_instructions_impl
 
@@ -132,17 +134,14 @@ class GradioAgentDemo:
 
         return add_message
 
-    def refresh_img_dislay(self, image_display):
-        image = image_display
-        try:
-            image = image_queue.get(False)
-        except:
-            pass
-        if image is not None:
-            self.previous_val = image
-        else:
-            image = self.previous_val
-        return image
+
+    def refresh_img_dislay(self, url, image_display):
+        img = self.agent.driver.get_screenshot_as_png()
+        img = BytesIO(img)
+        img = Image.open(img)
+        img = img.resize((int(img.width / 2), int(img.height / 2)))
+        image_display = img
+        return url, image_display
 
     def launch(self, server_port=7860, share=True, debug=True):
         def toggle_to_url():
@@ -217,25 +216,19 @@ class GradioAgentDemo:
                     outputs=[chatbot, instructions_history],
                 ).then(
                     self._process_instructions(),
-                    inputs=[objective_input, url_input, instructions_history, chatbot],
-                    outputs=[objective_input, url_input, instructions_history, chatbot],
-                )
-                demo.load(
-                    fn=self.refresh_img_dislay,
-                    inputs=image_display,
-                    outputs=image_display,
-                    show_progress=False,
-                    every=1,
+                    inputs=[objective_input, url_input, image_display, instructions_history, chatbot],
+                    outputs=[objective_input, url_input, image_display, instructions_history, chatbot],
                 )
                 # Use the image_updater generator function
                 # submission handling
                 url_input.submit(
-                    self._init_driver(), inputs=[url_input], outputs=url_input
+                    self._init_driver(), inputs=[url_input, image_display], outputs=[url_input, image_display]
                 )
-                if self.agent.action_engine.driver.get_url() is not None:
-                    ret = self.agent.action_engine.driver.get_screenshot_as_png()
-                    ret = BytesIO(ret)
-                    ret = Image.open(ret)
-                    self.previous_val = ret
-                    image_queue.put(ret)
+                if self.agent.driver.get_url() is not None:
+                    demo.load(
+                        fn=self.refresh_img_dislay,
+                        inputs=[url_input, image_display],
+                        outputs=[url_input, image_display],
+                        show_progress=False,
+                    )
         demo.launch(server_port=server_port, share=True, debug=True)

@@ -222,6 +222,155 @@ class NavigationEngine(BaseEngine):
         code = response.response
         return self.extractor.extract(code)
 
+
+    def execute_instruction_gradio(self, instruction: str, action_engine: Any):
+        """
+        Generates code and executes it to answer the instruction
+
+        Args:
+            instruction (`str`): The instruction to perform
+
+        Return:
+            `bool`: True if the code was executed without error
+            `Any`: The output of navigation is always None
+        """
+
+        from selenium.webdriver.support.ui import WebDriverWait
+
+        success = False
+        action_full = ""
+        output = None
+
+        list_instructions = self.rephrase_query(instruction)
+        original_instruction = instruction
+        action_nb = 0
+        navigation_log_total = []
+
+        for action in list_instructions:
+            logging_print.debug("Rephrased instruction: " + action["action"])
+            instruction = action["action"]
+            start = time.time()
+            source_nodes = self.get_nodes(instruction)
+            end = time.time()
+            retrieval_time = end - start
+
+            llm_context = "\n".join(source_nodes)
+            success = False
+            logger = self.logger
+
+            navigation_log = {
+                "original_instruction": original_instruction,
+                "navigation_engine_input": instruction,
+                "retrieved_html": source_nodes,
+                "retrieval_time": retrieval_time,
+                "retrieval_name": self.retriever.__class__.__name__,
+            }
+
+            action_outcomes = []
+            for _ in range(self.n_attempts):
+                if success:
+                    break
+                if self.display:
+                    try:
+                        scr_path = self.driver.get_current_screenshot_folder()
+                        lst = sort_files_by_creation(scr_path)
+                        for scr in lst:
+                            img = Image.open(scr_path.as_posix() + "/" + scr)
+                            display_screenshot(img)
+                            time.sleep(0.35)
+                    except:
+                        pass
+                start = time.time()
+                prompt = self.prompt_template.format(
+                    context_str=llm_context, query_str=instruction
+                )
+                response = self.llm.complete(prompt).text
+                action = self.extractor.extract(response)
+                end = time.time()
+                action_generation_time = end - start
+                action_outcome = {
+                    "action": action,
+                    "action_generation_time": action_generation_time,
+                    "navigation_engine_full_prompt": prompt,
+                    "navigation_engine_llm": get_model_name(self.llm),
+                }
+                try:
+                    # Get information to see which elements are selected
+                    vision_data = self.driver.get_highlighted_element(action)
+                    action_full += action
+                    for item in vision_data:
+                        screenshot = item["screenshot"]
+                        screenshot = screenshot.resize((int(screenshot.width / 2), int(screenshot.height / 2)))
+                        self.image_display = screenshot
+                        yield self.objective, self.url_input, screenshot, self.instructions_history, self.history, output
+
+                    self.driver.exec_code(action)
+                    self.history[-1] = (
+                        self.history[-1][0],
+                        f"✅ Step {action_engine.curr_step}:\n{action_engine.curr_instruction}",
+                    )
+                    self.history.append((None, None))
+                    self.history[-1] = (self.history[-1][0], "⏳ Loading the page...")
+                    yield self.objective, self.url_input, self.image_display, self.instructions_history, self.history, output
+                    time.sleep(1)
+                    img = self.driver.get_screenshot_as_png()
+                    img = BytesIO(img)
+                    img = Image.open(img)
+                    img = img.resize((int(img.width / 2), int(img.height / 2)))
+                    self.image_display = img
+                    yield self.objective, self.url_input, self.image_display, self.instructions_history, self.history, output
+
+                    WebDriverWait(self.driver.get_driver(), 30).until(
+                        lambda d: d.execute_script('return document.readyState') == 'complete'
+                    )
+
+                    time.sleep(self.time_between_actions)
+
+                    success = True
+                    action_outcome["success"] = True
+                    navigation_log["vision_data"] = vision_data
+                except Exception as e:
+                    print("Navigation error:", e)
+                    action_outcome["success"] = False
+                    action_outcome["error"] = str(e)
+
+                action_outcomes.append(action_outcome)
+
+            navigation_log["action_outcomes"] = action_outcomes
+            navigation_log["action_nb"] = action_nb
+            action_nb += 1
+            navigation_log_total.append(navigation_log)
+
+        if success == False:
+            self.history[-1] = (
+                self.history[-1][0],
+                f"❌ Step {action_engine.curr_step + 1}:\n{action_engine.curr_instruction}",
+            )
+            self.history.append((None, None))
+
+        if logger:
+            log = {
+                "engine": "Navigation Engine",
+                "instruction": instruction,
+                "engine_log": navigation_log_total,
+                "success": success,
+                "output": None,
+                "code": action_full,
+            }
+
+            logger.add_log(log)
+
+        output = ActionResult(
+            instruction=instruction,
+            code=action_full,
+            success=success,
+            output=None,
+        )
+        action_engine.ret = output
+
+        yield self.objective, self.url_input, self.image_display, self.instructions_history, self.history, output.output
+
+
     def execute_instruction(self, instruction: str) -> ActionResult:
         """
         Generates code and executes it to answer the instruction
@@ -297,13 +446,6 @@ class NavigationEngine(BaseEngine):
                     if self.display:
                         for item in vision_data:
                             display_screenshot(item["screenshot"])
-                            time.sleep(0.2)
-
-                    if self.gradio_mode:
-                        from lavague.gradio import image_queue
-
-                        for item in vision_data:
-                            image_queue.put(item["screenshot"])
                             time.sleep(0.2)
 
                     self.driver.exec_code(action)

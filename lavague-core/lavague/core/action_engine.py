@@ -89,6 +89,10 @@ class ActionEngine:
             "Python Engine": self.python_engine,
             "Navigation Controls": self.navigation_control,
         }
+        self.ret = None
+        self.highlight = None
+        self.curr_step = 0
+        self.curr_instruction = ""
 
     @classmethod
     def from_context(
@@ -117,10 +121,10 @@ class ActionEngine:
             extractor,
         )
 
-    def set_gradio_mode_all(self, gradio_mode: bool, image_display: Any = None):
-        self.navigation_engine.set_gradio_mode(gradio_mode, image_display)
-        self.python_engine.set_gradio_mode(gradio_mode, image_display)
-        self.navigation_control.set_gradio_mode(gradio_mode, image_display)
+    def set_gradio_mode_all(self, gradio_mode: bool, objective, url_input, image_display, instructions_history, history):
+        self.navigation_engine.set_gradio_mode(gradio_mode, objective, url_input, image_display, instructions_history, history)
+        self.python_engine.set_gradio_mode(gradio_mode, objective, url_input, image_display, instructions_history, history)
+        self.navigation_control.set_gradio_mode(gradio_mode, objective, url_input, image_display, instructions_history, history)
 
     def set_display_all(self, display: bool):
         self.navigation_engine.set_display(display)
@@ -131,6 +135,28 @@ class ActionEngine:
         self.navigation_engine.set_logger(logger)
         self.python_engine.set_logger(logger)
         self.navigation_control.set_logger(logger)
+
+    def dispatch_instruction_gradio(self, next_engine_name: str, instruction: str):
+        """
+        Dispatch the instruction to the appropriate ActionEngine
+
+        Args:
+            next_engine_name (`str`): The name of the engine to call
+            instruction (`str`): The instruction to perform
+
+        Return:
+            `bool`: True if the code was executed without error
+            `Any`: The output of the code
+        """
+
+        next_engine = self.engines[next_engine_name]
+
+        if next_engine_name == "Navigation Engine":
+            yield from next_engine.execute_instruction_gradio(instruction, self)
+        else:
+            ret = next_engine.execute_instruction(instruction)
+            self.ret = ret
+            yield self.navigation_engine.objective, self.navigation_engine.url_input, self.navigation_engine.image_display, self.navigation_engine.instructions_history, self.navigation_engine.history, ret.output
 
     def dispatch_instruction(
         self, next_engine_name: str, instruction: str
