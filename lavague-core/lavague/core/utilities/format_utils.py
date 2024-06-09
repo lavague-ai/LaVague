@@ -116,7 +116,7 @@ def extract_next_engine(text):
 
 def extract_and_eval(string):
     # Regular expression to match a list inside a string
-    match = re.search(r"\[.*?\]", string, re.DOTALL)
+    match = re.search(r"\[.*\]", string, re.DOTALL)
     if match:
         list_string = match.group(0)
         try:
