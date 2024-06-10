@@ -93,6 +93,7 @@ class ActionEngine:
         self.highlight = None
         self.curr_step = 0
         self.curr_instruction = ""
+        self.screenshot_ratio = 1
 
     @classmethod
     def from_context(

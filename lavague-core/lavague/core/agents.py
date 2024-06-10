@@ -78,6 +78,7 @@ class WebAgent:
         self,
         objective: str = "",
         user_data=None,
+        screenshot_ratio: float = 1,
     ):
         try:
             from lavague.gradio import GradioAgentDemo
@@ -100,6 +101,7 @@ class WebAgent:
         image_display: Any = None,
         instructions_history: Any = None,
         history: Any = None,
+        screenshot_ratio: float = 1,
     ):
         """Internal run method for the gradio demo. Do not use directly. Use run instead."""
 
@@ -143,10 +145,12 @@ class WebAgent:
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
+            self.action_engine.screenshot_ratio = screenshot_ratio
             img = self.driver.get_screenshot_as_png()
             img = BytesIO(img)
             img = Image.open(img)
-            img = img.resize((int(img.width / 2), int(img.height / 2)))
+            if screenshot_ratio != 1:
+                img = img.resize((int(img.width / screenshot_ratio), int(img.height / screenshot_ratio)))
             image_display = img
 
             self.action_engine.curr_step = curr_step + 1
@@ -204,7 +208,8 @@ class WebAgent:
             img = self.driver.get_screenshot_as_png()
             img = BytesIO(img)
             img = Image.open(img)
-            img = img.resize((int(img.width / 2), int(img.height / 2)))
+            if screenshot_ratio != 1:
+                img = img.resize((int(img.width / screenshot_ratio), int(img.height / screenshot_ratio)))
             image_display = img
             yield objective_obj, url_input, image_display, instructions_history, history, output
         send_telemetry(logger.return_pandas())

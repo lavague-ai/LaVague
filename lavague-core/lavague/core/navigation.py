@@ -300,7 +300,8 @@ class NavigationEngine(BaseEngine):
                     action_full += action
                     for item in vision_data:
                         screenshot = item["screenshot"]
-                        screenshot = screenshot.resize((int(screenshot.width / 2), int(screenshot.height / 2)))
+                        if action_engine.screenshot_ratio != 1:
+                            screenshot = screenshot.resize((int(screenshot.width / action_engine.screenshot_ratio), int(screenshot.height / action_engine.screenshot_ratio)))
                         self.image_display = screenshot
                         yield self.objective, self.url_input, screenshot, self.instructions_history, self.history, output
 
@@ -316,7 +317,8 @@ class NavigationEngine(BaseEngine):
                     img = self.driver.get_screenshot_as_png()
                     img = BytesIO(img)
                     img = Image.open(img)
-                    img = img.resize((int(img.width / 2), int(img.height / 2)))
+                    if action_engine.screenshot_ratio != 1:
+                        img = img.resize((int(img.width / action_engine.screenshot_ratio), int(img.height / action_engine.screenshot_ratio)))
                     self.image_display = img
                     yield self.objective, self.url_input, self.image_display, self.instructions_history, self.history, output
 

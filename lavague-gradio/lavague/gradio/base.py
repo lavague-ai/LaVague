@@ -54,12 +54,14 @@ class GradioAgentDemo:
         instructions: Optional[List[str]],
         agent: WebAgent,
         user_data=None,
+        screenshot_ratio: float = 1,
     ):
         self.objective = objective
         self.instructions = instructions
         self.agent = agent
         self.user_data = user_data
         self.previous_val = None
+        self.screenshot_ratio = screenshot_ratio
 
     def _init_driver(self):
         def init_driver_impl(url, img):
@@ -111,6 +113,7 @@ class GradioAgentDemo:
                 image_display,
                 instructions_history,
                 history,
+                self.screenshot_ratio
             )
             return objective, url_input, image_display, instructions_history, history
 
@@ -139,7 +142,8 @@ class GradioAgentDemo:
         img = self.agent.driver.get_screenshot_as_png()
         img = BytesIO(img)
         img = Image.open(img)
-        img = img.resize((int(img.width / 2), int(img.height / 2)))
+        if self.screenshot_ratio != 1:
+            img = img.resize((int(img.width / self.screenshot_ratio), int(img.height / self.screenshot_ratio)))
         image_display = img
         return url, image_display
 
