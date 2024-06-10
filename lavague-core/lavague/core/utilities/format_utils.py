@@ -3,7 +3,7 @@ import inspect
 import re
 import ast
 
-DEFAULT_ENGINES: List[str] = ["Navigation Controls", "Python Engine", "Navigation Engine"]
+DEFAULT_ENGINES: List[str] = ["Navigation Controls", "Python Engine", "Navigation Engine", "COMPLETE"]
 
 class VariableVisitor(ast.NodeVisitor):
     """Helper class to visit AST nodes and extract variables assigned in the code."""
