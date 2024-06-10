@@ -20,9 +20,9 @@ selenium_driver = SeleniumDriver(headless=True, url="https://huggingface.co/")
 nav_engine = NavigationEngine(selenium_driver)
 ```
 
-### RAG
+### Retrieval
 
-The first task handled by the Navigation Engine is to perform RAG on the web page to collect the most relevant chunks, or nodes, of HTML code.
+The first task handled by the Navigation Engine is to perform retrieval on the web page to collect the most relevant chunks, or nodes, of HTML code.
 
 The Navigation Engine's embedding model is used at this stage (here we use the default embedding model, OpenAI's `text-embedding-3-large`).
 
@@ -46,7 +46,7 @@ for node in nodes:
 
 ### Generating automation code
 
-We can now provides these nodes as context for our LLM (here we use the default LLM, `gpt-4o`) when we generate the appropriate code for our instruction.
+We can now provide these nodes as context for our LLM (here, we use the default LLM, `gpt-4o`) when we generate the appropriate code for our instruction.
 
 ```python
 context = "\n".join(nodes)
@@ -64,10 +64,10 @@ The LLM was queried with our default Navigation Engine prompt template which you
 
 ![navigation engine prompt](../../assets/nav-engine-prompt-template.png)
 
-We see that prompt is made up of three parts:
+We see that the prompt is made up of three parts:
 - The `driver capability` or driver prompt template
 - The `context string`, or retrieved nodes
-- The `query` itself - this will the original instruction received by the Navigation Engine after passing through the `rephrase_query` method which standardizes and optimizes instructions for best AI Performance
+- The `query` itself - this will be the original instruction received by the Navigation Engine after passing through the `rephrase_query` method which standardizes and optimizes instructions for the best AI Performance
 
 We can see the default Selenium driver prompt template with the following code (or view the full code [here](https://github.com/lavague-ai/LaVague/blob/9764805bd756d15c83943baa968d35f979242314/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177)):
 
