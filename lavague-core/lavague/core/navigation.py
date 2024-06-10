@@ -222,7 +222,6 @@ class NavigationEngine(BaseEngine):
         code = response.response
         return self.extractor.extract(code)
 
-
     def execute_instruction_gradio(self, instruction: str, action_engine: Any):
         """
         Generates code and executes it to answer the instruction
@@ -301,9 +300,27 @@ class NavigationEngine(BaseEngine):
                     for item in vision_data:
                         screenshot = item["screenshot"]
                         if action_engine.screenshot_ratio != 1:
-                            screenshot = screenshot.resize((int(screenshot.width / action_engine.screenshot_ratio), int(screenshot.height / action_engine.screenshot_ratio)))
+                            screenshot = screenshot.resize(
+                                (
+                                    int(
+                                        screenshot.width
+                                        / action_engine.screenshot_ratio
+                                    ),
+                                    int(
+                                        screenshot.height
+                                        / action_engine.screenshot_ratio
+                                    ),
+                                )
+                            )
                         self.image_display = screenshot
-                        yield self.objective, self.url_input, screenshot, self.instructions_history, self.history, output
+                        yield (
+                            self.objective,
+                            self.url_input,
+                            screenshot,
+                            self.instructions_history,
+                            self.history,
+                            output,
+                        )
 
                     self.driver.exec_code(action)
                     self.history[-1] = (
@@ -312,18 +329,38 @@ class NavigationEngine(BaseEngine):
                     )
                     self.history.append((None, None))
                     self.history[-1] = (self.history[-1][0], "⏳ Loading the page...")
-                    yield self.objective, self.url_input, self.image_display, self.instructions_history, self.history, output
+                    yield (
+                        self.objective,
+                        self.url_input,
+                        self.image_display,
+                        self.instructions_history,
+                        self.history,
+                        output,
+                    )
                     time.sleep(1)
                     img = self.driver.get_screenshot_as_png()
                     img = BytesIO(img)
                     img = Image.open(img)
                     if action_engine.screenshot_ratio != 1:
-                        img = img.resize((int(img.width / action_engine.screenshot_ratio), int(img.height / action_engine.screenshot_ratio)))
+                        img = img.resize(
+                            (
+                                int(img.width / action_engine.screenshot_ratio),
+                                int(img.height / action_engine.screenshot_ratio),
+                            )
+                        )
                     self.image_display = img
-                    yield self.objective, self.url_input, self.image_display, self.instructions_history, self.history, output
+                    yield (
+                        self.objective,
+                        self.url_input,
+                        self.image_display,
+                        self.instructions_history,
+                        self.history,
+                        output,
+                    )
 
                     WebDriverWait(self.driver.get_driver(), 30).until(
-                        lambda d: d.execute_script('return document.readyState') == 'complete'
+                        lambda d: d.execute_script("return document.readyState")
+                        == "complete"
                     )
 
                     time.sleep(self.time_between_actions)
@@ -370,8 +407,14 @@ class NavigationEngine(BaseEngine):
         )
         action_engine.ret = output
 
-        yield self.objective, self.url_input, self.image_display, self.instructions_history, self.history, output.output
-
+        yield (
+            self.objective,
+            self.url_input,
+            self.image_display,
+            self.instructions_history,
+            self.history,
+            output.output,
+        )
 
     def execute_instruction(self, instruction: str) -> ActionResult:
         """

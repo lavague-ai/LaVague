@@ -122,10 +122,39 @@ class ActionEngine:
             extractor,
         )
 
-    def set_gradio_mode_all(self, gradio_mode: bool, objective, url_input, image_display, instructions_history, history):
-        self.navigation_engine.set_gradio_mode(gradio_mode, objective, url_input, image_display, instructions_history, history)
-        self.python_engine.set_gradio_mode(gradio_mode, objective, url_input, image_display, instructions_history, history)
-        self.navigation_control.set_gradio_mode(gradio_mode, objective, url_input, image_display, instructions_history, history)
+    def set_gradio_mode_all(
+        self,
+        gradio_mode: bool,
+        objective,
+        url_input,
+        image_display,
+        instructions_history,
+        history,
+    ):
+        self.navigation_engine.set_gradio_mode(
+            gradio_mode,
+            objective,
+            url_input,
+            image_display,
+            instructions_history,
+            history,
+        )
+        self.python_engine.set_gradio_mode(
+            gradio_mode,
+            objective,
+            url_input,
+            image_display,
+            instructions_history,
+            history,
+        )
+        self.navigation_control.set_gradio_mode(
+            gradio_mode,
+            objective,
+            url_input,
+            image_display,
+            instructions_history,
+            history,
+        )
 
     def set_display_all(self, display: bool):
         self.navigation_engine.set_display(display)
@@ -157,7 +186,14 @@ class ActionEngine:
         else:
             ret = next_engine.execute_instruction(instruction)
             self.ret = ret
-            yield self.navigation_engine.objective, self.navigation_engine.url_input, self.navigation_engine.image_display, self.navigation_engine.instructions_history, self.navigation_engine.history, ret.output
+            yield (
+                self.navigation_engine.objective,
+                self.navigation_engine.url_input,
+                self.navigation_engine.image_display,
+                self.navigation_engine.instructions_history,
+                self.navigation_engine.history,
+                ret.output,
+            )
 
     def dispatch_instruction(
         self, next_engine_name: str, instruction: str

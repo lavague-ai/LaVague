@@ -3,7 +3,13 @@ import inspect
 import re
 import ast
 
-DEFAULT_ENGINES: List[str] = ["Navigation Controls", "Python Engine", "Navigation Engine", "COMPLETE"]
+DEFAULT_ENGINES: List[str] = [
+    "Navigation Controls",
+    "Python Engine",
+    "Navigation Engine",
+    "COMPLETE",
+]
+
 
 class VariableVisitor(ast.NodeVisitor):
     """Helper class to visit AST nodes and extract variables assigned in the code."""
@@ -113,12 +119,11 @@ def extract_next_engine(text: str, next_engines: List[str] = DEFAULT_ENGINES) ->
         if next_engine_match:
             extracted_text = next_engine_match.group(1).strip()
             # To avoid returning a non-existent engine
-            
+
             for engine in next_engines:
                 if engine.lower() in extracted_text.lower():
                     return engine
-                
-            
+
     raise ValueError(f"No next engine found in the text: {text}")
 
 

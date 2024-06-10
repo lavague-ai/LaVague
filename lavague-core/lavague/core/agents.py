@@ -133,7 +133,7 @@ class WebAgent:
         logger.clear_logs()
 
         WebDriverWait(self.driver.get_driver(), 30).until(
-            lambda d: d.execute_script('return document.readyState') == 'complete'
+            lambda d: d.execute_script("return document.readyState") == "complete"
         )
         for curr_step in range(n_steps):
             current_state, past = st_memory.get_state()
@@ -150,7 +150,12 @@ class WebAgent:
             img = BytesIO(img)
             img = Image.open(img)
             if screenshot_ratio != 1:
-                img = img.resize((int(img.width / screenshot_ratio), int(img.height / screenshot_ratio)))
+                img = img.resize(
+                    (
+                        int(img.width / screenshot_ratio),
+                        int(img.height / screenshot_ratio),
+                    )
+                )
             image_display = img
 
             self.action_engine.curr_step = curr_step + 1
@@ -162,7 +167,14 @@ class WebAgent:
                     f"⏳ Step {curr_step + 1}:\n{instruction}",
                 )
 
-            yield objective_obj, url_input, image_display, instructions_history, history, output
+            yield (
+                objective_obj,
+                url_input,
+                image_display,
+                instructions_history,
+                history,
+                output,
+            )
 
             if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                 output = instruction
@@ -171,7 +183,6 @@ class WebAgent:
                 logger.add_log(obs)
                 logger.end_step()
                 break
-
 
             yield from self.action_engine.dispatch_instruction_gradio(
                 next_engine_name, instruction
@@ -209,9 +220,21 @@ class WebAgent:
             img = BytesIO(img)
             img = Image.open(img)
             if screenshot_ratio != 1:
-                img = img.resize((int(img.width / screenshot_ratio), int(img.height / screenshot_ratio)))
+                img = img.resize(
+                    (
+                        int(img.width / screenshot_ratio),
+                        int(img.height / screenshot_ratio),
+                    )
+                )
             image_display = img
-            yield objective_obj, url_input, image_display, instructions_history, history, output
+            yield (
+                objective_obj,
+                url_input,
+                image_display,
+                instructions_history,
+                history,
+                output,
+            )
         send_telemetry(logger.return_pandas())
         url_input = self.action_engine.driver.get_url()
         if output is not None:
@@ -228,7 +251,14 @@ class WebAgent:
                 else:
                     history[-1] = (history[-1][0], "❌ Failed to reach objective")
 
-        yield objective_obj, url_input, image_display, instructions_history, history, output
+        yield (
+            objective_obj,
+            url_input,
+            image_display,
+            instructions_history,
+            history,
+            output,
+        )
 
     def run(
         self, objective: str, user_data=None, display: bool = False
