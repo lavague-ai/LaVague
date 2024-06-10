@@ -22,13 +22,11 @@ You can take a quick look at this feature in the video below:
 To launch a LaVague Agent demo, we set up our Agent as in the usual way, as seen in the [quick tour guide](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/). Once we have our Agent, we can run the `agent.demo()` method to launch our Gradio Agent Demo.
 
 ```python
-from lavague.drivers.selenium import SeleniumDriver
-from lavague.core import ActionEngine, WorldModel
-from lavague.core.agents import WebAgent
-
-selenium_driver = SeleniumDriver(headless=True)
-action_engine = ActionEngine(selenium_driver)
+# We should set no_load_strategy to True when using the demo() method
+driver = SeleniumDriver(headless=True, no_load_strategy=True)
+action_engine = ActionEngine(driver)
 world_model = WorldModel()
+
 agent = WebAgent(world_model, action_engine)
 
 # Set our URL
@@ -37,6 +35,13 @@ agent.get("https://huggingface.co/docs")
 # Launch our demo with our objective
 agent.demo("Go on the quicktour of PEFT")
 ```
+
+!!! note "Gradio Agent Demo no_load_strategy"
+  For faster performance when using the `agent.demo()` method, you should set the `no_load_strategy` Driver option to True.
+
+  This turns off Selenium's default load strategy that waits for the page to be fully loaded before giving you back control which was causing a significant slowdown with our `Gradio Agent Demo`. Instead, LaVague will detect when the page is loaded.
+
+  This option is not recommended with the `agent.run()` method however.
 
 ### Optional arguments
 
