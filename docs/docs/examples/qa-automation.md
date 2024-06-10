@@ -348,12 +348,13 @@ Feature: Login
 ### The main loop
 
 Our main logic consists of the following steps:
+
 - parse test cases
-- for each scenarios: 
+- for each scenario: 
     - run the test case with LaVague
     - record page state and generate the assert statement
     - save the code in a temporary folder
-- merge all temporary code in a single file
+- merge all temporary code in a single `pytest-bdd` file
 
 ```python
 def main(url, feature_file):
@@ -517,10 +518,9 @@ Assuming you use this default configuration, you can simply use `pytest -v tests
 
 **Ideas for going further**:
 
-- Handle multiple scenarios per feature file
-- Handle other testing frameworks
-- Integrate with existing source of tests
-- Run tests directly from product specs on JIRA
+- Add support for other testing frameworks
+- Generate Gherkin file from JIRA tickets
+- Integrate LaVague in the life cycle of your tests
 
 ## Need help ? Found a bug ?
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to reach our core team and get support!
