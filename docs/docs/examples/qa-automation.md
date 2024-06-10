@@ -157,7 +157,7 @@ pip install lavague
 **Download the script**
 
 ```bash
-wget https://github.com/lavague-ai/LaVague/blob/main/examples/qa-automation/lavague_qa_automation.py
+wget https://github.com/lavague-ai/LaVague/blob/main/examples/qa-automation/qa_automation.py
 ```
 
 **Execute the script**
