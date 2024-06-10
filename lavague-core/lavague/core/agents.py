@@ -37,6 +37,7 @@ class WebAgent:
         action_engine: ActionEngine,
         n_steps: int = 10,
         clean_screenshot_folder: bool = True,
+        logger: AgentLogger = None,
     ):
         self.driver: BaseDriver = action_engine.driver
         self.action_engine: ActionEngine = action_engine
@@ -49,7 +50,10 @@ class WebAgent:
 
         self.clean_screenshot_folder = clean_screenshot_folder
 
-        self.logger: AgentLogger = AgentLogger()
+        if logger is None:
+            self.logger: AgentLogger = AgentLogger()
+        else:
+            self.logger = logger
 
         self.action_engine.set_logger_all(self.logger)
         self.world_model.set_logger(self.logger)
