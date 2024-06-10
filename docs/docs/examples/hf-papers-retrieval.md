@@ -9,7 +9,7 @@ This notebook shows how one can use LaVague to create an agent that can outperfo
 
 We will create the agent and serve it through a [Gradio](https://huggingface.co/papers) interface.
 
-You can see in the demo below how our agent is able to outperform both Gemini and ChatGPT to answer the query `"What is the most trendy recent paper on LLava on Hugging Face papers? Provide the date and a summary of the paper"`.
+You can see in the demo below how our agent is able to outperform both Gemini and ChatGPT to answer the query `"What is the most trendy recent paper on text-to-video on Hugging Face papers? Provide the date and a summary of the paper"`.
 
 <figure class="video_container">
   <video controls="true" allowfullscreen="true">
