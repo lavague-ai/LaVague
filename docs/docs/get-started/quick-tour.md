@@ -73,15 +73,24 @@ The Driver component is used to perform actions on web browsers and get informat
 
 We currently provide a Selenium Driver component by default, as well as a Playwright Driver option.
 
-#### 🍪 Plugging in an existing browser session
+!!! tip "Avoiding issues around logins"
+    You may experience difficulties using LaVague for logins due to bot protections.
 
-You can leverage your cookies of your usual browser session, for example, to avoid bot protections around log-ins for sites you are already logged in to on your browser session, by adding a path to your Chrome profile directory as an argument to `user_data_dir` when initializing your browser. If not supplied, Chrome starts a fresh session.
+    Here are a couple of tips to avoid these issues when using LaVague:
 
-#### Headless vs non-headless mode
+    ### Manual login
 
-In the code example above, we set`headless` mode to `False`. This means the driver will open a browser on your machine where you can watch in real-time the actions the driver is performing. 
+    By creating a driver in non-headless mode, with the option `headless=False`, you can manually log into the website in your driver's browser window after launching it with the `agent.get(URL)` command.
 
-By default, this option is set to `True`, which consumes less resources and can be useful when running LaVague in an environment where you don't have access to the browser and can be combined with passing the `agent.run()` method a `display=True` argument to have screenshots regular displayed so you can still track the browser's progression.
+    You can enforce a delay before your program runs the next command by using `time.sleep()` with the `time` package.
+
+    Then you can continue using the session, now logged into your site, with the `agent.run(OBJECTIVE)` commands.
+
+    ### 🍪 Plugging in an existing browser session
+
+    Alternatively, you can use LaVague with your usual browser session to leverage your session's remembered logins. To do this, you need to add the path to your Chrome profile directory as an argument to `user_data_dir` when initializing your browser. 
+    
+    If not supplied, Chrome starts a fresh session.
 
 For more information on the Driver component see our [Driver module guide](../learn/browser-drivers.md)
 
@@ -89,15 +98,40 @@ For more information on the Driver component see our [Driver module guide](../le
 
 Next up, let's consider the Action Engine component. This component receives a natural language text instruction and generates the action needed to carry out this instruction. 
 
-In our example, the Action Engine will perform RAG and generates the code for the action using the default embedding and Large Language Models (OpenAI's text-embedding-3-large & GPT-4o). To find out more about the Action Engine and how to use custom models see our [Action Engine guide](../learn/action-engine.md) or [customization guide](./customization.md).
+In our example, the Action Engine will perform RAG and generates the code for the action using the default embedding and Large Language Models (OpenAI's text-embedding-3-large & GPT-4o). 
+
+To create an Action Engine with a different `LLM` and `embedding model` you can pass any any `LlamaIndex Embedding` or `LlamaINDEX llm` object` as arguments to your Action Engine, for example:
+
+```python
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.llms.groq import Groq
+
+llm = Groq(model="mixtral-8x7b-32768")
+
+embedding = HuggingFaceEmbedding(
+    model_name="BAAI/bge-small-en-v1.5"
+)
+
+action_engine = ActionEngine(driver=driver, llm=llm, embedding=embedding)
+```
+
+To find out more about the Action Engine and how to use custom models see our [Action Engine guide](../learn/action-engine.md) or [customization guide](./customization.md).
 
 ### World Model
 
 The World Model is responsible for converting the user's global objective into the next instruction for the Action Engine to carry out based on visual and textual information.
 
-The World Model uses a multi-modal model to do this conversion. This is GPT-4o by default, but you can try using it with custom models in our [customization guide](./customization.md).
+The World Model uses a multi-modal model to do this conversion. We use GPT-4o by default, but you can replace the multi-modal LLM with any `LLamaIndex multi-modeal LLM` when initializing your World Model with the following code:
 
-To find out more about the World Model, see our [World Model guide](../learn/world-model.md).
+```python
+from llama_index.multi_modal_llms.gemini import GeminiMultiModal
+
+mm_llm = GeminiMultiModal(model_name="models/gemini-1.5-pro-latest"),
+
+world_model = WorldModel(mm_llm=mm_llm)
+```
+
+To find out more about the World Model, see our [World Model guide](../learn/world-model.md), and for more information on using custom models, see our [customization guide](./customization.md).
 
 ### Web Agent
 
