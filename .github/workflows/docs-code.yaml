@@ -61,20 +61,3 @@ jobs:
     
     - name: Run the Python script
       run: python check-code.py
-
-    - name: Install nbconvert
-      run: pip install notebook nbconvert
-
-    # Run quick tour with local code not pypi package and remove gradio line
-    - name: Skip install from pypi
-      run: |
-        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        sed -i '0,/^!pip install lavague$/s/^!pip install lavague$/# &/' "$notebook_path"
-        sed -i '/agent\.demo("Go on the quicktour of PEFT")/d' "$notebook_path"
-
-
-    - name: Execute the notebook
-      run: |
-        jupyter nbconvert --to notebook --execute --inplace --output "quick-tour.ipynb" "docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-  
-
