@@ -38,7 +38,7 @@ We start here by pulling extra knowledge about Hugging Face's Papers pages to en
 You can learn more about building Agents with LaVague in our [webinar](https://www.youtube.com/watch?v=bNE4s8h3CIc).
 
 ```bash
-wget https://github.com/lavague-ai/LaVague/blob/main/examples/knowledge/hf_knowledge.txt
+wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 ```
 
 We can now define our agent and run it to create a Gradio demo.
