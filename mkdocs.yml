@@ -17,6 +17,7 @@ theme:
     - content.tabs.link
     - navigation.sections
     - navigation.indexes
+    - content.code.copy
     
   logo: assets/logo.png
   favicon: assets/logo.png
