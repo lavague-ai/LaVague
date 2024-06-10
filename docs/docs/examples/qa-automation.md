@@ -520,7 +520,7 @@ Assuming you use this default configuration, you can simply use `pytest -v tests
 
 - Add support for other testing frameworks
 - Generate Gherkin file from JIRA tickets
-- Integrate LaVague in the lifecycle of your tests
+- Integrate LaVague in the life cycle of your tests
 
 ## Need help ? Found a bug ?
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to reach our core team and get support!
