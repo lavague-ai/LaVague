@@ -83,7 +83,7 @@ class WebAgent:
         try:
             from lavague.gradio import GradioAgentDemo
 
-            grad = GradioAgentDemo(objective, None, self, user_data)
+            grad = GradioAgentDemo(objective, None, self, user_data, screenshot_ratio)
             grad.launch()
         except ImportError:
             raise ImportError(
