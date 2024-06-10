@@ -37,11 +37,11 @@ agent.demo("Go on the quicktour of PEFT")
 ```
 
 !!! note "Gradio Agent Demo no_load_strategy"
-  For faster performance when using the `agent.demo()` method, you should set the `no_load_strategy` Driver option to True.
+    For faster performance when using the `agent.demo()` method, you should set the `no_load_strategy` Driver option to True.
 
-  This turns off Selenium's default load strategy that waits for the page to be fully loaded before giving you back control which was causing a significant slowdown with our `Gradio Agent Demo`. Instead, LaVague will detect when the page is loaded.
+    This turns off Selenium's default load strategy that waits for the page to be fully loaded before giving you back control which was causing a significant slowdown with our `Gradio Agent Demo`. Instead, LaVague will detect when the page is loaded.
 
-  This option is not recommended with the `agent.run()` method however.
+    This option is not recommended with the `agent.run()` method however.
 
 ### Optional arguments
 
