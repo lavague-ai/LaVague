@@ -51,12 +51,31 @@ agent.run("Go on the quicktour of PEFT")
 
 ![qt_output](../../assets/demo_agent_hf.gif)
 
-You can also launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
+You can also use LaVague to launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
 
 ```python
+# We should set no_load_strategy to True when using the demo() method
+driver = SeleniumDriver(headless=True, no_load_strategy=True)
+action_engine = ActionEngine(driver)
+world_model = WorldModel()
+
+# Create Web Agent
+agent = WebAgent(world_model, action_engine)
+
+# Set URL
+agent.get("https://huggingface.co/docs")
+
 # Launch the agent in the Agent Gradio Demo mode
 agent.demo("Go on the quicktour of PEFT")
 ```
+
+!!! note "Gradio Agent Demo no_load_strategy"
+  For faster performance when using the `agent.demo()` method, you should set the `no_load_strategy` Driver option to True.
+
+  This turns off Selenium's default load strategy that waits for the page to be fully loaded before giving you back control which was causing a significant slowdown with our `Gradio Agent Demo`. Instead, LaVague will detect when the page is loaded.
+
+  This option is not recommended with the `agent.run()` method however.
+
 You can take a quick look at the `demo` feature in the video below:
 
 <figure class="video_container">

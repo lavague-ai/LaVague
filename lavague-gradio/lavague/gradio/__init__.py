@@ -1,1 +1,1 @@
-from lavague.gradio.base import GradioAgentDemo, image_queue
+from lavague.gradio.base import GradioAgentDemo

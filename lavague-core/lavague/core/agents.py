@@ -78,11 +78,12 @@ class WebAgent:
         self,
         objective: str = "",
         user_data=None,
+        screenshot_ratio: float = 1,
     ):
         try:
             from lavague.gradio import GradioAgentDemo
 
-            grad = GradioAgentDemo(objective, None, self, user_data)
+            grad = GradioAgentDemo(objective, None, self, user_data, screenshot_ratio)
             grad.launch()
         except ImportError:
             raise ImportError(
@@ -97,17 +98,20 @@ class WebAgent:
         display: bool = False,
         objective_obj: Any = None,
         url_input: Any = None,
+        image_display: Any = None,
         instructions_history: Any = None,
         history: Any = None,
+        screenshot_ratio: float = 1,
     ):
         """Internal run method for the gradio demo. Do not use directly. Use run instead."""
-        from lavague.gradio import image_queue
+
+        from selenium.webdriver.support.ui import WebDriverWait
 
         driver: BaseDriver = self.driver
         logger = self.logger
         n_steps = self.n_steps
         self.action_engine.set_display_all(display)
-        output = ""
+        output = None
         success = True
 
         try:
@@ -127,6 +131,10 @@ class WebAgent:
         obs = driver.get_obs()
 
         logger.clear_logs()
+
+        WebDriverWait(self.driver.get_driver(), 30).until(
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
         for curr_step in range(n_steps):
             current_state, past = st_memory.get_state()
 
@@ -137,18 +145,36 @@ class WebAgent:
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
+            self.action_engine.screenshot_ratio = screenshot_ratio
             img = self.driver.get_screenshot_as_png()
             img = BytesIO(img)
             img = Image.open(img)
-            image_queue.put(img)
+            if screenshot_ratio != 1:
+                img = img.resize(
+                    (
+                        int(img.width / screenshot_ratio),
+                        int(img.height / screenshot_ratio),
+                    )
+                )
+            image_display = img
 
-            if instruction.find("[NONE]") == -1:
+            self.action_engine.curr_step = curr_step + 1
+            self.action_engine.curr_instruction = instruction
+
+            if instruction.find("[NONE]") == -1 and next_engine_name != "COMPLETE":
                 history[-1] = (
                     history[-1][0],
-                    f"⏳ Step {curr_step + 1}:\n{instruction}...",
+                    f"⏳ Step {curr_step + 1}:\n{instruction}",
                 )
 
-            yield objective_obj, url_input, instructions_history, history, output
+            yield (
+                objective_obj,
+                url_input,
+                image_display,
+                instructions_history,
+                history,
+                output,
+            )
 
             if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                 output = instruction
@@ -158,43 +184,57 @@ class WebAgent:
                 logger.end_step()
                 break
 
-            action_result = self.action_engine.dispatch_instruction(
+            yield from self.action_engine.dispatch_instruction_gradio(
                 next_engine_name, instruction
             )
 
-            success = action_result.success
-            output = action_result.output
+            success = self.action_engine.ret.success
+            output = self.action_engine.ret.output
 
             st_memory.update_state(
                 instruction,
                 next_engine_name,
-                action_result.success,
-                action_result.output,
+                success,
+                output,
             )
-
-            img = self.driver.get_screenshot_as_png()
-            img = BytesIO(img)
-            img = Image.open(img)
-            image_queue.put(img)
 
             logger.add_log(obs)
             logger.end_step()
 
             obs = driver.get_obs()
+            if next_engine_name != "Navigation Engine":
+                if success:
+                    history[-1] = (
+                        history[-1][0],
+                        f"✅ Step {curr_step + 1}:\n{instruction}",
+                    )
+                else:
+                    history[-1] = (
+                        history[-1][0],
+                        f"❌ Step {curr_step + 1}:\n{instruction}",
+                    )
+                history.append((None, None))
             url_input = self.action_engine.driver.get_url()
-            if success:
-                history[-1] = (
-                    history[-1][0],
-                    f"✅ Step {curr_step + 1}:\n{instruction}",
-                )
-            else:
-                history[-1] = (
-                    history[-1][0],
-                    f"❌ Step {curr_step + 1}:\n{instruction}",
-                )
-            history.append((None, None))
             history[-1] = (history[-1][0], "⏳ Thinking of next steps...")
-            yield objective_obj, url_input, instructions_history, history, output
+            img = self.driver.get_screenshot_as_png()
+            img = BytesIO(img)
+            img = Image.open(img)
+            if screenshot_ratio != 1:
+                img = img.resize(
+                    (
+                        int(img.width / screenshot_ratio),
+                        int(img.height / screenshot_ratio),
+                    )
+                )
+            image_display = img
+            yield (
+                objective_obj,
+                url_input,
+                image_display,
+                instructions_history,
+                history,
+                output,
+            )
         send_telemetry(logger.return_pandas())
         url_input = self.action_engine.driver.get_url()
         if output is not None:
@@ -211,7 +251,14 @@ class WebAgent:
                 else:
                     history[-1] = (history[-1][0], "❌ Failed to reach objective")
 
-        yield objective_obj, url_input, instructions_history, history, output
+        yield (
+            objective_obj,
+            url_input,
+            image_display,
+            instructions_history,
+            history,
+            output,
+        )
 
     def run(
         self, objective: str, user_data=None, display: bool = False

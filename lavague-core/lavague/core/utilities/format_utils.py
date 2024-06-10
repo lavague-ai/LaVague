@@ -3,6 +3,13 @@ import inspect
 import re
 import ast
 
+DEFAULT_ENGINES: List[str] = [
+    "Navigation Controls",
+    "Python Engine",
+    "Navigation Engine",
+    "COMPLETE",
+]
+
 
 class VariableVisitor(ast.NodeVisitor):
     """Helper class to visit AST nodes and extract variables assigned in the code."""
@@ -102,7 +109,7 @@ def extract_world_model_instruction(text):
     raise ValueError("No instruction found in the text.")
 
 
-def extract_next_engine(text):
+def extract_next_engine(text: str, next_engines: List[str] = DEFAULT_ENGINES) -> str:
     # Use a regular expression to find the content after "Next engine:"
 
     next_engine_patterns = [r"Next engine:\s*(.*)", r"### Next Engine:\s*(.*)"]
@@ -110,13 +117,19 @@ def extract_next_engine(text):
     for pattern in next_engine_patterns:
         next_engine_match = re.search(pattern, text)
         if next_engine_match:
-            return next_engine_match.group(1).strip()
-    raise ValueError("No next engine found in the text.")
+            extracted_text = next_engine_match.group(1).strip()
+            # To avoid returning a non-existent engine
+
+            for engine in next_engines:
+                if engine.lower() in extracted_text.lower():
+                    return engine
+
+    raise ValueError(f"No next engine found in the text: {text}")
 
 
 def extract_and_eval(string):
     # Regular expression to match a list inside a string
-    match = re.search(r"\[.*?\]", string, re.DOTALL)
+    match = re.search(r"\[.*\]", string, re.DOTALL)
     if match:
         list_string = match.group(0)
         try:
