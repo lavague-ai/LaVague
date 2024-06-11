@@ -6,10 +6,10 @@ from llama_index.core.multi_modal_llms import MultiModalLLM
 from llama_index.core import SimpleDirectoryReader
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
-from gpt_index import GPTCache
+from functools import lru_cache
 import time
 import yaml
-import hashlib
+
 WORLD_MODEL_GENERAL_EXAMPLES = """
 Objective:  Go to the first issue you can find
 Previous instructions:
@@ -286,7 +286,6 @@ class WorldModel(ABC, Loggable):
     def __init__(
         self,
         mm_llm: MultiModalLLM = None,
-        cache: GPTCache = None,
         prompt_template: PromptTemplate = WORLD_MODEL_PROMPT_TEMPLATE,
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
         logger: AgentLogger = None,
@@ -294,7 +293,6 @@ class WorldModel(ABC, Loggable):
         if mm_llm is None:
             mm_llm = get_default_context().mm_llm
         self.mm_llm: MultiModalLLM = mm_llm
-        self.cache: GPTCache = cache or GPTCache()
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
             examples=examples
         )
@@ -315,6 +313,7 @@ class WorldModel(ABC, Loggable):
             knowledge = file.read()
         self.prompt_template.kwargs["examples"] += knowledge
 
+    @lru_cache(maxsize=128)
     def get_instruction(
         self,
         objective: str,
@@ -324,7 +323,6 @@ class WorldModel(ABC, Loggable):
     ) -> str:
         """Use GPT*V to generate instruction from the current state and objective."""
         mm_llm = self.mm_llm
-        cache = self.cache
         logger = self.logger
 
         previous_instructions = past["previous_instructions"]
@@ -346,18 +344,10 @@ class WorldModel(ABC, Loggable):
             current_state=current_state_str,
         )
 
-        cache_key = hashlib.sha256(prompt.encode('utf-8')).hexdigest()
-
-        cached_result = cache.get(cache_key)
-        if cached_result is not None:
-            return cached_result
-
         start = time.time()
-        mm_llm_output = mm_llm.complete(
-            prompt, image_documents=image_documents).text
+        mm_llm_output = mm_llm.complete(prompt, image_documents=image_documents).text
         end = time.time()
         world_model_inference_time = end - start
-        cache.add(cache_key, mm_llm_output)
 
         if logger:
             log = {
