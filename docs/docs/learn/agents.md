@@ -2,7 +2,7 @@
 
 Web Agents wrap around and combine all our key components to allow user to easily automate the actions needed to achieve an objective. Web agents are made up of:
 
-- A [World Model](./world-model.md): Responsible for providing the next natural lanaguage instruction needed to eventually reach our objective
+- A [World Model](./world-model.md): Responsible for providing the next natural language instruction needed to eventually reach our objective
 - An [Action Engine](./action-engine.md) (and its [driver](./browser-drivers.md)): Responsible for turning instructions into actions and executing them
 - Short Term Memory: Provides information about past actions to be considered by the World Model
 - A [logger](./local-log.md): Logs information about the last agent run
@@ -50,7 +50,7 @@ It returns a `ActionResultobject` containing:
 - success: boolean of if the objective was achieved
 - output: the output if any (for example information retrieved from a website)
 
-If you are using `non-headless` mode, you will be able to see these actions performed in real-time in your broswer window. You can alternatively use the `display` to visualize updated screenshots as the actions are performed if you are using `headless` mode. If not, you will not be able to visualize the navigation taking place in your graphical interface, but will still receieve the output of the agent's series of actions.
+If you are using `non-headless` mode, you will be able to see these actions performed in real-time in your browser window. You can alternatively use the `display` to visualize updated screenshots as the actions are performed if you are using `headless` mode. If not, you will not be able to visualize the navigation taking place in your graphical interface, but will still receive the output of the agent's series of actions.
 
 #### Method arguments:
 
