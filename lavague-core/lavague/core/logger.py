@@ -50,34 +50,39 @@ class AgentLogger:
         df = pd.DataFrame(self.logs)
         df["screenshots"] = df["screenshots_path"].apply(load_images_from_folder)
         return df
-    
+
+
 class LocalLogger(AgentLogger):
-    def __init__(self, log_file_path: str, ignore_keys:list[str] = None):
+    def __init__(self, log_file_path: str, ignore_keys: list[str] = None):
         self.log_file_path = log_file_path
         self.ignore_keys = ignore_keys
         if self.ignore_keys is None:
             self.ignore_keys = ["screenshots", "html"]
         super().__init__()
-        with open(self.log_file_path, 'w') as f:
-            f.write('')
+        with open(self.log_file_path, "w") as f:
+            f.write("")
 
     def clear_logs(self):
         super().clear_logs()
         # Clear the log file
-        with open(self.log_file_path, 'w') as f:
-            f.write('')
+        with open(self.log_file_path, "w") as f:
+            f.write("")
 
     def add_log(self, log: dict):
         super().add_log(log)
         # Write the log to the file
-        with open(self.log_file_path, 'a') as f:
+        with open(self.log_file_path, "a") as f:
             f.write(self.serialize_dict(log))
-            f.write('\n')  # Ensure each log entry is on a new line
+            f.write("\n")  # Ensure each log entry is on a new line
 
     # Custom function to serialize non-serializable objects
     def custom_serializer(self, obj):
         if isinstance(obj, dict):
-            return {k: self.custom_serializer(v) for k, v in obj.items() if k not in self.ignore_keys}
+            return {
+                k: self.custom_serializer(v)
+                for k, v in obj.items()
+                if k not in self.ignore_keys
+            }
         elif isinstance(obj, list):
             return [self.custom_serializer(v) for v in obj]
         try:
