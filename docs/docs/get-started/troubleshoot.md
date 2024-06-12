@@ -68,7 +68,7 @@ agent.run("Print out the name of this week's top trending model", display=True)
 
 ### Running LaVague with WSL 1 
 
-We are aware that users have been unable to use LaVague in WSL1 - this is due to known compatibilty issues with GUI application in WSL1. This should be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+We are aware that users have been unable to use LaVague in WSL1 - this is due to known compatibility issues with GUI application in WSL1. This should be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
 ## Navigation errors
 
@@ -76,7 +76,7 @@ Another common issue you may face is `Navigation errors` like in the following e
 
 ![navigation errors](../../assets/nav-errors.png)
 
-What these errors mean, is that the Navigation Engine did not succesfully generate the correct Selenium code needed to interact with the element of the web page needed to achieve its instruction.
+What these errors mean, is that the Navigation Engine did not successfully generate the correct Selenium code needed to interact with the element of the web page needed to achieve its instruction.
 
 There can be several reasons for this and this can often be fixed by modifying options relating to the World Model, Retriever or Action Engine. For a guide on how to debug navigation errors, see our debugging guide (**coming soon**).
 
@@ -206,7 +206,7 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
 ### Changing cost-related options
 
-There is often a delicate balance to be reached between boosting LaVague's performance (for example by allowing multiple attemps to succesfully generate code for an instruction or provide more examples in our prompt templates) and keeping costs low.
+There is often a delicate balance to be reached between boosting LaVague's performance (for example by allowing multiple attemps to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping costs low.
 
 We try to make our framework as customizable as possible so you can modify our defaults if they are not right for your use case. 
 
@@ -220,7 +220,7 @@ You can limit the number of steps  (and thus potential LLM calls), by default 10
 agent = WebAgent(world_model, action_engine, n_steps=5)
 ```
 
-However, note if you set this too low, the agent may not be able to succefuly achieve your objective.
+However, note if you set this too low, the agent may not be able to successfully achieve your objective.
 
 ### Number of retries
 
@@ -232,4 +232,4 @@ action_engine = ActionEngine(selenium_driver, n_attempts=3)
 
 ### Modifying prompt templates
 
-You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailled information about the components see our [module guides](../learn/agents.md).
+You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailed information about the components see our [module guides](../learn/agents.md).

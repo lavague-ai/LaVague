@@ -109,3 +109,16 @@ str
 Colabs
 async
 browserless
+CAPTCHA
+ChromeDriver
+DevToolsActivePort
+MacOS
+PowerShell
+SessionNotCreatedException
+WSL
+WebDriver
+Zsh
+cmd
+exe
+laura
+macOS
