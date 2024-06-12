@@ -6,19 +6,21 @@ A common problem users can have when using LaVague is a failure to get past webs
 
 #### 🍪 Plugging in an existing browser session
 
-When you run LaVague without a `user_data_dir`, a fresh Chrome session is started, with no access to your logins, cookies preferences, etc. from your usual browser session.
+When you run LaVague without a `user_data_dir`, a blank Chrome session is started, with no access to your usual logins, cookies preferences, etc.
 
-However, you can use LaVague with your usual browser session, which will avoid you needing to log in again or re-submit cookies preferences etc. which can greatly reduce the likelihood of pop-ups disrupting your experience with LaVague.
-
-You can plug in your usual browser session with the following code:
+However, you can change this and plug in your usual browser session with the following code:
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver(headless=False, user_data_dir="/home/<YourUsername>/.config/google-chrome")
 ```
 
-!!! hint "Browser profile path"
-    You will need to substitute the path supplied to the `user_data_dir` with the correct path for your browser profile. Here are the default paths on Windows, Linux and OSX:
+This will avoid you needing to log in again or re-submit cookies preferences etc. on sites you already use, which can greatly reduce the likelihood of popups causing issues when using LaVague.
+
+??? hint "User_data_dir path"
+    You will need to substitute the path supplied to the `user_data_dir` with the correct path for your browser profile. 
+    
+    Here are the default paths on Windows, Linux and OSX:
 
     - **Windows**: `C:\Users\<YourUsername>\AppData\Local\Google\Chrome\User Data`
     - **Linux**: `/home/<YourUsername>/.config/google-chrome`
