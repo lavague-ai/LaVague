@@ -1,6 +1,6 @@
 # Troubleshooting common issues & FAQs
 
-## Pop-ups (log ins, cookies, CAPTCHA, etc.)
+## Popups (logins, cookies, CAPTCHA, etc.)
 
 A common problem users can have when using LaVague is a failure to get past website pop-ups such as CAPTCHA, accepting cookies or logging in. While we are working on improving our agents' abilities to deal with pop-ups, we recommend the following two possible solutions:
 
