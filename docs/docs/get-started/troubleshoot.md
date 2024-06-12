@@ -2,15 +2,15 @@
 
 ## Pop-ups (log ins, cookies, CAPTCHA, etc.)
 
-A common problem users can have when using LaVague is a failure to get past websites pop-ups such as CAPTCHA, selecting cookies preferences or logging in. While we are working on improving our components abilities to deal with pop-ups, we recommend the following two possible solutions:
+A common problem users can have when using LaVague is a failure to get past website pop-ups such as CAPTCHA, accepting cookies or logging in. While we are working on improving our agents' abilities to deal with pop-ups, we recommend the following two possible solutions:
 
-### 🍪 Plugging in an existing browser session
+#### 🍪 Plugging in an existing browser session
 
-When you run LaVague without a `user_data_dir`, a fresh Chrome session is started, with no access to your logins, cookies preferences etc. from your usual browser session.
+When you run LaVague without a `user_data_dir`, a fresh Chrome session is started, with no access to your logins, cookies preferences, etc. from your usual browser session.
 
-However you can use LaVague with your usual browser session, which will avoid you needing to log in again or re-submit cookies preferences etc. which can greatly reduce the likelihood of pop-ups disrupting your experience with LaVague.
+However, you can use LaVague with your usual browser session, which will avoid you needing to log in again or re-submit cookies preferences etc. which can greatly reduce the likelihood of pop-ups disrupting your experience with LaVague.
 
-You can plug in your your usual browser session with the following code:
+You can plug in your usual browser session with the following code:
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
@@ -24,7 +24,7 @@ driver = SeleniumDriver(headless=False, user_data_dir="/home/<YourUsername>/.con
     - **Linux**: `/home/<YourUsername>/.config/google-chrome`
     - **OSX**: `/Users/<YourUsername>/Library/Application Support/Google/Chrome`
 
-### Manual interactions for pop-ups
+#### Manual interactions for pop-ups
 
 When using a driver in non-headless mode, you can manually take actions on that webpage. Where you know you will need to login to a site or accept cookies for example, you can manually add a pause in your code to allow you time to manually accept cookies or log in:
 
@@ -47,14 +47,14 @@ An example of a common Selenium error would be:
 ```code
 selenium.common.exceptions.SessionNotCreatedException: Message: session not created: Chrome failed to start: exited normally.
 (session not created: DevToolsActivePort file doesn't exist)
-(The process started from chrome location /home/laura/.cache/selenium/chrome/linux64/126.0.6478.55/chrome is no longer running, so ChromeDriver is assuming that Chrome has crashed.)
+(The process started from chrome location /home/user/.cache/selenium/chrome/linux64/126.0.6478.55/chrome is no longer running, so ChromeDriver is assuming that Chrome has crashed.)
 ```
 
-### Environment without GUI support
+#### Environment without GUI support
 
-Ther error show above was caused by running LaVague in non-headless mode in an environment without GUI support.
+The error above was caused by running LaVague in non-headless mode in an environment without GUI support.
 
-If you are an environment without GUI support, you will need to ensure your driver is set to `headless` mode with the following code:
+If you are using an environment without GUI support, you will need to ensure your driver is set to `headless` mode with the following code:
 
 ```python
 driver = SeleniumDriver(headless=True)
@@ -66,17 +66,17 @@ When using `headless` mode, you can activate a `display` mode to display real-ti
 agent.run("Print out the name of this week's top trending model", display=True)
 ```
 
-### Running LaVague with WSL 1 
+#### Running LaVague on Windows Subsystem for Linux
 
-We are aware that users have been unable to use LaVague in WSL1 - this is due to known compatibility issues with GUI application in WSL1. This should be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+We are aware that users have been unable to use LaVague with WSL1 - this is due to known compatibility issues with GUI applications in WSL1. This can be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
 ## Navigation errors
 
-Another common issue you may face is `Navigation errors` like in the following example:
+Another common issue some users face is `Navigation errors`:
 
 ![navigation errors](../../assets/nav-errors.png)
 
-What these errors mean, is that the Navigation Engine did not successfully generate the correct Selenium code needed to interact with the element of the web page needed to achieve its instruction.
+These errors mean that the Navigation Engine did not successfully generate the correct Selenium code needed to interact with the element of the web page needed to achieve its instruction.
 
 There can be several reasons for this and this can often be fixed by modifying options relating to the World Model, Retriever or Action Engine. For a guide on how to debug navigation errors, see our debugging guide (**coming soon**).
 
@@ -92,31 +92,17 @@ LaVague uses three models (a multi-modal model, the Action Engine's LLM and the 
 
 ## How can I turn off telemetry?
 
-LaVague collects the following user data telemetry by default to help us monitor and improve performance:
-
-- Version of LaVague installed
-- Code generated for each web action step
-- LLM used (i.e GPT4)
-- Multi modal LLM used (i.e GPT4)
-- Randomly generated anonymous user ID
-- Whether you are using a CLI command or our library directly
-- The instruction used/generated
-- The objective used (if you are using the agent)
-- The chain of thoughts (if you are using the agent)
-- The interaction zone on the page (bounding box)
-- The viewport size of your browser
-- The URL you performed an action on
-- Whether the action failed or succeeded
-- Error message, where relevant
-- The source nodes (chunks of HTML code retrieved from the web page to perform this action)
+LaVague collects telemetry by default to help us monitor and improve performance.
 
 If you want to turn off all telemetry, you can set your `TELEMETRY_VAR` environment variable to `"NONE"`.
 
-For more information on how to set environment variables see the following section!
+For more information on how to set environment variables, see the following section.
 
 ## How to set environment variables such as API keys
 
-When using LaVague, you will need to set any necessary API keys for calls to the Action Engine's LLM, embedding model and the World Model's multi-modal model in your environment. By default, all these models are provided through the OpenAI API, and so you will need to set your OPENAI_API_KEY in your working environment.
+When using LaVague, you will need to set any necessary API keys for calls to the Action Engine's LLM, embedding model and the World Model's multi-modal model in your environment.
+
+Below, we explain how to set environment variables on Linux, MacOS and Windows.
 
 ### Linux & MacOS
 
@@ -206,11 +192,11 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
 ### Changing cost-related options
 
-There is often a delicate balance to be reached between boosting LaVague's performance (for example by allowing multiple attempts to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping costs low.
+There is a balance to be reached between boosting LaVague's performance (for example by allowing multiple attempts to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping cost relatively low.
 
 We try to make our framework as customizable as possible so you can modify our defaults if they are not right for your use case. 
 
-Here are some relevant elements you can test out adjusting:
+Here are some relevant elements you can adjust to suit your needs:
 
 ### Number of steps
 
@@ -232,4 +218,4 @@ action_engine = ActionEngine(selenium_driver, n_attempts=3)
 
 ### Modifying prompt templates
 
-You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailed information about the components see our [module guides](../learn/agents.md).
+You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailed information about the components see our [module guides](../learn/world-model.md).
