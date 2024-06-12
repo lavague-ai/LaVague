@@ -84,7 +84,12 @@ There can be several reasons for this and this can often be fixed by modifying o
 
 There has been a lot of interest in using LaVague with open-source models, and even running them locally.
 
-LaVague uses three models (a multi-modal model, the Action Engine's LLM and the embedding model) and each of these can be replaced with any llama-index compatible alternatives with a sufficiently large context window, including open-source ones, with local or remote inference. See our [customization guide](../get-started/customization.md) for more details on how to do this.
+LaVague uses three models:
+- a multi-modal model
+- the Action Engine's LLM
+- the embedding model
+
+Each of these can be replaced with any llama-index compatible alternative with a sufficiently large context window, including open-source ones, with local or remote inference. See our [customization guide](../get-started/customization.md) for more details on how to do this.
 
 !!! warning "Performance"
 
@@ -108,11 +113,9 @@ Below, we explain how to set environment variables on Linux, MacOS and Windows.
 
 #### Temporary (session-specific):
 
-- Open a terminal.
-- Run the following command to set the variable for the current session:
+Run the following command to set the variable for the current session:
 
     ```bash
-
     export OPENAI_API_KEY="your_api_key_here"
     ```
 
@@ -124,15 +127,13 @@ Below, we explain how to set environment variables on Linux, MacOS and Windows.
 
     For Zsh, you should open the `~/.zshrc` file.
 
-- Add the following line at the end of the file:
+- Add the following line at the end of the file and save the file:
 
     ```bash
     export OPENAI_API_KEY="your_api_key_here"
     ```
 
-- Save the file and exit the editor.
-
-- To apply the changes, run:
+- To apply the changes straight away, run:
 
     ```bash
     source ~/.bashrc   # or source ~/.bash_profile for MacOS users or source ~/.zshrc for Zsh 
@@ -142,8 +143,7 @@ Below, we explain how to set environment variables on Linux, MacOS and Windows.
 
 #### Temporary (session-specific):
 
-- Open Command Prompt (cmd.exe) or PowerShell.
-- Run the following command to set the variable for the current session: `set OPENAI_API_KEY=your_api_key_here`
+Run the following command to set the variable for the current session: `set OPENAI_API_KEY=your_api_key_here`
 
 #### Permanent (across sessions):
 
@@ -151,7 +151,6 @@ Below, we explain how to set environment variables on Linux, MacOS and Windows.
 - In the System Properties window, click on the "Environment Variables..." button.
 - Under "User variables" (for your user account), click "New...".
 - Set the Variable name to OPENAI_API_KEY and Variable value to your API key.
-- Click OK to save the variable.
 - Restart any open Command Prompt or PowerShell windows for the change to take effect.
 
 ### Verification
@@ -165,13 +164,11 @@ echo $OPENAI_API_KEY
 ```
 
 Windows (cmd.exe):
-
 ```code
 echo %OPENAI_API_KEY%
 ```
 
 Windows (PowerShell):
-
 ```code
 echo $env:OPENAI_API_KEY
 ```
@@ -196,7 +193,7 @@ There is a balance to be reached between boosting LaVague's performance (for exa
 
 We try to make our framework as customizable as possible so you can modify our defaults if they are not right for your use case. 
 
-Here are some relevant elements you can adjust to suit your needs:
+Here are some relevant elements you can adjust as desired:
 
 ### Number of steps
 
