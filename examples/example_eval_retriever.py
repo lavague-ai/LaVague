@@ -9,4 +9,4 @@ plot = retriever_evaluator.compare({
     "bm25": retrieved_data_bm25
 })
 plot.show()
-plot.waitforbuttonpress()
+input()

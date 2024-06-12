@@ -2,20 +2,26 @@ from abc import ABC, abstractmethod
 from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.drivers.selenium import SeleniumDriver
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 import pandas as pd
 from tqdm import tqdm
 from time import time
-from typing import List
+from typing import Dict, List, Any
 from evaluate.visualization import radar_plot
-from llama_index.core.llms import LLM
+from lavague.core.navigation import NavigationEngine
 from lavague.core.context import get_default_context
 from lavague.core.navigation import Rephraser
 from bs4 import BeautifulSoup
 import uuid
+from llama_index.core.llms import LLM
 import os
 from llama_index.core import QueryBundle
 from matplotlib.figure import Figure
+import re
+from lavague.core.utilities.format_utils import keep_assignments, return_assigned_variables
+import matplotlib.pyplot as plt
+import numpy as np
 
 def init_driver() -> WebDriver:
     # these imports are necessary as they will be pasted to the output
@@ -36,14 +42,13 @@ class SeleniumDriverForEval(SeleniumDriver):
     def check_visibility(self, xpath: str) -> bool:
         return True
 
-
 class Evaluator(ABC):
     @abstractmethod
     def evaluate(self, dataset: pd.DataFrame) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    def compare(self, results: List[pd.DataFrame]) -> Figure:
+    def compare(self, results: Dict[str, pd.DataFrame]) -> Figure:
         pass
 
     def _load_html(self, html: str, driver: SeleniumDriver):
@@ -126,11 +131,14 @@ class RetrieverEvaluator(Evaluator):
         retrieved_dataset.to_csv(csv_out_name)
         return retrieved_dataset
 
-    def compare(self, results: List[pd.DataFrame]):
+    def compare(self, results: Dict[str, pd.DataFrame]):
         data = []
+        figure = plt.figure(figsize=(12, 8))
+        subfigures = figure.subfigures(3, 3, width_ratios=[2, 6, 2], height_ratios=[2, 4, 2])
         for df in results.values():
             data.append(df[['recall_retriever', 'precision_retriever', 'retrieval_time']].mean(axis=0).to_dict())
-        return radar_plot(data, results.keys(), invert_range=["retrieval_time"], config={"theta_tick_lbls_pad": 10})
+        radar_plot(data, list(results.keys()), invert_range=["retrieval_time"], fig=subfigures[1][1], config={"theta_tick_lbls_brk_lng_wrds": False})
+        return figure
 
 
     def _gen_html_ids(self, df: pd.DataFrame):
@@ -148,10 +156,71 @@ class LLMEvaluator(Evaluator):
     def __init__(self):
         self.driver = SeleniumDriverForEval(get_selenium_driver=init_driver)
 
-    def evaluate(self, llm: LLM, retrieved_dataset: pd.DataFrame, csv_out_name: str) -> pd.DataFrame:
+    def evaluate(self, navigation_engine: NavigationEngine, retrieved_dataset: pd.DataFrame, csv_out_name: str) -> pd.DataFrame:
+        # assert not os.path.isfile(csv_out_name)
         llm_dataset = retrieved_dataset.copy()
         llm_dataset['recall_llm'] = pd.Series(dtype='float')
         llm_dataset['precision_llm'] = pd.Series(dtype='float')
         llm_dataset['execution_error'] = pd.Series(dtype='str')
         llm_dataset['target_outer_html'] = pd.Series(dtype='str')
         llm_dataset['generated_code'] = pd.Series(dtype='str')
+        llm_dataset['retry'] = pd.Series(dtype='int')
+        llm_dataset['code_generation_time'] = pd.Series(dtype='float')
+        try:
+            for i, row in tqdm(llm_dataset.iterrows()):
+                self._load_html(row["html_id"], self.driver)
+                element = self.driver.driver.find_element(By.XPATH, row["xpath"])
+                ground_truth_outer_html = self.driver.execute_script("return arguments[0].outerHTML;", element)
+                decontaminated_context_str = re.sub(r' backend_node_id="\d+"', '', row["source_nodes"])
+                generated_code = target_outer_html = execution_error = ""
+                recall_llm = precision_llm = 0.0
+                for r in range(5):
+                    retry = r
+                    try:
+                        start_time = time()
+                        generated_code = navigation_engine.get_action_from_context(decontaminated_context_str, row['llm_query'])
+                        duration = time() - start_time
+                    except Exception as e:
+                        execution_error = str(e)
+                        continue
+                    try:
+                        local_scope = {"driver": self.driver.get_driver()}
+                        assignment_code = keep_assignments(generated_code)
+                        self.driver.exec_code(assignment_code, locals=local_scope)
+                        # Assign the variable to the target_element variable which will be used afterwards to compute score
+                        variables = return_assigned_variables(assignment_code)
+                        target_element = None
+                        for v in variables:
+                            if type(local_scope[v]) == WebElement:
+                                target_element = local_scope[v]
+                                break
+                        target_outer_html = self.driver.execute_script("return arguments[0].outerHTML;", target_element)
+                        recall_llm, precision_llm = self._intersection_backend_node_id(ground_truth_outer_html, target_outer_html)
+                        break
+                    except Exception as e:
+                        execution_error = str(e)
+                        raise e
+                new_row = {
+                    'recall_llm': recall_llm,
+                    'precision_llm': precision_llm,
+                    'execution_error': execution_error,
+                    'target_outer_html': target_outer_html,
+                    'generated_code': generated_code,
+                    'retry': retry,
+                    'code_generation_time': duration,
+                }
+                llm_dataset.loc[i, new_row.keys()] = new_row.values()
+        except Exception as e:
+            llm_dataset.to_csv(csv_out_name)
+            raise e
+        llm_dataset.to_csv(csv_out_name)
+        return llm_dataset
+
+    def compare(self, results: Dict[str, pd.DataFrame]) -> Figure:
+        figure = plt.figure(figsize=(12, 8))
+        subfigures = figure.subfigures(3, 3, width_ratios=[2, 6, 2], height_ratios=[2, 4, 2])
+        data = []
+        for df in results.values():
+            data.append(df[['recall_llm', 'precision_llm', 'code_generation_time', 'retry']].mean(axis=0).to_dict())
+        radar_plot(data, list(results.keys()), invert_range=["code_generation_time", "retry"], fig=subfigures[1][1], config={"theta_tick_lbls_brk_lng_wrds": False})
+        return figure
