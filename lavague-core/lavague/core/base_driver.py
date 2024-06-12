@@ -182,7 +182,7 @@ class BaseDriver(ABC):
 
         current_url = url.replace("://", "_").replace("/", "_")
         hasher = hashlib.md5()
-        hasher.update(current_url.encode('utf-8'))
+        hasher.update(current_url.encode("utf-8"))
 
         current_screenshot_folder = screenshots_path / hasher.hexdigest()
         current_screenshot_folder.mkdir(exist_ok=True)
