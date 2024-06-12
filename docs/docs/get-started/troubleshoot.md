@@ -206,7 +206,7 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
 ### Changing cost-related options
 
-There is often a delicate balance to be reached between boosting LaVague's performance (for example by allowing multiple attemtps to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping costs low.
+There is often a delicate balance to be reached between boosting LaVague's performance (for example by allowing multiple attempts to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping costs low.
 
 We try to make our framework as customizable as possible so you can modify our defaults if they are not right for your use case. 
 
