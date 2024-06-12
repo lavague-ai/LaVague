@@ -10,6 +10,7 @@ on:
       - 'pyproject.toml'
       - '.github/workflows/docs-code.yaml'
       - '.github/new-code-check.py'
+  workflow_dispatch:
     
 jobs:
   check-code:
