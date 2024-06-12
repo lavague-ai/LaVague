@@ -49,7 +49,7 @@ class ActionEngine:
         navigation_control: BaseEngine = None,
         llm: BaseLLM = None,
         embedding: BaseEmbedding = None,
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
         time_between_actions: float = 1.5,
@@ -63,17 +63,21 @@ class ActionEngine:
             embedding = get_default_context().embedding
 
         self.driver = driver
+
+        if retriever is None:
+            retriever = OpsmSplitRetriever(driver, embedding)
+
         if navigation_engine is None:
             navigation_engine = NavigationEngine(
-                driver,
-                llm,
-                embedding,
-                retriever,
-                prompt_template,
-                extractor,
-                time_between_actions,
-                n_attempts,
-                logger,
+                driver=driver,
+                llm=llm,
+                embedding=embedding,
+                retriever=retriever,
+                prompt_template=prompt_template,
+                extractor=extractor,
+                time_between_actions=time_between_actions,
+                n_attempts=n_attempts,
+                logger=logger,
             )
         if python_engine is None:
             python_engine = PythonEngine(driver, llm, embedding)
@@ -103,7 +107,7 @@ class ActionEngine:
         navigation_engine: BaseEngine = None,
         python_engine: BaseEngine = None,
         navigation_control: BaseEngine = None,
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
     ) -> ActionEngine:

@@ -31,7 +31,7 @@ lavague-contexts-openai = "^0.2.0"
 lavague-gradio = "^0.2.4"
 
 [tool.poetry.dev-dependencies]
-ruff = "0.0.292"
+ruff = "^0.2.2"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
