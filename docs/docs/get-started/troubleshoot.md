@@ -66,9 +66,9 @@ When using `headless` mode, you can activate a `display` mode to display real-ti
 agent.run("Print out the name of this week's top trending model", display=True)
 ```
 
-#### Running LaVague on Windows Subsystem for Linux
+??? "Running LaVague on Windows Subsystem for Linux 1"
 
-We are aware that users have been unable to use LaVague with WSL1 - this is due to known compatibility issues with GUI applications in WSL1. This can be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+    We are aware that users have been unable to use LaVague with WSL1 - this is due to known compatibility issues with GUI applications in WSL1. This can be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
 ## Navigation errors
 
@@ -80,11 +80,10 @@ These errors mean that the Navigation Engine did not successfully generate the c
 
 There can be several reasons for this and this can often be fixed by modifying options relating to the World Model, Retriever or Action Engine. For a guide on how to debug navigation errors, see our debugging guide (**coming soon**).
 
-## Running LaVague with open-source local and remote models
+## Can I run LaVague with open-source local/remote models?
 
-There has been a lot of interest in using LaVague with open-source models, and even running them locally.
+LaVague's agents use three models:
 
-LaVague uses three models:
 - a multi-modal model
 - the Action Engine's LLM
 - the embedding model
@@ -105,7 +104,7 @@ For more information on how to set environment variables, see the following sect
 
 ## How to set environment variables such as API keys
 
-When using LaVague, you will need to set any necessary API keys for calls to the Action Engine's LLM, embedding model and the World Model's multi-modal model in your environment.
+When using LaVague, you will need to set any necessary API key environment variables for calls to the Action Engine's LLM, embedding model and the World Model's multi-modal model.
 
 Below, we explain how to set environment variables on Linux, MacOS and Windows.
 
@@ -136,44 +135,44 @@ Run the following command to set the variable for the current session:
 - To apply the changes straight away, run:
 
     ```bash
-    source ~/.bashrc   # or source ~/.bash_profile for MacOS users or source ~/.zshrc for Zsh 
+    source ~/.bashrc # or source ~/.bash_profile for MacOS users or source ~/.zshrc for Zsh 
     ```
 
-### Windows
-
-#### Temporary (session-specific):
-
-Run the following command to set the variable for the current session: `set OPENAI_API_KEY=your_api_key_here`
-
-#### Permanent (across sessions):
-
-- Open Control Panel → System and Security → System → Advanced system settings (on the left).
-- In the System Properties window, click on the "Environment Variables..." button.
-- Under "User variables" (for your user account), click "New...".
-- Set the Variable name to OPENAI_API_KEY and Variable value to your API key.
-- Restart any open Command Prompt or PowerShell windows for the change to take effect.
-
-### Verification
-
-To verify that the environment variable is correctly set, you can echo the variable in your terminal or command prompt:
-
-Linux/macOS:
+You verify that the environment variable is correctly set by printing out the variable in your terminal:
 
 ```bash
 echo $OPENAI_API_KEY
 ```
 
-Windows (cmd.exe):
-```code
-echo %OPENAI_API_KEY%
-```
+??? "Setting environment variables on Windows"
 
-Windows (PowerShell):
-```code
-echo $env:OPENAI_API_KEY
-```
+    #### Temporary (session-specific):
 
-## How much will LaVague usage cost, and how can I minimize the cost?
+    Run the following command to set the variable for the current session: `set OPENAI_API_KEY=your_api_key_here`
+
+    #### Permanent (across sessions):
+
+    - Open Control Panel → System and Security → System → Advanced system settings (on the left).
+    - In the System Properties window, click on the "Environment Variables..." button.
+    - Under "User variables" (for your user account), click "New...".
+    - Set the Variable name to OPENAI_API_KEY and Variable value to your API key.
+    - Restart any open Command Prompt or PowerShell windows for the change to take effect.
+
+    ### Verification
+
+    To verify that the environment variable is correctly set, you can echo the variable in your command prompt:
+
+    Windows (cmd.exe):
+    ```code
+    echo %OPENAI_API_KEY%
+    ```
+
+    Windows (PowerShell):
+    ```code
+    echo $env:OPENAI_API_KEY
+    ```
+
+## How much will LaVague usage cost?
 
 By default, LaVague leverages the OpenAI API and LLM usage is charged accordingly. The cost of LaVague's LLM usage depends on various factors:
 
@@ -185,34 +184,34 @@ By default, LaVague leverages the OpenAI API and LLM usage is charged accordingl
 
 You can use LaVague with different models including open source ones. See our [customization guide](../get-started/customization.md) for more details.
 
-We recommend you track/limit the cost of your usage with the relevant API provider where relevant.
+We recommend you track/limit the cost of your usage with the relevant API provider.
 
-### Changing cost-related options
+??? "Custom options to reduce token cost"
 
-There is a balance to be reached between boosting LaVague's performance (for example by allowing multiple attempts to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping cost relatively low.
+    There is a balance to be reached between boosting LaVague's performance (for example by allowing multiple attempts to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping cost relatively low.
 
-We try to make our framework as customizable as possible so you can modify our defaults if they are not right for your use case. 
+    We aim to make our framework as customizable as possible so you can modify our defaults if they are not right for your use case. 
 
-Here are some relevant elements you can adjust as desired:
+    Here are some cost-related elements you can adjust:
 
-### Number of steps
+    ### Number of steps
 
-You can limit the number of steps  (and thus potential LLM calls), by default 10, an Agent can take to reach an objective by passing a custom value to the Agent's `n_steps` option:
+    You can limit the number of steps  (and thus potential LLM calls), by default 10, an Agent can take to reach an objective by passing a custom value to the Agent's `n_steps` option:
 
-```python
-agent = WebAgent(world_model, action_engine, n_steps=5)
-```
+    ```python
+    agent = WebAgent(world_model, action_engine, n_steps=5)
+    ```
 
-However, note if you set this too low, the agent may not be able to successfully achieve your objective.
+    However, note if you set this too low, the agent may not be able to successfully achieve your objective.
 
-### Number of retries
+    ### Number of retries
 
-You can limit the number of attempts (and thus potential LLM calls), set by default to 5, the Action Engine can take to generate the code for a step by passing a custom value to the Action Engine's `n_attempts` option 
+    You can limit the number of attempts (and thus potential LLM calls), set by default to 5, the Action Engine can take to generate the code for a step by passing a custom value to the Action Engine's `n_attempts` option 
 
-```python
-action_engine = ActionEngine(selenium_driver, n_attempts=3)
-```
+    ```python
+    action_engine = ActionEngine(selenium_driver, n_attempts=3)
+    ```
 
-### Modifying prompt templates
+    ### Modifying prompt templates
 
-You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailed information about the components see our [module guides](../learn/world-model.md).
+    You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailed information about the components see our [module guides](../learn/world-model.md).
