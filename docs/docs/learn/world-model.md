@@ -148,13 +148,13 @@ Next engine: Navigation Controls
 Instruction: SCAN
 """
 
-### save extra knowledge to a file
+# save extra knowledge to a file
 file_path = "knowledge.txt"
 
 with open(file_path, "w") as file:
     file.write(extra_knowledge)
 
-### Import extra knowledge from file
+# Import extra knowledge from file
 world_model.add_knowledge(file_path=file_path)
 ```
 

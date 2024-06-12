@@ -118,7 +118,7 @@ This gives us an output as follows:
 
 If you are using the logs to debug and find that the nodes do not show the relevant HTML components to complete the instruction, we know that the task has failed because of the performance of the `Retriever`.
 
-### Exporting logs to a file
+### Exporting logs to a local file
 
 If you want your logs to be saved to a local file. You can create a `LocalLogger` object with the path of your logger file, or the file you wish LaVague to create:
 
