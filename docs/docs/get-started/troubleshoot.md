@@ -224,7 +224,7 @@ However, note if you set this too low, the agent may not be able to successfully
 
 ### Number of retries
 
-You can limit the number of attemps (and thus potential LLM calls), set by default to 5, the Action Engine can take to generate the code for a step by passing a custom value to the Action Engine's `n_attempts` option 
+You can limit the number of attempts (and thus potential LLM calls), set by default to 5, the Action Engine can take to generate the code for a step by passing a custom value to the Action Engine's `n_attempts` option 
 
 ```python
 action_engine = ActionEngine(selenium_driver, n_attempts=3)
