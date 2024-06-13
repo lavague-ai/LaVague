@@ -68,12 +68,54 @@ When using `headless` mode, you can activate a `display` mode to display real-ti
 agent.run("Print out the name of this week's top trending model", display=True)
 ```
 
-!!! note "Running LaVague on Windows Subsystem for Linux 1"
+??? note "Running LaVague on Windows Subsystem for Linux 1"
 
     LaVague may be incompatible with WSL1 due to its compatibility issues with GUI applications.
     
     This can be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
+??? note "Running Lavgue with replit.com"
+
+    To get LaVague working in a `replit.com` environment, you will need to add the following packages to the replit.nix file:
+
+    ```code
+    {pkgs}: {
+    deps = [
+        pkgs.geckodriver
+            pkgs.python38Full
+            pkgs.chromium
+            pkgs.chromedriver
+    ];
+    }
+    ```
+
+    > To access the replit.nix file, you'll need to click on `show hidden files`.
+
+    Then you can use LaVague with the Selenium Driver set to headless mode.
+
+    ```python
+    from lavague.core import  WorldModel, ActionEngine
+    from lavague.core.agents import WebAgent
+    from lavague.drivers.selenium import SeleniumDriver
+    import os
+    my_secret = os.environ['OPENAI_API_KEY']
+    selenium_driver = SeleniumDriver(headless=True)
+    world_model = WorldModel()
+    action_engine = ActionEngine(selenium_driver)
+    agent = WebAgent(world_model, action_engine)
+    agent.get("https://huggingface.co/docs")
+    ret = agent.run("What is the top model?")
+    print(ret.output)
+    ```
+
+    Make sure to add `lavague` to your depencies list in your pyproject.toml.
+    
+    ```code
+    [tool.poetry.dependencies]
+    python = ">=3.10.0,<3.12"
+    lavague = ">=1.1.3"
+    ```
+    
 ## Navigation errors
 
 Another common issue some users face is `Navigation errors`:
