@@ -1,5 +1,7 @@
 # Troubleshooting common issues & FAQs
 
+## Troubleshooting
+
 ## Popups (logins, cookies, CAPTCHA, etc.)
 
 A common problem users can have when using LaVague is a failure to get past website pop-ups such as CAPTCHA, accepting cookies or logging in. While we are working on improving our agents' abilities to deal with pop-ups, we recommend the following two possible solutions:
@@ -126,6 +128,8 @@ These errors mean that the Navigation Engine did not successfully generate the c
 
 There can be several reasons for this and this can often be fixed by modifying options relating to the World Model, Retriever or Action Engine. For a guide on how to debug navigation errors, see our debugging guide (**coming soon**).
 
+## FAQs
+
 ## Can I run LaVague with open-source local/remote models?
 
 LaVague's agents use three models:
@@ -148,7 +152,7 @@ If you want to turn off all telemetry, you can set your `TELEMETRY_VAR` environm
 
 For more information on how to set environment variables, see the following section.
 
-## How to set environment variables such as API keys
+## How can I set my API keys as environment variables?
 
 When using LaVague, you will need to set any necessary API key environment variables for calls to the Action Engine's LLM, embedding model and the World Model's multi-modal model.
 
