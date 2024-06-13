@@ -74,7 +74,7 @@ agent.run("Print out the name of this week's top trending model", display=True)
     
     This can be resolved by [updating to WSL2](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
-??? note "Running Lavgue with replit.com"
+??? note "Running LaVague with replit.com"
 
     To get LaVague working in a `replit.com` environment, you will need to add the following packages to the replit.nix file:
 
@@ -108,7 +108,7 @@ agent.run("Print out the name of this week's top trending model", display=True)
     print(ret.output)
     ```
 
-    Make sure to add `lavague` to your depencies list in your pyproject.toml.
+    Make sure to add `lavague` to your dependencies list in your pyproject.toml.
     
     ```code
     [tool.poetry.dependencies]
