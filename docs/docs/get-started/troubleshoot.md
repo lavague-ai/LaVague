@@ -118,9 +118,9 @@ Below, we explain how to set environment variables on Linux, MacOS and Windows.
 
 Run the following command to set the variable for the current session:
 
-    ```bash
-    export OPENAI_API_KEY="your_api_key_here"
-    ```
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+```
 
 #### Permanent (across sessions):
 
