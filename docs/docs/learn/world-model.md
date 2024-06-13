@@ -123,7 +123,7 @@ print(WORLD_MODEL_GENERAL_EXAMPLES)
 
 ![world model examples](../../assets/world-model-examples.png)
 
-If we wanted to add knowledge to our World Model prompt template, we can do so with the `add_knowledge` method:
+If we wanted to add knowledge to our World Model prompt template, we can do so with the `add_knowledge` method, which allows us to add knowledge from a file:
 
 ```python
 extra_knowledge = """
@@ -148,7 +148,14 @@ Next engine: Navigation Controls
 Instruction: SCAN
 """
 
-world_model.add_knowledge(extra_knowledge)
+# save extra knowledge to a file
+file_path = "knowledge.txt"
+
+with open(file_path, "w") as file:
+    file.write(extra_knowledge)
+
+# Import extra knowledge from file
+world_model.add_knowledge(file_path=file_path)
 ```
 
 !!! tip "Improving performance"

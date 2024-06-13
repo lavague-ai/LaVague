@@ -99,6 +99,7 @@ nav:
   - Gradio: 'docs/get-started/gradio.md'
   # - Under the hood: 'docs/get-started/under-the-hood.md'
   - Customization: 'docs/get-started/customization.md'
+  - Troubleshooting: 'docs/get-started/troubleshoot.md'
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
