@@ -7,8 +7,7 @@ from selenium.webdriver.common.by import By
 import pandas as pd
 from tqdm import tqdm
 from time import time
-from typing import Dict, List, Any
-from evaluate.visualization import radar_plot
+from typing import Dict
 from lavague.core.navigation import NavigationEngine
 from lavague.core.context import get_default_context
 from lavague.core.navigation import Rephraser
