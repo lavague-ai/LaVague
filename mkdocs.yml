@@ -100,6 +100,9 @@ nav:
   # - Under the hood: 'docs/get-started/under-the-hood.md'
   - Customization: 'docs/get-started/customization.md'
   - Troubleshooting: 'docs/get-started/troubleshoot.md'
+  - FAQs: 'docs/get-started/FAQs.md'
+  - Debugging: 'docs/learn/debugging.md'
+
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
