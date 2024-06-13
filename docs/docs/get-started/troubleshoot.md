@@ -126,7 +126,9 @@ Another common issue some users face is `Navigation errors`:
 
 These errors mean that the Navigation Engine did not successfully generate the correct Selenium code needed to interact with the element of the web page needed to achieve its instruction.
 
-There can be several reasons for this and this can often be fixed by modifying options relating to the World Model, Retriever or Action Engine. For a guide on how to debug navigation errors, see our debugging guide (**coming soon**).
+There can be several reasons for this and this can often be fixed by modifying options relating to the World Model, Retriever or Action Engine. 
+
+For a guide on how to debug navigation errors, see our debugging guide (**coming soon**).
 
 ## FAQs
 
@@ -144,7 +146,7 @@ Each of these can be replaced with any llama-index compatible alternative with a
 
     While you can try out LaVague with any models that you like, performance varies significantly between models and some models may not perform well enough. We have not currently found an open-source multi-modal LLM able to perform well enough and welcome any support from the community on this!
 
-## How can I turn off telemetry?
+## How can I disable telemetry?
 
 LaVague collects telemetry by default to help us monitor and improve performance.
 
@@ -154,9 +156,13 @@ For more information on how to set environment variables, see the following sect
 
 ## How can I set my API keys as environment variables?
 
-When using LaVague, you will need to set any necessary API key environment variables for calls to the Action Engine's LLM, embedding model and the World Model's multi-modal model.
+When using LaVague, you will need to set any necessary API key environment variables for calls to the:
 
-Below, we explain how to set environment variables on Linux, MacOS and Windows.
+- Action Engine's LLM
+- embedding model
+- World Model's multi-modal model
+
+Here, we explain how to set environment variables on Linux, MacOS and Windows.
 
 ### Linux & MacOS
 
