@@ -190,7 +190,7 @@ You can use LaVague with different models including open source ones. See our [c
 
 We recommend you track/limit the cost of your usage with the relevant API provider.
 
-??? "Custom options to reduce token cost"
+??? "Custom options to reduce token usage"
 
     There is a balance to be reached between boosting LaVague's performance (for example by allowing multiple attempts to successfully generate code for an instruction or provide more examples in our prompt templates) and keeping cost relatively low.
 
