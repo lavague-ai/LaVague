@@ -69,6 +69,7 @@ ch.setFormatter(format)
 logging_print.addHandler(ch)
 logging_print.propagate = False
 
+
 class Rephraser:
     def __init__(self, llm: BaseLLM = None, prompt: PromptTemplate = REPHRASE_PROMPT):
         self.llm = llm
@@ -89,7 +90,6 @@ class Rephraser:
         response = response.strip("```json\n").strip("\n``` \n")
         rephrased_query = extract_and_eval(response)
         return rephrased_query
-
 
 
 class NavigationEngine(BaseEngine):
@@ -184,9 +184,7 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[str]`: The nodes
         """
-        source_nodes = self.retriever.retrieve_html(
-            QueryBundle(query_str=query)
-        )
+        source_nodes = self.retriever.retrieve_html(QueryBundle(query_str=query))
         source_nodes = [node.text for node in source_nodes]
         return source_nodes
 

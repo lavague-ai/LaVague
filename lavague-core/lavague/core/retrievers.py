@@ -16,8 +16,11 @@ from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
 from lavague.core.context import get_default_context
 
+
 class BaseHtmlRetriever(ABC):
-    def __init__(self, driver: BaseDriver, embedding: BaseEmbedding = None, top_k: int = 3):
+    def __init__(
+        self, driver: BaseDriver, embedding: BaseEmbedding = None, top_k: int = 3
+    ):
         if embedding is None:
             embedding = get_default_context().embedding
         self.driver = driver
@@ -25,9 +28,7 @@ class BaseHtmlRetriever(ABC):
         self.top_k = top_k
 
     @abstractmethod
-    def retrieve_html(
-        self, query: QueryBundle
-    ) -> List[NodeWithScore]:
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         """
         This method should be implemented by the user
         """
@@ -37,9 +38,7 @@ class BaseHtmlRetriever(ABC):
 class BM25HtmlRetriever(BaseHtmlRetriever):
     """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
 
-    def retrieve_html(
-        self, query: QueryBundle
-    ) -> List[NodeWithScore]:
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         text_list = [clean_html(self.driver.get_html())]
         documents = [Document(text=t) for t in text_list]
 
@@ -257,9 +256,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                     pass
         return returned_nodes
 
-    def retrieve_html(
-        self, query: QueryBundle
-    ) -> List[NodeWithScore]:
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         html = self._add_xpath_attributes(self.driver.get_html())
         text_list = [html]
         documents = [Document(text=t) for t in text_list]
