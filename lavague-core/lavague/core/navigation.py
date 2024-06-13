@@ -70,6 +70,28 @@ logging_print.addHandler(ch)
 logging_print.propagate = False
 
 
+class Rephraser:
+    def __init__(self, llm: BaseLLM = None, prompt: PromptTemplate = REPHRASE_PROMPT):
+        self.llm = llm
+        self.prompt = prompt
+        if self.llm is None:
+            self.llm = get_default_context().llm
+
+    def rephrase_query(self, query: str) -> List[dict]:
+        """
+        Rephrase the query
+        Args:
+            query (`str`): The query to rephrase
+        Return:
+            `List[dict]`: The rephrased query as a list of dictionaries
+        """
+        rephrase_prompt = self.prompt.safe_substitute(instruction=query)
+        response = self.llm.complete(rephrase_prompt).text
+        response = response.strip("```json\n").strip("\n``` \n")
+        rephrased_query = extract_and_eval(response)
+        return rephrased_query
+
+
 class NavigationEngine(BaseEngine):
     """
     NavigationEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
@@ -98,7 +120,8 @@ class NavigationEngine(BaseEngine):
         driver: BaseDriver,
         llm: BaseLLM = None,
         embedding: BaseEmbedding = None,
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        rephraser: Rephraser = None,
+        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
         time_between_actions: float = 1.5,
@@ -110,9 +133,14 @@ class NavigationEngine(BaseEngine):
             llm: BaseLLM = get_default_context().llm
         if embedding is None:
             embedding: BaseEmbedding = get_default_context().embedding
+        if rephraser is None:
+            rephraser = Rephraser(llm)
+        if retriever is None:
+            retriever = OpsmSplitRetriever(driver, embedding)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.embedding: BaseEmbedding = embedding
+        self.rephraser = rephraser
         self.retriever: BaseHtmlRetriever = retriever
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
             driver_capability=driver.get_capability()
@@ -128,7 +156,8 @@ class NavigationEngine(BaseEngine):
         cls,
         context: Context,
         driver: BaseDriver,
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        rephraser: Rephraser = None,
+        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
     ) -> "NavigationEngine":
@@ -139,6 +168,7 @@ class NavigationEngine(BaseEngine):
             driver,
             context.llm,
             context.embedding,
+            rephraser,
             retriever,
             prompt_template,
             extractor,
@@ -154,9 +184,7 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[str]`: The nodes
         """
-        source_nodes = self.retriever.retrieve_html(
-            self.driver, self.embedding, QueryBundle(query_str=query)
-        )
+        source_nodes = self.retriever.retrieve_html(QueryBundle(query_str=query))
         source_nodes = [node.text for node in source_nodes]
         return source_nodes
 
@@ -172,44 +200,7 @@ class NavigationEngine(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
-    def rephrase_query(self, query: str) -> List[dict]:
-        """
-        Rephrase the query
-        Args:
-            query (`str`): The query to rephrase
-        Return:
-            `List[dict]`: The rephrased query as a list of dictionaries
-        """
-        rephrase_prompt = REPHRASE_PROMPT.safe_substitute(instruction=query)
-        response = self.llm.complete(rephrase_prompt).text
-        response = response.strip("```json\n").strip("\n``` \n")
-        rephrased_query = extract_and_eval(response)
-        return rephrased_query
-
-    def _get_query_engine(self, streaming: bool = True) -> RetrieverQueryEngine:
-        """
-        Get the llama-index query engine
-        Args:
-            html: (`str`)
-            streaming (`bool`)
-        Return:
-            `RetrieverQueryEngine`
-        """
-
-        response_synthesizer = get_response_synthesizer(
-            streaming=streaming, llm=self.llm
-        )
-        query_engine = RetrieverQueryEngine(
-            retriever=self.retriever.to_llama_index(self.driver, self.embedding),
-            response_synthesizer=response_synthesizer,
-        )
-        query_engine.update_prompts(
-            {"response_synthesizer:text_qa_template": self.prompt_template}
-        )
-        return query_engine
-
     def get_action(self, query: str) -> Optional[str]:
-        # TODO: Rename query to instruction to be consistent with other engines
         """
         Generate the code from a query
         Args:
@@ -217,10 +208,9 @@ class NavigationEngine(BaseEngine):
         Return:
             `str`: The generated code
         """
-        query_engine = self._get_query_engine(streaming=False)
-        response = query_engine.query(query)
-        code = response.response
-        return self.extractor.extract(code)
+        nodes = self.get_nodes(query)
+        context = "\n".join(nodes)
+        return self.get_action_from_context(context, query)
 
     def execute_instruction_gradio(self, instruction: str, action_engine: Any):
         """
@@ -431,7 +421,7 @@ class NavigationEngine(BaseEngine):
         success = False
         action_full = ""
 
-        list_instructions = self.rephrase_query(instruction)
+        list_instructions = self.rephraser.rephrase_query(instruction)
         original_instruction = instruction
         action_nb = 0
         navigation_log_total = []

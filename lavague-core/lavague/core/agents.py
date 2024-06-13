@@ -321,46 +321,60 @@ class WebAgent:
     def display_previous_nodes(self, steps: int) -> None:
         """prints out all nodes per each sub-instruction for given steps"""
         dflogs = self.logger.return_pandas()
-        #check if dflogs are not null and not empty and engine_log is present in dflogs columns
-        if(dflogs is not None and dflogs.empty is False and "engine_log" in dflogs.columns):
+        # check if dflogs are not null and not empty and engine_log is present in dflogs columns
+        if (
+            dflogs is not None
+            and dflogs.empty is False
+            and "engine_log" in dflogs.columns
+        ):
             if steps > len(dflogs):
-                print(f"Previous steps: {len(dflogs)}\nrequested steps: {steps}\nshowing available steps")
+                print(
+                    f"Previous steps: {len(dflogs)}\nrequested steps: {steps}\nshowing available steps"
+                )
             steps = len(dflogs) if steps > len(dflogs) else steps
             for step in range(steps):
                 print(f"Step: {step}")
                 sub_ins = 0
-                if isinstance(dflogs.at[step, 'engine_log'], list):
-                    for subinst in dflogs.at[step, 'engine_log']:
+                if isinstance(dflogs.at[step, "engine_log"], list):
+                    for subinst in dflogs.at[step, "engine_log"]:
                         print(f"Sub-Instruction: {sub_ins}")
                         sub_ins += 1
                         x = 0
-                        for node in subinst['retrieved_html']:
+                        for node in subinst["retrieved_html"]:
                             print(f"Node {x}")
                             x = x + 1
-                            display(HTML(node)) # Display node as visual element
-                            display(Code(node, language="html")) # Display code
+                            display(HTML(node))  # Display node as visual element
+                            display(Code(node, language="html"))  # Display code
         else:
-            print(f"No previous nodes available. Please run the agent atleast once to view previous steps")
+            print(
+                f"No previous nodes available. Please run the agent atleast once to view previous steps"
+            )
 
     def display_all_nodes(self) -> None:
         """prints out all nodes per each sub-instruction"""
         dflogs = self.logger.return_pandas()
-        #check if dflogs are not null and not empty and engine_log is present in dflogs columns
-        if(dflogs is not None and dflogs.empty is False and "engine_log" in dflogs.columns):
+        # check if dflogs are not null and not empty and engine_log is present in dflogs columns
+        if (
+            dflogs is not None
+            and dflogs.empty is False
+            and "engine_log" in dflogs.columns
+        ):
             print(f"Number of steps: {len(dflogs)}")
             steps = len(dflogs)
             for step in range(steps):
                 print(f"Step: {step}")
                 sub_ins = 0
-                if isinstance(dflogs.at[step, 'engine_log'], list):
-                    for subinst in dflogs.at[step, 'engine_log']:
+                if isinstance(dflogs.at[step, "engine_log"], list):
+                    for subinst in dflogs.at[step, "engine_log"]:
                         print(f"Sub-Instruction: {sub_ins}")
                         sub_ins += 1
                         x = 0
-                        for node in subinst['retrieved_html']:
+                        for node in subinst["retrieved_html"]:
                             print(f"Node: {x}")
                             x = x + 1
-                            display(HTML(node)) # Display node as visual element
-                            display(Code(node, language="html")) # Display code
+                            display(HTML(node))  # Display node as visual element
+                            display(Code(node, language="html"))  # Display code
         else:
-            print(f"No previous nodes available. Please run the agent atleast once to view previous steps")
+            print(
+                f"No previous nodes available. Please run the agent atleast once to view previous steps"
+            )
