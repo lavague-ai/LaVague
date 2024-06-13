@@ -68,7 +68,7 @@ When using `headless` mode, you can activate a `display` mode to display real-ti
 agent.run("Print out the name of this week's top trending model", display=True)
 ```
 
-!!! "Running LaVague on Windows Subsystem for Linux 1"
+!!! note "Running LaVague on Windows Subsystem for Linux 1"
 
     LaVague may be incompatible with WSL1 due to its compatibility issues with GUI applications.
     
