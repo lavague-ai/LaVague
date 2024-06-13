@@ -122,3 +122,10 @@ cmd
 exe
 laura
 macOS
+chromedriver
+deps
+geckodriver
+pkgs
+pyproject
+replit
+toml
