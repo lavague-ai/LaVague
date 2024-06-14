@@ -103,6 +103,7 @@ nav:
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
+  - Evaluator: 'docs/learn/evaluation.md'
   - Web Agents: 'docs/learn/agents.md'
   - World Model: 'docs/learn/world-model.md'
   - Action Engine: 'docs/learn/action-engine.md'
