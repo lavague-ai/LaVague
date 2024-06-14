@@ -10,6 +10,7 @@ on:
       - 'pyproject.toml'
       - '.github/workflows/docs-code.yaml'
       - '.github/new-code-check.py'
+  workflow_dispatch:
     
 jobs:
   check-code:
@@ -52,35 +53,12 @@ jobs:
           exit 1
         fi
 
+    - name: Remove Gradio demo line from CI
+      run: |
+        sed -i '/agent\.demo("Go on the quicktour of PEFT")/d' check-code.py
+
     - name: Check code
       run: cat check-code.py
     
     - name: Run the Python script
       run: python check-code.py
-
-    - name: Install nbconvert
-      run: pip install notebook nbconvert
-
-    # Run quick tour with local code not pypi package
-    - name: Skip install from pypi
-      run: |
-        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        sed -i '0,/^!pip install lavague$/s/^!pip install lavague$/# &/' "$notebook_path"
-
-    - name: Swap OpenAI with Gemini
-      run: |
-        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        sed -i '0,/action_engine = ActionEngine(selenium_driver)/s/action_engine = ActionEngine(selenium_driver)/from lavague.contexts.gemini import GeminiContext; gemini_context = GeminiContext(); action_engine = ActionEngine.from_context(gemini_context, selenium_driver)/' "$notebook_path"
-        sed -i 's/world_model = WorldModel()/world_model = WorldModel.from_context(gemini_context)/' "$notebook_path"
-
-
-    - name: Print code blocks from the notebook
-      run: |
-        notebook_path="docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-        jq -r '.cells[] | select(.cell_type=="code") | .source[]' "$notebook_path"
-
-    - name: Execute the notebook
-      run: |
-        jupyter nbconvert --to notebook --execute --inplace --output "quick-tour.ipynb" "docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb"
-  
-

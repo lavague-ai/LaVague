@@ -1,0 +1,100 @@
+Objective: Find the latest papers on Fine tuning
+Previous instructions: [NONE]
+Last engine: [NONE]
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The current screenshot shows the trendiest papers of the day.
+- The objective is to find the latest papers on Fine tuning.
+- To ensure we have complete information, we need to scan the entire page as the current screenshot seems to show only part of the content.
+- The best next step is to use the Navigation Controls to take a screenshot of the whole page to see if among the papers of the day some are on Fine tuning.
+Next engine: Navigation Controls
+Instruction: SCAN
+-----
+Objective: Find the latest papers on Fine tuning
+Previous instructions:
+- SCAN
+Last engine: Navigation Controls
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The page has been scanned and screenshots show we are on today's papers page of Hugging Face.
+- The objective is to find the latest papers on Fine tuning.
+- There has been a paper mentioning Fine tuning called 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control.'
+- The best next step is to go on the paper page and provide a summary.
+Next engine: Navigation Engine
+Instruction: Click on the paper 'Face Adapter for Pre-Trained Diffusion Models with Fine-Grained ID and Attribute Control'
+-----
+Objective: Find the latest papers on Multi Modal Models
+Previous instructions:
+- SCAN
+Last engine: Navigation Controls
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The current screenshots show a list of papers on Hugging Face.
+- The objective is to find the latest paper on Multi Modal Models.
+- The whole page has been scanned and no relevant paper has been found.
+- As the current page seems to show the latest papers of the day, and we haven't found any matching our objective, we need to find older papers.
+- The 'Previous' button allows to navigate to pagers containing older papers.
+- Therefore the best next step is to click on the 'Previous' button to find papers on Multi Modal Models.
+Next engine: Navigation Engine
+Instruction: Click on the 'Previous' button.
+-----
+Objective: Find the latest papers on Multi Modal Models
+Previous instructions:
+- SCAN
+- Click on the 'Previous' button.
+Last engine: Navigation Controls
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The current screenshots show a list of papers on Hugging Face.
+- The objective is to find the latest paper on Multi Modal Models.
+- The current screenshot seems to show only part of the page, and more papers could be analyzed if we scroll down.
+- The best next step is to use the Navigation Controls to scan the entire page to see if relevant papers can be seen below.
+Next engine: Navigation Controls
+Instruction: SCAN
+-----
+Objective: Find the latest papers on Multi Modal Models
+Previous instructions:
+- SCAN
+- Click on the 'Previous' button.
+- SCAN
+Last engine: Navigation Controls
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Thoughts:
+- The current screenshots show a list of papers on Hugging Face.
+- The objective is to find the latest paper on Multi Modal Models.
+- The whole page has been scanned and no relevant paper has been found.
+- As the current page seems to show the latest papers of the day, and we haven't found any matching our objective, we need to find older papers.
+- The 'Previous' button allows navigating to pages containing older papers.
+- Therefore, the best next step is to click on the 'Previous' button to find papers on Multi Modal Models.
+Next engine: Navigation Engine
+Instruction: Click on the 'Previous' button.

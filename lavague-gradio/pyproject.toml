@@ -1,0 +1,29 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "lavague-gradio"
+authors = ["lavague-ai"]
+version = "0.2.4"
+description = "Gradio demo for lavague"
+license = "Apache-2.0"
+readme = "README.md"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "License :: OSI Approved :: Apache Software License",
+]
+keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
+homepage = "https://lavague.ai"
+repository = "https://github.com/lavague-ai/LaVague/"
+documentation = "https://docs.lavague.ai/en/latest/"
+packages = [{include = "lavague/"}]
+
+[tool.poetry.dependencies]
+python = "^3.10.0"
+lavague-core = "^0.2.14"
+gradio = "4.26.0"

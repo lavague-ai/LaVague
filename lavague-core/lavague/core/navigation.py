@@ -1,7 +1,7 @@
 from io import BytesIO
 import logging
 import time
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Tuple, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
@@ -10,17 +10,13 @@ from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
     display_screenshot,
-    get_highlighted_element,
     sort_files_by_creation,
 )
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 from lavague.core.logger import AgentLogger
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from lavague.core.base_engine import BaseEngine
+from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.base_driver import BaseDriver
-from llama_index.core import get_response_synthesizer, QueryBundle, PromptTemplate
+from llama_index.core import QueryBundle, PromptTemplate, get_response_synthesizer
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.query_engine import RetrieverQueryEngine
@@ -40,6 +36,30 @@ Completion:
     PythonFromMarkdownExtractor(),
 )
 
+REPHRASE_PROMPT = Template(
+    """
+You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
+Here are previous examples:
+Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
+Standardized instruction: [{'query':'input"Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
+Text instruction: Click on the search bar with placeholder "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter.
+Standardized instruction: [{'query':'input"Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
+Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
+Standardized instruction: [{'query':'button"Installation"', 'action':'Click on "Installation"'}]
+
+Text instruction:  Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
+Standardized instruction: [{'query':'input"Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'}, {'query':'input"First name"', 'action':'Click on the input "First name" and type "John"'}, {'query':'input"Last name"', 'action':'Click on the input "Last name" and type "Doe"'}, {'query':'input"Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}]
+Text instruction: In the login form, locate the input element labeled “Username” and type “user123”. Locate the input element labeled “Password” and type “pass456”.
+Standardized instruction: [{'query':'input”Username”', 'action':'Click on the input “Username” and type “user123”'}, {'query':'input”Password”', 'action':'Click on the input “Password” and type “pass456”'}]
+
+Text instruction: Press the button labeled “Submit” at the bottom of the form.
+Standardized instruction: [{'query':'button”Submit”', 'action':'Click on the button “Submit”'}]
+
+Text instruction: ${instruction}
+Standardized instruction:
+"""
+)
+
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
 format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -48,6 +68,28 @@ ch.setLevel(logging.INFO)
 ch.setFormatter(format)
 logging_print.addHandler(ch)
 logging_print.propagate = False
+
+
+class Rephraser:
+    def __init__(self, llm: BaseLLM = None, prompt: PromptTemplate = REPHRASE_PROMPT):
+        self.llm = llm
+        self.prompt = prompt
+        if self.llm is None:
+            self.llm = get_default_context().llm
+
+    def rephrase_query(self, query: str) -> List[dict]:
+        """
+        Rephrase the query
+        Args:
+            query (`str`): The query to rephrase
+        Return:
+            `List[dict]`: The rephrased query as a list of dictionaries
+        """
+        rephrase_prompt = self.prompt.safe_substitute(instruction=query)
+        response = self.llm.complete(rephrase_prompt).text
+        response = response.strip("```json\n").strip("\n``` \n")
+        rephrased_query = extract_and_eval(response)
+        return rephrased_query
 
 
 class NavigationEngine(BaseEngine):
@@ -78,7 +120,8 @@ class NavigationEngine(BaseEngine):
         driver: BaseDriver,
         llm: BaseLLM = None,
         embedding: BaseEmbedding = None,
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        rephraser: Rephraser = None,
+        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
         time_between_actions: float = 1.5,
@@ -90,9 +133,14 @@ class NavigationEngine(BaseEngine):
             llm: BaseLLM = get_default_context().llm
         if embedding is None:
             embedding: BaseEmbedding = get_default_context().embedding
+        if rephraser is None:
+            rephraser = Rephraser(llm)
+        if retriever is None:
+            retriever = OpsmSplitRetriever(driver, embedding)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.embedding: BaseEmbedding = embedding
+        self.rephraser = rephraser
         self.retriever: BaseHtmlRetriever = retriever
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
             driver_capability=driver.get_capability()
@@ -108,7 +156,8 @@ class NavigationEngine(BaseEngine):
         cls,
         context: Context,
         driver: BaseDriver,
-        retriever: BaseHtmlRetriever = OpsmSplitRetriever(),
+        rephraser: Rephraser = None,
+        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
     ) -> "NavigationEngine":
@@ -119,38 +168,11 @@ class NavigationEngine(BaseEngine):
             driver,
             context.llm,
             context.embedding,
+            rephraser,
             retriever,
             prompt_template,
             extractor,
         )
-
-    def _get_query_engine(self, streaming: bool = True) -> RetrieverQueryEngine:
-        """
-        Get the llama-index query engine
-
-        Args:
-            html: (`str`)
-            streaming (`bool`)
-
-        Return:
-            `RetrieverQueryEngine`
-        """
-
-        response_synthesizer = get_response_synthesizer(
-            streaming=streaming, llm=self.llm
-        )
-
-        # assemble query engine
-        query_engine = RetrieverQueryEngine(
-            retriever=self.retriever.to_llama_index(self.driver, self.embedding),
-            response_synthesizer=response_synthesizer,
-        )
-
-        query_engine.update_prompts(
-            {"response_synthesizer:text_qa_template": self.prompt_template}
-        )
-
-        return query_engine
 
     def get_nodes(self, query: str) -> List[str]:
         """
@@ -162,9 +184,7 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[str]`: The nodes
         """
-        source_nodes = self.retriever.retrieve_html(
-            self.driver, self.embedding, QueryBundle(query_str=query)
-        )
+        source_nodes = self.retriever.retrieve_html(QueryBundle(query_str=query))
         source_nodes = [node.text for node in source_nodes]
         return source_nodes
 
@@ -180,60 +200,19 @@ class NavigationEngine(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
-    def rephrase_query(self, query: str) -> List[dict]:
-        """
-        Rephrase the query
-        Args:
-            query (`str`): The query to rephrase
-        Return:
-            `List[dict]`: The rephrased query as a list of dictionaries
-        """
-        rephrase_prompt = Template(
-            """
-        You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
-        Here are previous examples:
-        Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
-        Standardized instruction: [{'query':'input"Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
-        Text instruction: Click on the search bar with placeholder "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter.
-        Standardized instruction: [{'query':'input"Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
-        Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
-        Standardized instruction: [{'query':'button"Installation"', 'action':'Click on "Installation"'}]
-        
-        Text instruction:  Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
-        Standardized instruction: [{'query':'input"Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'}, {'query':'input"First name"', 'action':'Click on the input "First name" and type "John"'}, {'query':'input"Last name"', 'action':'Click on the input "Last name" and type "Doe"'}, {'query':'input"Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}]
-        Text instruction: In the login form, locate the input element labeled “Username” and type “user123”. Locate the input element labeled “Password” and type “pass456”.
-        Standardized instruction: [{'query':'input”Username”', 'action':'Click on the input “Username” and type “user123”'}, {'query':'input”Password”', 'action':'Click on the input “Password” and type “pass456”'}]
-        
-        Text instruction: Press the button labeled “Submit” at the bottom of the form.
-        Standardized instruction: [{'query':'button”Submit”', 'action':'Click on the button “Submit”'}]
-        
-        Text instruction: ${instruction}
-        Standardized instruction:
-        """
-        )
-        rephrase_prompt = rephrase_prompt.safe_substitute(instruction=query)
-        response = self.llm.complete(rephrase_prompt).text
-        response = response.strip("```json\n").strip("\n``` \n")
-        rephrased_query = extract_and_eval(response)
-        return rephrased_query
-
     def get_action(self, query: str) -> Optional[str]:
-        # TODO: Rename query to instruction to be consistent with other engines
         """
         Generate the code from a query
-
         Args:
             query (`str`): Instructions given at the end of the prompt to tell the model what to do on the html page
-
         Return:
             `str`: The generated code
         """
-        query_engine = self._get_query_engine(streaming=False)
-        response = query_engine.query(query)
-        code = response.response
-        return self.extractor.extract(code)
+        nodes = self.get_nodes(query)
+        context = "\n".join(nodes)
+        return self.get_action_from_context(context, query)
 
-    def execute_instruction(self, instruction: str) -> Tuple[bool, Any]:
+    def execute_instruction_gradio(self, instruction: str, action_engine: Any):
         """
         Generates code and executes it to answer the instruction
 
@@ -242,17 +221,208 @@ class NavigationEngine(BaseEngine):
 
         Return:
             `bool`: True if the code was executed without error
-            `Any`: The output of the code
+            `Any`: The output of navigation is always None
         """
 
-        # Navigation has no output
+        from selenium.webdriver.support.ui import WebDriverWait
 
+        success = False
+        action_full = ""
         output = None
-        driver = self.driver.get_driver()
+
+        list_instructions = self.rephrase_query(instruction)
+        original_instruction = instruction
+        action_nb = 0
+        navigation_log_total = []
+
+        for action in list_instructions:
+            logging_print.debug("query for retriever: " + action["query"])
+            logging_print.debug("Rephrased instruction: " + action["action"])
+            instruction = action["action"]
+            start = time.time()
+            source_nodes = self.get_nodes(action["query"])
+            end = time.time()
+            retrieval_time = end - start
+
+            llm_context = "\n".join(source_nodes)
+            success = False
+            logger = self.logger
+
+            navigation_log = {
+                "original_instruction": original_instruction,
+                "navigation_engine_input": instruction,
+                "retrieved_html": source_nodes,
+                "retrieval_time": retrieval_time,
+                "retrieval_name": self.retriever.__class__.__name__,
+            }
+
+            action_outcomes = []
+            for _ in range(self.n_attempts):
+                if success:
+                    break
+                if self.display:
+                    try:
+                        scr_path = self.driver.get_current_screenshot_folder()
+                        lst = sort_files_by_creation(scr_path)
+                        for scr in lst:
+                            img = Image.open(scr_path.as_posix() + "/" + scr)
+                            display_screenshot(img)
+                            time.sleep(0.35)
+                    except:
+                        pass
+                start = time.time()
+                prompt = self.prompt_template.format(
+                    context_str=llm_context, query_str=instruction
+                )
+                response = self.llm.complete(prompt).text
+                action = self.extractor.extract(response)
+                end = time.time()
+                action_generation_time = end - start
+                action_outcome = {
+                    "action": action,
+                    "action_generation_time": action_generation_time,
+                    "navigation_engine_full_prompt": prompt,
+                    "navigation_engine_llm": get_model_name(self.llm),
+                }
+                try:
+                    # Get information to see which elements are selected
+                    vision_data = self.driver.get_highlighted_element(action)
+                    action_full += action
+                    for item in vision_data:
+                        screenshot = item["screenshot"]
+                        if action_engine.screenshot_ratio != 1:
+                            screenshot = screenshot.resize(
+                                (
+                                    int(
+                                        screenshot.width
+                                        / action_engine.screenshot_ratio
+                                    ),
+                                    int(
+                                        screenshot.height
+                                        / action_engine.screenshot_ratio
+                                    ),
+                                )
+                            )
+                        self.image_display = screenshot
+                        yield (
+                            self.objective,
+                            self.url_input,
+                            screenshot,
+                            self.instructions_history,
+                            self.history,
+                            output,
+                        )
+
+                    self.driver.exec_code(action)
+                    self.history[-1] = (
+                        self.history[-1][0],
+                        f"✅ Step {action_engine.curr_step}:\n{action_engine.curr_instruction}",
+                    )
+                    self.history.append((None, None))
+                    self.history[-1] = (self.history[-1][0], "⏳ Loading the page...")
+                    yield (
+                        self.objective,
+                        self.url_input,
+                        self.image_display,
+                        self.instructions_history,
+                        self.history,
+                        output,
+                    )
+                    time.sleep(1)
+                    img = self.driver.get_screenshot_as_png()
+                    img = BytesIO(img)
+                    img = Image.open(img)
+                    if action_engine.screenshot_ratio != 1:
+                        img = img.resize(
+                            (
+                                int(img.width / action_engine.screenshot_ratio),
+                                int(img.height / action_engine.screenshot_ratio),
+                            )
+                        )
+                    self.image_display = img
+                    yield (
+                        self.objective,
+                        self.url_input,
+                        self.image_display,
+                        self.instructions_history,
+                        self.history,
+                        output,
+                    )
+
+                    WebDriverWait(self.driver.get_driver(), 30).until(
+                        lambda d: d.execute_script("return document.readyState")
+                        == "complete"
+                    )
+
+                    time.sleep(self.time_between_actions)
+
+                    success = True
+                    action_outcome["success"] = True
+                    navigation_log["vision_data"] = vision_data
+                except Exception as e:
+                    print("Navigation error:", e)
+                    action_outcome["success"] = False
+                    action_outcome["error"] = str(e)
+
+                action_outcomes.append(action_outcome)
+
+            navigation_log["action_outcomes"] = action_outcomes
+            navigation_log["action_nb"] = action_nb
+            action_nb += 1
+            navigation_log_total.append(navigation_log)
+
+        if success == False:
+            self.history[-1] = (
+                self.history[-1][0],
+                f"❌ Step {action_engine.curr_step + 1}:\n{action_engine.curr_instruction}",
+            )
+            self.history.append((None, None))
+
+        if logger:
+            log = {
+                "engine": "Navigation Engine",
+                "instruction": instruction,
+                "engine_log": navigation_log_total,
+                "success": success,
+                "output": None,
+                "code": action_full,
+            }
+
+            logger.add_log(log)
+
+        output = ActionResult(
+            instruction=instruction,
+            code=action_full,
+            success=success,
+            output=None,
+        )
+        action_engine.ret = output
+
+        yield (
+            self.objective,
+            self.url_input,
+            self.image_display,
+            self.instructions_history,
+            self.history,
+            output.output,
+        )
+
+    def execute_instruction(self, instruction: str) -> ActionResult:
+        """
+        Generates code and executes it to answer the instruction
+
+        Args:
+            instruction (`str`): The instruction to perform
+
+        Return:
+            `bool`: True if the code was executed without error
+            `Any`: The output of navigation is always None
+        """
+
         success = False
         action_full = ""
 
-        list_instructions = self.rephrase_query(instruction)
+        list_instructions = self.rephraser.rephrase_query(instruction)
         original_instruction = instruction
         action_nb = 0
         navigation_log_total = []
@@ -306,19 +476,15 @@ class NavigationEngine(BaseEngine):
                     "navigation_engine_llm": get_model_name(self.llm),
                 }
                 try:
-                    local_scope = {"driver": driver}
-                    code_to_execute = f"""
-{self.driver.import_lines}
-{action}"""
                     # Get information to see which elements are selected
-                    vision_data = get_highlighted_element(driver, action)
+                    vision_data = self.driver.get_highlighted_element(action)
                     action_full += action
                     if self.display:
                         for item in vision_data:
                             display_screenshot(item["screenshot"])
                             time.sleep(0.2)
 
-                    exec(code_to_execute, local_scope, local_scope)
+                    self.driver.exec_code(action)
                     time.sleep(self.time_between_actions)
                     if self.display:
                         try:
@@ -332,6 +498,7 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
+                    print("Navigation error:", e)
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
 
@@ -353,7 +520,12 @@ class NavigationEngine(BaseEngine):
 
             logger.add_log(log)
 
-        return success, output
+        return ActionResult(
+            instruction=instruction,
+            code=action_full,
+            success=success,
+            output=None,
+        )
 
 
 class NavigationControl(BaseEngine):
@@ -375,61 +547,48 @@ class NavigationControl(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
-    def execute_instruction(self, instruction: str):
+    def execute_instruction(self, instruction: str) -> ActionResult:
         logger = self.logger
-        # TODO: Not clean the fact that we have driver / meta_driver around. Should settle for better names
-        meta_driver: BaseDriver = self.driver
-        driver: WebDriver = meta_driver.get_driver()
         display_page = False
 
         if "SCROLL_DOWN" in instruction:
-            code = (
-                """driver.execute_script("window.scrollBy(0, window.innerHeight);")"""
+            code = self.driver.code_for_execute_script(
+                "window.scrollBy(0, window.innerHeight);"
             )
         elif "SCROLL_UP" in instruction:
-            code = (
-                """driver.execute_script("window.scrollBy(0, -window.innerHeight);")"""
+            code = self.driver.code_for_execute_script(
+                "window.scrollBy(0, -window.innerHeight);"
             )
         elif "WAIT" in instruction:
             code = f"""
 import time
 time.sleep({self.time_between_actions})"""
         elif "BACK" in instruction:
-            code = """driver.back()"""
+            code = self.driver.code_for_back()
         elif "SCAN" in instruction:
-            # TODO: Should scan be in the navigation controls or in the driver?
-            code = """meta_driver.get_screenshots_whole_page()"""
-            display_page = True
+            code = ""
+            self.driver.get_screenshots_whole_page()
+        elif "MAXIMIZE_WINDOW" in instruction:
+            code = ""
+            self.driver.maximize_window()
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
-
-        local_scope = {"driver": driver, "meta_driver": meta_driver}
-        exec(code, local_scope, local_scope)
-        if display_page and self.display:
-            try:
-                scr_path = self.driver.get_current_screenshot_folder()
-                lst = sort_files_by_creation(scr_path)
-                for scr in lst:
-                    img = Image.open(scr_path.as_posix() + "/" + scr)
-                    display_screenshot(img)
-                    time.sleep(0.35)
-            except:
-                pass
+        self.driver.exec_code(code)
         success = True
-        output = None
-
         if logger:
             log = {
                 "engine": "Navigation Controls",
                 "instruction": instruction,
                 "engine_log": None,
                 "success": success,
-                "output": output,
+                "output": None,
                 "code": code,
             }
             logger.add_log(log)
 
-        return success, output
+        return ActionResult(
+            instruction=instruction, code=code, success=success, output=None
+        )
 
 
 def get_model_name(llm: BaseLLM) -> str:

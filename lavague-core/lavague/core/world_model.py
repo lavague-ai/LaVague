@@ -232,7 +232,7 @@ It does not impact the outside world and does not navigate.
 - Navigation Engine: This engine is used when the next step of the task requires further navigation to reach the goal.
 For instance it can be used to click on a link or to fill a form on a webpage. This engine is heavy and will do complex processing of the current HTML to decide which element to interact with.
 - Navigation Controls: This engine is used to perform simple navigation. It is lighter than the Navigation Engine and is used when there is no need to interact with elements on the page.
-Current controls are WAIT (to wait for a certain amount of time), BACK (to go back in the browser history), and SCAN (to take screenshots of the whole page).
+Current controls are WAIT (to wait for a certain amount of time), BACK (to go back in the browser history), SCAN (to take screenshots of the whole page) and MAXIMIZE_WINDOW (to maximize the viewport of the driver).
 
 Here are guidelines to follow:
 
@@ -251,6 +251,7 @@ Only provide directly the desired output in the instruction in cases where there
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
 - If several steps have to be taken, provide instructions in bullet points.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
+- If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.
 
 Here are previous examples:
 {examples}
@@ -305,7 +306,14 @@ class WorldModel(ABC, Loggable):
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
     ) -> WorldModel:
         return cls(context.mm_llm, prompt_template, examples)
+
     @lru_cache(maxsize=128)
+    def add_knowledge(self, file_path: str):
+        """Add knowledge to the world model from an example file."""
+        with open(file_path, "r") as file:
+            knowledge = file.read()
+        self.prompt_template.kwargs["examples"] += knowledge
+
     def get_instruction(
         self,
         objective: str,

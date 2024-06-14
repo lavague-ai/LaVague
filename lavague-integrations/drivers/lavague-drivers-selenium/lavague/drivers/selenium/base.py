@@ -1,14 +1,17 @@
-from datetime import datetime
-import hashlib
-import os
 from pathlib import Path
 import time
-from typing import Any, Optional, Callable
+from typing import Any, Optional, Callable, Mapping
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import BaseDriver
 from PIL import Image
 from io import BytesIO
+from lavague.core.utilities.format_utils import (
+    return_assigned_variables,
+    keep_assignments,
+    extract_code_from_funct,
+)
 
 
 class SeleniumDriver(BaseDriver):
@@ -19,14 +22,22 @@ class SeleniumDriver(BaseDriver):
         url: Optional[str] = None,
         get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
         headless: bool = True,
-        chrome_user_dir: Optional[str] = None,
+        user_data_dir: Optional[str] = None,
+        width: int = 1080,
+        height: int = 1080,
+        no_load_strategy: bool = False,
     ):
         self.headless = headless
-        self.chrome_user_dir = chrome_user_dir
+        self.user_data_dir = user_data_dir
+        self.width = width
+        self.height = height
+        self.no_load_strategy = no_load_strategy
         super().__init__(url, get_selenium_driver)
 
+    #   Default code to init the driver.
+    #   Before making any change to this, make sure it is compatible with code_for_init, which parses the code of this function
+    #   These imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Any:
-        # these imports are necessary as they will be pasted to the output
         from selenium import webdriver
         from selenium.webdriver.common.by import By
         from selenium.webdriver.chrome.options import Options
@@ -36,13 +47,39 @@ class SeleniumDriver(BaseDriver):
         chrome_options = Options()
         if self.headless:
             chrome_options.add_argument("--headless")
-        if self.chrome_user_dir:
-            chrome_options.add_argument(f"--user-data-dir={self.chrome_user_dir}")
+        if self.user_data_dir:
+            chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
         chrome_options.add_argument("--no-sandbox")
+        chrome_options.page_load_strategy = (
+            "normal" if self.no_load_strategy is False else "none"
+        )
 
-        self.driver = webdriver.Chrome(options=chrome_options)
-        self.resize_driver(1024, 1024)
+        driver = webdriver.Chrome(options=chrome_options)
+        self.driver = driver
+        self.resize_driver(self.width, self.height)
         return self.driver
+
+    def code_for_init(self) -> str:
+        init_lines = extract_code_from_funct(self.init_function)
+        code_lines = []
+        keep_next = True
+        for line in init_lines:
+            if "--user-data-dir" in line:
+                line = line.replace(
+                    f"{{self.user_data_dir}}", f'"{self.user_data_dir}"'
+                )
+            if "if" in line:
+                if ("headless" in line and not self.headless) or (
+                    "user_data_dir" in line and self.user_data_dir is None
+                ):
+                    keep_next = False
+            elif keep_next:
+                if "self" not in line:
+                    code_lines.append(line.strip())
+            else:
+                keep_next = True
+        code_lines.append(self.code_for_resize(self.width, self.height))
+        return "\n".join(code_lines) + "\n"
 
     def get_driver(self) -> WebDriver:
         return self.driver
@@ -54,99 +91,45 @@ class SeleniumDriver(BaseDriver):
 
         height_difference = height - viewport_height
         self.driver.set_window_size(width, height + height_difference)
+        self.width = width
+        self.height = height
+
+    def code_for_resize(self, width, height) -> str:
+        return f"""
+driver.set_window_size({width}, {height})
+viewport_height = driver.execute_script("return window.innerHeight;")
+height_difference = {height} - viewport_height
+driver.set_window_size({width}, {height} + height_difference)
+"""
 
     def get_url(self) -> Optional[str]:
         if self.driver.current_url == "data:,":
             return None
         return self.driver.current_url
 
-    def go_to_url_code(self, url: str) -> str:
+    def code_for_get(self, url: str) -> str:
         return f'driver.get("{url}")'
 
-    def goto(self, url: str) -> None:
+    def get(self, url: str) -> None:
         self.driver.get(url)
+
+    def back(self) -> None:
+        self.driver.back()
+
+    def code_for_back(self) -> None:
+        return "driver.back()"
 
     def get_html(self) -> str:
         return self.driver.page_source
 
-    def compute_hash(self, screenshot: bytes) -> str:
-        """Computes hash of a file."""
-        hasher = hashlib.md5()
-        hasher.update(screenshot)
-        return hasher.hexdigest()
-
-    def save_screenshot(self, current_screenshot_folder: Path) -> str:
-        """Save the screenshot data to a file and return the path. If the screenshot already exists, return the path. If not save it to the folder."""
-
-        new_screenshot = self.get_screenshot_as_png()
-        new_hash = self.compute_hash(new_screenshot)
-        new_screenshot_name = f"{new_hash}.png"
-        new_screenshot_full_path = current_screenshot_folder / new_screenshot_name
-
-        # If the screenshot does not exist, save it
-        if not new_screenshot_full_path.exists():
-            with open(new_screenshot_full_path, "wb") as f:
-                f.write(new_screenshot)
-        return str(new_screenshot_full_path)
-
-    def get_obs(self) -> dict:
-        current_screenshot_folder = self.get_current_screenshot_folder()
-        # We take a screenshot and computes its hash to see if it already exists
-        self.save_screenshot(current_screenshot_folder)
-
-        url = self.get_url()
-        html = self.get_html()
-        obs = {
-            "html": html,
-            "screenshots_path": str(current_screenshot_folder),
-            "url": url,
-            "date": datetime.now().isoformat(),
-        }
-
-        return obs
-
-    def is_bottom_of_page(self) -> bool:
-        return self.driver.execute_script(
-            "return (window.innerHeight + window.scrollY) >= document.body.scrollHeight;"
-        )
-
-    def get_current_screenshot_folder(self) -> Path:
-        url = self.get_url()
-        screenshots_path = Path("./screenshots")
-        screenshots_path.mkdir(exist_ok=True)
-
-        current_screenshot_folder = screenshots_path / url.replace("://", "_").replace(
-            "/", "_"
-        )
-        current_screenshot_folder.mkdir(exist_ok=True)
-        return current_screenshot_folder
-
-    def get_screenshots_whole_page(self) -> list[str]:
-        screenshot_paths = []
-
-        current_screenshot_folder = self.get_current_screenshot_folder()
-
-        while True:
-            # Saves a screenshot
-            screenshot_path = self.save_screenshot(current_screenshot_folder)
-            screenshot_paths.append(screenshot_path)
-            self.driver.execute_script(
-                "window.scrollBy(0, (window.innerHeight / 1.5));"
-            )
-            time.sleep(0.5)
-
-            if self.is_bottom_of_page():
-                break
-        return screenshot_paths
-
     def get_screenshot_as_png(self) -> bytes:
         return self.driver.get_screenshot_as_png()
 
-    def get_dummy_code(self) -> str:
-        return 'driver.execute_script("window.scrollBy(0, 500)")'
-
     def destroy(self) -> None:
         self.driver.quit()
+
+    def maximize_window(self) -> None:
+        self.driver.maximize_window()
 
     def check_visibility(self, xpath: str) -> bool:
         try:
@@ -154,10 +137,75 @@ class SeleniumDriver(BaseDriver):
         except:
             return False
 
-    def exec_code(self, code: str):
+    def get_highlighted_element(self, generated_code: str):
+        local_scope = {"driver": self.get_driver()}
+        assignment_code = keep_assignments(generated_code)
+        self.exec_code(assignment_code, locals=local_scope)
+
+        # We extract pairs of variables assigned during execution with their name and pointer
+        variable_names = return_assigned_variables(generated_code)
+
+        elements = []
+
+        for variable_name in variable_names:
+            var = local_scope[variable_name]
+            if type(var) == WebElement:
+                elements.append(var)
+
+        if len(elements) == 0:
+            raise ValueError(f"No element found.")
+
+        outputs = []
+        for element in elements:
+            element: WebElement
+
+            bounding_box = {}
+            viewport_size = {}
+
+            self.execute_script(
+                "arguments[0].setAttribute('style', arguments[1]);",
+                element,
+                "border: 2px solid red;",
+            )
+            self.execute_script(
+                "arguments[0].scrollIntoView({block: 'center'});", element
+            )
+            screenshot = self.get_screenshot_as_png()
+
+            bounding_box["x1"] = element.location["x"]
+            bounding_box["y1"] = element.location["y"]
+            bounding_box["x2"] = bounding_box["x1"] + element.size["width"]
+            bounding_box["y2"] = bounding_box["y1"] + element.size["height"]
+
+            viewport_size["width"] = self.execute_script("return window.innerWidth;")
+            viewport_size["height"] = self.execute_script("return window.innerHeight;")
+            screenshot = BytesIO(screenshot)
+            screenshot = Image.open(screenshot)
+            output = {
+                "screenshot": screenshot,
+                "bounding_box": bounding_box,
+                "viewport_size": viewport_size,
+            }
+            outputs.append(output)
+        return outputs
+
+    def exec_code(
+        self,
+        code: str,
+        globals: dict[str, Any] = None,
+        locals: Mapping[str, object] = None,
+    ):
         exec(self.import_lines)
         driver = self.driver
-        exec(code)
+        exec(code, globals, locals)
+
+    def execute_script(self, js_code: str, *args) -> Any:
+        return self.driver.execute_script(js_code, *args)
+
+    def code_for_execute_script(self, js_code: str, *args) -> str:
+        return (
+            f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
+        )
 
     def resize_driver(self, width, targeted_height):
         """Resize the Selenium driver viewport to a targeted height and width.

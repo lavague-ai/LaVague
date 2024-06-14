@@ -15,14 +15,13 @@ from lavague.core.base_driver import BaseDriver
 import trafilatura
 from llama_index.core import Document, VectorStoreIndex
 from lavague.core.logger import AgentLogger
-from lavague.core.base_engine import BaseEngine
+from lavague.core.base_engine import BaseEngine, ActionResult
 from PIL import Image
 
 
 class PythonEngine(BaseEngine):
     llm: BaseLLM
     embedding: BaseEmbedding
-    # TODO: Design question: should we have a driver available to Python engine?
     driver: BaseDriver
 
     def __init__(
@@ -49,12 +48,31 @@ class PythonEngine(BaseEngine):
     ):
         return cls(context.llm, context.embedding)
 
-    def execute_instruction(self, instruction: str):
+    def execute_instruction(self, instruction: str) -> ActionResult:
         logger = self.logger
 
         html = self.driver.get_html()
         start = time.time()
-        output = self.extract_information(instruction, html)
+        llm = self.llm
+        embedding = self.embedding
+
+        if self.display:
+            try:
+                screenshot = self.driver.get_screenshot_as_png()
+                screenshot = BytesIO(screenshot)
+                screenshot = Image.open(screenshot)
+                display_screenshot(screenshot)
+            except:
+                pass
+
+        page_content = trafilatura.extract(html)
+
+        documents = [Document(text=page_content)]
+
+        index = VectorStoreIndex.from_documents(documents, embed_model=embedding)
+        query_engine = index.as_query_engine(llm=llm)
+
+        output = query_engine.query(instruction).response
         end = time.time()
         action_time = end - start
 
@@ -74,34 +92,9 @@ class PythonEngine(BaseEngine):
 
             logger.add_log(log)
 
-        return success, output
+        return ActionResult(
+            instruction=instruction, code="", success=success, output=output
+        )
 
     def set_display(self, display: bool):
         self.display = display
-
-    def extract_information(self, instruction: str, html: str) -> str:
-        llm = self.llm
-        embedding = self.embedding
-
-        if self.display:
-            try:
-                screenshot = self.driver.get_screenshot_as_png()
-                screenshot = BytesIO(screenshot)
-                screenshot = Image.open(screenshot)
-                display_screenshot(screenshot)
-            except:
-                pass
-
-        page_content = trafilatura.extract(html)
-        # Next we will use Llama Index to perform RAG on the extracted text content
-
-        documents = [Document(text=page_content)]
-
-        # We then build index
-        index = VectorStoreIndex.from_documents(documents, embed_model=embedding)
-        query_engine = index.as_query_engine(llm=llm)
-
-        # We finally store the output in the variable 'output'
-        output = query_engine.query(instruction).response
-
-        return output
