@@ -329,8 +329,7 @@ class WorldModel(ABC, Loggable):
         last_engine = past["last_engine"]
 
         try:
-            current_state_str = yaml.dump(
-                current_state, default_flow_style=False)
+            current_state_str = yaml.dump(current_state, default_flow_style=False)
         except:
             raise Exception("Could not convert current state to YAML")
 
