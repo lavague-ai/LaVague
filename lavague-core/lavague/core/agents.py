@@ -271,51 +271,57 @@ class WebAgent:
         self.action_engine.set_display_all(display)
         action_result: ActionResult
 
-        st_memory = self.st_memory
-        world_model = self.world_model
+        try:
+            st_memory = self.st_memory
+            world_model = self.world_model
 
-        if user_data:
-            self.st_memory.set_user_data(user_data)
-
-        obs = self.driver.get_obs()
-
-        self.logger.new_run()
-        for _ in range(self.n_steps):
-            current_state, past = st_memory.get_state()
-
-            world_model_output = world_model.get_instruction(
-                objective, current_state, past, obs
-            )
-            logging_print.info(world_model_output)
-            next_engine_name = extract_next_engine(world_model_output)
-            instruction = extract_world_model_instruction(world_model_output)
-
-            if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
-                self.result.success = True
-                self.result.output = instruction
-                logging_print.info("Objective reached. Stopping...")
-                self.logger.add_log(obs)
-                self.logger.end_step()
-                break
-
-            action_result = self.action_engine.dispatch_instruction(
-                next_engine_name, instruction
-            )
-            if action_result.success:
-                self.result.code += action_result.code
-                self.result.output = action_result.output
-            st_memory.update_state(
-                instruction,
-                next_engine_name,
-                action_result.success,
-                action_result.output,
-            )
-
-            self.logger.add_log(obs)
-            self.logger.end_step()
+            if user_data:
+                self.st_memory.set_user_data(user_data)
 
             obs = self.driver.get_obs()
-        send_telemetry(self.logger.return_pandas())
+
+            self.logger.new_run()
+            for _ in range(self.n_steps):
+                current_state, past = st_memory.get_state()
+
+                world_model_output = world_model.get_instruction(
+                    objective, current_state, past, obs
+                )
+                logging_print.info(world_model_output)
+                next_engine_name = extract_next_engine(world_model_output)
+                instruction = extract_world_model_instruction(world_model_output)
+
+                if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
+                    self.result.success = True
+                    self.result.output = instruction
+                    logging_print.info("Objective reached. Stopping...")
+                    self.logger.add_log(obs)
+                    self.logger.end_step()
+                    break
+
+                action_result = self.action_engine.dispatch_instruction(
+                    next_engine_name, instruction
+                )
+                if action_result.success:
+                    self.result.code += action_result.code
+                    self.result.output = action_result.output
+                st_memory.update_state(
+                    instruction,
+                    next_engine_name,
+                    action_result.success,
+                    action_result.output,
+                )
+
+                self.logger.add_log(obs)
+                self.logger.end_step()
+
+                obs = self.driver.get_obs()
+        except KeyboardInterrupt:
+            pass
+        except Exception as e:
+            raise e
+        finally:
+            send_telemetry(self.logger.return_pandas())
         return self.result
 
     def display_previous_nodes(self, steps: int) -> None:
