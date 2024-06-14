@@ -568,7 +568,8 @@ time.sleep({self.time_between_actions})"""
             code = ""
             self.driver.get_screenshots_whole_page()
         elif "MAXIMIZE_WINDOW" in instruction:
-            code = "driver.maximize_window()"
+            code = ""
+            self.driver.maximize_window()
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         self.driver.exec_code(code)

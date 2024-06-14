@@ -72,6 +72,10 @@ class BaseDriver(ABC):
         pass
 
     @abstractmethod
+    def maximize_window(self) -> None:
+        pass
+
+    @abstractmethod
     def code_for_back(self) -> None:
         """Return driver specific code for going back"""
         pass

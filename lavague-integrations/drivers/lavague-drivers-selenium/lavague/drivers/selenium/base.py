@@ -128,6 +128,9 @@ driver.set_window_size({width}, {height} + height_difference)
     def destroy(self) -> None:
         self.driver.quit()
 
+    def maximize_window(self) -> None:
+        self.driver.maximize_window()
+
     def check_visibility(self, xpath: str) -> bool:
         try:
             return self.driver.find_element(By.XPATH, xpath).is_displayed()
