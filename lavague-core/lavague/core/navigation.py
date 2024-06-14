@@ -236,10 +236,11 @@ class NavigationEngine(BaseEngine):
         navigation_log_total = []
 
         for action in list_instructions:
+            logging_print.debug("query for retriever: " + action["query"])
             logging_print.debug("Rephrased instruction: " + action["action"])
             instruction = action["action"]
             start = time.time()
-            source_nodes = self.get_nodes(instruction)
+            source_nodes = self.get_nodes(action["query"])
             end = time.time()
             retrieval_time = end - start
 
