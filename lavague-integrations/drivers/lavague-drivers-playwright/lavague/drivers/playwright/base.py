@@ -175,6 +175,9 @@ class PlaywrightDriver(BaseDriver):
             }
             outputs.append(output)
         return outputs
+    
+    def maximize_window(self) -> None:
+        pass
 
     def exec_code(
         self,
