@@ -119,7 +119,7 @@ You can use this method with as many results DataFrames as you like by passing t
 
 The `compare` method returns a `matplotlib.pyplot`. 
 
-You can create many different visualizations using this object. See the [official documentation](matplotlib.pyplot) for more details.
+You can create many different visualizations using this object. See the [official documentation](https://matplotlib.org/3.5.3/api/_as_gen/matplotlib.pyplot.html) for more details.
 
 ```python
 # with as many df as you want
