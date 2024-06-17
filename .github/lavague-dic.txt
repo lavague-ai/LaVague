@@ -129,3 +129,12 @@ pkgs
 pyproject
 replit
 toml
+CSV
+DataFrames
+LLM's
+LLMEvaluator
+LlamaIndex
+RetrieverEvaluator
+XPATH
+dataframe
+retiever

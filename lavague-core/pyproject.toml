@@ -4,7 +4,7 @@ requires = ["poetry-core"]
 
 [tool.poetry]
 name = "lavague-core"
-version = "0.2.17"
+version = "0.2.18"
 description = "automation code generation from text instructions"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -34,3 +34,4 @@ msgpack = "^1.0.8"
 trafilatura = "^1.9.0"
 lxml-html-clean = "^0.1.1"
 seaborn = "^0.13.2"
+tenacity = ">=8.2.0,<8.4.0"
