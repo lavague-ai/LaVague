@@ -18,6 +18,9 @@ The evaluator allows users to assess the performance of different open and close
     - `LLM precision:` The LLM precision measures the accuracy of the LLM in targeting the correct HTML element.
     - `code_generation_time:` Time taken to generate action.
 
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/eval-docs/docs/docs/get-started/notebooks/eval.ipynb">
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="View code examples with Google Colab"></a>
+
 ## Getting started with the evaluator
 
 ### Evaluating retrievers
