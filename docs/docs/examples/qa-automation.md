@@ -7,7 +7,7 @@ LaVague is a great tool to help you write and maintain automated tests more effi
 LaVague can generate reusable `pytest-bdd` code from a test case description written in `Gherkin`. If the page changes, simply re-run LaVague to update your test scripts. 
 
 ??? note "Example file generated from a Gherkin test case with two scenarios"
-    `test_login.py` 
+    `test_cart.py` 
     ```python
     import pytest
     from selenium import webdriver
@@ -17,11 +17,10 @@ LaVague can generate reusable `pytest-bdd` code from a test case description wri
     from pytest_bdd import scenarios, given, when, then
 
     # Constants
-    BASE_URL = "https://saucedemo.com"
+    BASE_URL = 'https://www.saucedemo.com/v1/inventory.html'
 
     # Scenarios
-    scenarios("test_login.feature")
-
+    scenarios('test_cart.feature')
 
     # Fixtures
     @pytest.fixture
@@ -32,113 +31,54 @@ LaVague can generate reusable `pytest-bdd` code from a test case description wri
         yield driver
         driver.quit()
 
-
     # Steps
-    @given("the user is on the Swag Labs login page")
-    def user_on_login_page(browser):
+    @given('the user is on the home page')
+    def user_on_home_page(browser):
         pass
 
-
-    @when('the user enters "standard_user" as the username')
-    def enter_standard_username(browser):
-        username_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input"
-        )
-        username_input.click()
-        username_input.send_keys("standard_user")
-
-
-    @when('the user enters "secret_sauce" as the password')
-    def enter_standard_password(browser):
-        password_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input"
-        )
-        password_input.click()
-        password_input.send_keys("secret_sauce")
-
-
-    @when('the user enters "invalid_user" as the username')
-    def enter_invalid_username(browser):
-        username_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input"
-        )
-        username_input.click()
-        username_input.send_keys("invalid_user")
-
-
-    @when('the user enters "wrong_password" as the password')
-    def enter_wrong_password(browser):
-        password_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input"
-        )
-        password_input.click()
-        password_input.send_keys("wrong_password")
-
-
-    @when("the user clicks the login button")
-    def click_login_button(browser):
-        login_button = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/input"
-        )
+    @when('the user clicks on a product')
+    def user_clicks_on_product(browser):
+        sauce_labs_backpack = browser.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/a")
         try:
-            browser.execute_script("arguments[0].scrollIntoView(true);", login_button)
-            browser.execute_script("arguments[0].click();", login_button)
+            browser.execute_script("arguments[0].click();", sauce_labs_backpack)
         except Exception as e:
-            pytest.fail(f"Failed to click login button: {e}")
+            pytest.fail(f"Error clicking on product: {e}")
 
+    @when('the user is on the product details page')
+    def user_on_product_details_page(browser):
+        pass
 
-    @then("the user should be redirected to the home page")
-    def redirected_to_home_page(browser):
+    @when('the user clicks on \'ADD TO CART\'')
+    def user_clicks_add_to_cart(browser):
+        add_to_cart_button = browser.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div/div/div/button")
         try:
-            WebDriverWait(browser, 10).until(EC.url_contains("/inventory.html"))
+            browser.execute_script("arguments[0].click();", add_to_cart_button)
         except Exception as e:
-            pytest.fail(f"Redirection to home page failed: {e}")
+            pytest.fail(f"Error clicking 'ADD TO CART': {e}")
 
-
-    @then("the user should see the product inventory")
-    def see_product_inventory(browser):
+    @when('the user clicks on the Cart icon')
+    def user_clicks_cart_icon(browser):
+        cart_icon = browser.find_element(By.XPATH, "/html/body/div/div[2]/div[1]/div[2]/a")
         try:
-            inventory_container = browser.find_element(
-                By.XPATH, "//div[@class='inventory_container']"
-            )
-            assert inventory_container.is_displayed(), "Product inventory not displayed"
+            browser.execute_script("arguments[0].click();", cart_icon)
         except Exception as e:
-            pytest.fail(f"Product inventory check failed: {e}")
+            pytest.fail(f"Error clicking on Cart icon: {e}")
 
-
-    @then("the user should see an error message")
-    def see_error_message(browser):
+    @then('the user should see the item in the cart')
+    def user_should_see_item_in_cart(browser):
         try:
-            error_message = browser.find_element(
-                By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[3]/h3"
-            )
-            assert error_message.is_displayed()
+            cart_item = browser.find_element(By.XPATH, "//*[@id='cart_contents_container']//div[@class='inventory_item_name' and text()='Sauce Labs Backpack']")
+            assert cart_item.is_displayed(), "The item is not displayed in the cart"
         except Exception as e:
-            pytest.fail(f"Error message not displayed: {e}")
-
-
-    @then(
-        'the error message should say "Username and password do not match any user in this service."'
-    )
-    def verify_error_message_text(browser):
-        try:
-            error_message = browser.find_element(
-                By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[3]/h3"
-            )
-            assert (
-                error_message.text
-                == "Epic sadface: Username and password do not match any user in this service"
-            )
-        except Exception as e:
-            pytest.fail(f"Error message text does not match: {e}")
+            pytest.fail(f"The item is not displayed in the cart: {e}")
 
     ```
 
 ## Demo
 
-See our script in action generating automated tests for a login feature
+See our script in action generating automated tests for a e-commerce Cart feature 
 
-!["qa_automation_demo"](../../assets/qa_automation_demo.gif)
+<iframe width="100%" height="400" src="https://www.youtube.com/embed/HVVDjYCklBc?si=LNHUYW1zETQK2RMB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Script usage
 
@@ -163,7 +103,7 @@ wget https://github.com/lavague-ai/LaVague/blob/main/examples/qa-automation/qa_a
 **Execute the script**
 
 ```bash
-python qa_automation.py --url https://saucedemo.com --feature tests/test_login.feature
+python qa_automation.py --url https://www.saucedemo.com/v1/inventory.html --feature tests/test_cart.feature
 ```
 
 | Parameter                  | Description                                                                                                                                                  |
@@ -184,8 +124,9 @@ TESTS_DIR = "./tests"
 
 
 ??? note "Example `pytest-bdd` file generated by this script"
-    `test_login.py` 
+    `test_cart.py` 
     ```python
+    
     import pytest
     from selenium import webdriver
     from selenium.webdriver.common.by import By
@@ -194,11 +135,10 @@ TESTS_DIR = "./tests"
     from pytest_bdd import scenarios, given, when, then
 
     # Constants
-    BASE_URL = "https://saucedemo.com"
+    BASE_URL = 'https://www.saucedemo.com/v1/inventory.html'
 
     # Scenarios
-    scenarios("test_login.feature")
-
+    scenarios('test_cart.feature')
 
     # Fixtures
     @pytest.fixture
@@ -209,105 +149,46 @@ TESTS_DIR = "./tests"
         yield driver
         driver.quit()
 
-
     # Steps
-    @given("the user is on the Swag Labs login page")
-    def user_on_login_page(browser):
+    @given('the user is on the home page')
+    def user_on_home_page(browser):
         pass
 
-
-    @when('the user enters "standard_user" as the username')
-    def enter_standard_username(browser):
-        username_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input"
-        )
-        username_input.click()
-        username_input.send_keys("standard_user")
-
-
-    @when('the user enters "secret_sauce" as the password')
-    def enter_standard_password(browser):
-        password_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input"
-        )
-        password_input.click()
-        password_input.send_keys("secret_sauce")
-
-
-    @when('the user enters "invalid_user" as the username')
-    def enter_invalid_username(browser):
-        username_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[1]/input"
-        )
-        username_input.click()
-        username_input.send_keys("invalid_user")
-
-
-    @when('the user enters "wrong_password" as the password')
-    def enter_wrong_password(browser):
-        password_input = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[2]/input"
-        )
-        password_input.click()
-        password_input.send_keys("wrong_password")
-
-
-    @when("the user clicks the login button")
-    def click_login_button(browser):
-        login_button = browser.find_element(
-            By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/input"
-        )
+    @when('the user clicks on a product')
+    def user_clicks_on_product(browser):
+        sauce_labs_backpack = browser.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div/div[2]/div/div[1]/div[2]/a")
         try:
-            browser.execute_script("arguments[0].scrollIntoView(true);", login_button)
-            browser.execute_script("arguments[0].click();", login_button)
+            browser.execute_script("arguments[0].click();", sauce_labs_backpack)
         except Exception as e:
-            pytest.fail(f"Failed to click login button: {e}")
+            pytest.fail(f"Error clicking on product: {e}")
 
+    @when('the user is on the product details page')
+    def user_on_product_details_page(browser):
+        pass
 
-    @then("the user should be redirected to the home page")
-    def redirected_to_home_page(browser):
+    @when('the user clicks on \'ADD TO CART\'')
+    def user_clicks_add_to_cart(browser):
+        add_to_cart_button = browser.find_element(By.XPATH, "/html/body/div/div[2]/div[2]/div/div/div/button")
         try:
-            WebDriverWait(browser, 10).until(EC.url_contains("/inventory.html"))
+            browser.execute_script("arguments[0].click();", add_to_cart_button)
         except Exception as e:
-            pytest.fail(f"Redirection to home page failed: {e}")
+            pytest.fail(f"Error clicking 'ADD TO CART': {e}")
 
-
-    @then("the user should see the product inventory")
-    def see_product_inventory(browser):
+    @when('the user clicks on the Cart icon')
+    def user_clicks_cart_icon(browser):
+        cart_icon = browser.find_element(By.XPATH, "/html/body/div/div[2]/div[1]/div[2]/a")
         try:
-            inventory_container = browser.find_element(
-                By.XPATH, "//div[@class='inventory_container']"
-            )
-            assert inventory_container.is_displayed(), "Product inventory not displayed"
+            browser.execute_script("arguments[0].click();", cart_icon)
         except Exception as e:
-            pytest.fail(f"Product inventory check failed: {e}")
+            pytest.fail(f"Error clicking on Cart icon: {e}")
 
-
-    @then("the user should see an error message")
-    def see_error_message(browser):
+    @then('the user should see the item in the cart')
+    def user_should_see_item_in_cart(browser):
         try:
-            error_message = browser.find_element(
-                By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[3]/h3"
-            )
-            assert error_message.is_displayed()
+            cart_item = browser.find_element(By.XPATH, "//*[@id='cart_contents_container']//div[@class='inventory_item_name' and text()='Sauce Labs Backpack']")
+            assert cart_item.is_displayed(), "The item is not displayed in the cart"
         except Exception as e:
-            pytest.fail(f"Error message not displayed: {e}")
-
-
-    @then(
-        'the error message should say "Username and password do not match any user in this service."'
-    )
-    def verify_error_message_text(browser):
-        try:
-            error_message = browser.find_element(
-                By.XPATH, "/html/body/div/div/div[2]/div[1]/div/div/form/div[3]/h3"
-            )
-            assert (
-                error_message.text
-                == "Epic sadface: Username and password do not match any user in this service"
-            )
-        except Exception as e:
-            pytest.fail(f"Error message text does not match: {e}")
+            pytest.fail(f"The item is not displayed in the cart: {e}")
 
     ```
 
@@ -320,29 +201,21 @@ Let's walk through some of the core components of our script to give you a bette
 
 Gherkin is a language used in behavior-driven development (BDD) to describe feature behavior. 
 
-Our example `.feature` file - [available here](https://github.com/lavague-ai/LaVague/blob/main/examples/qa-automation/tests/test_login.feature) - uses Gherkin and describes two login scenarios. 
+Our example `.feature` file - [available here](https://github.com/lavague-ai/LaVague/blob/main/examples/qa-automation/tests/test_cart.feature) - uses Gherkin and describes a Cart scenario. 
 
-We execute our script on this demo website: https://www.saucedemo.com/
+We execute our script on this demo website: https://www.saucedemo.com/v1/inventory.html
 
 
 ```gherkin
-Feature: Login
+Feature: Cart
 
-  Scenario: Successful login with valid credentials
-    Given the user is on the Swag Labs login page
-    When the user enters "standard_user" as the username
-    And the user enters "secret_sauce" as the password
-    And the user clicks the login button
-    Then the user should be redirected to the home page
-    And the user should see the product inventory
-
-  Scenario: Attempt to login with invalid credentials
-    Given the user is on the Swag Labs login page
-    When the user enters "invalid_user" as the username
-    And the user enters "wrong_password" as the password
-    And the user clicks the login button
-    Then the user should see an error message
-    And the error message should say "Username and password do not match any user in this service."
+  Scenario: Add an item to cart
+    Given the user is on the home page
+    When the user clicks on a product
+    And the user is on the product details page
+    And the user clicks on 'ADD TO CART'
+    And the user clicks on the Cart icon
+    Then the user should see the item in the cart
 ```
 
 ### The main loop
