@@ -13,7 +13,7 @@ import uuid
 import json
 
 
-class RemoteDriver(BaseDriver):
+class DriverServer(BaseDriver):
     async def handler(self, websocket, path):
         if self.client is not None:
             await websocket.close()
