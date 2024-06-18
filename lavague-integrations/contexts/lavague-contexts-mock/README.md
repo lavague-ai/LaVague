@@ -1,0 +1,1 @@
+# Static context for lavague, designed to make automated/manual testing deterministic, avoid token consumption and speed up local development
