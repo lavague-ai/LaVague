@@ -1,0 +1,70 @@
+body {
+    background: #fff;
+    width: 300px;
+    height: auto;
+    font-family: "Roboto";
+    margin: 0;
+    padding: 1rem;
+    .olive-extension {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        &__email-table {
+            table {
+                border: 1px solid #e3e3e3;
+                thead {
+                    tr {
+                        th {
+                            font-size: 0.8rem;
+                            text-align: center;
+                            border-bottom: none;
+                            padding: 0.3rem;
+                            background: #dcdcdc;
+                        }
+                    }
+                }
+                tbody {
+                    tr {
+                        td {
+                            font-size: 0.8rem;
+                            text-align: center;
+                            padding: 0.6rem;
+                        }
+                    }
+                }
+            }
+        }
+        h3 {
+            &.olive-extension__error-msg {
+                margin: 0.2rem 0;
+                padding: 0;
+                font-size: 0.8rem;
+                font-weight: 200;
+                text-align: center;
+                color: red;
+            }
+        }
+        button {
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            width: 50%;
+            border: none;
+            color: #fff;
+            height: 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            &.olive-extension__btn {
+                background: #007bff;
+            }
+        }
+    }
+}
+
+.olive-extension-hidding {
+    display: none !important;
+}
+
+.olive-extension-showing {
+    display: block !important;
+}
