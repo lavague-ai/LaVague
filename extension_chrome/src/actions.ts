@@ -57,8 +57,8 @@ function createOperateTool(
         await scroll(domActions, action.args.value);
         break;
       case "wait":
-        console.log("Wait for 3 seconds...")
-        await sleep(3000);
+        console.log("Wait...")
+        await sleep(action.args.value * 1000);
         console.log("Done waiting.")
         break;
       case "fail":

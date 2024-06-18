@@ -173,12 +173,17 @@ async function sendHTML(id: string) {
 
 // Listen for tab changes and attach debugger
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
-  const newTabId = activeInfo.tabId;
-    if (currentTabId && currentTabId !== newTabId) {
-      detachDebuggerFromTab(currentTabId);
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+    if (tabs[0].url != undefined && !tabs[0].url.startsWith("chrome://")) {
+      console.log(tabs[0].url)
+      const newTabId = activeInfo.tabId;
+      if (currentTabId && currentTabId !== newTabId) {
+        detachDebuggerFromTab(currentTabId);
+      }
+      currentTabId = newTabId;
+      attachDebuggerToTab(currentTabId);
     }
-    currentTabId = newTabId;
-    attachDebuggerToTab(currentTabId);
+  });
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {

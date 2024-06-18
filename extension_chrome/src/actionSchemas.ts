@@ -67,7 +67,9 @@ export const waitSchema = z.object({
       "Wait for 3 seconds before the next action. Useful when the page is loading.",
     )
     .optional(),
-  args: z.object({}).optional(),
+    args: z.object({
+      value: z.number(),
+    }),
 });
 
 export const finishSchema = z.object({

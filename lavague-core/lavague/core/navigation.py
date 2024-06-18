@@ -560,26 +560,17 @@ class NavigationControl(BaseEngine):
         logger = self.logger
 
         if "SCROLL_DOWN" in instruction:
-            code = ""
             self.driver.scroll_down()
-
         elif "SCROLL_UP" in instruction:
-            code = ""
             self.driver.scroll_up()
-
         elif "WAIT" in instruction:
-            code = f"""
-import time
-time.sleep({self.time_between_actions})"""
+            self.driver.wait(self.time_between_actions)
         elif "BACK" in instruction:
-            code = ""
             self.driver.back()
         elif "SCAN" in instruction:
-            code = ""
             self.driver.get_screenshots_whole_page()
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
-        self.driver.exec_code(code)
         success = True
         if logger:
             log = {
@@ -588,12 +579,12 @@ time.sleep({self.time_between_actions})"""
                 "engine_log": None,
                 "success": success,
                 "output": None,
-                "code": code,
+                "code": None,
             }
             logger.add_log(log)
 
         return ActionResult(
-            instruction=instruction, code=code, success=success, output=None
+            instruction=instruction, code="", success=success, output=None
         )
 
 
