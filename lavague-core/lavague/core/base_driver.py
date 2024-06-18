@@ -149,6 +149,14 @@ class BaseDriver(ABC):
         pass
 
     @abstractmethod
+    def scroll_up(self):
+        pass
+
+    @abstractmethod
+    def scroll_down(self):
+        pass
+
+    @abstractmethod
     def code_for_execute_script(self, js_code: str):
         """return driver specific code to execute js script in DOM"""
         pass

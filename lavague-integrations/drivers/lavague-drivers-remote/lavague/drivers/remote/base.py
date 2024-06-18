@@ -1,190 +1,206 @@
+import base64
+from lavague.core.base_driver import BaseDriver
+from websockets.server import serve
+import asyncio
+import websockets
+import threading
 from pathlib import Path
 import time
 from typing import Any, Optional, Callable, Mapping
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import BaseDriver
-from PIL import Image
-from io import BytesIO
-from lavague.core.utilities.format_utils import (
-    return_assigned_variables,
-    keep_assignments,
-    extract_code_from_funct,
-)
+import json
+import uuid
+import json
 
 
-class SeleniumDriver(BaseDriver):
-    driver: WebDriver
+class RemoteDriver(BaseDriver):
+    async def handler(self, websocket, path):
+        if self.client is not None:
+            await websocket.close()
+            return
+        self.client = websocket
+        try:
+            async for message in websocket:
+                self.handle_client_response(message)
+        except websockets.exceptions.ConnectionClosed as e:
+            print("Client disconnected")
+        finally:
+            self.client = None
+
+    def handle_client_response(self, message):
+        if message != "PING":
+            self.client_response = message
+
+    def start_server(self):
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        self.server = websockets.serve(
+            self.handler, "localhost", 8000, max_size=20 * 1024 * 1024
+        )
+        asyncio.get_event_loop().run_until_complete(self.server)
+        asyncio.get_event_loop().run_forever()
+
+    def run_server_in_thread(self):
+        server_thread = threading.Thread(target=self.start_server)
+        server_thread.start()
+        return server_thread
+
+    async def send_message_to_client(self, message, id):
+        if self.client is not None:
+            self.client_response = None
+            await self.client.send(message)
+            while self.client_response is None:
+                await asyncio.sleep(0.1)
+            return self.client_response
+        return None
+
+    def send_command_and_get_response_sync(self, command, args=""):
+        id = str(uuid.uuid4())
+        event = threading.Event()
+        response_data = {}
+
+        data = {"command": command, "args": args, "id": id}
+
+        json_string = json.dumps(data)
+
+        def send_command():
+            response = asyncio.run(self.send_message_to_client(json_string, id))
+            response_data["response"] = response
+            event.set()
+
+        response_thread = threading.Thread(target=send_command)
+        response_thread.start()
+
+        # Wait for the response
+        event.wait()
+
+        ret = ""
+        if "response" in response_data:
+            try:
+                jso = json.loads(response_data["response"])
+                ret = jso["ret"]
+                response_data.clear()
+            except Exception as e:
+                print(e)
+                pass
+        return ret
 
     def __init__(
         self,
         url: Optional[str] = None,
-        get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
-        headless: bool = True,
-        user_data_dir: Optional[str] = None,
-        width: int = 1080,
-        height: int = 1080,
-        no_load_strategy: bool = False,
     ):
-        self.headless = headless
-        self.user_data_dir = user_data_dir
-        self.width = width
-        self.height = height
-        self.no_load_strategy = no_load_strategy
-        super().__init__(url, get_selenium_driver)
+        self.client = None
+        self.client_response = None
+        self.server = None
+        self.thread = self.run_server_in_thread()
+        while self.client is None:
+            pass
+        print("Connected")
+        super().__init__(url, None)
 
-    #   Default code to init the driver.
-    #   Before making any change to this, make sure it is compatible with code_for_init, which parses the code of this function
-    #   These imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Any:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
-        from selenium.webdriver.common.action_chains import ActionChains
-
-        chrome_options = Options()
-        if self.headless:
-            chrome_options.add_argument("--headless")
-        if self.user_data_dir:
-            chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.page_load_strategy = (
-            "normal" if self.no_load_strategy is False else "none"
-        )
-
-        driver = webdriver.Chrome(options=chrome_options)
-        self.driver = driver
-        self.resize_driver(self.width, self.height)
-        return self.driver
+        return None
 
     def code_for_init(self) -> str:
-        init_lines = extract_code_from_funct(self.init_function)
-        code_lines = []
-        keep_next = True
-        for line in init_lines:
-            if "--user-data-dir" in line:
-                line = line.replace(
-                    f"{{self.user_data_dir}}", f'"{self.user_data_dir}"'
-                )
-            if "if" in line:
-                if ("headless" in line and not self.headless) or (
-                    "user_data_dir" in line and self.user_data_dir is None
-                ):
-                    keep_next = False
-            elif keep_next:
-                if "self" not in line:
-                    code_lines.append(line.strip())
-            else:
-                keep_next = True
-        code_lines.append(self.code_for_resize(self.width, self.height))
-        return "\n".join(code_lines) + "\n"
-
-    def get_driver(self) -> WebDriver:
-        return self.driver
-
-    def resize_driver(self, width, height) -> None:
-        # Selenium is only being able to set window size and not viewport size
-        self.driver.set_window_size(width, height)
-        viewport_height = self.driver.execute_script("return window.innerHeight;")
-
-        height_difference = height - viewport_height
-        self.driver.set_window_size(width, height + height_difference)
-        self.width = width
-        self.height = height
-
-    def code_for_resize(self, width, height) -> str:
-        return f"""
-driver.set_window_size({width}, {height})
-viewport_height = driver.execute_script("return window.innerHeight;")
-height_difference = {height} - viewport_height
-driver.set_window_size({width}, {height} + height_difference)
-"""
-
-    def get_url(self) -> Optional[str]:
-        if self.driver.current_url == "data:,":
-            return None
-        return self.driver.current_url
-
-    def code_for_get(self, url: str) -> str:
-        return f'driver.get("{url}")'
-
-    def get(self, url: str) -> None:
-        self.driver.get(url)
-
-    def back(self) -> None:
-        self.driver.back()
-
-    def code_for_back(self) -> None:
-        return "driver.back()"
+        return ""
 
     def get_html(self) -> str:
-        return self.driver.page_source
+        html = self.send_command_and_get_response_sync("get_html")
+        f = open("html2.txt", "w")
+        f.write(html)
+        f.close()
+        return html
+
+    def get_driver(self) -> BaseDriver:
+        return self
+
+    def resize_driver(self, width, height) -> None:
+        pass
+
+    def code_for_resize(self, width, height) -> str:
+        ""
+
+    def get_url(self) -> Optional[str]:
+        url = self.send_command_and_get_response_sync("get_url")
+        return url
+
+    def code_for_get(self, url: str) -> str:
+        return ""
+
+    def get(self, url: str) -> None:
+        res = self.send_command_and_get_response_sync("get", url)
+
+    def back(self) -> None:
+        res = self.send_command_and_get_response_sync("back")
+
+    def code_for_back(self) -> None:
+        return ""
 
     def get_screenshot_as_png(self) -> bytes:
-        return self.driver.get_screenshot_as_png()
+        scr = self.send_command_and_get_response_sync("get_screenshot")
+        scr_bytes = base64.b64decode(scr.split(",")[1])
+        return scr_bytes
 
     def destroy(self) -> None:
-        self.driver.quit()
+        self.server.ws_server.close()
 
     def check_visibility(self, xpath: str) -> bool:
-        try:
-            return self.driver.find_element(By.XPATH, xpath).is_displayed()
-        except:
-            return False
+        return False
+        # try:
+        #     return self.driver.find_element(By.XPATH, xpath).is_displayed()
+        # except:
+        #     return False
 
     def get_highlighted_element(self, generated_code: str):
-        local_scope = {"driver": self.get_driver()}
-        assignment_code = keep_assignments(generated_code)
-        self.exec_code(assignment_code, locals=local_scope)
+        # local_scope = {"driver": self.get_driver()}
+        # assignment_code = keep_assignments(generated_code)
+        # self.exec_code(assignment_code, locals=local_scope)
 
-        # We extract pairs of variables assigned during execution with their name and pointer
-        variable_names = return_assigned_variables(generated_code)
+        # # We extract pairs of variables assigned during execution with their name and pointer
+        # variable_names = return_assigned_variables(generated_code)
 
-        elements = []
+        # elements = []
 
-        for variable_name in variable_names:
-            var = local_scope[variable_name]
-            if type(var) == WebElement:
-                elements.append(var)
+        # for variable_name in variable_names:
+        #     var = local_scope[variable_name]
+        #     if type(var) == WebElement:
+        #         elements.append(var)
 
-        if len(elements) == 0:
-            raise ValueError(f"No element found.")
+        # if len(elements) == 0:
+        #     raise ValueError(f"No element found.")
 
-        outputs = []
-        for element in elements:
-            element: WebElement
+        # outputs = []
+        # for element in elements:
+        #     element: WebElement
 
-            bounding_box = {}
-            viewport_size = {}
+        #     bounding_box = {}
+        #     viewport_size = {}
 
-            self.execute_script(
-                "arguments[0].setAttribute('style', arguments[1]);",
-                element,
-                "border: 2px solid red;",
-            )
-            self.execute_script(
-                "arguments[0].scrollIntoView({block: 'center'});", element
-            )
-            screenshot = self.get_screenshot_as_png()
+        #     self.execute_script(
+        #         "arguments[0].setAttribute('style', arguments[1]);",
+        #         element,
+        #         "border: 2px solid red;",
+        #     )
+        #     self.execute_script(
+        #         "arguments[0].scrollIntoView({block: 'center'});", element
+        #     )
+        #     screenshot = self.get_screenshot_as_png()
 
-            bounding_box["x1"] = element.location["x"]
-            bounding_box["y1"] = element.location["y"]
-            bounding_box["x2"] = bounding_box["x1"] + element.size["width"]
-            bounding_box["y2"] = bounding_box["y1"] + element.size["height"]
+        #     bounding_box["x1"] = element.location["x"]
+        #     bounding_box["y1"] = element.location["y"]
+        #     bounding_box["x2"] = bounding_box["x1"] + element.size["width"]
+        #     bounding_box["y2"] = bounding_box["y1"] + element.size["height"]
 
-            viewport_size["width"] = self.execute_script("return window.innerWidth;")
-            viewport_size["height"] = self.execute_script("return window.innerHeight;")
-            screenshot = BytesIO(screenshot)
-            screenshot = Image.open(screenshot)
-            output = {
-                "screenshot": screenshot,
-                "bounding_box": bounding_box,
-                "viewport_size": viewport_size,
-            }
-            outputs.append(output)
-        return outputs
+        #     viewport_size["width"] = self.execute_script("return window.innerWidth;")
+        #     viewport_size["height"] = self.execute_script("return window.innerHeight;")
+        #     screenshot = BytesIO(screenshot)
+        #     screenshot = Image.open(screenshot)
+        #     output = {
+        #         "screenshot": screenshot,
+        #         "bounding_box": bounding_box,
+        #         "viewport_size": viewport_size,
+        #     }
+        #     outputs.append(output)
+        return None
 
     def exec_code(
         self,
@@ -192,87 +208,104 @@ driver.set_window_size({width}, {height} + height_difference)
         globals: dict[str, Any] = None,
         locals: Mapping[str, object] = None,
     ):
-        exec(self.import_lines)
-        driver = self.driver
-        exec(code, globals, locals)
+        if code is not None and len(code.strip()) > 0:
+            print(code)
+            url = self.send_command_and_get_response_sync("exec_code", code)
+            return url
+        else:
+            return ""
 
     def execute_script(self, js_code: str, *args) -> Any:
-        return self.driver.execute_script(js_code, *args)
-
-    def scroll_up(self):
-        code = self.driver.code_for_execute_script(
-            "window.scrollBy(0, -window.innerHeight);"
-        )
-        self.exec_code(code)
-
-    def scroll_down(self):
-        code = self.driver.code_for_execute_script(
-            "window.scrollBy(0, window.innerHeight);"
-        )
-        self.exec_code(code)
+        return self.send_command_and_get_response_sync("execute_script", js_code)
+    
+    def is_bottom_of_page(self) -> bool:
+        ret = super().is_bottom_of_page()
+        return ret["value"]
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
 
+    def scroll_up(self):
+        json_str = """[
+    {
+        "action": {
+            "name": "scroll",
+            "args": {
+            "value": "up"
+            }
+        }
+    }
+]"""
+        self.exec_code(json_str)
+        pass
+
+    def scroll_down(self):
+        json_str = """[
+    {
+        "action": {
+            "name": "scroll",
+            "args": {
+            "value": "down"
+            }
+        }
+    }
+]"""
+        self.exec_code(json_str)
+        pass
+
     def resize_driver(self, width, targeted_height):
-        """Resize the Selenium driver viewport to a targeted height and width.
-        This is due to Selenium only being able to set window size and not viewport size.
-        """
-        self.driver.set_window_size(width, targeted_height)
-
-        viewport_height = self.driver.execute_script("return window.innerHeight;")
-
-        height_difference = targeted_height - viewport_height
-        self.driver.set_window_size(width, targeted_height + height_difference)
+        pass
 
     def get_capability(self) -> str:
-        return SELENIUM_PROMPT_TEMPLATE
+        return REMOTE_PROMPT_TEMPLATE
 
 
-SELENIUM_PROMPT_TEMPLATE = """
-You are a Selenium expert in writing code to interact with web pages. You have been given a series of HTML snippets and queries.
-Your goal is to write Selenium code to answer queries. Your answer must be a Python markdown only.
+REMOTE_PROMPT_TEMPLATE = """
+You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.
+Your goal is to return a list of actions that should be done in order to execute the actions.
 Always target elements by XPATH.
 
-Provide high level explanations about why you think this element is the right one.
-Your answer must be short and concise. 
+The actions available are: 
+Name: The message port closed before a response was received.
+Description: Click on an element with a specific xpath
+Arguments:
+  - xpath (string)
+
+Name: setValue
+Description: Focus on and set the value of an input element with a specific xpath
+Arguments:
+  - xpath (string)
+  - value (string)
+
+Name: setValueAndEnter
+Description: Like "setValue", except then it presses ENTER. Use this tool can submit the form when there's no "submit" button.
+Arguments:
+  - xpath (string)
+  - value (string)
+
+Name: fail
+Description: Indicate that you are unable to complete the task
+No arguments.
 
 Here are examples of previous answers:
-
 HTML:
 <div class="QS5gu ud1jmf" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[1]/div/div/button/div">Inloggen</div></button></div></div></div><div class="GZ7xNe" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]"><h1 class="I90TVb" id="S3BnEe" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/h1">Voordat je verdergaat naar Google</h1><div class="AG96lb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div"><div class="eLZYyf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]">We gebruiken <a class="F4a1l" href="https://policies.google.com/technologies/cookies?utm_source=ucbs&amp;hl=nl" target="_blank" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/a">cookies</a> en gegevens voor het volgende:<ul class="dbXO9" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul"><li class="gowsYd ibCF0c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[1]">Google-services leveren en onderhouden</li><li class="gowsYd GwwhGf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[2]">Uitval bijhouden en bescherming bieden tegen spam, fraude en misbruik</li><li class="gowsYd v8Bpfb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[3]">Doelgroepbetrokkenheid en sitestatistieken meten om inzicht te krijgen in hoe onze services worden gebruikt en de kwaliteit van die services te verbeteren</li></ul></div><div class="eLZYyf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]">Als je Alles accepteren kiest, gebruiken we cookies en gegevens ook voor het volgende:<ul class="dbXO9" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul"><li class="gowsYd M6j9qf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[1]">Nieuwe services ontwikkelen en verbeteren</li><li class="gowsYd v8Bpfb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[2]">Advertenties laten zien en de effectiviteit ervan meten</li><li class="gowsYd e21Mac" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[3]">Gepersonaliseerde content laten zien (afhankelijk van je instellingen)</li><li class="gowsYd ohEWPc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[4]">Gepersonaliseerde advertenties laten zien (afhankelijk van je instellingen)</li></ul><div class="jLhwdc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/div">Als je Alles afwijzen kiest, gebruiken we cookies niet voor deze aanvullende doeleinden.</div></div><div class="yS1nld" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[3]">Niet-gepersonaliseerde content wordt beïnvloed door factoren zoals de content die je op dat moment bekijkt, activiteit in je actieve zoeksessie en je locatie. Niet-gepersonaliseerde advertenties worden beïnvloed door de content die je op dat moment bekijkt en je algemene locatie. Gepersonaliseerde content en advertenties kunnen ook relevantere resultaten, aanbevelingen en op jou toegespitste advertenties omvatten die zijn gebaseerd op eerdere activiteit van deze browser, zoals uitgevoerde Google-zoekopdrachten. We gebruiken cookies en gegevens ook om te zorgen dat de functionaliteit geschikt is voor je leeftijd, als dit relevant is.</div><div class="yS1nld" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[4]">Selecteer Meer opties om meer informatie te bekijken, waaronder over hoe je je privacyinstellingen beheert. Je kunt ook altijd naar <span xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[4]/span">g.co/privacytools</span> gaan.</div></div></div><div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]">
 <div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
 <div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
 Query: Click on the button labeled 'Alles accepteren' to accept all cookies.
 Completion:
-```python
-# Let's think step by step
-
-# First, we notice that the query asks us to click on the button labeled 'Alles accepteren' to accept all cookies.
-
-# In the provided HTML, we can see several button elements.
-
-# We need to identify the correct button labeled 'Alles accepteren'.
-
-# Upon examining the HTML structure, we see that the button with the text 'Alles accepteren' is located within a specific hierarchy.
-
-# We need to navigate through the hierarchy to accurately locate this button.
-
-# The correct button is located within a div element with a specific class and role attribute, which helps us ensure that we are targeting the right element.
-
-# Specifically, for 'Alles accepteren', there is a button element with a unique ID 'L2AGLb' which contains a div with the text 'Alles accepteren'.
-
-# We observe that this button element has the following XPath:
-# /html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]
-
-# Thus, we believe this is the correct element to be interacted with:
-accept_all_button = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]")
-
-# Then we can click on the button
-accept_all_button.click()
-```
+[
+    {
+        "action": {
+            "name": "click",
+            "args": {
+            "xpath": "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
+            }
+        }
+    }
+]
 ---
 HTML:
 <div class="devsite-top-logo-row-middle" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]">
@@ -300,32 +333,23 @@ HTML:
 
 Query: Click on "Gemma" under the "More" dropdown menu.
 Completion:
-```python
-# Let's think step by step
-
-# First, we notice that the query asks us to click on the "Gemma" option under the "More" dropdown menu.
-
-# In the provided HTML, we see that the "More" dropdown menu is within a tab element with a specific class and role attribute.
-
-# The "More" dropdown menu can be identified by its class 'devsite-overflow-tab' and contains a link element with the text 'More'.
-
-# We need to interact with this dropdown menu to reveal the hidden options.
-
-# Specifically, for the "More" dropdown menu, there is an anchor element within a tab element:
-# /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a
-
-# We can use this XPATH to identify and click on the "More" dropdown menu:
-more_dropdown = driver.find_element(By.XPATH, "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a")
-more_dropdown.click()
-
-# After clicking the "More" dropdown, we need to select the "Gemma" option from the revealed menu.
-
-# The "Gemma" option is located within the dropdown menu and can be identified by its anchor element with the corresponding text:
-# /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a
-
-# Thus, we use this XPATH to identify and click on the "Gemma" option:
-gemma_option = driver.find_element(By.XPATH, "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a")
-gemma_option.click()
-```
----
+[
+    {
+        "action": {
+            "name": "click",
+            "args": {
+            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
+            }
+        }
+    },
+    {
+        "action": {
+            "name": "click",
+            "args": {
+            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
+            }
+        }
+    }
+]
+Your response must always be in JSON format and must include object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
 """

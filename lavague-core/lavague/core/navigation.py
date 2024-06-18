@@ -558,22 +558,22 @@ class NavigationControl(BaseEngine):
 
     def execute_instruction(self, instruction: str) -> ActionResult:
         logger = self.logger
-        display_page = False
 
         if "SCROLL_DOWN" in instruction:
-            code = self.driver.code_for_execute_script(
-                "window.scrollBy(0, window.innerHeight);"
-            )
+            code = ""
+            self.driver.scroll_down()
+
         elif "SCROLL_UP" in instruction:
-            code = self.driver.code_for_execute_script(
-                "window.scrollBy(0, -window.innerHeight);"
-            )
+            code = ""
+            self.driver.scroll_up()
+
         elif "WAIT" in instruction:
             code = f"""
 import time
 time.sleep({self.time_between_actions})"""
         elif "BACK" in instruction:
-            code = self.driver.code_for_back()
+            code = ""
+            self.driver.back()
         elif "SCAN" in instruction:
             code = ""
             self.driver.get_screenshots_whole_page()

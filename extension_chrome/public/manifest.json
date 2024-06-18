@@ -1,0 +1,27 @@
+{
+    "name": "LaVague",
+    "description": "",
+    "version": "0.1",
+    "manifest_version": 3,
+    "minimum_chrome_version": "116",
+    "action": {
+      "default_icon": "icons/socket-inactive.png"
+    },
+    "background": {
+      "service_worker": "background.js",
+      "type": "module"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["main.js"]
+      }
+    ],
+    "permissions": [
+      "activeTab",
+      "tabs",
+      "scripting",
+      "debugger"
+    ]
+  }
+  

@@ -3,6 +3,9 @@ examples/*.png
 examples/screenshots
 screenshot*
 *_gen*.py
+node_modules
+extension_chrome/dist
+extension_chrome/node_modules
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
