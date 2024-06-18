@@ -1,1 +1,0 @@
-# Selenium integration for lavague
