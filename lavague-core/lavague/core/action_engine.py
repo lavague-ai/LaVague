@@ -110,6 +110,9 @@ class ActionEngine:
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
+        time_between_actions: float = 1.5,
+        n_attempts: int = 5,
+        logger: AgentLogger = None,
     ) -> ActionEngine:
         """
         Create an ActionEngine from a context
@@ -124,6 +127,9 @@ class ActionEngine:
             retriever,
             prompt_template,
             extractor,
+            time_between_actions,
+            n_attempts,
+            logger,
         )
 
     def set_gradio_mode_all(
