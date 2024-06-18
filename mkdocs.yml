@@ -101,15 +101,20 @@ nav:
   - Customization: 'docs/get-started/customization.md'
   - Troubleshooting: 'docs/get-started/troubleshoot.md'
 
+
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
-  - Evaluator: 'docs/learn/evaluation.md'
+  - End-to-end debugging: 'docs/learn/debugging.md'
+
+- 🧩 Module Guides:
   - Web Agents: 'docs/learn/agents.md'
   - World Model: 'docs/learn/world-model.md'
-  - Action Engine: 'docs/learn/action-engine.md'
-  - Navigation Engine: 'docs/learn/navigation-engine.md'
-  - Logger: 'docs/learn/local-log.md'
+  - Action Engine: 
+      - Home: 'docs/learn/action-engine.md'
+      - Navigation Engine: 'docs/learn/navigation-engine.md'
+  - Evaluator: 'docs/learn/evaluation.md'
   - Drivers: 'docs/learn/browser-drivers.md'
+  - Logger: 'docs/learn/local-log.md'
  
 # - 🤝 Integrations:
 #   - Overview: 'docs/integrations/home.md'
