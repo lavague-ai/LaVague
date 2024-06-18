@@ -250,6 +250,20 @@ class DriverServer(BaseDriver):
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
+    
+    def wait(self, time_between_actions):
+        json_str = f"""[
+    {{
+        "action": {{
+            "name": "wait",
+            "args": {{
+                "value": {time_between_actions}
+            }}
+        }}
+    }}
+]"""
+        self.exec_code(json_str)
+        pass
 
     def wait(self, time_between_actions):
         json_str = f"""[

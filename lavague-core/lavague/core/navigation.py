@@ -582,12 +582,12 @@ class NavigationControl(BaseEngine):
                 "engine_log": None,
                 "success": success,
                 "output": None,
-                "code": code,
+                "code": None,
             }
             logger.add_log(log)
 
         return ActionResult(
-            instruction=instruction, code=code, success=success, output=None
+            instruction=instruction, code="", success=success, output=None
         )
 
 
