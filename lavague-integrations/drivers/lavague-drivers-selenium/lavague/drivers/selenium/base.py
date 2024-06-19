@@ -7,6 +7,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import BaseDriver
 from PIL import Image
 from io import BytesIO
+from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import (
     return_assigned_variables,
     keep_assignments,
@@ -26,12 +27,14 @@ class SeleniumDriver(BaseDriver):
         width: int = 1080,
         height: int = 1080,
         no_load_strategy: bool = False,
+        options: Optional[Options] = None
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
         self.width = width
         self.height = height
         self.no_load_strategy = no_load_strategy
+        self.options = options
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -44,7 +47,7 @@ class SeleniumDriver(BaseDriver):
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.common.action_chains import ActionChains
 
-        chrome_options = Options()
+        chrome_options = self.options or Options()
         if self.headless:
             chrome_options.add_argument("--headless")
         if self.user_data_dir:
