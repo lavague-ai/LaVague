@@ -428,8 +428,9 @@ class NavigationEngine(BaseEngine):
         navigation_log_total = []
 
         for action in list_instructions:
-            logging_print.debug("Rephrased instruction: " + action["action"])
             instruction = action["action"]
+            logging_print.debug("query for retriever: " + action["query"])
+            logging_print.debug("Rephrased instruction: " + action["action"])
             start = time.time()
             source_nodes = self.get_nodes(instruction)
             end = time.time()
@@ -498,7 +499,7 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
-                    print("Navigation error:", e)
+                    logging_print.error("Navigation error:", e)
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
 
