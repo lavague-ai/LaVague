@@ -182,7 +182,7 @@ class BaseDriver(ABC):
         }
 
         return obs
-    
+
     def wait(self, time_between_actions):
         code = f"""
 import time
