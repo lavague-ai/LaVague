@@ -320,7 +320,7 @@ class WebAgent:
             logging_print.warning("The agent was interrupted.")
             pass
         except Exception as e:
-            logging_print.error(f"Error while running the agent: {repr(e)}")
+            logging_print.error(f"Error while running the agent: {e}")
             pass
         finally:
             send_telemetry(self.logger.return_pandas())
