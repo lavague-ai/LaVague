@@ -428,9 +428,8 @@ class NavigationEngine(BaseEngine):
 
         for action in list_instructions:
             instruction = action["action"]
-            logging_print.info("query for retriever: " + action["query"])
-            logging_print.info("Rephrased instruction: " + instruction)
-            logging_print.info("Original instruction: " + original_instruction)
+            logging_print.debug("query for retriever: " + action["query"])
+            logging_print.debug("Rephrased instruction: " + action["action"])
             start = time.time()
             source_nodes = self.get_nodes(instruction)
             end = time.time()
