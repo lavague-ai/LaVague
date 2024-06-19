@@ -35,7 +35,7 @@ from lavague.core.evaluator import RetrieverEvaluator
 retriever_evaluator = RetrieverEvaluator()
 ```
 
-Next, we will download the dataset we will use for this example, `TheWaveMetaSmall.csv`. This is a reduce 5-row version of our larger [dataset](https://huggingface.co/datasets/BigAction/the-wave-clean) which we curated for evaluation. It contains a natural language query (or instruction) alongside the correct node to be retrieved and XPATH for the LLM to target in order to successfully achieve the instruction.
+Next, we will download the dataset we will use for this example, `TheWaveMetaSmall.csv`. This is a reduce 5-row version of our larger 250-row [dataset](https://huggingface.co/datasets/BigAction/the-wave-250) which we curated for evaluation. It contains a natural language query (or instruction) alongside the correct node to be retrieved and XPATH for the LLM to target in order to successfully achieve the instruction.
 
 ```bash
 wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/TheWaveMetaSmall.csv

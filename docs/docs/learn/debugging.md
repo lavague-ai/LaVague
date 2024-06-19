@@ -146,8 +146,14 @@ We can inspect the HTML of this element by right-clicking and selecting `inspect
 If the HTML code is as seen above, we might decide to add the `type` and `id` fields to our `rank_fields` argument.
 
 ```python
-retriever = OpsmSplitRetriever(rank_fields=["element", "placeholder", "text", "name", "type", "id"])
-action_engine = ActionEngine(driver=SeleniumDriver(), retriever=retriever)
+from lavague.core import WorldModel, ActionEngine
+from lavague.core.agents import WebAgent
+from lavague.drivers.selenium import SeleniumDriver
+from lavague.core.retrievers import OpsmSplitRetriever
+
+driver=SeleniumDriver()
+retriever = OpsmSplitRetriever(rank_fields=["element", "placeholder", "text", "name", "type", "id"], driver=driver)
+action_engine = ActionEngine(driver=driver, retriever=retriever)
 agent = WebAgent(WorldModel(), action_engine)
 ```
 
@@ -158,8 +164,14 @@ By default, the retriever will pass on the 5 most relevant nodes it finds to the
 We can try to increase the likelihood of the retriever finding the correct node by to increasing the X most relevant number of nodes the Retriever will return:
 
 ```python
-retriever = OpsmSplitRetriever(top_k=10)
-action_engine = ActionEngine(driver=SeleniumDriver(), retriever=retriever)
+from lavague.core import WorldModel, ActionEngine
+from lavague.core.agents import WebAgent
+from lavague.drivers.selenium import SeleniumDriver
+from lavague.core.retrievers import OpsmSplitRetriever
+
+driver=SeleniumDriver()
+retriever = OpsmSplitRetriever(top_k=10, driver=driver)
+action_engine = ActionEngine(driver=driver, retriever=retriever)
 agent = WebAgent(WorldModel(), action_engine)
 ```
 

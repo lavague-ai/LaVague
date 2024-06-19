@@ -11,7 +11,7 @@ You can see it in action below:
 
 !["idefics demo"](../../assets/demo_lavague_form_idefics.gif)
 
-You can run this example directly with a [CLI script available here](https://github.com/lavague-ai/LaVague/blob/docs-add-end2end/examples/idefics_example.py)
+You can run this example directly with a [CLI script available here](https://github.com/lavague-ai/LaVague/blob/main/examples/idefics_example.py)
 
 This notebook will go through this example step by step to get into more details.
 
