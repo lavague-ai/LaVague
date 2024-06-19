@@ -499,7 +499,7 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
-                    print("Navigation error:", e)
+                    logging_print.error("Navigation error:", e)
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
 

@@ -317,9 +317,11 @@ class WebAgent:
 
                 obs = self.driver.get_obs()
         except KeyboardInterrupt:
+            logging_print.warning("The agent was interrupted.")
             pass
         except Exception as e:
-            raise e
+            logging_print.error(f"Error while running the agent: {repr(e)}")
+            pass
         finally:
             send_telemetry(self.logger.return_pandas())
         return self.result
