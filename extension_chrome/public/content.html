@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LaVague</title>
+    <link rel="icon" type="image/x-icon" href="images/logo-16x16.png">
+    <link rel="stylesheet" href="content.css">
+  </head>
+  <body>
+    <img src="images/lavague.png" class="logo" />
+    <div class="prompt">
+      <textarea id="prompt" type="text" placeholder="Can I do something for you?" required></textarea>
+      <button id="start">&#9654;</button>
+    </div>
+    <div id="logs"></div>
+    <div class="connection">
+      <div class="server">
+        <div class="input-data">
+          <input id="host" type="text" value="127.0.0.1:8000" required />
+          <div class="underline"></div>
+          <label for="host">Agent server host</label>
+        </div>
+        <button id="connect" class="hidden">Connect</button>
+        <button id="disconnect" class="hidden">Disconnect</button>
+      </div>
+      <div id="status"></div>
+    </div>
+    <script src="content.js"></script>
+  </body>
+</html>
