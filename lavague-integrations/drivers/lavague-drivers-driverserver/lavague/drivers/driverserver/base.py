@@ -4,16 +4,15 @@ from websockets.server import serve
 import asyncio
 import websockets
 import threading
-from pathlib import Path
-import time
-from typing import Any, Optional, Callable, Mapping
-from lavague.core.base_driver import BaseDriver
+from typing import Any, Optional, Mapping
 import json
 import uuid
-import json
+from lavague.core.agents import WebAgent
 
 
 class DriverServer(BaseDriver):
+    prompt_agent: WebAgent
+
     async def handler(self, websocket, path):
         if self.client is not None:
             await websocket.close()
@@ -27,9 +26,35 @@ class DriverServer(BaseDriver):
         finally:
             self.client = None
 
+    def handle_prompt_agent_action(self, type: str, args: str):
+        if self.prompt_agent is None:
+            raise Exception(
+                "No prompt agent set, attach it with driver.accept_prompts(agent)"
+            )
+        if type == "run":
+            self.prompt_agent.run(args)
+        elif type == "get":
+            self.prompt_agent.get(args)
+
+    def exec_prompt_agent_task(self, message: str):
+        try:
+            obj = json.loads(message)
+
+            if "type" in obj:
+
+                def target():
+                    self.handle_prompt_agent_action(obj["type"], obj["args"])
+
+                task = threading.Thread(target=target)
+                task.start()
+        except Exception:
+            pass
+
     def handle_client_response(self, message):
-        if message != "PING":
-            self.client_response = message
+        if message == "PING":
+            return
+        self.client_response = message
+        self.exec_prompt_agent_task(message)
 
     def start_server(self):
         asyncio.set_event_loop(asyncio.new_event_loop())
@@ -143,6 +168,10 @@ class DriverServer(BaseDriver):
     def destroy(self) -> None:
         self.server.ws_server.close()
 
+    def accept_prompts(self, prompt_agent: WebAgent) -> None:
+        self.prompt_agent = prompt_agent
+        self.send_command_and_get_response_sync("accept_prompts")
+
     def check_visibility(self, xpath: str) -> bool:
         return self.send_command_and_get_response_sync("is_visible", xpath)
         # try:
@@ -217,7 +246,7 @@ class DriverServer(BaseDriver):
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.send_command_and_get_response_sync("execute_script", js_code)
-    
+
     def is_bottom_of_page(self) -> bool:
         ret = super().is_bottom_of_page()
         return ret["value"]
@@ -226,7 +255,7 @@ class DriverServer(BaseDriver):
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
-    
+
     def wait(self, time_between_actions):
         json_str = f"""[
     {{
