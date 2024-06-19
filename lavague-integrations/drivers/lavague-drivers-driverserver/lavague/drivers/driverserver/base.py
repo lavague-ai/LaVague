@@ -144,7 +144,7 @@ class DriverServer(BaseDriver):
         self.server.ws_server.close()
 
     def check_visibility(self, xpath: str) -> bool:
-        return False
+        return self.send_command_and_get_response_sync("is_visible", xpath)
         # try:
         #     return self.driver.find_element(By.XPATH, xpath).is_displayed()
         # except:

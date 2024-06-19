@@ -50,6 +50,9 @@ function connect() {
       else if (msg.command == "get_screenshot") {
         await get_screenshot(msg.id);
       }
+      else if (msg.command == "is_visible") {
+        await is_visible(msg.id, msg.args);
+      }
       else if (msg.command == "execute_script") {
         var dom = new DomActions(currentTabId!)
         var code_ex = `(function() {
@@ -266,3 +269,27 @@ async function back(id: any) {
   }
 }
 
+async function is_visible(id: any, xpath: any) {
+  const combinedExpression = `
+  (function() {
+    const xpath = "${xpath}";
+    const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    if (!element) return false;
+    const style = window.getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden' && element.offsetWidth > 0 && element.offsetHeight > 0;
+  })();
+`;
+  var dom = new DomActions(currentTabId!)
+  const res = await dom.execCode(combinedExpression)
+  const isVisible = res.result.value;
+  console.log('Is element visible?', isVisible);
+  const jso_obj = {
+    "method": "is_visible",
+    "ret": isVisible,
+    "id": id,
+  };
+  const jso = JSON.stringify(jso_obj)
+  if (webSocket) {
+    webSocket.send(jso)
+  }
+}
