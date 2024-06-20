@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "lavague-drivers-selenium"
-version = "0.2.5"
-description = "Selenium integration for lavague"
+name = "lavague-drivers-remote"
+version = "0.2.0"
+description = "Remote driver execution for Lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
 license = "Apache-2.0"
@@ -21,8 +21,8 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.14"
-selenium = "^4.18.1"
+lavague-core = "^0.2.0"
+websockets = "^11.0"
 
 [build-system]
 requires = ["poetry-core"]
