@@ -48,9 +48,10 @@ def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
                             for t_obj in t:
                                 if "vision_data" in t_obj:
                                     vision = t_obj["vision_data"]
-                                    for i in range(len(vision)):
-                                        if "screenshot" in vision[i]:
-                                            del vision[i]["screenshot"]
+                                    if vision is not None:
+                                        for i in range(len(vision)):
+                                            if "screenshot" in vision[i]:
+                                                del vision[i]["screenshot"]
                             logger_telemetry.at[index, "engine_log"] = t
                         else:
                             if "vision_data" in t:

@@ -64,10 +64,6 @@ function createOperateTool(
       case "fail":
         console.warn("Action failed.");
         break;
-      case "navigate":
-        console.log("Navigate to new page", action.args.url);
-        window.open(action.args.url, "_blank");
-        break;
       case "click": {
         const success = await click(domActions, action.args.xpath);
         if (!success) {

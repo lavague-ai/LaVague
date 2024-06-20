@@ -180,7 +180,7 @@ export class ChromeExtensionDriver {
       const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
       if (!element) return false;
       const style = window.getComputedStyle(element);
-      return style.display !== 'none' && style.visibility !== 'hidden' && element.offsetWidth > 0 && element.offsetHeight > 0;
+      return style.opacity !== "" && style.display !== "none" && style.visibility !== "hidden" && style.opacity !== "0" && element.getAttribute("aria-hidden") !== "true";
     })();
   `;
     var dom = new DomActions(await this.getTabId());

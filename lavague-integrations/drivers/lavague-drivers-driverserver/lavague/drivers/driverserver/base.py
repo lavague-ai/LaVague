@@ -129,9 +129,6 @@ class DriverServer(BaseDriver):
 
     def get_html(self) -> str:
         html = self.send_command_and_get_response_sync("get_html")
-        f = open("html2.txt", "w")
-        f.write(html)
-        f.close()
         return html
 
     def get_driver(self) -> BaseDriver:
@@ -237,7 +234,6 @@ class DriverServer(BaseDriver):
         locals: Mapping[str, object] = None,
     ):
         if code is not None and len(code.strip()) > 0:
-            print(code)
             url = self.send_command_and_get_response_sync("exec_code", code)
             return url
         else:

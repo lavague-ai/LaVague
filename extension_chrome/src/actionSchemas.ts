@@ -3,7 +3,7 @@ import { z } from "zod";
 export const clickSchema = z.object({
   name: z.literal("click"),
   description: z
-    .literal("Click on an element with the label on the annotation.")
+    .literal("Click on an element with the specified xpath")
     .optional(),
   args: z.object({
     xpath: z.string(),
@@ -14,7 +14,7 @@ export const setValueSchema = z.object({
   name: z.literal("setValue"),
   description: z
     .literal(
-      "Focus on and set the value of an input element with the label on the annotation.",
+      "Focus on and set the value of an input element with the specified xpath",
     )
     .optional(),
   args: z.object({
@@ -27,24 +27,12 @@ export const setValueAndEnterSchema = z.object({
   name: z.literal("setValueAndEnter"),
   description: z
     .literal(
-      'Like "setValue", except then it presses ENTER. Use this tool can submit the form when there\'s no "submit" button.',
+      'Like "setValue", but it press enters.',
     )
     .optional(),
   args: z.object({
     xpath: z.string(),
     value: z.string(),
-  }),
-});
-
-export const navigateSchema = z.object({
-  name: z.literal("navigate"),
-  description: z
-    .literal(
-      "Navigate to a new page. The value should be a URL. Use this tool only when the current task requires navigating to a new page.",
-    )
-    .optional(),
-  args: z.object({
-    url: z.string(),
   }),
 });
 
@@ -64,7 +52,7 @@ export const waitSchema = z.object({
   name: z.literal("wait"),
   description: z
     .literal(
-      "Wait for 3 seconds before the next action. Useful when the page is loading.",
+      "Wait for the amount of specified seconds before the next action.",
     )
     .optional(),
     args: z.object({
@@ -81,7 +69,7 @@ export const finishSchema = z.object({
 export const failSchema = z.object({
   name: z.literal("fail"),
   description: z
-    .literal("Indicate that you are unable to complete the task")
+    .literal("Indicate that the task cannot be completed")
     .optional(),
   args: z.object({}).optional(),
 });
@@ -90,7 +78,6 @@ export const toolSchemaUnion = z.discriminatedUnion("name", [
   clickSchema,
   setValueSchema,
   setValueAndEnterSchema,
-  navigateSchema,
   scrollSchema,
   waitSchema,
   finishSchema,

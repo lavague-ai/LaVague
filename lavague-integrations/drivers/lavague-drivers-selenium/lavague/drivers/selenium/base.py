@@ -200,13 +200,13 @@ driver.set_window_size({width}, {height} + height_difference)
         return self.driver.execute_script(js_code, *args)
 
     def scroll_up(self):
-        code = self.driver.code_for_execute_script(
+        code = self.code_for_execute_script(
             "window.scrollBy(0, -window.innerHeight);"
         )
         self.exec_code(code)
 
     def scroll_down(self):
-        code = self.driver.code_for_execute_script(
+        code = self.code_for_execute_script(
             "window.scrollBy(0, window.innerHeight);"
         )
         self.exec_code(code)
