@@ -2,7 +2,7 @@
 set -e  # Exit if any command fails
 
 # Install pdoc3 for generating Python API documentation
-pip install lavague pdoc3
+pip install tenacity==8.2.0 lavague pdoc3
 
 # set openai_api_key so that importing doesn't throw
 export OPENAI_API_KEY=""

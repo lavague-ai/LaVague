@@ -99,15 +99,23 @@ nav:
   - Gradio: 'docs/get-started/gradio.md'
   # - Under the hood: 'docs/get-started/under-the-hood.md'
   - Customization: 'docs/get-started/customization.md'
+  - Troubleshooting: 'docs/get-started/troubleshoot.md'
+  - FAQs: 'docs/get-started/FAQs.md'
+
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
+  - End-to-end debugging: 'docs/learn/debugging.md'
+
+- 🧩 Module Guides:
   - Web Agents: 'docs/learn/agents.md'
   - World Model: 'docs/learn/world-model.md'
-  - Action Engine: 'docs/learn/action-engine.md'
-  - Navigation Engine: 'docs/learn/navigation-engine.md'
-  - Logger: 'docs/learn/local-log.md'
+  - Action Engine: 
+      - Overview: 'docs/learn/action-engine.md'
+      - Navigation Engine: 'docs/learn/navigation-engine.md'
+  - Evaluator: 'docs/learn/evaluation.md'
   - Drivers: 'docs/learn/browser-drivers.md'
+  - Logger: 'docs/learn/local-log.md'
  
 # - 🤝 Integrations:
 #   - Overview: 'docs/integrations/home.md'

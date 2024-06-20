@@ -2,6 +2,7 @@ name: Formatting
 
 on:
   push:
+  workflow_dispatch:
 
 jobs:
   format:

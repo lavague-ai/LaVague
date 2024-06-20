@@ -92,7 +92,7 @@ The Driver component is used to perform actions on web browsers and get informat
 
 We currently provide a Selenium Driver component by default, as well as a Playwright Driver option.
 
-!!! tip "Avoiding issues around logins"
+!!! tip "Avoiding issues around pop ups, CAPTCHA, logins, etc."
     You may experience difficulties using LaVague for logins due to bot protections.
 
     Here are a couple of tips to avoid these issues when using LaVague:

@@ -5,9 +5,7 @@ from bs4 import BeautifulSoup, NavigableString
 import ast
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.retrievers.bm25 import BM25Retriever
-from llama_index.core.base.base_retriever import BaseRetriever
 from llama_index.core import Document
-from llama_index.core.node_parser import CodeSplitter
 from llama_index.core import VectorStoreIndex
 from llama_index.core import QueryBundle
 from llama_index.core.schema import NodeWithScore
@@ -16,67 +14,42 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
 from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
-
-
-class _LlamaIndexAdapter(BaseRetriever):
-    """Adapter for HtmlRetriever to be compatible with the llama index BaseRetriever"""
-
-    def __init__(
-        self,
-        html_retriever: BaseHtmlRetriever,
-        driver: BaseDriver,
-        embedding: BaseEmbedding,
-    ):
-        self.html_retriever = html_retriever
-        self.driver = driver
-        self.embedding = embedding
-        super().__init__()
-
-    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        return self.html_retriever.retrieve_html(
-            self.driver, self.embedding, query_bundle
-        )
+from lavague.core.context import get_default_context
 
 
 class BaseHtmlRetriever(ABC):
+    def __init__(
+        self, driver: BaseDriver, embedding: BaseEmbedding = None, top_k: int = 3
+    ):
+        if embedding is None:
+            embedding = get_default_context().embedding
+        self.driver = driver
+        self.embedding = embedding
+        self.top_k = top_k
+
     @abstractmethod
-    def retrieve_html(
-        self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
-    ) -> List[NodeWithScore]:
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         """
         This method should be implemented by the user
         """
         pass
 
-    def to_llama_index(
-        self, driver: BaseDriver, embedding: BaseEmbedding
-    ) -> BaseRetriever:
-        """Convert to a llama-index compatible retriever"""
-        return _LlamaIndexAdapter(self, driver, embedding)
-
 
 class BM25HtmlRetriever(BaseHtmlRetriever):
     """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
 
-    def __init__(self, top_k: int = 3):
-        self.top_k = top_k
-
-    def retrieve_html(
-        self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
-    ) -> List[NodeWithScore]:
-        text_list = [clean_html(driver.get_html())]
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
+        text_list = [clean_html(self.driver.get_html())]
         documents = [Document(text=t) for t in text_list]
 
-        splitter = CodeSplitter(
-            language="html",
-            chunk_lines=50,  # lines per chunk
-            chunk_lines_overlap=15,  # lines overlap between chunks
-            max_chars=2000,  # max chars per chunk
+        splitter = LangchainNodeParser(
+            lc_splitter=RecursiveCharacterTextSplitter.from_language(
+                language="html",
+            )
         )
         nodes = splitter.get_nodes_from_documents(documents)
-        nodes = [node for node in nodes if node.text]
 
-        index = VectorStoreIndex(nodes, embed_model=embedding)
+        index = VectorStoreIndex(nodes, embed_model=self.embedding)
         retriever = BM25Retriever.from_defaults(
             index=index, similarity_top_k=self.top_k
         )
@@ -86,11 +59,19 @@ class BM25HtmlRetriever(BaseHtmlRetriever):
 class OpsmSplitRetriever(BaseHtmlRetriever):
     def __init__(
         self,
+        driver: BaseDriver,
+        embedding: BaseEmbedding = None,
         top_k: int = 5,
         group_by: int = 10,
-        rank_fields: List[str] = ["element", "placeholder", "text", "name"],
+        rank_fields: List[str] = [
+            "element",
+            "placeholder",
+            "text",
+            "name",
+            "aria-label",
+        ],
     ):
-        self.top_k = top_k
+        super().__init__(driver, embedding, top_k)
         self.group_by = group_by
         self.rank_fields = rank_fields
 
@@ -276,14 +257,13 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                     if indice is not None:
                         node.metadata["score"] = score[indice]
                         returned_nodes.append(node)
+                        break
                 except:
                     pass
         return returned_nodes
 
-    def retrieve_html(
-        self, driver: BaseDriver, embedding: BaseEmbedding, query: QueryBundle
-    ) -> List[NodeWithScore]:
-        html = self._add_xpath_attributes(driver.get_html())
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
+        html = self._add_xpath_attributes(self.driver.get_html())
         text_list = [html]
         documents = [Document(text=t) for t in text_list]
         splitter = LangchainNodeParser(
@@ -292,9 +272,9 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             )
         )
         nodes = splitter.get_nodes_from_documents(documents)
-        results_dict, score = self._get_results(embedding, query.query_str, html)
+        results_dict, score = self._get_results(self.embedding, query.query_str, html)
         for r in results_dict:
-            if not driver.check_visibility(r["xpath"]):
+            if not self.driver.check_visibility(r["xpath"]):
                 i = results_dict.index(r)
                 results_dict.remove(r)
                 score.pop(i)
