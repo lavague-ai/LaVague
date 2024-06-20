@@ -43,8 +43,9 @@ function main() {
     }
   }
 
-  function addLog(text: string) {
+  function addLog(text: string, className: string) {
     const log = document.createElement('div');
+    log.classList.add(className);
     log.appendChild(document.createTextNode(text));
     logs.appendChild(log);
     log.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -68,9 +69,9 @@ function main() {
   server.onStateChange = setState;
   server.onError = err => {
     if (err instanceof Event && err.target instanceof WebSocket) {
-      addLog('Network error');
+      addLog('Network error', 'error');
     } else {
-      addLog(err.message || (err + ''));
+      addLog(err.message || (err + ''), 'error');
     }
   };
 
@@ -78,11 +79,14 @@ function main() {
   server.driver.onCommand = cmd => {
     const label = COMMAND_LABELS[cmd];
     if (label) {
-      addLog(label);
+      addLog(label, 'cmd');
     }
   };
 
-  connectBtn.addEventListener('click', () => server.connect(hostField.value));
+  connectBtn.addEventListener('click', () => {
+    server.connect(hostField.value);
+    clearLogs();
+  });
   disconnectBtn.addEventListener('click', () => server.disconnect());
   startBtn.addEventListener('click', () => {
     const { value } = prompt;
@@ -90,7 +94,7 @@ function main() {
       server.sendPrompt('run', value);
       prompt.value = '';
       clearLogs();
-      addLog(value);
+      addLog(value, 'userprompt');
     }
   });
 
