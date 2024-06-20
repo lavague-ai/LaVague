@@ -199,6 +199,19 @@ class PlaywrightDriver(BaseDriver):
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
+    
+    def scroll_up(self):
+        code = self.code_for_execute_script(
+            "window.scrollBy(0, -window.innerHeight);"
+        )
+        self.exec_code(code)
+
+    def scroll_down(self):
+        code = self.code_for_execute_script(
+            "window.scrollBy(0, window.innerHeight);"
+        )
+        self.exec_code(code)
+
 
     def scroll_up(self):
         code = self.execute_script("window.scrollBy(0, -window.innerHeight);")
