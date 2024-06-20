@@ -1,21 +1,23 @@
 from __future__ import annotations
+import os
 from abc import ABC
 from llama_index.core import PromptTemplate
 from llama_index.core.multi_modal_llms import MultiModalLLM
 from llama_index.core import SimpleDirectoryReader
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
+from functools import lru_cache
 import time
 import yaml
 
 WORLD_MODEL_GENERAL_EXAMPLES = """
 Objective:  Go to the first issue you can find
-Previous instructions: 
+Previous instructions:
 - Click on 'Issues' with the number '28' next to it.
 - [FAILED] Click on 'Build and share place where people can suggest their use cases and results #225'
 - [FAILED] Click on 'Build and share place where people can suggest their use cases and results #225'
 Last engine: Navigation Engine
-Current state: 
+Current state:
 external_observations:
   vision: '[SCREENSHOT]'
 internal_state:
@@ -26,7 +28,7 @@ Thoughts:
 - The current screenshot shows the issues page of the GitHub repository 'lavague-ai/LaVague'.
 - The objective is to go to the first issue.
 - Previous instructions have been unsuccessful. A new approach should be used.
-- The '#225' seems not to be clickable and it might be relevant to devise an instruction that does not include it. 
+- The '#225' seems not to be clickable and it might be relevant to devise an instruction that does not include it.
 Next engine: Navigation Engine
 Instruction: Click on the first issue, with title 'Build and share place where people can suggest their use cases and results'
 -----
@@ -72,11 +74,11 @@ Next engine: Python Engine
 Instruction: Extract the code to get started with the Gemini API from the content of the page.
 -----
 Objective: What tech stack do we use?
-Previous instructions: 
+Previous instructions:
 - [FAILED] Locate and click on the "Technology Solutions" link or section to find information about the tech stack.
 - [FAILED] Click on the "Technology Solutions" section to explore detailed information about the tech stack.
 Last engine: Navigation Engine
-Current state: 
+Current state:
 external_observations:
   vision: '[SCREENSHOT]'
 internal_state:
@@ -122,7 +124,7 @@ external_observations:
 internal_state:
   agent_outputs: []
   user_inputs: []
-  
+
 Thoughts:
 - The current page shows the product page of the company OpenAI
 - The objective is to provide a description and price of their products.
@@ -225,17 +227,17 @@ Your output are:
 - instruction ('str'): the instruction for the engine to perform the next step.
 
 Here are the engines at your disposal:
-- Python Engine: This engine is used when the task requires doing computing using the current state of the agent. 
+- Python Engine: This engine is used when the task requires doing computing using the current state of the agent.
 It does not impact the outside world and does not navigate.
-- Navigation Engine: This engine is used when the next step of the task requires further navigation to reach the goal. 
+- Navigation Engine: This engine is used when the next step of the task requires further navigation to reach the goal.
 For instance it can be used to click on a link or to fill a form on a webpage. This engine is heavy and will do complex processing of the current HTML to decide which element to interact with.
 - Navigation Controls: This engine is used to perform simple navigation. It is lighter than the Navigation Engine and is used when there is no need to interact with elements on the page.
-Current controls are WAIT (to wait for a certain amount of time), BACK (to go back in the browser history), and SCAN (to take screenshots of the whole page).
+Current controls are WAIT (to wait for a certain amount of time), BACK (to go back in the browser history), SCAN (to take screenshots of the whole page) and MAXIMIZE_WINDOW (to maximize the viewport of the driver).
 
 Here are guidelines to follow:
 
 # General guidelines
-- The instruction should be detailled as possible and only contain the next step. 
+- The instruction should be detailled as possible and only contain the next step.
 - If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'COMPLETE'.
 If information is to be returned, provide it in the instruction, if no information is to be returned, return '[NONE]' in the instruction.
 Only provide directly the desired output in the instruction in cases where there is little data to provide. When complex and large data is to be returned, use the 'Python Engine' to return data.
@@ -249,23 +251,22 @@ Only provide directly the desired output in the instruction in cases where there
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
 - If several steps have to be taken, provide instructions in bullet points.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
+- If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.
 
 Here are previous examples:
 {examples}
 
 Here is the next objective:
 Objective: {objective}
-Previous instructions: 
+Previous instructions:
 {previous_instructions}
 Last engine: {last_engine}
-Current state: 
+Current state:
 {current_state}
 
 Thought:
 """
 )
-
-import os
 
 
 def clean_directory(path):
@@ -306,6 +307,7 @@ class WorldModel(ABC, Loggable):
     ) -> WorldModel:
         return cls(context.mm_llm, prompt_template, examples)
 
+    @lru_cache(maxsize=128)
     def add_knowledge(self, file_path: str):
         """Add knowledge to the world model from an example file."""
         with open(file_path, "r") as file:

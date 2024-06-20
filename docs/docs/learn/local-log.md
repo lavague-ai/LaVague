@@ -118,6 +118,24 @@ This gives us an output as follows:
 
 If you are using the logs to debug and find that the nodes do not show the relevant HTML components to complete the instruction, we know that the task has failed because of the performance of the `Retriever`.
 
+### Exporting logs to a local file
+
+If you want your logs to be saved to a local file. You can create a `LocalLogger` object with the path of your logger file, or the file you wish LaVague to create:
+
+```python
+log = LocalLogger(log_file_path="log.txt")
+```
+
+When initializing your Web Agent, you'll need to pass it your Local Logger with the `logger` argument:
+
+```python
+agent = WebAgent(world_model, action_engine, logger=log)
+```
+
+After using the agent, your logs will now be stored in the file you specified.
+
+> If you don't appear to have the `LocalLogger` in your current version of LaVague, you can upgrade lavague-core with" `pip install --upgrade lavague-core`
+
 ### Advanced: Manually logging sub-components
 
 The logger runs automatically whenever you use the `agent.run()` method and is accessible via `agent.logger`. 

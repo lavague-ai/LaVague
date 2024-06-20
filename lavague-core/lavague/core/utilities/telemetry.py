@@ -29,9 +29,13 @@ logging_print.propagate = False
 def send_telemetry(logger_telemetry: DataFrame, test: bool = False):
     try:
         if TELEMETRY_VAR is None:
-            logger_telemetry = logger_telemetry.drop("screenshots", axis=1)
-            logger_telemetry = logger_telemetry.drop("screenshots_path", axis=1)
-            logger_telemetry = logger_telemetry.drop("html", axis=1)
+            logger_telemetry = logger_telemetry.drop(
+                "screenshots", axis=1, errors="ignore"
+            )
+            logger_telemetry = logger_telemetry.drop(
+                "screenshots_path", axis=1, errors="ignore"
+            )
+            logger_telemetry = logger_telemetry.drop("html", axis=1, errors="ignore")
             logger_telemetry = logger_telemetry.replace({np.nan: None})
 
             for index, row in logger_telemetry.iterrows():

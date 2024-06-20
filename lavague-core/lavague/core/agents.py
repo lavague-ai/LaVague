@@ -15,6 +15,7 @@ from lavague.core.base_driver import BaseDriver
 from lavague.core.base_engine import ActionResult
 from lavague.core.utilities.telemetry import send_telemetry
 from PIL import Image
+from IPython.display import display, HTML, Code
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -270,49 +271,118 @@ class WebAgent:
         self.action_engine.set_display_all(display)
         action_result: ActionResult
 
-        st_memory = self.st_memory
-        world_model = self.world_model
+        try:
+            st_memory = self.st_memory
+            world_model = self.world_model
 
-        if user_data:
-            self.st_memory.set_user_data(user_data)
-
-        obs = self.driver.get_obs()
-
-        self.logger.new_run()
-        for _ in range(self.n_steps):
-            current_state, past = st_memory.get_state()
-
-            world_model_output = world_model.get_instruction(
-                objective, current_state, past, obs
-            )
-            logging_print.info(world_model_output)
-            next_engine_name = extract_next_engine(world_model_output)
-            instruction = extract_world_model_instruction(world_model_output)
-
-            if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
-                self.result.success = True
-                self.result.output = instruction
-                logging_print.info("Objective reached. Stopping...")
-                self.logger.add_log(obs)
-                self.logger.end_step()
-                break
-
-            action_result = self.action_engine.dispatch_instruction(
-                next_engine_name, instruction
-            )
-            if action_result.success:
-                self.result.code += action_result.code
-                self.result.output = action_result.output
-            st_memory.update_state(
-                instruction,
-                next_engine_name,
-                action_result.success,
-                action_result.output,
-            )
-
-            self.logger.add_log(obs)
-            self.logger.end_step()
+            if user_data:
+                self.st_memory.set_user_data(user_data)
 
             obs = self.driver.get_obs()
-        send_telemetry(self.logger.return_pandas())
+
+            self.logger.new_run()
+            for _ in range(self.n_steps):
+                current_state, past = st_memory.get_state()
+
+                world_model_output = world_model.get_instruction(
+                    objective, current_state, past, obs
+                )
+                logging_print.info(world_model_output)
+                next_engine_name = extract_next_engine(world_model_output)
+                instruction = extract_world_model_instruction(world_model_output)
+
+                if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
+                    self.result.success = True
+                    self.result.output = instruction
+                    logging_print.info("Objective reached. Stopping...")
+                    self.logger.add_log(obs)
+                    self.logger.end_step()
+                    break
+
+                action_result = self.action_engine.dispatch_instruction(
+                    next_engine_name, instruction
+                )
+                if action_result.success:
+                    self.result.code += action_result.code
+                    self.result.output = action_result.output
+                st_memory.update_state(
+                    instruction,
+                    next_engine_name,
+                    action_result.success,
+                    action_result.output,
+                )
+
+                self.logger.add_log(obs)
+                self.logger.end_step()
+
+                obs = self.driver.get_obs()
+        except KeyboardInterrupt:
+            logging_print.warning("The agent was interrupted.")
+            pass
+        except Exception as e:
+            logging_print.error(f"Error while running the agent: {e}")
+            pass
+        finally:
+            send_telemetry(self.logger.return_pandas())
         return self.result
+
+    def display_previous_nodes(self, steps: int) -> None:
+        """prints out all nodes per each sub-instruction for given steps"""
+        dflogs = self.logger.return_pandas()
+        # check if dflogs are not null and not empty and engine_log is present in dflogs columns
+        if (
+            dflogs is not None
+            and dflogs.empty is False
+            and "engine_log" in dflogs.columns
+        ):
+            if steps > len(dflogs):
+                print(
+                    f"Previous steps: {len(dflogs)}\nrequested steps: {steps}\nshowing available steps"
+                )
+            steps = len(dflogs) if steps > len(dflogs) else steps
+            for step in range(steps):
+                print(f"Step: {step}")
+                sub_ins = 0
+                if isinstance(dflogs.at[step, "engine_log"], list):
+                    for subinst in dflogs.at[step, "engine_log"]:
+                        print(f"Sub-Instruction: {sub_ins}")
+                        sub_ins += 1
+                        x = 0
+                        for node in subinst["retrieved_html"]:
+                            print(f"Node {x}")
+                            x = x + 1
+                            display(HTML(node))  # Display node as visual element
+                            display(Code(node, language="html"))  # Display code
+        else:
+            print(
+                f"No previous nodes available. Please run the agent atleast once to view previous steps"
+            )
+
+    def display_all_nodes(self) -> None:
+        """prints out all nodes per each sub-instruction"""
+        dflogs = self.logger.return_pandas()
+        # check if dflogs are not null and not empty and engine_log is present in dflogs columns
+        if (
+            dflogs is not None
+            and dflogs.empty is False
+            and "engine_log" in dflogs.columns
+        ):
+            print(f"Number of steps: {len(dflogs)}")
+            steps = len(dflogs)
+            for step in range(steps):
+                print(f"Step: {step}")
+                sub_ins = 0
+                if isinstance(dflogs.at[step, "engine_log"], list):
+                    for subinst in dflogs.at[step, "engine_log"]:
+                        print(f"Sub-Instruction: {sub_ins}")
+                        sub_ins += 1
+                        x = 0
+                        for node in subinst["retrieved_html"]:
+                            print(f"Node: {x}")
+                            x = x + 1
+                            display(HTML(node))  # Display node as visual element
+                            display(Code(node, language="html"))  # Display code
+        else:
+            print(
+                f"No previous nodes available. Please run the agent atleast once to view previous steps"
+            )

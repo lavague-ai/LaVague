@@ -8,6 +8,7 @@ on:
       - '.github/workflows/docs-checker.yaml'
   schedule:
     - cron: '20 8,17 * * *'
+  workflow_dispatch:
 
 jobs:
   spellcheck:
