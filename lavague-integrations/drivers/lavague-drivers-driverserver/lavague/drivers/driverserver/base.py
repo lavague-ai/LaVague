@@ -12,6 +12,7 @@ from lavague.core.agents import WebAgent
 
 class DriverServer(BaseDriver):
     prompt_agent: WebAgent
+    port: int
 
     async def handler(self, websocket, path):
         if self.client is not None:
@@ -59,7 +60,7 @@ class DriverServer(BaseDriver):
     def start_server(self):
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.server = websockets.serve(
-            self.handler, "localhost", 8000, max_size=20 * 1024 * 1024
+            self.handler, "localhost", self.port, max_size=20 * 1024 * 1024
         )
         asyncio.get_event_loop().run_until_complete(self.server)
         asyncio.get_event_loop().run_forever()
@@ -109,13 +110,11 @@ class DriverServer(BaseDriver):
                 pass
         return ret
 
-    def __init__(
-        self,
-        url: Optional[str] = None,
-    ):
+    def __init__(self, url: Optional[str] = None, port: int = 8000):
         self.client = None
         self.client_response = None
         self.server = None
+        self.port = port
         self.thread = self.run_server_in_thread()
         while self.client is None:
             pass
