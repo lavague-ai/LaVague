@@ -63,7 +63,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         embedding: BaseEmbedding = None,
         top_k: int = 5,
         group_by: int = 10,
-        rank_fields: List[str] = ["element", "placeholder", "text", "name"],
+        rank_fields: List[str] = ["element", "placeholder", "text", "name", "aria-label"],
     ):
         super().__init__(driver, embedding, top_k)
         self.group_by = group_by
