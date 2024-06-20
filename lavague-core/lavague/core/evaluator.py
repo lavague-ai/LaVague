@@ -53,7 +53,7 @@ class Evaluator(ABC):
         pass
 
     @abstractmethod
-    def compare(self, results: Dict[str, pd.DataFrame]) -> Figure:
+    def compare(self, results: Dict[str, pd.DataFrame], metrics: list) -> Figure:
         pass
 
     def _load_html(self, html: str, driver: SeleniumDriver):
@@ -158,22 +158,25 @@ class RetrieverEvaluator(Evaluator):
         retrieved_dataset.to_csv(csv_out_name)
         return retrieved_dataset
 
-    def compare(self, results: Dict[str, pd.DataFrame]):
+    def compare(self, results: Dict[str, pd.DataFrame], metrics: list = ["precision", "recall", "time"]) -> Figure:
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
         df = pd.DataFrame()
-        df["precision"] = [df["precision_retriever"].mean() for df in results.values()]
-        df["recall"] = [df["recall_retriever"].mean() for df in results.values()]
-        df["time"] = [df["retrieval_time"].mean() for df in results.values()]
+        metricMap = {"precision": "precision_retriever", "recall": "recall_retriever", "time": "retrieval_time"}
+        for metric in metrics:
+            if metric in metricMap.keys():
+                df[metric] = [dfr[metricMap[metric]].mean() for dfr in results.values() if metricMap[metric] in dfr.columns]
         df["name"] = list(results.keys())
 
-        rplot = sns.barplot(data=df, x="name", y="recall", ax=axes[0])
-        rplot.set(xlabel="")
-        pplot = sns.barplot(data=df, x="name", y="precision", ax=axes[1])
-        pplot.set(xlabel="")
-        tplot = sns.barplot(data=df, x="name", y="time", ax=axes[2])
-        tplot.set(xlabel="", ylabel="time (secs)")
-
+        count = 0
+        for metric in metrics:
+            if metric in metricMap.keys():
+                plot = sns.barplot(data=df, x="name", y=metric, ax=axes[count])
+                count += 1
+                if metric == "time":
+                    plot.set(xlabel="", ylabel="time (secs)")
+                else:
+                    plot.set(xlabel="")
         return fig
 
     def _gen_html_ids(self, df: pd.DataFrame):
@@ -263,20 +266,23 @@ class LLMEvaluator(Evaluator):
         llm_dataset.to_csv(csv_out_name)
         return llm_dataset
 
-    def compare(self, results: Dict[str, pd.DataFrame]) -> Figure:
+    def compare(self, results: Dict[str, pd.DataFrame], metrics: list = ["precision", "recall", "time"]) -> Figure:
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
         df = pd.DataFrame()
-        df["precision"] = [df["precision_llm"].mean() for df in results.values()]
-        df["recall"] = [df["recall_llm"].mean() for df in results.values()]
-        df["time"] = [df["code_generation_time"].mean() for df in results.values()]
+        metricMap = {"precision": "precision_retriever", "recall": "recall_retriever", "time": "retrieval_time"}
+        for metric in metrics:
+            if metric in metricMap.keys():
+                df[metric] = [dfr[metricMap[metric]].mean() for dfr in results.values() if metricMap[metric] in dfr.columns]
         df["name"] = list(results.keys())
 
-        rplot = sns.barplot(data=df, x="name", y="recall", ax=axes[0])
-        rplot.set(xlabel="")
-        pplot = sns.barplot(data=df, x="name", y="precision", ax=axes[1])
-        pplot.set(xlabel="")
-        tplot = sns.barplot(data=df, x="name", y="time", ax=axes[2])
-        tplot.set(xlabel="", ylabel="time (secs)")
-
+        count = 0
+        for metric in metrics:
+            if metric in metricMap.keys():
+                plot = sns.barplot(data=df, x="name", y=metric, ax=axes[count])
+                count += 1
+                if metric == "time":
+                    plot.set(xlabel="", ylabel="time (secs)")
+                else:
+                    plot.set(xlabel="")
         return fig
