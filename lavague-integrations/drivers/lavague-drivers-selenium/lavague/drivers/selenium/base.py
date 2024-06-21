@@ -47,15 +47,18 @@ class SeleniumDriver(BaseDriver):
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.common.action_chains import ActionChains
 
-        chrome_options = self.options or Options()
-        if self.headless:
-            chrome_options.add_argument("--headless")
-        if self.user_data_dir:
-            chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.page_load_strategy = (
-            "normal" if self.no_load_strategy is False else "none"
-        )
+        if self.options:
+            chrome_options = self.options
+        else:
+            chrome_options = Options()
+            if self.headless:
+                chrome_options.add_argument("--headless")
+            if self.user_data_dir:
+                chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.page_load_strategy = (
+                "normal" if self.no_load_strategy is False else "none"
+            )
 
         driver = webdriver.Chrome(options=chrome_options)
         self.driver = driver
