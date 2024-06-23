@@ -230,7 +230,7 @@ class NavigationEngine(BaseEngine):
         action_full = ""
         output = None
 
-        list_instructions = self.rephrase_query(instruction)
+        list_instructions = self.rephraser.rephrase_query(instruction)
         original_instruction = instruction
         action_nb = 0
         navigation_log_total = []
@@ -549,21 +549,29 @@ class NavigationControl(BaseEngine):
         self.display = display
 
     def execute_instruction(self, instruction: str) -> ActionResult:
+        import inspect
+
+        code = ""
         logger = self.logger
 
         if "SCROLL_DOWN" in instruction:
             self.driver.scroll_down()
+            code = inspect.getsource(self.driver.scroll_down())
         elif "SCROLL_UP" in instruction:
             self.driver.scroll_up()
+            code = inspect.getsource(self.driver.scroll_up())
         elif "WAIT" in instruction:
             self.driver.wait(self.time_between_actions)
+            code = inspect.getsource(self.driver.wait(self.time_between_actions))
         elif "BACK" in instruction:
             self.driver.back()
+            code = inspect.getsource(self.driver.back())
         elif "SCAN" in instruction:
             self.driver.get_screenshots_whole_page()
+            code = inspect.getsource(self.driver.get_screenshots_whole_page())
         elif "MAXIMIZE_WINDOW" in instruction:
-            code = ""
             self.driver.maximize_window()
+            code = inspect.getsource(self.driver.maximize_window())
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         success = True
@@ -574,12 +582,12 @@ class NavigationControl(BaseEngine):
                 "engine_log": None,
                 "success": success,
                 "output": None,
-                "code": None,
+                "code": code,
             }
             logger.add_log(log)
 
         return ActionResult(
-            instruction=instruction, code="", success=success, output=None
+            instruction=instruction, code=code, success=success, output=None
         )
 
 
