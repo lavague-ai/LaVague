@@ -27,7 +27,7 @@ class SeleniumDriver(BaseDriver):
         width: int = 1080,
         height: int = 1080,
         no_load_strategy: bool = False,
-        options: Optional[Options] = None
+        options: Optional[Options] = None,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -209,12 +209,10 @@ driver.set_window_size({width}, {height} + height_difference)
         return self.driver.execute_script(js_code, *args)
 
     def scroll_up(self):
-        code = self.code_for_execute_script("window.scrollBy(0, -window.innerHeight);")
-        self.exec_code(code)
+        self.execute_script("window.scrollBy(0, -window.innerHeight);")
 
     def scroll_down(self):
-        code = self.code_for_execute_script("window.scrollBy(0, window.innerHeight);")
-        self.exec_code(code)
+        self.execute_script("window.scrollBy(0, window.innerHeight);")
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return (

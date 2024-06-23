@@ -158,14 +158,26 @@ class RetrieverEvaluator(Evaluator):
         retrieved_dataset.to_csv(csv_out_name)
         return retrieved_dataset
 
-    def compare(self, results: Dict[str, pd.DataFrame], metrics: list = ["precision", "recall", "time"]) -> Figure:
+    def compare(
+        self,
+        results: Dict[str, pd.DataFrame],
+        metrics: list = ["precision", "recall", "time"],
+    ) -> Figure:
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
         df = pd.DataFrame()
-        metricMap = {"precision": "precision_retriever", "recall": "recall_retriever", "time": "retrieval_time"}
+        metricMap = {
+            "precision": "precision_retriever",
+            "recall": "recall_retriever",
+            "time": "retrieval_time",
+        }
         for metric in metrics:
             if metric in metricMap.keys():
-                df[metric] = [dfr[metricMap[metric]].mean() for dfr in results.values() if metricMap[metric] in dfr.columns]
+                df[metric] = [
+                    dfr[metricMap[metric]].mean()
+                    for dfr in results.values()
+                    if metricMap[metric] in dfr.columns
+                ]
         df["name"] = list(results.keys())
 
         count = 0
@@ -266,14 +278,26 @@ class LLMEvaluator(Evaluator):
         llm_dataset.to_csv(csv_out_name)
         return llm_dataset
 
-    def compare(self, results: Dict[str, pd.DataFrame], metrics: list = ["precision", "recall", "time"]) -> Figure:
+    def compare(
+        self,
+        results: Dict[str, pd.DataFrame],
+        metrics: list = ["precision", "recall", "time"],
+    ) -> Figure:
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
         df = pd.DataFrame()
-        metricMap = {"precision": "precision_retriever", "recall": "recall_retriever", "time": "retrieval_time"}
+        metricMap = {
+            "precision": "precision_retriever",
+            "recall": "recall_retriever",
+            "time": "retrieval_time",
+        }
         for metric in metrics:
             if metric in metricMap.keys():
-                df[metric] = [dfr[metricMap[metric]].mean() for dfr in results.values() if metricMap[metric] in dfr.columns]
+                df[metric] = [
+                    dfr[metricMap[metric]].mean()
+                    for dfr in results.values()
+                    if metricMap[metric] in dfr.columns
+                ]
         df["name"] = list(results.keys())
 
         count = 0
