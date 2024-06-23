@@ -556,22 +556,22 @@ class NavigationControl(BaseEngine):
 
         if "SCROLL_DOWN" in instruction:
             self.driver.scroll_down()
-            code = inspect.getsource(self.driver.scroll_down())
+            code = inspect.getsource(self.driver.scroll_down)
         elif "SCROLL_UP" in instruction:
             self.driver.scroll_up()
-            code = inspect.getsource(self.driver.scroll_up())
+            code = inspect.getsource(self.driver.scroll_up)
         elif "WAIT" in instruction:
             self.driver.wait(self.time_between_actions)
-            code = inspect.getsource(self.driver.wait(self.time_between_actions))
+            code = inspect.getsource(self.driver.wait)
         elif "BACK" in instruction:
             self.driver.back()
-            code = inspect.getsource(self.driver.back())
+            code = inspect.getsource(self.driver.back)
         elif "SCAN" in instruction:
             self.driver.get_screenshots_whole_page()
-            code = inspect.getsource(self.driver.get_screenshots_whole_page())
+            code = inspect.getsource(self.driver.get_screenshots_whole_page)
         elif "MAXIMIZE_WINDOW" in instruction:
             self.driver.maximize_window()
-            code = inspect.getsource(self.driver.maximize_window())
+            code = inspect.getsource(self.driver.maximize_window)
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         success = True
