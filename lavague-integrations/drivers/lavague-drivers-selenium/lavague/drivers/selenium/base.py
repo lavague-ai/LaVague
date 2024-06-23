@@ -27,7 +27,7 @@ class SeleniumDriver(BaseDriver):
         width: int = 1080,
         height: int = 1080,
         no_load_strategy: bool = False,
-        options: Optional[Options] = None
+        options: Optional[Options] = None,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
