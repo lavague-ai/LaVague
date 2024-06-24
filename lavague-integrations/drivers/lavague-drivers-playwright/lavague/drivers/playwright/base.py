@@ -208,7 +208,6 @@ class PlaywrightDriver(BaseDriver):
         code = self.code_for_execute_script("window.scrollBy(0, window.innerHeight);")
         self.exec_code(code)
 
-
     def scroll_up(self):
         code = self.execute_script("window.scrollBy(0, -window.innerHeight);")
 
