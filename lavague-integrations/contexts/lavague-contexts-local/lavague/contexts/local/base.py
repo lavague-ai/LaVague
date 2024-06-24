@@ -28,13 +28,12 @@ class LocalContext(Context):
             driver = SeleniumDriver()
         if retriever is None:
             retriever = OpsmSplitRetriever(
-                driver, HuggingFaceEmbedding(model_name=embedding)
+                driver, HuggingFaceEmbedding(model_name=embedding), top_k=2
             )
         return super().__init__(
             HuggingFaceLLM(
                 model_name=llm,
                 max_new_tokens=DEFAULT_MAX_TOKENS,
-                generate_kwargs={"temperature": DEFAULT_TEMPERATURE}
             ),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
             retriever,
