@@ -153,7 +153,6 @@ class NavigationEngine(BaseEngine):
     def from_context(
         cls,
         context: Context,
-        driver: BaseDriver,
         rephraser: Rephraser = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
@@ -162,7 +161,7 @@ class NavigationEngine(BaseEngine):
         Create an NavigationEngine from a context
         """
         return cls(
-            driver,
+            context.driver,
             context.llm,
             rephraser,
             context.retriever,
