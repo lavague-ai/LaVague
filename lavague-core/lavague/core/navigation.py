@@ -155,7 +155,6 @@ class NavigationEngine(BaseEngine):
         context: Context,
         driver: BaseDriver,
         rephraser: Rephraser = None,
-        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
     ) -> "NavigationEngine":
@@ -165,9 +164,8 @@ class NavigationEngine(BaseEngine):
         return cls(
             driver,
             context.llm,
-            context.embedding,
             rephraser,
-            retriever,
+            context.retriever,
             prompt_template,
             extractor,
         )
