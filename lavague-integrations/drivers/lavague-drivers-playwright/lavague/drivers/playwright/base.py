@@ -125,7 +125,8 @@ class PlaywrightDriver(BaseDriver):
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            return self.page.locator(f"xpath={xpath}").is_visible()
+            locator = self.page.locator(f"xpath={xpath}")
+            return locator.is_visible() and locator.is_enabled()
         except:
             return False
 

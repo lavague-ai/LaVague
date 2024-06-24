@@ -52,7 +52,7 @@ class SeleniumDriver(BaseDriver):
         else:
             chrome_options = Options()
             if self.headless:
-                chrome_options.add_argument("--headless")
+                chrome_options.add_argument("--headless=new")
             if self.user_data_dir:
                 chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
             chrome_options.add_argument("--no-sandbox")
@@ -139,7 +139,8 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            return self.driver.find_element(By.XPATH, xpath).is_displayed()
+            element = self.driver.find_element(By.XPATH, xpath)
+            return element.is_displayed() and element.is_enabled()
         except:
             return False
 
