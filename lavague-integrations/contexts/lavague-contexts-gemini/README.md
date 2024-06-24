@@ -1,1 +1,1 @@
-# Local integration for lavague
+# Gemini integration for lavague
