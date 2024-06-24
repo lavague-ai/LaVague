@@ -206,12 +206,6 @@ class PlaywrightDriver(BaseDriver):
     def scroll_down(self):
         code = self.execute_script("window.scrollBy(0, window.innerHeight);")
 
-    def scroll_up(self):
-        code = self.execute_script("window.scrollBy(0, -window.innerHeight);")
-
-    def scroll_down(self):
-        code = self.execute_script("window.scrollBy(0, window.innerHeight);")
-
     def get_capability(self) -> str:
         return """
 Your goal is to write Playwright Python code to answer queries.
