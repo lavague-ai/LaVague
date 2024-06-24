@@ -1,73 +1,17 @@
 html {
   height: calc(100% - 40px);
 }
-body {
+
+#app {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px;
   height: 100%;
 }
+
 .logo {
   height: 80px;
   object-fit: contain;
-}
-textarea {
-  border: 1px solid rgb(221, 221, 221);
-  background: rgb(250, 250, 250);
-  border-radius: 8px;
-  padding: 8px;
-  width: 295px;
-  min-height: 80px;
-  height: 81px;
-  resize: none;
-}
-.input-data {
-  position: relative;
-  margin-top: 20px;
-
-  input {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: none;
-    font-size: 16px;
-    outline: none;
-    padding-bottom: 4px;
-    border-bottom: 2px solid rgba(0,0,0, 0.12);
-  }
-  input:focus ~ label, input:valid ~ label {
-    transform: translateY(-18px);
-    font-size: 12px;
-    color: #3498db;
-  }
-  label {
-    position: absolute;
-    pointer-events: none;
-    bottom: 10px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-  }
-  .underline {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: 100%;
-  }
-  .underline:before {
-    position: absolute;
-    content: "";
-    height: 2px;
-    width: 100%;
-    background: #3498db;
-    transform: scaleX(0);
-    transform-origin: center;
-    transition: transform 0.3s ease;
-  }
-  input:focus ~ .underline:before, input:valid ~ .underline:before {
-    transform: scale(1);
-  }
 }
 
 .server {
@@ -76,44 +20,14 @@ textarea {
   gap: 8px;
 }
 
-.connection {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid rgba(0,0,0, 0.12);
-}
-
-.hidden {
-  display: none;
-}
-
-#status {
-  opacity: .6;
-}
-
-button {
-  background: #09b4ff;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 1rem;
-  border: none;
-  cursor: pointer;
-
-  &:disabled {
-    background: #6cafcc;
-  }
-  &:hover {
-    background: #36c3ff;
-  }
-}
-
-#logs {
+.logs {
   flex: 1;
   overflow: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
 
-  & > div {
+  .log {
     border: 1px solid #ddf;
     background: #fafaff;
     padding: 4px 8px;
@@ -131,12 +45,8 @@ button {
 
 .prompt {
   position: relative;
-  margin-bottom: 16px;
 
-  textarea {
-    padding-bottom: 16px;
-  }
-  button {
+  .button {
     position: absolute;
     bottom: -12px;
     right: -12px;

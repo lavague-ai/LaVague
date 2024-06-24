@@ -2,17 +2,17 @@
 
 ### 1. Setup
 
-```yarn``` or ```npm install```
+`yarn` or `npm install`
 
 ### 2. Running
 
-```yarn dev``` or ```npm run dev```
+`yarn dev` or `npm run dev`
 
 This will allow the extension built files to be updated in real time when changes are made in the code.
 
 ### 3. Building
 
-```yarn build``` or ```npm run build```
+`yarn build` or `npm run build`
 
 Build the project, usually used for publishing it on the store.
 
@@ -20,23 +20,25 @@ Build the project, usually used for publishing it on the store.
 
 ### Run locally
 
-```yarn dev``` or ```npm run dev```
+`yarn dev` or `npm run dev`
 
-It will build the project in watch mode. Project build in `dist` directory will be updated upon save. 
+It will build the project in watch mode. Project build in `dist` directory will be updated upon save.
 
 ### Test your extension
 
-- Go to the Extensions page [chrome://extensions/](chrome://extensions/)
-- Click the `Load unpacked` button
-- Select the `dist` directory
+-   Go to the Extensions page [chrome://extensions/](chrome://extensions/)
+-   Click the `Load unpacked` button
+-   Select the `dist` directory
 
-Ta-da! The extension has been successfully installed.
-Every time you update the extension code, click the refresh button on the LaVague extension.
-
+Ta-da! The extension has been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
 
 ## Setup LaVague Driver Server
 
 The LaVague extension communicates with a Driver Server using Websockets.
+
+```shell
+pip install lavague-core lavague-drivers-remote
+```
 
 ```python
 from lavague.core import WorldModel, ActionEngine

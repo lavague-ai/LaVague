@@ -1,109 +1,134 @@
 import { ChromeExtensionDriver } from './driver';
+import EventEmitter from 'eventemitter3';
 
 export enum AgentServerState {
-  DISCONNECTED,
-  CONNECTING,
-  CONNECTED,
-  ERROR,
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED,
 }
 
+export type EventType = 'error' | 'stateChange' | 'inputMessage' | 'outputMessage';
+
 export class AgentServerConnector {
-  private webSocket: WebSocket | null = null;
-  readonly driver: ChromeExtensionDriver;
-  onStateChange?: (state: AgentServerState) => void;
-  onError?: (err: any) => void;
-  currentState: AgentServerState = AgentServerState.DISCONNECTED;
+    private webSocket: WebSocket | null = null;
+    private eventEmitter = new EventEmitter();
+    readonly driver: ChromeExtensionDriver;
+    currentState: AgentServerState = AgentServerState.DISCONNECTED;
 
-  constructor() {
-    this.driver = new ChromeExtensionDriver();
-  }
+    constructor() {
+        this.driver = new ChromeExtensionDriver();
+    }
 
-  connect(host: string) {
-    this.disconnect();
-    this.driver.start();
-    this.updateState(AgentServerState.CONNECTING);
-    try {
-      this.webSocket = new WebSocket('ws://' + host);
-      this.webSocket.onopen = () => {
-        this.updateState(AgentServerState.CONNECTED);
-      };
-  
-      this.webSocket.onmessage = async (event: { data: string; }) => {
-        const msg = JSON.parse(event.data);
+    async connect(host: string) {
+        this.disconnect();
+        this.updateState(AgentServerState.CONNECTING);
         try {
-          const ret = await this.driver.handleMessage(msg);
-          this.sendMessage({
-            id: msg.id,
-            ret: ret,
-            method: msg.command
-          });
-        } catch (error) {
-          console.error('Error processing request', error, event.data);
-          this.sendMessage({
-            id: msg.id,
-            ret: null,
-            method: msg.command
-          });
-          this.error(error);
+            const webSocket = new WebSocket('ws://' + host);
+
+            webSocket.onmessage = async (event: { data: string }) => {
+                const msg = JSON.parse(event.data);
+                this.emit('inputMessage', msg);
+                let ret = null;
+                try {
+                    ret = await this.driver.handleMessage(msg);
+                } catch (error) {
+                    console.error('Error processing request', error, event.data);
+                    this.emit('error', error);
+                }
+                this.sendMessage(
+                    {
+                        id: msg.id,
+                        ret,
+                        method: msg.command,
+                    },
+                    false
+                );
+            };
+            await new Promise<void>((resolve, reject) => {
+                webSocket.onopen = () => {
+                    this.updateState(AgentServerState.CONNECTED);
+                    resolve();
+                };
+                webSocket.onerror = reject;
+            });
+            webSocket.onerror = (error) => this.emit('error', error);
+            webSocket.onclose = () => this.updateState(AgentServerState.DISCONNECTED);
+            this.webSocket = webSocket;
+            this.keepAlive();
+            await this.driver.start();
+        } catch {
+            this.updateState(AgentServerState.DISCONNECTED);
         }
-      };
-      this.webSocket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        this.error(error);
-      };
-      this.webSocket.onclose = () => {
-        this.updateState(AgentServerState.DISCONNECTED);
-      };
-      this.keepAlive();
-    } catch {
-      this.updateState(AgentServerState.DISCONNECTED);
     }
-  }
 
-  sendMessage(message: any) {
-    if (this.currentState === AgentServerState.CONNECTED) {
-      this.webSocket?.send(JSON.stringify(message));
-    }
-  }
-
-  disconnect() {
-    this.driver.stop();
-    if (this.webSocket) {
-      this.webSocket.close();
-      this.webSocket = null;
-      this.updateState(AgentServerState.DISCONNECTED);
-    }
-  }
-
-  sendPrompt(type: 'run' | 'get', args: string) {
-    this.sendMessage({ type, args });
-  }
-
-  private updateState(state: AgentServerState) {
-    if (state !== this.currentState) {
-      this.onStateChange?.(state);
-      this.currentState = state;
-    }
-  }
-
-  private error(err: any) {
-    this.onError?.(err);
-  }
-
-  /**
-   * Keep alive interval shorter than 30s to avoid service worker becoming inactive
-   */
-  private keepAlive() {
-    const keepAliveIntervalId = setInterval(
-      () => {
-        if (this.webSocket && this.webSocket.readyState === this.webSocket.OPEN) {
-          this.webSocket.send("PING");
-        } else {
-          clearInterval(keepAliveIntervalId);
+    sendMessage(message: any, emit = true) {
+        if (this.currentState !== AgentServerState.CONNECTED) {
+            return false;
         }
-      },
-      10_000
-    );
-  }
+        this.webSocket?.send(JSON.stringify(message));
+        if (emit) {
+            this.emit('outputMessage', message);
+        }
+        return true;
+    }
 
+    async disconnect() {
+        if (this.webSocket) {
+            this.webSocket.close();
+            this.webSocket = null;
+            this.updateState(AgentServerState.DISCONNECTED);
+        }
+        await this.driver.stop();
+    }
+
+    sendPrompt(type: 'run' | 'get', args: string) {
+        this.sendMessage({ type, args });
+    }
+
+    onStateChange(fn: (state: AgentServerState) => void) {
+        return this.on('stateChange', fn);
+    }
+
+    onError(fn: (message: string) => void) {
+        return this.on('error', fn);
+    }
+
+    onInputMessage(fn: (ret: any) => void) {
+        return this.on('inputMessage', fn);
+    }
+
+    onOutputMessage(fn: (message: any) => void) {
+        return this.on('outputMessage', fn);
+    }
+
+    on<F extends EventEmitter.EventListener<EventType, EventType>>(event: EventType, fn: F) {
+        this.eventEmitter.on(event, fn);
+        return () => {
+            this.eventEmitter.off(event, fn);
+        };
+    }
+
+    private emit(event: EventType, ...args: any[]) {
+        this.eventEmitter.emit(event, ...args);
+    }
+
+    private updateState(state: AgentServerState) {
+        if (state !== this.currentState) {
+            this.emit('stateChange', state);
+            this.currentState = state;
+        }
+    }
+
+    /**
+     * Keep alive interval shorter than 30s to avoid service worker becoming inactive
+     */
+    private keepAlive() {
+        const keepAliveIntervalId = setInterval(() => {
+            if (this.webSocket && this.webSocket.readyState === this.webSocket.OPEN) {
+                this.webSocket.send('PING');
+            } else {
+                clearInterval(keepAliveIntervalId);
+            }
+        }, 10_000);
+    }
 }

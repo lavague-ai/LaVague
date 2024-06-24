@@ -193,6 +193,12 @@ import time
 time.sleep({time_between_actions})"""
         self.exec_code(code)
 
+    def wait(self, time_between_actions):
+        code = f"""
+import time
+time.sleep({time_between_actions})"""
+        self.exec_code(code)
+
     def get_current_screenshot_folder(self) -> Path:
         url = self.get_url()
         screenshots_path = Path("./screenshots")

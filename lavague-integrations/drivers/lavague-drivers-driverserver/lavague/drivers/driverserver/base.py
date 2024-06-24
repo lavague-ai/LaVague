@@ -265,6 +265,20 @@ class DriverServer(BaseDriver):
         self.exec_code(json_str)
         pass
 
+    def wait(self, time_between_actions):
+        json_str = f"""[
+    {{
+        "action": {{
+            "name": "wait",
+            "args": {{
+                "value": {time_between_actions}
+            }}
+        }}
+    }}
+]"""
+        self.exec_code(json_str)
+        pass
+
     def scroll_up(self):
         json_str = """[
     {
@@ -293,11 +307,11 @@ class DriverServer(BaseDriver):
         self.exec_code(json_str)
         pass
 
-    def resize_driver(self, width, targeted_height):
-        pass
-
     def get_capability(self) -> str:
         return REMOTE_PROMPT_TEMPLATE
+
+    def maximize_window(self) -> None:
+        pass
 
 
 REMOTE_PROMPT_TEMPLATE = """
