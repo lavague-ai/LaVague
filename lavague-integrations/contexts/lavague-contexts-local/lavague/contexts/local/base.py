@@ -33,8 +33,8 @@ class LocalContext(Context):
         return super().__init__(
             HuggingFaceLLM(
                 model_name=llm,
-                max_length=DEFAULT_MAX_TOKENS,
-                temperature=DEFAULT_TEMPERATURE,
+                max_new_tokens=DEFAULT_MAX_TOKENS,
+                generate_kwargs={"temperature": DEFAULT_TEMPERATURE}
             ),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
             retriever,
