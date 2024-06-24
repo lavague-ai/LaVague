@@ -15,6 +15,7 @@ from llama_index.core.node_parser import LangchainNodeParser
 from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
 
+
 class BaseHtmlRetriever(ABC):
     def __init__(
         self, driver: BaseDriver, embedding: BaseEmbedding = None, top_k: int = 3

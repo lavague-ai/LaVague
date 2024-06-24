@@ -27,9 +27,12 @@ class OpenaiContext(Context):
                 raise ValueError("OPENAI_API_KEY is not set")
         if driver is None:
             from lavague.drivers.selenium.base import SeleniumDriver
+
             driver = SeleniumDriver(headless=False)
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver, OpenAIEmbedding(api_key=api_key, model=embedding))
+            retriever = OpsmSplitRetriever(
+                driver, OpenAIEmbedding(api_key=api_key, model=embedding)
+            )
         return super().__init__(
             OpenAI(
                 api_key=api_key,
@@ -39,7 +42,7 @@ class OpenaiContext(Context):
             ),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
             retriever,
-            driver
+            driver,
         )
 
 
@@ -63,6 +66,7 @@ class AzureOpenaiContext(Context):
             deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
         if driver is None:
             from lavague.drivers.selenium.base import SeleniumDriver
+
             driver = SeleniumDriver(headless=False)
         if retriever is None:
             retriever = OpsmSplitRetriever(driver, embedding)
@@ -74,5 +78,5 @@ class AzureOpenaiContext(Context):
                 model=mm_llm, api_key=api_key, endpoint=endpoint, deployment=deployment
             ),
             embedding,
-            driver
+            driver,
         )

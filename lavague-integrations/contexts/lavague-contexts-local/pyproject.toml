@@ -21,7 +21,7 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.0"
+lavague-core = "^0.2.19"
 llama-index-embeddings-huggingface = "^0.2.0"
 llama-index-llms-huggingface = "^0.2.3"
 llama-index-multi-modal-llms-openai = "^0.1.6"

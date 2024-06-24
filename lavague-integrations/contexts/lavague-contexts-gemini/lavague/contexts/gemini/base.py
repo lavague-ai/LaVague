@@ -24,9 +24,12 @@ class GeminiContext(Context):
                 raise ValueError("GOOGLE_API_KEY is not set")
         if driver is None:
             from lavague.drivers.selenium.base import SeleniumDriver
+
             driver = SeleniumDriver()
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver, GeminiEmbedding(api_key=api_key, model_name=embedding))
+            retriever = OpsmSplitRetriever(
+                driver, GeminiEmbedding(api_key=api_key, model_name=embedding)
+            )
         return super().__init__(
             Gemini(
                 api_key=api_key,
@@ -36,5 +39,5 @@ class GeminiContext(Context):
             ),
             GeminiMultiModal(api_key=api_key, model_name=mm_llm),
             retriever,
-            driver
+            driver,
         )

@@ -7,6 +7,7 @@ from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 import os
 from lavague.core.context import Context, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
 
+
 class LocalContext(Context):
     def __init__(
         self,
@@ -23,9 +24,12 @@ class LocalContext(Context):
                 raise ValueError("OPENAI_API_KEY is not set")
         if driver is None:
             from lavague.drivers.selenium.base import SeleniumDriver
+
             driver = SeleniumDriver()
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver, HuggingFaceEmbedding(model_name=embedding))
+            retriever = OpsmSplitRetriever(
+                driver, HuggingFaceEmbedding(model_name=embedding)
+            )
         return super().__init__(
             HuggingFaceLLM(
                 model_name=llm,
@@ -34,5 +38,5 @@ class LocalContext(Context):
             ),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
             retriever,
-            driver
+            driver,
         )

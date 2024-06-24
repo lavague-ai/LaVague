@@ -8,6 +8,7 @@ DEFAULT_MAX_TOKENS = 512
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_CONTEXT = None
 
+
 class Context:
     """Set the context which will be used thourough the action generation pipeline."""
 
@@ -42,7 +43,7 @@ def get_default_context() -> Context:
         if DEFAULT_CONTEXT is None:
             DEFAULT_CONTEXT = OpenaiContext()
 
-        return DEFAULT_CONTEXT 
+        return DEFAULT_CONTEXT
 
     except ImportError:
         raise ImportError(
