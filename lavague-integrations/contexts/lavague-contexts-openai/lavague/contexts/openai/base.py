@@ -28,7 +28,7 @@ class OpenaiContext(Context):
         if driver is None:
             from lavague.drivers.selenium.base import SeleniumDriver
 
-            driver = SeleniumDriver(headless=False)
+            driver = SeleniumDriver()
         if retriever is None:
             retriever = OpsmSplitRetriever(
                 driver, OpenAIEmbedding(api_key=api_key, model=embedding)
@@ -67,7 +67,7 @@ class AzureOpenaiContext(Context):
         if driver is None:
             from lavague.drivers.selenium.base import SeleniumDriver
 
-            driver = SeleniumDriver(headless=False)
+            driver = SeleniumDriver()
         if retriever is None:
             retriever = OpsmSplitRetriever(driver, embedding)
         return super().__init__(
