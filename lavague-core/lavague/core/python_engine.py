@@ -17,6 +17,7 @@ from llama_index.core import Document, VectorStoreIndex
 from lavague.core.logger import AgentLogger
 from lavague.core.base_engine import BaseEngine, ActionResult
 from PIL import Image
+from typing import Callable
 
 
 class PythonEngine(BaseEngine):
@@ -30,16 +31,21 @@ class PythonEngine(BaseEngine):
         llm: BaseLLM = None,
         embedding: BaseEmbedding = None,
         logger: AgentLogger = None,
+        clean_html: Callable[[str], str] = None,
     ):
         if llm is None:
             llm = get_default_context().llm
         if embedding is None:
             embedding = get_default_context().embedding
+        if clean_html is None:
+            self.clean_html = trafilatura.extract 
+        
         self.llm = llm
         self.embedding = embedding
         self.driver = driver
         self.logger = logger
         self.display = False
+        
 
     @classmethod
     def from_context(
@@ -65,7 +71,7 @@ class PythonEngine(BaseEngine):
             except:
                 pass
 
-        page_content = trafilatura.extract(html)
+        page_content = self.clean_html(html)
 
         documents = [Document(text=page_content)]
 
