@@ -1,0 +1,22 @@
+{
+  "jsxSingleQuote": false,
+  "proseWrap": "always",
+  "quoteProps": "as-needed",
+  "printWidth": 150,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "tabWidth": 4,
+  "semi": true,
+  "arrowParens": "always",
+  "importOrderParserPlugins": [
+    "typescript",
+    "decorators-legacy"
+  ],
+  "importOrder": [
+    "^(react)",
+    "<THIRD_PARTY_MODULES>",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}
