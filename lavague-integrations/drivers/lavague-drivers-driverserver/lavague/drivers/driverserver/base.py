@@ -307,11 +307,11 @@ class DriverServer(BaseDriver):
         self.exec_code(json_str)
         pass
 
-    def resize_driver(self, width, targeted_height):
-        pass
-
     def get_capability(self) -> str:
         return REMOTE_PROMPT_TEMPLATE
+
+    def maximize_window(self) -> None:
+        pass
 
 
 REMOTE_PROMPT_TEMPLATE = """
