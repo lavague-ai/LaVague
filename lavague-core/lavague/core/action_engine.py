@@ -43,12 +43,11 @@ class ActionEngine:
 
     def __init__(
         self,
-        driver: BaseDriver,
+        driver: BaseDriver = None,
         navigation_engine: BaseEngine = None,
         python_engine: BaseEngine = None,
         navigation_control: BaseEngine = None,
         llm: BaseLLM = None,
-        embedding: BaseEmbedding = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
@@ -59,19 +58,22 @@ class ActionEngine:
         if llm is None:
             llm = get_default_context().llm
 
-        if embedding is None:
-            embedding = get_default_context().embedding
+        if driver is None:
+            driver = get_default_context().driver
+        else:
+            get_default_context().driver.destroy()
+            get_default_context().driver = driver
+            get_default_context().retriever.change_driver(driver)
 
         self.driver = driver
 
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver, embedding)
+            retriever = get_default_context().retriever
 
         if navigation_engine is None:
             navigation_engine = NavigationEngine(
                 driver=driver,
                 llm=llm,
-                embedding=embedding,
                 retriever=retriever,
                 prompt_template=prompt_template,
                 extractor=extractor,
@@ -80,7 +82,7 @@ class ActionEngine:
                 logger=logger,
             )
         if python_engine is None:
-            python_engine = PythonEngine(driver, llm, embedding)
+            python_engine = PythonEngine(driver, llm, retriever.embedding)
         if navigation_control is None:
             navigation_control = NavigationControl(
                 driver, time_between_actions=time_between_actions
@@ -103,11 +105,9 @@ class ActionEngine:
     def from_context(
         cls,
         context: Context,
-        driver: BaseDriver,
         navigation_engine: BaseEngine = None,
         python_engine: BaseEngine = None,
         navigation_control: BaseEngine = None,
-        retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
         time_between_actions: float = 1.5,
@@ -118,13 +118,12 @@ class ActionEngine:
         Create an ActionEngine from a context
         """
         return cls(
-            driver,
+            context.driver,
             navigation_engine,
             python_engine,
             navigation_control,
             context.llm,
-            context.embedding,
-            retriever,
+            context.retriever,
             prompt_template,
             extractor,
             time_between_actions,

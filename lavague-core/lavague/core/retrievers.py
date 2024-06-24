@@ -14,18 +14,17 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
 from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
-from lavague.core.context import get_default_context
-
 
 class BaseHtmlRetriever(ABC):
     def __init__(
         self, driver: BaseDriver, embedding: BaseEmbedding = None, top_k: int = 3
     ):
-        if embedding is None:
-            embedding = get_default_context().embedding
         self.driver = driver
         self.embedding = embedding
         self.top_k = top_k
+
+    def change_driver(self, driver: BaseDriver):
+        self.driver = driver
 
     @abstractmethod
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:

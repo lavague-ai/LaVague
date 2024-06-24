@@ -117,9 +117,8 @@ class NavigationEngine(BaseEngine):
 
     def __init__(
         self,
-        driver: BaseDriver,
+        driver: BaseDriver = None,
         llm: BaseLLM = None,
-        embedding: BaseEmbedding = None,
         rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
@@ -131,15 +130,14 @@ class NavigationEngine(BaseEngine):
     ):
         if llm is None:
             llm: BaseLLM = get_default_context().llm
-        if embedding is None:
-            embedding: BaseEmbedding = get_default_context().embedding
         if rephraser is None:
             rephraser = Rephraser(llm)
+        if driver is None:
+            driver = get_default_context().driver
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver, embedding)
+            retriever = get_default_context().retriever
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
-        self.embedding: BaseEmbedding = embedding
         self.rephraser = rephraser
         self.retriever: BaseHtmlRetriever = retriever
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
@@ -499,7 +497,7 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
-                    logging_print.error("Navigation error:", e)
+                    logging_print.error(f"Navigation error: {e}")
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
 
