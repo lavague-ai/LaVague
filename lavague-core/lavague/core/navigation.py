@@ -503,7 +503,6 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
 
-
                 action_outcomes.append(action_outcome)
 
             navigation_log["action_outcomes"] = action_outcomes
