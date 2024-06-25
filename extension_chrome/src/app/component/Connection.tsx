@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import { AgentServerState } from '../../connector';
-import { Button, FormControl, FormHelperText, FormLabel, Input } from '@chakra-ui/react';
+import { Button, FormControl, FormHelperText, FormLabel, Input, Text } from '@chakra-ui/react';
 
 const LABELS: { [state in AgentServerState]: string } = {
     [AgentServerState.CONNECTED]: 'Connected',
@@ -12,10 +12,24 @@ const LABELS: { [state in AgentServerState]: string } = {
 export default function Connection({ initialHost }: { initialHost: string }) {
     const { serverState, connector } = useContext(AppContext);
     const [host, setHost] = useState(initialHost);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         connector.connect(initialHost);
     }, [connector, initialHost]);
+
+    const handleConnect = async () => {
+        setError(null);
+        try {
+            await connector.connect(host);
+        } catch (err: any) {
+            if (err instanceof Event && err.target instanceof WebSocket) {
+                setError('Unable to connect. Please ensure that the host is valid and points to an active driver server.');
+            } else {
+                setError((err.message ?? err) + '');
+            }
+        }
+    };
 
     return (
         <div className="connection">
@@ -30,11 +44,16 @@ export default function Connection({ initialHost }: { initialHost: string }) {
                         Disconnect
                     </Button>
                 ) : (
-                    <Button onClick={() => connector.connect(host)} mt={3}>
+                    <Button onClick={handleConnect} isDisabled={serverState === AgentServerState.CONNECTING} mt={3}>
                         Connect
                     </Button>
                 )}
             </div>
+            {error && (
+                <Text color={'red'} mt={4}>
+                    {error}
+                </Text>
+            )}
         </div>
     );
 }

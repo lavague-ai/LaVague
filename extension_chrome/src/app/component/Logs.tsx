@@ -1,11 +1,16 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../context/AppContext';
+import { Badge, Box, Stack, Text } from '@chakra-ui/react';
 
 type LogType = 'network' | 'cmd' | 'userprompt';
 
 interface Log {
     type: LogType;
     log: string;
+}
+
+interface RepeatableLog extends Log {
+    count: number;
 }
 
 const COMMAND_LABELS: { [key: string]: string } = {
@@ -21,14 +26,20 @@ const COMMAND_LABELS: { [key: string]: string } = {
 
 export default function Logs({ logTypes }: { logTypes: LogType[] }) {
     const { connector } = useContext(AppContext);
-    const [logs, setLogs] = useState<Log[]>([]);
+    const [logs, setLogs] = useState<RepeatableLog[]>([]);
     const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
     const addLog = useCallback(
         (log: Log) => {
             if (logTypes.includes(log.type)) {
-                setLogs([...logs, log]);
-                bottomElementRef.current?.scrollIntoView({ behavior: 'smooth' });
+                if (logs.length > 0 && logs[logs.length - 1].log === log.log) {
+                    const newLogs = [...logs];
+                    newLogs[newLogs.length - 1].count++;
+                    setLogs(newLogs);
+                } else {
+                    setLogs([...logs, { ...log, count: 1 }]);
+                    bottomElementRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }
             }
         },
         [logs, setLogs, bottomElementRef, logTypes]
@@ -57,9 +68,10 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
     return (
         <div className="logs">
             {logs.map((log, index) => (
-                <div key={index} className={'log ' + log.type}>
-                    {log.log}
-                </div>
+                <Stack key={index} className={'log ' + log.type} direction="row">
+                    <Text>{log.log}</Text>
+                    {log.count > 1 && <Badge>{log.count}</Badge>}
+                </Stack>
             ))}
             <div ref={bottomElementRef}></div>
         </div>

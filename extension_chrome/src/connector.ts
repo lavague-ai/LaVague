@@ -56,8 +56,9 @@ export class AgentServerConnector {
             this.webSocket = webSocket;
             this.keepAlive();
             await this.driver.start();
-        } catch {
+        } catch (e) {
             this.updateState(AgentServerState.DISCONNECTED);
+            throw e;
         }
     }
 

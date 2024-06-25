@@ -39,9 +39,6 @@ export default function MainLayout() {
                 </TabPanel>
                 <TabPanel>
                     <Connection initialHost="127.0.0.1:8000" />
-                    <Box mt={4}>
-                        <Logs logTypes={['network']} />
-                    </Box>
                 </TabPanel>
             </TabPanels>
         </Tabs>
