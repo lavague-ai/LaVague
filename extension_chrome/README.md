@@ -37,18 +37,21 @@ Ta-da! The extension has been successfully installed. Every time you update the 
 The LaVague extension communicates with a Driver Server using Websockets.
 
 ```shell
-pip install lavague-core lavague-drivers-remote
+pip install lavague-core lavague-server lavague-drivers-remote
 ```
 
 ```python
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
 from lavague.drivers.driverserver import DriverServer
-from lavague.core.extractors import JsonFromMarkdownExtractor
+from lavague.server import AgentServer, AgentSession
 
-driver = DriverServer()
-world_model = WorldModel()
-action_engine = ActionEngine(driver, extractor=JsonFromMarkdownExtractor())
-agent = WebAgent(world_model, action_engine)
-driver.accept_prompts(agent)
+def create_agent(session: AgentSession):
+    world_model = WorldModel()
+    driver = DriverServer(session)
+    action_engine = ActionEngine(driver)
+    return WebAgent(world_model, action_engine)
+
+server = AgentServer(create_agent)
+server.serve()
 ```
