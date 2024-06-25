@@ -1,1 +1,1 @@
-# Selenium integration for lavague
+# Driver Server integration for lavague

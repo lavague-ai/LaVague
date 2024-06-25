@@ -1,125 +1,16 @@
 import base64
 from lavague.core.base_driver import BaseDriver
-from websockets.server import serve
-import asyncio
-import websockets
-import threading
 from typing import Any, Optional, Mapping
-import json
-import uuid
-from lavague.core.agents import WebAgent
+from lavague.server.channel import AgentSession
 
 
 class DriverServer(BaseDriver):
-    prompt_agent: WebAgent
-    port: int
-
-    async def handler(self, websocket, path):
-        if self.client is not None:
-            await websocket.close()
-            return
-        self.client = websocket
-        try:
-            async for message in websocket:
-                self.handle_client_response(message)
-        except websockets.exceptions.ConnectionClosed as e:
-            print("Client disconnected")
-        finally:
-            self.client = None
-
-    def handle_prompt_agent_action(self, type: str, args: str):
-        if self.prompt_agent is None:
-            raise Exception(
-                "No prompt agent set, attach it with driver.accept_prompts(agent)"
-            )
-        if type == "run":
-            self.prompt_agent.run(args)
-        elif type == "get":
-            self.prompt_agent.get(args)
-
-    def exec_prompt_agent_task(self, message: str):
-        try:
-            obj = json.loads(message)
-
-            if "type" in obj:
-
-                def target():
-                    self.handle_prompt_agent_action(obj["type"], obj["args"])
-
-                task = threading.Thread(target=target)
-                task.start()
-        except Exception:
-            pass
-
-    def handle_client_response(self, message):
-        if message == "PING":
-            return
-        self.client_response = message
-        self.exec_prompt_agent_task(message)
-
-    def start_server(self):
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        self.server = websockets.serve(
-            self.handler, "localhost", self.port, max_size=20 * 1024 * 1024
-        )
-        asyncio.get_event_loop().run_until_complete(self.server)
-        asyncio.get_event_loop().run_forever()
-
-    def run_server_in_thread(self):
-        server_thread = threading.Thread(target=self.start_server)
-        server_thread.start()
-        return server_thread
-
-    async def send_message_to_client(self, message, id):
-        if self.client is not None:
-            self.client_response = None
-            await self.client.send(message)
-            while self.client_response is None:
-                await asyncio.sleep(0.1)
-            return self.client_response
-        return None
+    def __init__(self, session: AgentSession, url: Optional[str] = None):
+        self.session = session
+        super().__init__(url, None)
 
     def send_command_and_get_response_sync(self, command, args=""):
-        id = str(uuid.uuid4())
-        event = threading.Event()
-        response_data = {}
-
-        data = {"command": command, "args": args, "id": id}
-
-        json_string = json.dumps(data)
-
-        def send_command():
-            response = asyncio.run(self.send_message_to_client(json_string, id))
-            response_data["response"] = response
-            event.set()
-
-        response_thread = threading.Thread(target=send_command)
-        response_thread.start()
-
-        # Wait for the response
-        event.wait()
-
-        ret = ""
-        if "response" in response_data:
-            try:
-                jso = json.loads(response_data["response"])
-                ret = jso["ret"]
-                response_data.clear()
-            except Exception as e:
-                print(e)
-                pass
-        return ret
-
-    def __init__(self, url: Optional[str] = None, port: int = 8000):
-        self.client = None
-        self.client_response = None
-        self.server = None
-        self.port = port
-        self.thread = self.run_server_in_thread()
-        while self.client is None:
-            pass
-        print("Connected")
-        super().__init__(url, None)
+        return self.session.send_command_and_get_response_sync(command, args)
 
     def default_init_code(self) -> Any:
         return None
@@ -148,10 +39,10 @@ class DriverServer(BaseDriver):
         return ""
 
     def get(self, url: str) -> None:
-        res = self.send_command_and_get_response_sync("get", url)
+        self.send_command_and_get_response_sync("get", url)
 
     def back(self) -> None:
-        res = self.send_command_and_get_response_sync("back")
+        self.send_command_and_get_response_sync("back")
 
     def code_for_back(self) -> None:
         return ""
@@ -162,11 +53,7 @@ class DriverServer(BaseDriver):
         return scr_bytes
 
     def destroy(self) -> None:
-        self.server.ws_server.close()
-
-    def accept_prompts(self, prompt_agent: WebAgent) -> None:
-        self.prompt_agent = prompt_agent
-        self.send_command_and_get_response_sync("accept_prompts")
+        pass
 
     def check_visibility(self, xpath: str) -> bool:
         return self.send_command_and_get_response_sync("is_visible", xpath)
@@ -250,20 +137,6 @@ class DriverServer(BaseDriver):
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
-
-    def wait(self, time_between_actions):
-        json_str = f"""[
-    {{
-        "action": {{
-            "name": "wait",
-            "args": {{
-                "value": {time_between_actions}
-            }}
-        }}
-    }}
-]"""
-        self.exec_code(json_str)
-        pass
 
     def wait(self, time_between_actions):
         json_str = f"""[
