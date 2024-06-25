@@ -31,7 +31,7 @@ export default function MainLayout() {
                 <TabPanel>
                     <Prompt requestConnection={requestConnection} />
                     <Box mt={4}>
-                        <Logs logTypes={['userprompt']} />
+                        <Logs logTypes={['userprompt', 'agent_log']} />
                     </Box>
                 </TabPanel>
                 <TabPanel>

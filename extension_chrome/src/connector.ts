@@ -26,6 +26,9 @@ export class AgentServerConnector {
             const webSocket = new WebSocket('ws://' + host);
 
             webSocket.onmessage = async (event: { data: string }) => {
+                if (event.data === 'PONG') {
+                    return;
+                }
                 const msg = JSON.parse(event.data);
                 this.emit('inputMessage', msg);
                 let ret = null;

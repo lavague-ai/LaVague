@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Badge, Box, Stack, Text } from '@chakra-ui/react';
+import { Badge, Stack, Text } from '@chakra-ui/react';
 
-type LogType = 'network' | 'cmd' | 'userprompt';
+type LogType = 'network' | 'cmd' | 'userprompt' | 'agent_log';
 
 interface Log {
     type: LogType;
@@ -38,7 +38,7 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                     setLogs(newLogs);
                 } else {
                     setLogs([...logs, { ...log, count: 1 }]);
-                    bottomElementRef.current?.scrollIntoView({ behavior: 'smooth' });
+                    setTimeout(() => bottomElementRef.current?.scrollIntoView({ behavior: 'smooth' }), 500);
                 }
             }
         },
@@ -55,9 +55,16 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 }
             }),
             connector.onInputMessage((message) => {
-                const label = COMMAND_LABELS[message.command];
-                if (label) {
-                    addLog({ log: label, type: 'cmd' });
+                let log: string | null = null;
+                let type: LogType = 'cmd';
+                if (message.command) {
+                    log = COMMAND_LABELS[message.command];
+                } else if (message.type === 'agent_log') {
+                    log = message.agent_log.world_model_output;
+                    type = 'agent_log';
+                }
+                if (log) {
+                    addLog({ log, type });
                 }
             }),
             connector.onOutputMessage((message) => addLog({ log: message.args, type: 'userprompt' })),
