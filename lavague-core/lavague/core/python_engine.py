@@ -34,7 +34,7 @@ class PythonEngine(BaseEngine):
         if llm is None:
             llm = get_default_context().llm
         if embedding is None:
-            embedding = get_default_context().embedding
+            embedding = get_default_context().retriever.embedding
         self.llm = llm
         self.embedding = embedding
         self.driver = driver
@@ -46,7 +46,7 @@ class PythonEngine(BaseEngine):
         cls,
         context: Context,
     ):
-        return cls(context.llm, context.embedding)
+        return cls(context.llm, context.retriever.embedding)
 
     def execute_instruction(self, instruction: str) -> ActionResult:
         logger = self.logger
