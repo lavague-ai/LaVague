@@ -9,6 +9,7 @@ from lavague.drivers.selenium import SeleniumDriver
 
 llm = AzureOpenAI(
     api_key="<api_key>",
+    api_version="2023-03-15-preview",
     azure_endpoint="<your_endpoint>",
     engine="<deployment_name>",
     model="gpt-4o",
@@ -16,17 +17,29 @@ llm = AzureOpenAI(
 
 mm_llm = AzureOpenAIMultiModal(
     api_key="<api_key>",
+    api_version="2023-03-15-preview",
     azure_endpoint="<your_endpoint>",
     engine="<deployment_name>",
     model="gpt-4o",
 )
 
+embedding = AzureOpenAIEmbedding(
+    api_key="<api_key>",
+    api_version="2023-03-15-preview",
+    azure_endpoint="<your_endpoint>",
+    azure_deployment="<deployment_name>",
+    model="text-embedding-ada-002",
+)
+
+# Initialize context with our custom elements
+context = Context(llm, mm_llm, embedding)
+
 # Initialize the Selenium driver
 selenium_driver = SeleniumDriver()
 
 # Initialize a WorldModel and ActionEnginem passing them the custom context
-world_model = WorldModel(mm_llm=mm_llm)
-action_engine = ActionEngine.from_context(llm=llm, driver=selenium_driver)
+world_model = WorldModel.from_context(context)
+action_engine = ActionEngine.from_context(context, selenium_driver)
 
 # Create your agent
 agent = WebAgent(world_model, action_engine)
