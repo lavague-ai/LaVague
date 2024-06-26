@@ -1,7 +1,7 @@
 {
     "name": "LaVague",
     "description": "LaVague Web Agent",
-    "version": "0.1",
+    "version": "0.2",
     "manifest_version": 3,
     "minimum_chrome_version": "116",
     "action": {
