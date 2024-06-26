@@ -1,6 +1,7 @@
 from typing import Optional
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
@@ -41,7 +42,9 @@ class AzureOpenaiContext(Context):
         deployment: Optional[str] = None,
         llm: Optional[str] = None,
         mm_llm: Optional[str] = None,
-        embedding: BaseEmbedding = OpenAIEmbedding(model="text-embedding-3-large"),
+        embedding: Optional[str] = None,
+        embedding_deployment: Optional[str] = None,
+        api_version: Optional[str] = None,
     ):
         if api_key is None:
             api_key = os.getenv("AZURE_OPENAI_KEY")
@@ -49,12 +52,30 @@ class AzureOpenaiContext(Context):
             endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         if deployment is None:
             deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+        if api_version is None:
+            api_version = os.getenv("AZURE_API_VERSION")
+        if embedding is None:
+            embedding = "text-embedding-ada-002"
         return super().__init__(
             AzureOpenAI(
-                model=llm, api_key=api_key, endpoint=endpoint, deployment=deployment
+                model=llm,
+                engine=deployment,
+                api_key=api_key,
+                azure_endpoint=endpoint,
+                api_version=api_version,
             ),
             AzureOpenAIMultiModal(
-                model=mm_llm, api_key=api_key, endpoint=endpoint, deployment=deployment
+                api_key=api_key,
+                model=mm_llm,
+                engine=deployment,
+                azure_endpoint=endpoint,
+                api_version=api_version,
             ),
-            embedding,
+            AzureOpenAIEmbedding(
+                api_key=api_key,
+                model=embedding,
+                azure_endpoint=endpoint,
+                azure_deployment=embedding_deployment,
+                api_version=api_version,
+            ),
         )
