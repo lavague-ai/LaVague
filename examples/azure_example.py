@@ -20,12 +20,12 @@ from lavague.contexts.openai import AzureOpenaiContext
 # Initialize context with our custom elements
 context = AzureOpenaiContext(
     api_key="<api_key>",
-    deployment="<deployment_Name>", 
-    llm="gpt-4o", 
-    mm_llm="gpt-4o", 
-    endpoint="<endpoint>", 
-    api_version="<api_version>", 
-    embedding_deployment="<embedding_deployment_name>"
+    deployment="<deployment_Name>",
+    llm="gpt-4o",
+    mm_llm="gpt-4o",
+    endpoint="<endpoint>",
+    api_version="<api_version>",
+    embedding_deployment="<embedding_deployment_name>",
 )
 
 # Initialize the Selenium driver
@@ -40,4 +40,3 @@ agent = WebAgent(world_model, action_engine)
 
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
-
