@@ -57,8 +57,25 @@ class AzureOpenaiContext(Context):
         if embedding is None:
             embedding = "text-embedding-ada-002"
         return super().__init__(
-            AzureOpenAI(model=llm, engine=deployment, api_key=api_key, azure_endpoint=endpoint, api_version=api_version),
-            AzureOpenAIMultiModal(api_key=api_key, model=mm_llm, engine=deployment, azure_endpoint=endpoint, api_version=api_version),
-            AzureOpenAIEmbedding(api_key=api_key, model=embedding, azure_endpoint=endpoint, azure_deployment=embedding_deployment, api_version=api_version),
+            AzureOpenAI(
+                model=llm,
+                engine=deployment,
+                api_key=api_key,
+                azure_endpoint=endpoint,
+                api_version=api_version,
+            ),
+            AzureOpenAIMultiModal(
+                api_key=api_key,
+                model=mm_llm,
+                engine=deployment,
+                azure_endpoint=endpoint,
+                api_version=api_version,
+            ),
+            AzureOpenAIEmbedding(
+                api_key=api_key,
+                model=embedding,
+                azure_endpoint=endpoint,
+                azure_deployment=embedding_deployment,
+                api_version=api_version,
+            ),
         )
-
