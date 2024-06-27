@@ -255,7 +255,6 @@ class LLMEvaluator(Evaluator):
                             for v in variables:
                                 if type(local_scope[v]) == WebElement:
                                     target_element = local_scope[v]
-                                    print(target_element)
                                     break
                         else:
                             data = json.loads(generated_code)
@@ -266,7 +265,6 @@ class LLMEvaluator(Evaluator):
                                     target_element = self.driver.driver.find_element(
                                         By.XPATH, xpath
                                     )
-                                    print(target_element)
                                     break
 
                         target_outer_html = self.driver.execute_script(
