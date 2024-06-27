@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 
+
 def init_driver() -> WebDriver:
     # these imports are necessary as they will be pasted to the output
     from selenium import webdriver
@@ -213,7 +214,7 @@ class LLMEvaluator(Evaluator):
         retrieved_dataset: pd.DataFrame,
         csv_out_name: str,
         max_retry: int = 1,
-        safe_mode: bool = True
+        safe_mode: bool = True,
     ) -> pd.DataFrame:
         if os.path.isfile(csv_out_name):
             raise ValueError(f"{csv_out_name} already exists")
@@ -262,7 +263,9 @@ class LLMEvaluator(Evaluator):
                                 action_name = item["action"]["name"]
                                 if action_name != "fail":
                                     xpath = item["action"]["args"]["xpath"]
-                                    target_element = self.driver.driver.find_element(By.XPATH, xpath)
+                                    target_element = self.driver.driver.find_element(
+                                        By.XPATH, xpath
+                                    )
                                     print(target_element)
                                     break
 

@@ -160,7 +160,6 @@ driver.set_window_size({width}, {height} + height_difference)
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
-                print(xpath)
                 elem = self.driver.find_element(By.XPATH, xpath)
                 elements.append(elem)
 
@@ -223,9 +222,15 @@ driver.set_window_size({width}, {height} + height_difference)
             if action_name == "click":
                 self.click(item["action"]["args"]["xpath"])
             elif action_name == "setValue":
-                self.set_value(item["action"]["args"]["xpath"], item["action"]["args"]["value"])
+                self.set_value(
+                    item["action"]["args"]["xpath"], item["action"]["args"]["value"]
+                )
             elif action_name == "setValueAndEnter":
-                self.set_value(item["action"]["args"]["xpath"], item["action"]["args"]["value"], True)
+                self.set_value(
+                    item["action"]["args"]["xpath"],
+                    item["action"]["args"]["value"],
+                    True,
+                )
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
@@ -357,5 +362,5 @@ Completion:
         }
     }
 ]
-Your response must always be in JSON format and must include object "action", which contains the string "git name" of tool of choice, and necessary arguments ("args") if required by the tool.
+Your response must always be in JSON format and must include object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
 """
