@@ -131,15 +131,16 @@ class PlaywrightDriver(BaseDriver):
             return False
 
     def get_highlighted_element(self, generated_code: str):
-        local_scope = {"page": self.get_driver()}
-        assignment_code = keep_assignments(generated_code)
-        self.exec_code(assignment_code, locals=local_scope)
-        variable_names = return_assigned_variables(generated_code)
         elements = []
-        for variable_name in variable_names:
-            var = local_scope[variable_name]
-            if type(var) == Locator:
-                elements.append(var)
+
+        data = json.loads(generated_code)
+        for item in data:
+            action_name = item["action"]["name"]
+            if action_name != "fail":
+                xpath = item["action"]["args"]["xpath"]
+                elem = self.page.locator(xpath).first
+                elements.append(elem)
+
         if len(elements) == 0:
             raise ValueError(f"No element found.")
 
