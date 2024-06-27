@@ -1,4 +1,5 @@
 from io import BytesIO
+import json
 import os
 from PIL import Image
 from typing import Callable, Optional, Any, Mapping
@@ -185,9 +186,21 @@ class PlaywrightDriver(BaseDriver):
         globals: dict[str, Any] = None,
         locals: Mapping[str, object] = None,
     ):
-        exec(self.import_lines)
-        page = self.page
-        exec(code, globals, locals)
+        data = json.loads(code)
+        for item in data:
+            action_name = item["action"]["name"]
+            if action_name == "click":
+                self.click(item["action"]["args"]["xpath"])
+            elif action_name == "setValue":
+                self.set_value(
+                    item["action"]["args"]["xpath"], item["action"]["args"]["value"]
+                )
+            elif action_name == "setValueAndEnter":
+                self.set_value(
+                    item["action"]["args"]["xpath"],
+                    item["action"]["args"]["value"],
+                    True,
+                )
 
     def execute_script(self, js_code: str, *args) -> Any:
         args = list(arg for arg in args)
@@ -196,6 +209,17 @@ class PlaywrightDriver(BaseDriver):
                 args[i] = arg.element_handle()  # playwright only accept element_handles
         script = f"(arguments) => {{{js_code}}}"
         return self.page.evaluate(script, args)
+
+    def click(self, xpath: str):
+        elem = self.page.locator(xpath).first
+        elem.click()
+
+    def set_value(self, xpath: str, value: str, enter: bool = False):
+        elem = self.page.locator(xpath).first
+        elem.click()
+        elem.fill(value)
+        if enter:
+            elem.press("Enter")
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
@@ -208,184 +232,94 @@ class PlaywrightDriver(BaseDriver):
 
     def get_capability(self) -> str:
         return """
-Your goal is to write Playwright Python code to answer queries.
+You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.
+Your goal is to return a list of actions that should be done in order to execute the actions.
+Always target elements by XPATH.
 
-Your answer must be a Python markdown only.
-You can have access to external websites and libraries.
+The actions available are:
 
-In your playwright code, you should only use the page.locator() or page.get_by_text() methods to uniquely locate and interact with the elements on the page. 
-For page.locator(), you must use XPath selectors to uniquely locate elements.
-you must always interact with the first matching element by calling .first and performing an action on it (e.g., click, fill, type, etc.).
+Name: click
+Description: Click on an element with a specific xpath
+Arguments:
+  - xpath (string)
 
-You can assume the following code has been executed:
-```python
-from playwright.sync_api import sync_playwright
-p = playwright().__enter__()
-browser = p.chromium.launch()
-page = browser.new_page()
-```
+Name: setValue
+Description: Focus on and set the value of an input element with a specific xpath
+Arguments:
+  - xpath (string)
+  - value (string)
 
----
+Name: setValueAndEnter
+Description: Like "setValue", except then it presses ENTER. Use this tool can submit the form when there's no "submit" button.
+Arguments:
+  - xpath (string)
+  - value (string)
 
+Name: fail
+Description: Indicate that you are unable to complete the task
+No arguments.
+
+Here are examples of previous answers:
 HTML:
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mock Search Page</title>
-</head>
-<body>
-    <h1>Search Page Example</h1>
-    <input id="searchBar" type="text" placeholder="Type here to search...">
-    <button id="searchButton">Search</button>
-</body>
-</html>
-
-Query: Click on the search bar 'Type here to search...', type 'playwright', and press the 'Enter' key
-
+<div class="QS5gu ud1jmf" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[1]/div/div/button/div">Inloggen</div></button></div></div></div><div class="GZ7xNe" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]"><h1 class="I90TVb" id="S3BnEe" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/h1">Voordat je verdergaat naar Google</h1><div class="AG96lb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div"><div class="eLZYyf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]">We gebruiken <a class="F4a1l" href="https://policies.google.com/technologies/cookies?utm_source=ucbs&amp;hl=nl" target="_blank" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/a">cookies</a> en gegevens voor het volgende:<ul class="dbXO9" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul"><li class="gowsYd ibCF0c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[1]">Google-services leveren en onderhouden</li><li class="gowsYd GwwhGf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[2]">Uitval bijhouden en bescherming bieden tegen spam, fraude en misbruik</li><li class="gowsYd v8Bpfb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[1]/ul/li[3]">Doelgroepbetrokkenheid en sitestatistieken meten om inzicht te krijgen in hoe onze services worden gebruikt en de kwaliteit van die services te verbeteren</li></ul></div><div class="eLZYyf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]">Als je Alles accepteren kiest, gebruiken we cookies en gegevens ook voor het volgende:<ul class="dbXO9" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul"><li class="gowsYd M6j9qf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[1]">Nieuwe services ontwikkelen en verbeteren</li><li class="gowsYd v8Bpfb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[2]">Advertenties laten zien en de effectiviteit ervan meten</li><li class="gowsYd e21Mac" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[3]">Gepersonaliseerde content laten zien (afhankelijk van je instellingen)</li><li class="gowsYd ohEWPc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/ul/li[4]">Gepersonaliseerde advertenties laten zien (afhankelijk van je instellingen)</li></ul><div class="jLhwdc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[2]/div">Als je Alles afwijzen kiest, gebruiken we cookies niet voor deze aanvullende doeleinden.</div></div><div class="yS1nld" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[3]">Niet-gepersonaliseerde content wordt beïnvloed door factoren zoals de content die je op dat moment bekijkt, activiteit in je actieve zoeksessie en je locatie. Niet-gepersonaliseerde advertenties worden beïnvloed door de content die je op dat moment bekijkt en je algemene locatie. Gepersonaliseerde content en advertenties kunnen ook relevantere resultaten, aanbevelingen en op jou toegespitste advertenties omvatten die zijn gebaseerd op eerdere activiteit van deze browser, zoals uitgevoerde Google-zoekopdrachten. We gebruiken cookies en gegevens ook om te zorgen dat de functionaliteit geschikt is voor je leeftijd, als dit relevant is.</div><div class="yS1nld" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[4]">Selecteer Meer opties om meer informatie te bekijken, waaronder over hoe je je privacyinstellingen beheert. Je kunt ook altijd naar <span xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[2]/div/div[4]/span">g.co/privacytools</span> gaan.</div></div></div><div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]">
+<div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
+<div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
+Query: Click on the button labeled 'Alles accepteren' to accept all cookies.
 Completion:
-```python
-# Let's proceed step by step.
-# First we need to identify the component first, then we can click on it.
-
-# Based on the HTML, the link can be uniquely identified using the ID "searchBar"
-# Get the first matching element and click on it
-search_bar_button = page.locator("//input[@id='searchBar']").first
-search_bar_button.click()
-
-# Type 'playwright' into the search bar
-search_bar_button.fill('playwright')
-
-# Press the 'Enter' key
-search_bar_button.press('Enter')
-
-```
-
+[
+    {
+        "action": {
+            "name": "click",
+            "args": {
+            "xpath": "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
+            }
+        }
+    }
+]
 ---
-
 HTML:
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Mock Page for Playwright</title>
-</head>
-<body>
-    <h1>Welcome to the Mock Page</h1>
-    <div id="links">
-        <a href="#link1" id="link1">Link 1</a>
-        <br>
-        <a href="#link2" class="link">Link 2</a>
-        <br>
-    </div>
-</body>
-</html>
+<div class="devsite-top-logo-row-middle" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]">
+<div class="devsite-header-upper-tabs" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]">
+<devsite-tabs class="upper-tabs devsite-overflow-menu--open" connected="" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs">
+<nav aria-label="Upper tabs" class="devsite-tabs-wrapper" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav">
+<tab class="devsite-active" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[1]">
+<a aria-label="Gemini API, selected" class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Gemini API" href="https://ai.google.dev/gemini-api" track-metadata-eventdetail="https://ai.google.dev/gemini-api" track-metadata-module="primary nav" track-metadata-position="nav - gemini api" track-name="gemini api" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[1]/a">
+    Gemini API
+  
+    </a>
+</tab>
+<tab class="devsite-overflow-tab" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]"><!-- -->
+<a aria-label="Extended Navigation" class="devsite-icon devsite-icon-arrow-drop-down" href="#" style="border: 2px solid red;" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"><!--?lit$8296333005$-->More</a>
+<div class="devsite-tabs-overflow-menu" scrollbars="" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div">
+<tab xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]">
+<a class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Gemma" href="https://ai.google.dev/gemma" track-metadata-eventdetail="https://ai.google.dev/gemma" track-metadata-module="primary nav" track-metadata-position="nav - gemma" track-name="gemma" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a">
+    Gemma
+  
+    </a>
+</tab><tab xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[2]">
+<a class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Google AI Edge" href="https://ai.google.dev/edge" track-metadata-eventdetail="https://ai.google.dev/edge" track-metadata-module="primary nav" track-metadata-position="nav - google ai edge" track-name="google ai edge" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[2]/a">
+    Google AI Edge
+  
 
-Query: Click on the title Link 1 and then click on the title Link 2
-
+Query: Click on "Gemma" under the "More" dropdown menu.
 Completion:
-```python
-# Let's proceed step by step.
-# First we need to identify the first component, then we can click on it. Then we can identify the second component and click on it.
-
-# Based on the HTML, the first link the link can be uniquely identified using the text "Link 1"
-# Let's use get_by_text to identify the link and get the first matching element
-link1 = page.get_by_text('Link 1').first
-
-# Then we click on the link
-link1.click()
-
-# The other link can be uniquely identified using the text Link 2
-# Let's use get_by_text to identify the link and get the first matching element
-link2 = page.get_by_text('Link 2').first
-
-# Click on the element found
-link2.click()
-```
-
----
-
-HTML:
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mock Page</title>
-</head>
-<body>
-    <p id="para1">This is the first paragraph.</p>
-    <p id="para2">This is the second paragraph.</p>
-    <p id="para3">This is the third paragraph, which we will select and copy.</p>
-    <p id="para4">This is the fourth paragraph.</p>
-</body>
-</html>
-
-Query: Select the text inside the third paragraph
-
-Completion:
-```python
-# Let's proceed step by step.
-
-# Locate the third paragraph using the ID "para3" and get the first matching element
-third_paragraph = page.locator("//p[@id='para3']").first
-
-# Select the text inside the third paragraph
-third_paragraph.select_text()
-```
-
----
-
-HTML:
-
-Query: Scroll up a bit
-
-Completion:
-```python
-# Let's proceed step by step.
-# We don't need to use the HTML data as this is a stateless operation.
-# 200 pixels should be sufficient. Let's execute the JavaScript to scroll up.
-
-page.evaluate("window.scrollBy(0, 200)")
-```
-
----
-
----
-
-HTML:
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Enhanced Mock Page for Playwright Testing</title>
-</head>
-<body>
-    <h1>Enhanced Test Page for Playwright</h1>
-    <div class="container">
-        <button id="firstButton" onclick="alert('First button clicked!');">First Button</button>
-        <!-- This is the button we're targeting with the class name "action-btn" -->
-        <button class="action-btn" onclick="alert('Action button clicked!');">Action Button</button>
-        <div class="nested-container">
-            <button id="testButton" onclick="alert('Test Button clicked!');">Test Button</button>
-        </div>
-        <button class="hidden" onclick="alert('Hidden button clicked!');">Hidden Button</button>
-    </div>
-</body>
-</html>
-
-
-Query: Click on the Button 'Action Button'
-
-Completion:
-```python
-# Let's proceed step by step.
-# First we need to identify the button first, then we can click on it.
-
-# Based on the HTML provided, we need to devise the best strategy to select the button and get the first matching element.
-# The action button can be identified using the text "Action Button"
-action_button = page.get_by_text("Action Button").first
-
-# Then we can click on it
-action_button.click()
-```
-
----
+[
+    {
+        "action": {
+            "name": "click",
+            "args": {
+            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
+            }
+        }
+    },
+    {
+        "action": {
+            "name": "click",
+            "args": {
+            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
+            }
+        }
+    }
+]
+Your response must always be in JSON format and must include object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
 """

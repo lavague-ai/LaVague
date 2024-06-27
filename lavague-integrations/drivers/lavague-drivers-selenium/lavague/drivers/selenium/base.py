@@ -146,13 +146,6 @@ driver.set_window_size({width}, {height} + height_difference)
             return False
 
     def get_highlighted_element(self, generated_code: str):
-        # local_scope = {"driver": self.get_driver()}
-        # assignment_code = keep_assignments(generated_code)
-        # self.exec_code(assignment_code, locals=local_scope)
-
-        # # We extract pairs of variables assigned during execution with their name and pointer
-        # variable_names = return_assigned_variables(generated_code)
-
         elements = []
 
         data = json.loads(generated_code)
@@ -162,11 +155,6 @@ driver.set_window_size({width}, {height} + height_difference)
                 xpath = item["action"]["args"]["xpath"]
                 elem = self.driver.find_element(By.XPATH, xpath)
                 elements.append(elem)
-
-        # for variable_name in variable_names:
-        #     var = local_scope[variable_name]
-        #     if type(var) == WebElement:
-        #         elements.append(var)
 
         if len(elements) == 0:
             raise ValueError(f"No element found.")
@@ -211,12 +199,7 @@ driver.set_window_size({width}, {height} + height_difference)
         globals: dict[str, Any] = None,
         locals: Mapping[str, object] = None,
     ):
-        # exec(self.import_lines)
-        # driver = self.driver
-        # exec(code, globals, locals)
         data = json.loads(code)
-
-        # Accessing data
         for item in data:
             action_name = item["action"]["name"]
             if action_name == "click":
