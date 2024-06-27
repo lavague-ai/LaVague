@@ -484,7 +484,6 @@ class NavigationEngine(BaseEngine):
                         for item in vision_data:
                             display_screenshot(item["screenshot"])
                             time.sleep(0.2)
-
                     self.driver.exec_code(action)
                     time.sleep(self.time_between_actions)
                     if self.display:
@@ -499,7 +498,7 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
-                    logging_print.error("Navigation error:", e)
+                    logging_print.error(f"Navigation error: {e}")
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
 
