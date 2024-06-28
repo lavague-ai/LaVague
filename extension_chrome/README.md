@@ -65,9 +65,9 @@ Now you can interact with our LaVague browser extension directly in your Chrome 
 
 <table>
   <tr>
-    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/launch-ext.png?raw=true" alt="Launch Extension" style="width: 120%; max-width: 300px;"></td>
-    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/prompt_ext.png?raw=true" alt="Example Query Chrome" style="width: 120%; max-width: 300px;"></td>
+    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/launch-ext.png?raw=true" alt="Launch Extension" style="width: 100%; max-width: 300px;"></td>
+    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/prompt_ext.png?raw=true" alt="Example Query Chrome" style="width: 100%; max-width: 300px;"></td>
   </tr>
 </table>
 
-<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 60%">
+<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension"">
