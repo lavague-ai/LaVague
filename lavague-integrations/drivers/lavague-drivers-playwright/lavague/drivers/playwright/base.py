@@ -138,7 +138,7 @@ class PlaywrightDriver(BaseDriver):
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
-                elem = self.page.locator(xpath).first
+                elem = self.page.locator(f"xpath={xpath}").first
                 elements.append(elem)
 
         if len(elements) == 0:
@@ -212,11 +212,11 @@ class PlaywrightDriver(BaseDriver):
         return self.page.evaluate(script, args)
 
     def click(self, xpath: str):
-        elem = self.page.locator(xpath).first
+        elem = self.page.locator(f"xpath={xpath}").first
         elem.click()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.page.locator(xpath).first
+        elem = self.page.locator(f"xpath={xpath}").first
         elem.click()
         elem.fill(value)
         if enter:
