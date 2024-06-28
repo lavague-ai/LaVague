@@ -10,35 +10,38 @@
 
 This will allow the extension built files to be updated in real time when changes are made in the code.
 
-### 3. Building
+### 3.Install the Chrome extension
 
+#### Installing the latest version
+
+You can install the latest published version of the Chrome extension here: https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm
+
+#### Test your extension from local
+
+You can build the project in order to upload and test it on in your Chrome navigator by running:
 `yarn build` or `npm run build`
 
-Build the project, usually used for publishing it on the store.
-
-## Test the Chrome extension
-
-### Run locally
-
+Then run the project with the following code:
 `yarn dev` or `npm run dev`
 
 It will build the project in watch mode. Project build in `dist` directory will be updated upon save.
 
-### Test your extension
-
+Finally, you can upload and test your locally modified Chrome extension by doing the following:
 -   Go to the Extensions page [chrome://extensions/](chrome://extensions/)
 -   Click the `Load unpacked` button
 -   Select the `dist` directory
 
 Ta-da! The extension has been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
 
-## Setup LaVague Driver Server
+### 4. Setup LaVague Driver Server
 
-The LaVague extension communicates with a Driver Server using Websockets.
+You will then need to use LaVague to serve an instance of `AgentServer`. This allows the LaVague extension communicates with a Driver Server using Websockets.
 
 ```shell
 pip install lavague-core lavague-server lavague-drivers-remote
 ```
+
+You will also need to make sure your `OPENAI_API_KEY` is set in your current environment.
 
 ```python
 from lavague.core import WorldModel, ActionEngine
@@ -55,3 +58,13 @@ def create_agent(session: AgentSession):
 server = AgentServer(create_agent)
 server.serve()
 ```
+
+See [https://github.com/lavague-ai/LaVague/blob/main/examples/chrome_extension.py] for our latest example script.
+
+Now you can interact with our LaVague browser extension directly in your chrome navigator with the extension.
+
+![launch extenstion](../docs/assets/launch-ext.png)
+
+![example query chrome](../docs/assets/prompt_ext.png)
+
+![example result chrome](../docs/assets/beatles-found.png)
