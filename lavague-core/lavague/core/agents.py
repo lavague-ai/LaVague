@@ -276,7 +276,8 @@ class WebAgent:
         self.action_engine.set_display_all(display)
         action_result: ActionResult
 
-        Thread(target=lavague_unicode_animation, daemon=True).start()
+        if os.getenv("DISABLE_LAVAGUE_ANIMATION") is None:
+            Thread(target=lavague_unicode_animation, daemon=True).start()
 
         try:
             st_memory = self.st_memory

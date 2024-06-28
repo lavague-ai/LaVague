@@ -2,17 +2,16 @@ import os
 from time import sleep
 import random
 
+term_size = 0
 icons = ["  ", "🌊", "🏄", "🏄", "🏄", "🏄", "🏄", "🐬", "🦈", "🦀", "🐙", "🐟"]
-
-size = os.get_terminal_size().columns // 2
 
 
 def _full():
     frames = []
     waves = []
-    bg = [0] * size
+    bg = [0] * term_size
     i = 10
-    iend = size - 1
+    iend = term_size - 1
     while iend > 0:
         line = list(bg)
         if i % 10 == 0:
@@ -31,9 +30,9 @@ def _full():
 
 def _surfing():
     frames = []
-    bg = [1] * size
+    bg = [1] * term_size
     rider = random.randint(2, len(icons) - 1)
-    for i in reversed(range(size)):
+    for i in reversed(range(term_size)):
         line = list(bg)
         line[i] = rider
         frames.append(line)
@@ -48,10 +47,12 @@ def _display(frames, sleep_time):
 
 
 def clear_animation():
-    print("  " * size)
+    print("  " * term_size)
 
 
 def lavague_unicode_animation():
+    global term_size
+    term_size = os.get_terminal_size().columns // 2
     _display(_full(), 0.1)
     while True:
         _display(_surfing(), 0.1)
