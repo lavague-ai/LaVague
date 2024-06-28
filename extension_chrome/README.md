@@ -59,7 +59,7 @@ server = AgentServer(create_agent)
 server.serve()
 ```
 
-See [https://github.com/lavague-ai/LaVague/blob/main/examples/chrome_extension.py] for our latest example script.
+You can see our latest example script [here](https://github.com/lavague-ai/LaVague/blob/main/examples/chrome_extension.py).
 
 Now you can interact with our LaVague browser extension directly in your Chrome navigator:
 
@@ -70,4 +70,4 @@ Now you can interact with our LaVague browser extension directly in your Chrome 
   </tr>
 </table>
 
-<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension">
+<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 90%">
