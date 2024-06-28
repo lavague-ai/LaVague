@@ -61,10 +61,13 @@ server.serve()
 
 See [https://github.com/lavague-ai/LaVague/blob/main/examples/chrome_extension.py] for our latest example script.
 
-Now you can interact with our LaVague browser extension directly in your chrome navigator with the extension.
+Now you can interact with our LaVague browser extension directly in your Chrome navigator:
 
-![launch extenstion](../docs/assets/launch-ext.png)
+<table>
+  <tr>
+    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/launch-ext.png?raw=true" alt="Launch Extension" style="width: 120%; max-width: 300px;"></td>
+    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/prompt_ext.png?raw=true" alt="Example Query Chrome" style="width: 120%; max-width: 300px;"></td>
+  </tr>
+</table>
 
-![example query chrome](../docs/assets/prompt_ext.png)
-
-![example result chrome](../docs/assets/beatles-found.png)
+<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 60%">
