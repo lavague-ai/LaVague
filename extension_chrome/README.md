@@ -105,4 +105,4 @@ server.serve()
 
 Note, you will need to set a valid `OPENAI_API_KEY` environment variable for this to work.
 
-You will now be able to interact with your LaVague extension in your chrome navigator.
+You will now be able to interact with your LaVague extension in your Chrome navigator.
