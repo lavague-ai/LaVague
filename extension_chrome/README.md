@@ -70,4 +70,4 @@ Now you can interact with our LaVague browser extension directly in your Chrome 
   </tr>
 </table>
 
-<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 90%">
+<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 80%">
