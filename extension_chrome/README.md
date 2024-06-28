@@ -1,6 +1,6 @@
 # LaVague Chrome Extension
 
-## Using the latest Chrome Extension release
+## Using the latest LaVague Chrome Extension release
 
 ### Install necessary packages
 
@@ -12,7 +12,7 @@ pip install lavague-core lavague-server lavague-drivers-remote
 
 You will also need to make sure your `OPENAI_API_KEY` is set in your current environment.
 
-### Running the LaVague chrome extension server
+### Running the LaVague Chrome Extension server
 
 Next, you will need to use LaVague to serve an instance of `AgentServer`. This allows the LaVague extension communicates with a Driver Server using Websockets.
 
@@ -58,7 +58,7 @@ To interact with a locally modified version of the extension, you'll need to tak
 
 `yarn` or `npm install`
 
-### 2. Running
+### 2. Build or run
 
 You can build the project with:
 `yarn build` or `npm run build`
@@ -70,7 +70,7 @@ You can run the project with:
 
 This will allow the extension built files to be updated in real time when changes are made in the code using `watch mode`.
 
-### 3.Upload your local Chrome extension
+### 3. Upload your local Chrome Extension
 
 Finally, you can upload and test your locally modified Chrome extension by doing the following:
 -   Go to the Extensions page [chrome://extensions/](chrome://extensions/)
@@ -79,7 +79,7 @@ Finally, you can upload and test your locally modified Chrome extension by doing
 
 Ta-da! The extension has been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
 
-### 4. Launch the LaVague chrome extension server
+### 4. Launch the LaVague Chrome Extension server
 
 Finally you will need to serve an instance of `AgentServer` by running the following code:
 
