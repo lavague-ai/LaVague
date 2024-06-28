@@ -10,7 +10,7 @@
 
 This will allow the extension built files to be updated in real time when changes are made in the code.
 
-### 3.Install the Chrome extension
+### 3. Install the Chrome extension
 
 #### Installing the latest version
 
@@ -33,7 +33,7 @@ Finally, you can upload and test your locally modified Chrome extension by doing
 
 Ta-da! The extension has been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
 
-### 4. Setup LaVague Driver Server
+### 4. Launch the LaVague DriverServer
 
 You will then need to use LaVague to serve an instance of `AgentServer`. This allows the LaVague extension communicates with a Driver Server using Websockets.
 
