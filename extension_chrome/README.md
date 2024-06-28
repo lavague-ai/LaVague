@@ -1,47 +1,20 @@
-## Setup your dev environment
+# LaVague Chrome Extension
 
-### 1. Setup
+## Using the latest Chrome Extension release
 
-`yarn` or `npm install`
+### Install necessary packages
 
-### 2. Running
-
-`yarn dev` or `npm run dev`
-
-This will allow the extension built files to be updated in real time when changes are made in the code.
-
-### 3. Install the Chrome extension
-
-#### Installing the latest version
-
-You can install the latest published version of the Chrome extension [here](https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm)
-
-#### Test your extension from local
-
-You can build the project in order to upload and test it on in your Chrome navigator by running:
-`yarn build` or `npm run build`
-
-Then run the project with the following code:
-`yarn dev` or `npm run dev`
-
-It will build the project in watch mode. Project build in `dist` directory will be updated upon save.
-
-Finally, you can upload and test your locally modified Chrome extension by doing the following:
--   Go to the Extensions page [chrome://extensions/](chrome://extensions/)
--   Click the `Load unpacked` button
--   Select the `dist` directory
-
-Ta-da! The extension has been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
-
-### 4. Launch the LaVague DriverServer
-
-You will then need to use LaVague to serve an instance of `AgentServer`. This allows the LaVague extension communicates with a Driver Server using Websockets.
+You will need to install the following lavague packages:
 
 ```shell
 pip install lavague-core lavague-server lavague-drivers-remote
 ```
 
 You will also need to make sure your `OPENAI_API_KEY` is set in your current environment.
+
+### Running the LaVague chrome extension server
+
+Next, you will need to use LaVague to serve an instance of `AgentServer`. This allows the LaVague extension communicates with a Driver Server using Websockets.
 
 ```python
 from lavague.core import WorldModel, ActionEngine
@@ -61,7 +34,11 @@ server.serve()
 
 You can see our latest example script [here](https://github.com/lavague-ai/LaVague/blob/main/examples/chrome_extension.py).
 
-Now you can interact with our LaVague browser extension directly in your Chrome navigator:
+### Using the extension
+
+Now you're ready to install and interact with with our LaVague browser extension directly in your Chrome navigator.
+
+You can install the extension [here](https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm).
 
 <table>
   <tr>
@@ -71,3 +48,59 @@ Now you can interact with our LaVague browser extension directly in your Chrome 
 </table>
 
 <img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 85%">
+
+
+## LaVague Chrome Extension from local
+
+To interact with a locally modified version of the extension, you'll need to take the following additional steps.
+
+### 1. Setup
+
+`yarn` or `npm install`
+
+### 2. Running
+
+You can build the project with the following:
+`yarn build` or `npm run build`
+
+This will build the project as a minified production build.
+
+You can run the project with the following:
+`yarn dev` or `npm run dev`
+
+This will allow the extension built files to be updated in real time when changes are made in the code using `watch mode`.
+
+### 3.Upload your local Chrome extension
+
+Finally, you can upload and test your locally modified Chrome extension by doing the following:
+-   Go to the Extensions page [chrome://extensions/](chrome://extensions/)
+-   Click the `Load unpacked` button
+-   Select the `dist` directory
+
+Ta-da! The extension has been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
+
+### 4. Launch the LaVague chrome extension server
+
+Finally you will need to serve an instance of `AgentServer` by running the following code:
+
+```shell
+pip install lavague-core lavague-server lavague-drivers-remote
+```
+
+```python
+from lavague.core import WorldModel, ActionEngine
+from lavague.core.agents import WebAgent
+from lavague.drivers.driverserver import DriverServer
+from lavague.server import AgentServer, AgentSession
+
+def create_agent(session: AgentSession):
+    world_model = WorldModel()
+    driver = DriverServer(session)
+    action_engine = ActionEngine(driver)
+    return WebAgent(world_model, action_engine)
+
+server = AgentServer(create_agent)
+server.serve()
+```
+
+You will now be able to interact with your LaVague extension in your chrome navigator.
