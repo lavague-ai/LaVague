@@ -4,7 +4,7 @@ requires = ["poetry-core"]
 
 [tool.poetry]
 name = "lavague"
-version = "1.1.5"
+version = "1.1.6"
 description = "automation code generation from text instructions"
 authors = ["lavague-ai"]
 readme = "README.md"
