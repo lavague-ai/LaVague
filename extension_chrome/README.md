@@ -14,7 +14,7 @@ This will allow the extension built files to be updated in real time when change
 
 #### Installing the latest version
 
-You can install the latest published version of the Chrome extension here: https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm
+You can install the latest published version of the Chrome extension [here](https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm)
 
 #### Test your extension from local
 
@@ -70,4 +70,4 @@ Now you can interact with our LaVague browser extension directly in your Chrome 
   </tr>
 </table>
 
-<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 80%">
+<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 85%">
