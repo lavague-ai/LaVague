@@ -60,12 +60,12 @@ To interact with a locally modified version of the extension, you'll need to tak
 
 ### 2. Running
 
-You can build the project with the following:
+You can build the project with:
 `yarn build` or `npm run build`
 
 This will build the project as a minified production build.
 
-You can run the project with the following:
+You can run the project with:
 `yarn dev` or `npm run dev`
 
 This will allow the extension built files to be updated in real time when changes are made in the code using `watch mode`.
@@ -102,5 +102,7 @@ def create_agent(session: AgentSession):
 server = AgentServer(create_agent)
 server.serve()
 ```
+
+Note, you will need to set a valid `OPENAI_API_KEY` environment variable for this to work.
 
 You will now be able to interact with your LaVague extension in your chrome navigator.
