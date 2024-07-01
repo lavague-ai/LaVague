@@ -45,14 +45,15 @@ class PlaywrightDriver(BaseDriver):
         p = sync_playwright().__enter__()
         user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
         if self.user_data_dir is None:
-            browser = p.chromium.launch(headless=self.headless, user_agent=user_agent)
+            browser = p.chromium.launch(headless=self.headless)
         else:
             browser = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
-                user_agent=user_agent,
             )
-        page = browser.new_page()
+        
+        context = browser.new_context(user_agent=user_agent)
+        page = context.new_page()
         self.page = page
         self.resize_driver(self.width, self.height)
         return self.page
@@ -206,6 +207,11 @@ class PlaywrightDriver(BaseDriver):
                     item["action"]["args"]["value"],
                     True,
                 )
+            elif action_name == "clearValue":
+                self.clear_value(
+                    item["action"]["args"]["xpath"],
+                    True,
+                )
             elif action_name == "wait":
                 self.perform_wait(item["action"]["duration"])
 
@@ -227,6 +233,10 @@ class PlaywrightDriver(BaseDriver):
         elem.fill(value)
         if enter:
             elem.press("Enter")
+    
+    def clear_value(self, xpath: str, value: str, enter: bool = False):
+        elem = self.page.locator(f"xpath={xpath}").first
+        elem.clear()
 
     def perform_wait(self, duration: float):
         import time
@@ -266,6 +276,11 @@ Description: Like "setValue", except then it presses ENTER. Use this tool can su
 Arguments:
   - xpath (string)
   - value (string)
+
+Name: clearValue
+Description: Focus on and clear the text of an input element with a specific xpath
+Arguments:
+  - xpath (string)
 
 Name: wait
 Description: Wait for the amount of seconds specified as duration
