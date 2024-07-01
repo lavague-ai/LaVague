@@ -206,6 +206,8 @@ class PlaywrightDriver(BaseDriver):
                     item["action"]["args"]["value"],
                     True,
                 )
+            elif action_name == "wait":
+                self.perform_wait(item["action"]["duration"])
 
     def execute_script(self, js_code: str, *args) -> Any:
         args = list(arg for arg in args)
@@ -225,6 +227,11 @@ class PlaywrightDriver(BaseDriver):
         elem.fill(value)
         if enter:
             elem.press("Enter")
+
+    def perform_wait(self, duration: float):
+        import time
+
+        time.sleep(duration)
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
@@ -259,6 +266,11 @@ Description: Like "setValue", except then it presses ENTER. Use this tool can su
 Arguments:
   - xpath (string)
   - value (string)
+
+Name: wait
+Description: Wait for the amount of seconds specified as duration
+Arguments:
+  -  duration (float)
 
 Name: fail
 Description: Indicate that you are unable to complete the task
