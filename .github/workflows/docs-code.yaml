@@ -45,6 +45,7 @@ jobs:
         sudo apt-get install -y jq
         pip freeze | grep lavague
         git log | head -1
+        export DISABLE_LAVAGUE_ANIMATION=1
 
     - name: Check code consistency with docs/index.md
       run: |
