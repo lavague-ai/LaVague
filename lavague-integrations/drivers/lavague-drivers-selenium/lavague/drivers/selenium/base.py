@@ -220,10 +220,9 @@ driver.set_window_size({width}, {height} + height_difference)
             elif action_name == "clearValue":
                 self.clear_value(
                     item["action"]["args"]["xpath"],
-                    True,
                 )
             elif action_name == "wait":
-                self.perform_wait(item["action"]["duration"])
+                self.perform_wait(item["action"]["args"]["duration"])
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
@@ -261,13 +260,12 @@ driver.set_window_size({width}, {height} + height_difference)
         if enter:
             elem.send_keys(Keys.ENTER)
 
-    def clear_value(self, xpath: str, value: str, enter: bool = False):
+    def clear_value(self, xpath: str):
         elem = self.driver.find_element(By.XPATH, xpath)
         elem.clear()
 
     def perform_wait(self, duration: float):
         import time
-
         time.sleep(duration)
 
     def get_capability(self) -> str:

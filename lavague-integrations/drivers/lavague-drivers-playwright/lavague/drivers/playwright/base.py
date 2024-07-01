@@ -51,7 +51,6 @@ class PlaywrightDriver(BaseDriver):
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
             )
-
         context = browser.new_context(user_agent=user_agent)
         page = context.new_page()
         self.page = page
@@ -208,12 +207,9 @@ class PlaywrightDriver(BaseDriver):
                     True,
                 )
             elif action_name == "clearValue":
-                self.clear_value(
-                    item["action"]["args"]["xpath"],
-                    True,
-                )
+                self.clear_value(item["action"]["args"]["xpath"])
             elif action_name == "wait":
-                self.perform_wait(item["action"]["duration"])
+                self.perform_wait(item["action"]["args"]["duration"])
 
     def execute_script(self, js_code: str, *args) -> Any:
         args = list(arg for arg in args)
@@ -234,7 +230,7 @@ class PlaywrightDriver(BaseDriver):
         if enter:
             elem.press("Enter")
 
-    def clear_value(self, xpath: str, value: str, enter: bool = False):
+    def clear_value(self, xpath: str):
         elem = self.page.locator(f"xpath={xpath}").first
         elem.clear()
 
