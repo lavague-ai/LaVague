@@ -266,6 +266,7 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def perform_wait(self, duration: float):
         import time
+
         time.sleep(duration)
 
     def get_capability(self) -> str:

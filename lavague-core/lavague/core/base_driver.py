@@ -189,14 +189,15 @@ class BaseDriver(ABC):
 
     def wait(self, duration):
         import json
+
         code = json.dumps(
             [
                 {
                     "action": {
                         "name": "wait",
-                         "args": {
-                        "duration": duration,
-                        }
+                        "args": {
+                            "duration": duration,
+                        },
                     }
                 }
             ]
