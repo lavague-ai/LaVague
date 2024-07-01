@@ -51,7 +51,7 @@ class PlaywrightDriver(BaseDriver):
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
             )
-        
+
         context = browser.new_context(user_agent=user_agent)
         page = context.new_page()
         self.page = page
@@ -233,7 +233,7 @@ class PlaywrightDriver(BaseDriver):
         elem.fill(value)
         if enter:
             elem.press("Enter")
-    
+
     def clear_value(self, xpath: str, value: str, enter: bool = False):
         elem = self.page.locator(f"xpath={xpath}").first
         elem.clear()
