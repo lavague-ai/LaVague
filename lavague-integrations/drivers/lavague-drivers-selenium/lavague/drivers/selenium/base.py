@@ -217,6 +217,13 @@ driver.set_window_size({width}, {height} + height_difference)
                     item["action"]["args"]["value"],
                     True,
                 )
+            elif action_name == "clearValue":
+                self.clear_value(
+                    item["action"]["args"]["xpath"],
+                    True,
+                )
+            elif action_name == "wait":
+                self.perform_wait(item["action"]["duration"])
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
@@ -254,6 +261,14 @@ driver.set_window_size({width}, {height} + height_difference)
         if enter:
             elem.send_keys(Keys.ENTER)
 
+    def clear_value(self, xpath: str, value: str, enter: bool = False):
+        elem = self.driver.find_element(By.XPATH, xpath)
+        elem.clear()
+    
+    def perform_wait(self, duration: float):
+        import time
+        time.sleep(duration)
+
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
 
@@ -281,6 +296,21 @@ Description: Like "setValue", except then it presses ENTER. Use this tool can su
 Arguments:
   - xpath (string)
   - value (string)
+
+Name: clearValue
+Description: Focus on and clear the text of an input element with a specific xpath
+Arguments:
+  - xpath (string)
+
+Name: wait
+Description: Wait for the amount of seconds specified as duration
+Arguments:
+  -  duration (float)
+
+Name: click
+Description: Click on an element with a specific xpath
+Arguments:
+  - xpath (string)
 
 Name: fail
 Description: Indicate that you are unable to complete the task
