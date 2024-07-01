@@ -264,9 +264,10 @@ driver.set_window_size({width}, {height} + height_difference)
     def clear_value(self, xpath: str, value: str, enter: bool = False):
         elem = self.driver.find_element(By.XPATH, xpath)
         elem.clear()
-    
+
     def perform_wait(self, duration: float):
         import time
+
         time.sleep(duration)
 
     def get_capability(self) -> str:

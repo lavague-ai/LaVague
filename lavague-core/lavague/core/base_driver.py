@@ -189,14 +189,17 @@ class BaseDriver(ABC):
 
     def wait(self, duration):
         import json
-        code = json.dumps([
-            {
-                "action": {
-                    "name": "wait",
-                    "duration": duration,
+
+        code = json.dumps(
+            [
+                {
+                    "action": {
+                        "name": "wait",
+                        "duration": duration,
+                    }
                 }
-            }
-        ])
+            ]
+        )
         self.exec_code(code)
 
     def get_current_screenshot_folder(self) -> Path:
