@@ -295,11 +295,6 @@ Description: Wait for the amount of seconds specified as duration
 Arguments:
   -  duration (float)
 
-Name: click
-Description: Click on an element with a specific xpath
-Arguments:
-  - xpath (string)
-
 Name: fail
 Description: Indicate that you are unable to complete the task
 No arguments.
