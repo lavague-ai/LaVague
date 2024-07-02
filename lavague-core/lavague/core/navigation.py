@@ -188,6 +188,9 @@ class NavigationEngine(BaseEngine):
         source_nodes = [node.text for node in source_nodes]
         return source_nodes
 
+    def add_knowledge(self, knowledge: str):
+        self.prompt_template = self.prompt_template + knowledge
+
     def get_action_from_context(self, context: str, query: str) -> str:
         """
         Generate the code from a query and a context
