@@ -3,6 +3,9 @@ import pandas as pd
 import os
 from PIL import Image
 import json
+import sqlite3
+import io
+from pandas.core.frame import DataFrame
 
 
 def load_images_from_folder(folder_path):
@@ -50,7 +53,8 @@ class AgentLogger:
         df = pd.DataFrame(self.logs)
         # checks if "screenshots_path" in dataframe columns
         if "screenshots_path" in df.columns:
-            df["screenshots"] = df["screenshots_path"].apply(load_images_from_folder)
+            df["screenshots"] = df["screenshots_path"].apply(
+                load_images_from_folder)
         return df
 
 
@@ -96,6 +100,95 @@ class LocalLogger(AgentLogger):
     # Function to serialize dictionary with ignoring non-serializable properties
     def serialize_dict(self, input_dict):
         return json.dumps(self.custom_serializer(input_dict))
+
+
+class LocalDBLogger(AgentLogger):
+    def __init__(self, db_name: str = 'lavague_logs.db'):
+        self.db_name = db_name
+        # on init connect to db and create table and close connection
+        try:
+            sqliteConnection = sqlite3.connect(db_name)
+            cursor = sqliteConnection.cursor()
+            print("Connected to SQLite")
+            create_table = '''
+                CREATE TABLE IF NOT EXISTS Logs
+                    (current_state TEXT,
+                    past TEXT,
+                    world_model_prompt TEXT,
+                    world_model_output TEXT,
+                    world_model_inference_time REAL,
+                    engine TEXT,
+                    instruction TEXT,
+                    engine_log TEXT,
+                    success TEXT,
+                    output TEXT,
+                    code TEXT,
+                    html TEXT,
+                    screenshots_path TEXT,
+                    url TEXT,
+                    date TEXT,
+                    run_id TEXT,
+                    step INTEGER,
+                    screenshots TEXT)'''
+            cursor.execute(create_table)
+            cursor.close()
+            print("Created table : Logs")
+        except sqlite3.Error as error:
+            print('Error occurred - ', error)
+        finally:
+            if sqliteConnection:
+                sqliteConnection.close()
+                print("sqlite connection is closed")
+
+    def insert_logs(self, agent) -> None:
+        if agent:
+            df_logs = agent.logger.return_pandas()
+            try:
+                sqliteConnection = sqlite3.connect(self.db_name)
+                cursor = sqliteConnection.cursor()
+                print("Connected to SQLite")
+
+                dataToInsert = self.format_df_logs_to_sqlite3_types(df_logs)
+
+                cursor.executemany(
+                    "INSERT INTO Logs VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", dataToInsert)
+                sqliteConnection.commit()
+                cursor.close()
+                print('Log insert complete')
+            except sqlite3.Error as error:
+                print('Error occurred - ', error)
+            finally:
+                if sqliteConnection:
+                    sqliteConnection.close()
+                    print("sqlite connection is closed")
+        else:
+            print('Please pass an appropriate agent!')
+
+    def format_df_logs_to_sqlite3_types(self, df_logs: DataFrame) -> list:
+        if df_logs is not None and isinstance(df_logs, DataFrame):
+            data = []
+            for index, r in df_logs.iterrows():
+                t = []
+                for col in df_logs:
+                    i = r[col]
+                    if col == 'screenshots':
+                        t.append(str(self.convertImgToBlob(i)))
+                    elif type(i) == str or type(i) == float or type(i) == int:
+                        t.append(i)
+                    else:
+                        t.append(str(i))
+                data.append(t)
+            return data
+        else:
+            print('Please pass a dataframe!')
+    
+    def convertImgToBlob(self, imageList: list) -> list:
+        blobList = []
+        image_bytes = io.BytesIO()
+        for img in imageList:
+            img.save(image_bytes, format='PNG')
+            blobList.append(image_bytes)
+        return blobList
 
 
 class Loggable:

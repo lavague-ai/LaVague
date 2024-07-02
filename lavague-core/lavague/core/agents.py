@@ -9,7 +9,7 @@ from lavague.core.utilities.format_utils import (
     extract_next_engine,
     extract_world_model_instruction,
 )
-from lavague.core.logger import AgentLogger
+from lavague.core.logger import AgentLogger, LocalDBLogger
 from lavague.core.memory import ShortTermMemory
 from lavague.core.base_driver import BaseDriver
 from lavague.core.base_engine import ActionResult
@@ -271,7 +271,7 @@ class WebAgent:
         )
 
     def run(
-        self, objective: str, user_data=None, display: bool = False
+        self, objective: str, user_data=None, display: bool = False, log_to_db: bool = False
     ) -> ActionResult:
         self.action_engine.set_display_all(display)
         action_result: ActionResult
@@ -336,6 +336,9 @@ class WebAgent:
             pass
         finally:
             send_telemetry(self.logger.return_pandas())
+            if log_to_db:
+                local_db_logger = LocalDBLogger()
+                local_db_logger.insert_logs(self)
         return self.result
 
     def display_previous_nodes(self, steps: int) -> None:
