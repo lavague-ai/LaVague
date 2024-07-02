@@ -217,10 +217,6 @@ driver.set_window_size({width}, {height} + height_difference)
                     item["action"]["args"]["value"],
                     True,
                 )
-            elif action_name == "clearValue":
-                self.clear_value(
-                    item["action"]["args"]["xpath"],
-                )
             elif action_name == "wait":
                 self.perform_wait(item["action"]["args"]["duration"])
 
@@ -255,14 +251,11 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
         elem = self.driver.find_element(By.XPATH, xpath)
+        elem.clear()
         elem.click()
         elem.send_keys(value)
         if enter:
             elem.send_keys(Keys.ENTER)
-
-    def clear_value(self, xpath: str):
-        elem = self.driver.find_element(By.XPATH, xpath)
-        elem.clear()
 
     def perform_wait(self, duration: float):
         import time
@@ -296,11 +289,6 @@ Description: Like "setValue", except then it presses ENTER. Use this tool can su
 Arguments:
   - xpath (string)
   - value (string)
-
-Name: clearValue
-Description: Focus on and clear the text of an input element with a specific xpath
-Arguments:
-  - xpath (string)
 
 Name: wait
 Description: Wait for the amount of seconds specified as duration
