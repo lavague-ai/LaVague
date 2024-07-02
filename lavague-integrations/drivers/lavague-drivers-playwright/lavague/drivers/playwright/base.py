@@ -24,9 +24,9 @@ class PlaywrightDriver(BaseDriver):
         height: int = 1080,
         user_data_dir: Optional[str] = None,
     ):
-        os.environ[
-            "PW_TEST_SCREENSHOT_NO_FONTS_READY"
-        ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        os.environ["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = (
+            "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        )
         self.headless = headless
         self.user_data_dir = user_data_dir
         self.width = 1080
@@ -45,14 +45,14 @@ class PlaywrightDriver(BaseDriver):
         p = sync_playwright().__enter__()
         user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
         if self.user_data_dir is None:
-            browser = p.chromium.launch(headless=self.headless, user_agent=user_agent)
+            browser = p.chromium.launch(headless=self.headless)
         else:
             browser = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
-                user_agent=user_agent,
             )
-        page = browser.new_page()
+        context = browser.new_context(user_agent=user_agent)
+        page = context.new_page()
         self.page = page
         self.resize_driver(self.width, self.height)
         return self.page
@@ -206,6 +206,8 @@ class PlaywrightDriver(BaseDriver):
                     item["action"]["args"]["value"],
                     True,
                 )
+            elif action_name == "wait":
+                self.perform_wait(item["action"]["args"]["duration"])
 
     def execute_script(self, js_code: str, *args) -> Any:
         args = list(arg for arg in args)
@@ -221,10 +223,16 @@ class PlaywrightDriver(BaseDriver):
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
         elem = self.page.locator(f"xpath={xpath}").first
+        elem.clear()
         elem.click()
         elem.fill(value)
         if enter:
             elem.press("Enter")
+
+    def perform_wait(self, duration: float):
+        import time
+
+        time.sleep(duration)
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
@@ -259,6 +267,11 @@ Description: Like "setValue", except then it presses ENTER. Use this tool can su
 Arguments:
   - xpath (string)
   - value (string)
+
+Name: wait
+Description: Wait for the amount of seconds specified as duration
+Arguments:
+  -  duration (float)
 
 Name: fail
 Description: Indicate that you are unable to complete the task
