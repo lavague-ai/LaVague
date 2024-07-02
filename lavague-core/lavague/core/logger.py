@@ -53,8 +53,7 @@ class AgentLogger:
         df = pd.DataFrame(self.logs)
         # checks if "screenshots_path" in dataframe columns
         if "screenshots_path" in df.columns:
-            df["screenshots"] = df["screenshots_path"].apply(
-                load_images_from_folder)
+            df["screenshots"] = df["screenshots_path"].apply(load_images_from_folder)
         return df
 
 
