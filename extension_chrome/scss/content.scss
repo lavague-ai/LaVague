@@ -1,17 +1,28 @@
-html {
-  height: calc(100% - 40px);
+html, #app {
+  height: 100vh;
 }
 
 #app {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  height: 100%;
 }
 
 .logo {
   height: 80px;
   object-fit: contain;
+}
+
+.chatbox {
+  display: flex;
+  height: calc(100vh - 168px);
+  flex-direction: column;
+  gap: 8px;
+  
+  .wmlogs {
+    flex: 1;
+    overflow-y: auto;
+  }
 }
 
 .server {

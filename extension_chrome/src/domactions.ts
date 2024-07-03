@@ -80,8 +80,7 @@ export class DomActions {
         await sleep(200);
     }
 
-    private async typeText(text: string, shiftEnter = false): Promise<void> {
-        const enterModifier = shiftEnter ? 8 : 0;
+    private async typeText(text: string): Promise<void> {
         for (const char of text) {
             // handle enter
             if (char === '\n') {
@@ -150,41 +149,10 @@ export class DomActions {
         await sleep(300);
     }
 
-    public async setValueWithXPATH(payload: { xpath: string; value: string; shiftEnter?: boolean }): Promise<boolean> {
-        const code = `
-      (function(xpath) {
-        function getNodeFromXPATH(xpath) {
-          var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-          return result.singleNodeValue;
-        }
-    
-        function SetFocusOnTextBoxXPath(xpath: string): boolean {
-          var textbox = getNodeFromXPATH(xpath)
-          var success = true;
-        
-          if (textbox) {
-            if (textbox instanceof HTMLInputElement) {
-                textbox.focus();
-            }
-            // Check if textbox is a textarea element
-            else if (textbox instanceof HTMLTextAreaElement) {
-                textbox.focus();
-            }
-            else {
-              console.log("failed to focus the textbox")
-              success = false;
-          }
-          } else {
-              console.log("failed to focus the textbox")
-              success = false;
-          }
-          return success
-        }
-        
-        SetFocusOnTextBoxXPath(xpath);
-      })(${JSON.stringify(payload.xpath)});`;
+    public async setValueWithXPATH(payload: { xpath: string; value: string }): Promise<boolean> {
+        await this.clickwithXPath(payload.xpath);
         await this.selectAllText();
-        await this.typeText(payload.value, payload.shiftEnter ?? false);
+        await this.typeText(payload.value);
         return true;
     }
 

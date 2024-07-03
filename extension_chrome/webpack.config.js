@@ -50,18 +50,18 @@ module.exports = (env, { mode }) => {
                     },
                 },
                 {
-                    test: /\.(sa|sc)ss$/,
-                    use: [isProduction ? MiniCssExtractPlugin.loader : 'style-loader', 'css-loader', 'sass-loader'],
+                    test: /\.s[ac]ss$/i,
+                    use: ['style-loader', 'css-loader', 'sass-loader'],
                 },
                 {
                     test: /\.(jpg|jpeg|png|gif|woff|woff2|eot|ttf|svg)$/i,
-                    use: 'url-loader?limit=1024'
-                }
+                    use: 'url-loader?limit=1024',
+                },
             ],
         },
         plugins: [
             new CopyPlugin({
-                patterns: [{ from: '.', to: '.', context: 'public' }]
+                patterns: [{ from: '.', to: '.', context: 'public' }],
             }),
             new MiniCssExtractPlugin({
                 filename: '[name].css',

@@ -20,11 +20,19 @@ export default function Prompt({ requestConnection }: { requestConnection: () =>
         }
     };
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            handleStart();
+        }
+    };
+
     return (
         <div className="prompt">
             <Textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Can I do something for you?"
                 resize={'none'}
                 required

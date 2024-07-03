@@ -29,10 +29,12 @@ export default function MainLayout() {
             </TabList>
             <TabPanels>
                 <TabPanel>
-                    <Prompt requestConnection={requestConnection} />
-                    <Box mt={4}>
-                        <Logs logTypes={['userprompt', 'agent_log']} />
-                    </Box>
+                    <div className="chatbox">
+                        <div className="wmlogs">
+                            <Logs logTypes={['userprompt', 'agent_log']} />
+                        </div>
+                        <Prompt requestConnection={requestConnection} />
+                    </div>
                 </TabPanel>
                 <TabPanel>
                     <Logs logTypes={['cmd']} />
