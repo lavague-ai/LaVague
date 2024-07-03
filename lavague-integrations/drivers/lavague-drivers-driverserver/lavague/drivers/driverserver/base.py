@@ -193,7 +193,8 @@ Your goal is to return a list of actions that should be done in order to execute
 Always target elements by XPATH.
 
 The actions available are: 
-Name: The message port closed before a response was received.
+
+Name: click
 Description: Click on an element with a specific xpath
 Arguments:
   - xpath (string)

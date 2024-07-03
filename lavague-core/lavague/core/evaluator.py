@@ -24,6 +24,7 @@ from lavague.core.utilities.format_utils import (
 )
 import matplotlib.pyplot as plt
 import seaborn as sns
+import json
 
 
 def init_driver() -> WebDriver:
@@ -213,6 +214,7 @@ class LLMEvaluator(Evaluator):
         retrieved_dataset: pd.DataFrame,
         csv_out_name: str,
         max_retry: int = 1,
+        safe_mode: bool = True,
     ) -> pd.DataFrame:
         if os.path.isfile(csv_out_name):
             raise ValueError(f"{csv_out_name} already exists")
@@ -243,16 +245,28 @@ class LLMEvaluator(Evaluator):
                     )
                     duration = time() - start_time
                     try:
-                        local_scope = {"driver": self.driver.get_driver()}
-                        assignment_code = keep_assignments(generated_code)
-                        self.driver.exec_code(assignment_code, locals=local_scope)
-                        # Assign the variable to the target_element variable which will be used afterwards to compute score
-                        variables = return_assigned_variables(assignment_code)
-                        target_element = None
-                        for v in variables:
-                            if type(local_scope[v]) == WebElement:
-                                target_element = local_scope[v]
-                                break
+                        if safe_mode == False:
+                            local_scope = {"driver": self.driver.get_driver()}
+                            assignment_code = keep_assignments(generated_code)
+                            self.driver.exec_code(assignment_code, locals=local_scope)
+                            # Assign the variable to the target_element variable which will be used afterwards to compute score
+                            variables = return_assigned_variables(assignment_code)
+                            target_element = None
+                            for v in variables:
+                                if type(local_scope[v]) == WebElement:
+                                    target_element = local_scope[v]
+                                    break
+                        else:
+                            data = json.loads(generated_code)
+                            for item in data:
+                                action_name = item["action"]["name"]
+                                if action_name != "fail":
+                                    xpath = item["action"]["args"]["xpath"]
+                                    target_element = self.driver.driver.find_element(
+                                        By.XPATH, xpath
+                                    )
+                                    break
+
                         target_outer_html = self.driver.execute_script(
                             "return arguments[0].outerHTML;", target_element
                         )

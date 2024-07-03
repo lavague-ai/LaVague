@@ -16,6 +16,11 @@ from lavague.core.base_engine import ActionResult
 from lavague.core.utilities.telemetry import send_telemetry
 from PIL import Image
 from IPython.display import display, HTML, Code
+from threading import Thread
+from lavague.core.utilities.unicode_animation import (
+    lavague_unicode_animation,
+    clear_animation,
+)
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -271,6 +276,9 @@ class WebAgent:
         self.action_engine.set_display_all(display)
         action_result: ActionResult
 
+        if os.getenv("DISABLE_LAVAGUE_ANIMATION") is None:
+            Thread(target=lavague_unicode_animation, daemon=True).start()
+
         try:
             st_memory = self.st_memory
             world_model = self.world_model
@@ -287,6 +295,7 @@ class WebAgent:
                 world_model_output = world_model.get_instruction(
                     objective, current_state, past, obs
                 )
+                clear_animation()
                 logging_print.info(world_model_output)
                 next_engine_name = extract_next_engine(world_model_output)
                 instruction = extract_world_model_instruction(world_model_output)
@@ -294,6 +303,7 @@ class WebAgent:
                 if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
                     self.result.success = True
                     self.result.output = instruction
+                    clear_animation()
                     logging_print.info("Objective reached. Stopping...")
                     self.logger.add_log(obs)
                     self.logger.end_step()
@@ -317,11 +327,13 @@ class WebAgent:
 
                 obs = self.driver.get_obs()
         except KeyboardInterrupt:
+            clear_animation()
             logging_print.warning("The agent was interrupted.")
             pass
         except Exception as e:
+            clear_animation()
             logging_print.error(f"Error while running the agent: {e}")
-            pass
+            raise e
         finally:
             send_telemetry(self.logger.return_pandas())
         return self.result

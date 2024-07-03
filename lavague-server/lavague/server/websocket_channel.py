@@ -67,7 +67,7 @@ class WebSocketHandler(CommunicationChannel):
     def start(self):
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.server = websockets.serve(
-            self.handler, "localhost", self.port, max_size=20 * 1024 * 1024
+            self.handler, "0.0.0.0", self.port, max_size=20 * 1024 * 1024
         )
         asyncio.get_event_loop().run_until_complete(self.server)
         print(f"WebSocket server listening on port {self.port}")

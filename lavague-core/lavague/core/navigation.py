@@ -5,7 +5,7 @@ from typing import Any, List, Tuple, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
-from lavague.core.extractors import BaseExtractor, PythonFromMarkdownExtractor
+from lavague.core.extractors import BaseExtractor, JsonFromMarkdownExtractor
 from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
@@ -33,7 +33,7 @@ Query: {query_str}
 Completion:
 
 """,
-    PythonFromMarkdownExtractor(),
+    JsonFromMarkdownExtractor(),
 )
 
 REPHRASE_PROMPT = Template(
@@ -128,6 +128,7 @@ class NavigationEngine(BaseEngine):
         n_attempts: int = 5,
         logger: AgentLogger = None,
         display: bool = False,
+        raise_on_error=False,
     ):
         if llm is None:
             llm: BaseLLM = get_default_context().llm
@@ -150,6 +151,7 @@ class NavigationEngine(BaseEngine):
         self.logger = logger
         self.n_attempts = n_attempts
         self.display = display
+        self.raise_on_error = raise_on_error
 
     @classmethod
     def from_context(
@@ -360,9 +362,11 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
-                    print("Navigation error:", e)
+                    logging_print.error(f"Navigation error: {e}")
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
+                    if self.raise_on_error:
+                        raise e
 
                 action_outcomes.append(action_outcome)
 
@@ -371,7 +375,7 @@ class NavigationEngine(BaseEngine):
             action_nb += 1
             navigation_log_total.append(navigation_log)
 
-        if success == False:
+        if not success:
             self.history[-1] = (
                 self.history[-1][0],
                 f"❌ Step {action_engine.curr_step + 1}:\n{action_engine.curr_instruction}",
@@ -484,7 +488,6 @@ class NavigationEngine(BaseEngine):
                         for item in vision_data:
                             display_screenshot(item["screenshot"])
                             time.sleep(0.2)
-
                     self.driver.exec_code(action)
                     time.sleep(self.time_between_actions)
                     if self.display:
@@ -499,9 +502,11 @@ class NavigationEngine(BaseEngine):
                     action_outcome["success"] = True
                     navigation_log["vision_data"] = vision_data
                 except Exception as e:
-                    logging_print.error("Navigation error:", e)
+                    logging_print.error(f"Navigation error: {e}")
                     action_outcome["success"] = False
                     action_outcome["error"] = str(e)
+                    if self.raise_on_error:
+                        raise e
 
                 action_outcomes.append(action_outcome)
 
