@@ -333,7 +333,7 @@ class WebAgent:
         except Exception as e:
             clear_animation()
             logging_print.error(f"Error while running the agent: {e}")
-            pass
+            raise e
         finally:
             send_telemetry(self.logger.return_pandas())
         return self.result
