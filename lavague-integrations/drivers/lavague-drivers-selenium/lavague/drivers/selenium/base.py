@@ -1,11 +1,17 @@
 from pathlib import Path
 import time
-from typing import Any, Optional, Callable, Mapping
+from typing import Any, Optional, Callable, Mapping, Dict, List, Iterable
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
-from lavague.core.base_driver import BaseDriver
+from lavague.core.base_driver import (
+    BaseDriver,
+    JS_GET_INTERACTIVES,
+    JS_SETUP_GET_EVENTS,
+    PossibleInteractionsByXpath,
+    InteractionType,
+)
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
@@ -64,8 +70,11 @@ class SeleniumDriver(BaseDriver):
                 "normal" if self.no_load_strategy is False else "none"
             )
 
-        driver = webdriver.Chrome(options=chrome_options)
-        self.driver = driver
+        self.driver = webdriver.Chrome(options=chrome_options)
+        self.driver.execute_cdp_cmd(
+            "Page.addScriptToEvaluateOnNewDocument",
+            {"source": JS_SETUP_GET_EVENTS},
+        )
         self.resize_driver(self.width, self.height)
         return self.driver
 
@@ -141,17 +150,12 @@ driver.set_window_size({width}, {height} + height_difference)
     def maximize_window(self) -> None:
         self.driver.maximize_window()
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            element = self.driver.find_element(By.XPATH, xpath)
-            return element.is_displayed() and element.is_enabled()
-        except:
-            return False
-
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
         data = json.loads(generated_code)
+        if not isinstance(data, Iterable):
+            data = [data]
         for item in data:
             action_name = item["action"]["name"]
             if action_name != "fail":
@@ -264,6 +268,13 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
+
+    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
+        res = dict()
+        for k, v in exe.items():
+            res[k] = set(InteractionType[i] for i in v)
+        return res
 
 
 SELENIUM_PROMPT_TEMPLATE = """

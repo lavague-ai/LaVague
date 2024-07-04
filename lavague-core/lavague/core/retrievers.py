@@ -69,6 +69,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             "text",
             "name",
             "aria-label",
+            "title",
         ],
     ):
         super().__init__(driver, embedding, top_k)
@@ -85,7 +86,10 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             ]
             if len(siblings) > 1:
                 count = siblings.index(element) + 1
-                path = f"/{element.name}[{count}]{path}"
+                if count == 1:
+                    path = f"/{element.name}{path}"
+                else:
+                    path = f"/{element.name}[{count}]{path}"
             else:
                 path = f"/{element.name}{path}"
             return self._generate_xpath(element.parent, path)
@@ -101,7 +105,10 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         return str(soup)
 
     def _create_nodes_dict(
-        self, html, only_body=True, max_length=200
+        self,
+        html,
+        only_body=True,
+        max_length=200,
     ):  # used to generate dict nodes
         """Create a list of xpaths and a list of dict of attributes of all elements in the html"""
         soup = BeautifulSoup(html, "html.parser")
@@ -138,7 +145,14 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                 for child in element.children:
                     if child.name is not None:
                         stack.append(child)
-        return element_attributes_list
+
+        possible_interactions = self.driver.get_possible_interactions()
+        interactive_attributes_list = [
+            e
+            for e in element_attributes_list
+            if len(possible_interactions.get(e.get("xpath", ""), set())) > 0
+        ]
+        return interactive_attributes_list
 
     def _chunk_dicts(self, dicts, chunk_size=10):
         def chunks(lst, n):
@@ -190,7 +204,10 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         return attributes_list
 
     def _get_results(
-        self, embedding, query, html
+        self,
+        embedding,
+        query: str,
+        html: str,
     ):  # used to generate and retrieve dict nodes
         """Return the top_k elements of the html that are the most relevant to the query as Node objects with xpath in their metadata"""
         attributes_list = self._create_nodes_dict(html)
@@ -241,7 +258,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
     def _match_element(self, attributes, element_specs):
         i = 0
         for spec in element_specs:
-            if attributes["xpath"] == spec["xpath"]:
+            if attributes.get("xpath") == spec["xpath"]:
                 return i
             i += 1
         return None
@@ -252,35 +269,36 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             split_html = node.text
             soup = BeautifulSoup(split_html, "html.parser")
             for element in soup.descendants:
-                try:
+                if not isinstance(element, NavigableString):
                     indice = self._match_element(element.attrs, results_dict)
                     if indice is not None:
                         node.metadata["score"] = score[indice]
                         returned_nodes.append(node)
                         break
-                except:
-                    pass
         return returned_nodes
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         html = self._add_xpath_attributes(self.driver.get_html())
-        text_list = [html]
-        documents = [Document(text=t) for t in text_list]
+        documents = [Document(text=html)]
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
             )
         )
         nodes = splitter.get_nodes_from_documents(documents)
-        results_dict, score = self._get_results(self.embedding, query.query_str, html)
-        for r in results_dict:
-            if not self.driver.check_visibility(r["xpath"]):
-                i = results_dict.index(r)
-                results_dict.remove(r)
-                score.pop(i)
-        results_nodes = self._return_nodes_with_xpath(nodes, results_dict, score)
-        results = [
-            NodeWithScore(node=node, score=node.metadata["score"])
-            for node in results_nodes
-        ]
+        possible_interactions = self.driver.get_possible_interactions()
+
+        compatible_nodes = []
+        for node in nodes:
+            soup = BeautifulSoup(node.text, "html.parser")
+            for element in soup.find_all(True):
+                if len(possible_interactions.get(element.get("xpath", ""), set())) > 0:
+                    compatible_nodes.append(node)
+                    break
+
+        index = VectorStoreIndex(compatible_nodes, embed_model=self.embedding)
+        retriever = BM25Retriever.from_defaults(
+            index=index, similarity_top_k=self.top_k
+        )
+        results = retriever.retrieve(query)
         return results

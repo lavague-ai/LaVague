@@ -2,7 +2,7 @@ from io import BytesIO
 import json
 import os
 from PIL import Image
-from typing import Callable, Optional, Any, Mapping
+from typing import Callable, Optional, Any, Mapping, Iterable
 from lavague.core.utilities.format_utils import (
     extract_code_from_funct,
     keep_assignments,
@@ -127,17 +127,12 @@ class PlaywrightDriver(BaseDriver):
     def destroy(self) -> None:
         self.page.close()
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            locator = self.page.locator(f"xpath={xpath}")
-            return locator.is_visible() and locator.is_enabled()
-        except:
-            return False
-
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
         data = json.loads(generated_code)
+        if not isinstance(data, Iterable):
+            data = [data]
         for item in data:
             action_name = item["action"]["name"]
             if action_name != "fail":

@@ -128,7 +128,7 @@ class NavigationEngine(BaseEngine):
         n_attempts: int = 5,
         logger: AgentLogger = None,
         display: bool = False,
-        raise_on_error=False,
+        raise_on_error: bool = False,
     ):
         if llm is None:
             llm: BaseLLM = get_default_context().llm

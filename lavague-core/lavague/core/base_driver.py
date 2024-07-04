@@ -1,13 +1,24 @@
 from pathlib import Path
-from typing import Any, Callable, Optional, Mapping
+from typing import Any, Callable, Optional, Mapping, Dict, Set
 from abc import ABC, abstractmethod
 from lavague.core.utilities.format_utils import (
     extract_code_from_funct,
     extract_imports_from_lines,
 )
+from enum import Enum
 import time
 from datetime import datetime
 import hashlib
+
+
+class InteractionType(Enum):
+    CLICK = "click"
+    HOVER = "hover"
+    SCROLL = "scroll"
+    TYPE = "type"
+
+
+PossibleInteractionsByXpath = Dict[str, Set[InteractionType]]
 
 
 class BaseDriver(ABC):
@@ -128,8 +139,8 @@ class BaseDriver(ABC):
         return screenshot_paths
 
     @abstractmethod
-    def check_visibility(self, xpath: str) -> bool:
-        """Check an element visibility by its xpath"""
+    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+        """Get elements that can be interacted with as a dictionary mapped by xpath"""
         pass
 
     @abstractmethod
@@ -220,3 +231,98 @@ class BaseDriver(ABC):
     @abstractmethod
     def get_screenshot_as_png(self) -> bytes:
         pass
+
+
+JS_SETUP_GET_EVENTS = """
+(function() {
+  Element.prototype._addEventListener = Element.prototype.addEventListener;
+  Element.prototype.addEventListener = function(a,b,c) {
+    this._addEventListener(a,b,c);
+    if(!this.eventListenerList) this.eventListenerList = {};
+    if(!this.eventListenerList[a]) this.eventListenerList[a] = [];
+    this.eventListenerList[a].push(b);
+  };
+  Element.prototype._removeEventListener = Element.prototype.removeEventListener;
+  Element.prototype.removeEventListener = function(a, b, c) {
+    this._removeEventListener(a, b, c);
+    if(this.eventListenerList && this.eventListenerList[a]) {
+      const index = this.eventListenerList[a].indexOf(b);
+      if (index > -1) {
+        this.eventListenerList[a].splice(index, 1);
+        if(!this.eventListenerList[a].length) {
+          delete this.eventListenerList[a];
+        }
+      }
+    }
+  };
+  if (!window.getEventListeners) {
+    window.getEventListeners = function(e) {
+      return (e && e.eventListenerList) || [];
+    }
+  }
+})();"""
+
+JS_GET_INTERACTIVES = """
+return (function() {
+    function getInteractions(e) {
+        const tag = e.tagName.toLowerCase();
+        if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
+          || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
+            return [];
+        }
+        const style = getComputedStyle(e);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            return [];
+        }
+        const events = getEventListeners(e);
+        const role = e.getAttribute('role');
+        const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
+        function hasEvent(n) {
+            return events[n]?.length || e.hasAttribute('on' + n);
+        }
+        const evts = [];
+        if (hasEvent('keydown') || hasEvent('keyup') || hasEvent('keypress') || hasEvent('keydown') || hasEvent('input') || e.isContentEditable
+          || (
+            (tag === 'input' || tag === 'textarea' || role === 'searchbox' || role === 'input')
+            ) && !clickableInputs.includes(e.getAttribute('type'))
+          ) {
+            evts.push('TYPE');
+        }
+        if (tag === 'a' || tag === 'button' || role === 'button' || role === 'checkbox' || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup')
+          || hasEvent('dblclick') || style.cursor === 'pointer' || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')) )
+          || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
+            evts.push('CLICK');
+        }
+        if (hasEvent('mouseover')) {
+            evts.push('HOVER');
+        }
+        return evts;
+    }
+
+    const results = {};
+    function traverse(node, xpath) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            const interactions = getInteractions(node);
+            if (interactions.length > 0) {
+                results[xpath] = interactions;
+            }
+        }
+        const countByTag = {};
+        for (let child = node.firstChild; child; child = child.nextSibling) {
+            const tag = child.nodeName.toLowerCase();
+            countByTag[tag] = (countByTag[tag] || 0) + 1;
+            let childXpath = xpath + '/' + tag;
+            if (countByTag[tag] > 1) {
+                childXpath += '[' + countByTag[tag] + ']';
+            }
+            if (tag === 'iframe') {
+                traverse(child.contentWindow.document.body, childXpath);
+            } else {
+                traverse(child, childXpath + '/html/body');
+            } 
+        }
+    }
+    traverse(document.body, '/html/body');
+    return results;
+})();
+"""

@@ -44,8 +44,7 @@ def init_driver() -> WebDriver:
 
 
 class SeleniumDriverForEval(SeleniumDriver):
-    def check_visibility(self, xpath: str) -> bool:
-        return True
+    pass
 
 
 class Evaluator(ABC):
