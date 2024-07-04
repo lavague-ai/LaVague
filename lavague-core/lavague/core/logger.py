@@ -102,14 +102,14 @@ class LocalLogger(AgentLogger):
 
 
 class LocalDBLogger(AgentLogger):
-    def __init__(self, db_name: str = 'lavague_logs.db'):
+    def __init__(self, db_name: str = "lavague_logs.db"):
         self.db_name = db_name
         # on init connect to db and create table and close connection
         try:
             sqliteConnection = sqlite3.connect(db_name)
             cursor = sqliteConnection.cursor()
             print("Connected to SQLite")
-            create_table = '''
+            create_table = """
                 CREATE TABLE IF NOT EXISTS Logs
                     (current_state TEXT,
                     past TEXT,
@@ -128,12 +128,12 @@ class LocalDBLogger(AgentLogger):
                     date TEXT,
                     run_id TEXT,
                     step INTEGER,
-                    screenshots TEXT)'''
+                    screenshots TEXT)"""
             cursor.execute(create_table)
             cursor.close()
             print("Created table : Logs")
         except sqlite3.Error as error:
-            print('Error occurred - ', error)
+            print("Error occurred - ", error)
         finally:
             if sqliteConnection:
                 sqliteConnection.close()
@@ -150,18 +150,20 @@ class LocalDBLogger(AgentLogger):
                 dataToInsert = self.format_df_logs_to_sqlite3_types(df_logs)
 
                 cursor.executemany(
-                    "INSERT INTO Logs VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", dataToInsert)
+                    "INSERT INTO Logs VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    dataToInsert,
+                )
                 sqliteConnection.commit()
                 cursor.close()
-                print('Log insert complete')
+                print("Log insert complete")
             except sqlite3.Error as error:
-                print('Error occurred - ', error)
+                print("Error occurred - ", error)
             finally:
                 if sqliteConnection:
                     sqliteConnection.close()
                     print("sqlite connection is closed")
         else:
-            print('Please pass an appropriate agent!')
+            print("Please pass an appropriate agent!")
 
     def format_df_logs_to_sqlite3_types(self, df_logs: DataFrame) -> list:
         if df_logs is not None and isinstance(df_logs, DataFrame):
@@ -170,7 +172,7 @@ class LocalDBLogger(AgentLogger):
                 t = []
                 for col in df_logs:
                     i = r[col]
-                    if col == 'screenshots':
+                    if col == "screenshots":
                         t.append(str(self.convertImgToBlob(i)))
                     elif type(i) == str or type(i) == float or type(i) == int:
                         t.append(i)
@@ -179,13 +181,13 @@ class LocalDBLogger(AgentLogger):
                 data.append(t)
             return data
         else:
-            print('Please pass a dataframe!')
-    
+            print("Please pass a dataframe!")
+
     def convertImgToBlob(self, imageList: list) -> list:
         blobList = []
         image_bytes = io.BytesIO()
         for img in imageList:
-            img.save(image_bytes, format='PNG')
+            img.save(image_bytes, format="PNG")
             blobList.append(image_bytes)
         return blobList
 

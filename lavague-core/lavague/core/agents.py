@@ -271,7 +271,11 @@ class WebAgent:
         )
 
     def run(
-        self, objective: str, user_data=None, display: bool = False, log_to_db: bool = False
+        self,
+        objective: str,
+        user_data=None,
+        display: bool = False,
+        log_to_db: bool = False,
     ) -> ActionResult:
         self.action_engine.set_display_all(display)
         action_result: ActionResult
