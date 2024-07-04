@@ -336,6 +336,7 @@ class WebAgent:
             pass
         finally:
             send_telemetry(self.logger.return_pandas())
+        clear_animation()
         return self.result
 
     def display_previous_nodes(self, steps: int) -> None:
