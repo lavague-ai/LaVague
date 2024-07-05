@@ -1,8 +1,7 @@
 from __future__ import annotations
 from typing import List
 from abc import ABC, abstractmethod
-from bs4 import BeautifulSoup, NavigableString
-import ast
+from bs4 import BeautifulSoup
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import Document
@@ -14,6 +13,7 @@ from llama_index.core.node_parser import LangchainNodeParser
 from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
 from lavague.core.context import get_default_context
+
 
 class BaseHtmlRetriever(ABC):
     def __init__(
@@ -73,30 +73,34 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             ]
             if len(siblings) > 1:
                 count = siblings.index(element) + 1
-                path = f"/{element.name}[{count}]{path}"
+                if count == 1:
+                    path = f"/{element.name}{path}"
+                else:
+                    path = f"/{element.name}[{count}]{path}"
             else:
                 path = f"/{element.name}{path}"
             return self._generate_xpath(element.parent, path)
-    
-    def _add_xpath_attributes(self, html_content, xpath_prefix = ""):
+
+    def _add_xpath_attributes(self, html_content, xpath_prefix=""):
         soup = BeautifulSoup(html_content, "html.parser")
         for element in soup.find_all(True):
             element["xpath"] = xpath_prefix + self._generate_xpath(element)
-        for iframe_tag in soup.find_all('iframe'):
+        for iframe_tag in soup.find_all("iframe"):
             frame_xpath = self._generate_xpath(iframe_tag)
             try:
                 self.driver.resolve_xpath(frame_xpath)
             except Exception as e:
                 continue
-            frame_soup_str = self._add_xpath_attributes(self.driver.get_html(), xpath_prefix + frame_xpath)
+            frame_soup_str = self._add_xpath_attributes(
+                self.driver.get_html(), xpath_prefix + frame_xpath
+            )
             iframe_tag.replace_with(frame_soup_str)
             self.driver.driver.switch_to.parent_frame()
         return str(soup)
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         html = self._add_xpath_attributes(self.driver.get_html())
-        text_list = [html]
-        documents = [Document(text=t) for t in text_list]
+        documents = [Document(text=html)]
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
@@ -104,6 +108,21 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         )
         nodes = splitter.get_nodes_from_documents(documents)
         index = VectorStoreIndex(nodes, embed_model=self.embedding)
+        possible_interactions = self.driver.get_possible_interactions()
+
+        compatible_nodes = []
+        for node in nodes:
+            soup = BeautifulSoup(node.text, "html.parser")
+            for element in soup.find_all(True):
+                if len(possible_interactions.get(element.get("xpath", ""), set())) > 0:
+                    compatible_nodes.append(node)
+                    break
+
+        if len(compatible_nodes) == 0:
+            # no interactive node matches, let the retriever decide
+            compatible_nodes = nodes
+
+        index = VectorStoreIndex(compatible_nodes, embed_model=self.embedding)
         retriever = BM25Retriever.from_defaults(
             index=index, similarity_top_k=self.top_k
         )
