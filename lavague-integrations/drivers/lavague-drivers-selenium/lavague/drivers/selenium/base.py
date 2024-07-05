@@ -1,5 +1,3 @@
-from pathlib import Path
-import time
 from typing import Any, Optional, Callable, Mapping, Dict, List, Iterable
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -8,18 +6,13 @@ from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
-    JS_SETUP_GET_EVENTS,
     PossibleInteractionsByXpath,
     InteractionType,
 )
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
-from lavague.core.utilities.format_utils import (
-    return_assigned_variables,
-    keep_assignments,
-    extract_code_from_funct,
-)
+from lavague.core.utilities.format_utils import extract_code_from_funct
 import json
 
 
@@ -54,6 +47,7 @@ class SeleniumDriver(BaseDriver):
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.common.action_chains import ActionChains
+        from lavague.core.base_driver import JS_SETUP_GET_EVENTS
 
         if self.options:
             chrome_options = self.options
@@ -69,6 +63,9 @@ class SeleniumDriver(BaseDriver):
             chrome_options.page_load_strategy = (
                 "normal" if self.no_load_strategy is False else "none"
             )
+        # allow access to cross origin iframes
+        chrome_options.add_argument("--disable-web-security")
+        chrome_options.add_argument("--disable-site-isolation-trials")
 
         self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.execute_cdp_cmd(

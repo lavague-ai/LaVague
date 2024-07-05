@@ -316,9 +316,13 @@ return (function() {
                 childXpath += '[' + countByTag[tag] + ']';
             }
             if (tag === 'iframe') {
-                traverse(child.contentWindow.document.body, childXpath);
+                try {
+                    traverse(child.contentWindow.document.body, childXpath + '/html/body');
+                } catch (e) {
+                    console.error("iframe access blocked", child, e);
+                }
             } else {
-                traverse(child, childXpath + '/html/body');
+                traverse(child, childXpath);
             } 
         }
     }

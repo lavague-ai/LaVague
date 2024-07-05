@@ -296,6 +296,10 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                     compatible_nodes.append(node)
                     break
 
+        if len(compatible_nodes) == 0:
+            # no interactive node matches, let the retriever decide
+            compatible_nodes = nodes
+
         index = VectorStoreIndex(compatible_nodes, embed_model=self.embedding)
         retriever = BM25Retriever.from_defaults(
             index=index, similarity_top_k=self.top_k
