@@ -13,6 +13,7 @@ from llama_index.core.node_parser import LangchainNodeParser
 from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
 from lavague.core.context import get_default_context
+import re
 
 
 class BaseHtmlRetriever(ABC):
@@ -98,8 +99,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             self.driver.driver.switch_to.parent_frame()
         return str(soup)
 
-    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        html = self._add_xpath_attributes(self.driver.get_html())
+    def _get_interactable_nodes(self, html):
         documents = [Document(text=html)]
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
@@ -107,22 +107,21 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             )
         )
         nodes = splitter.get_nodes_from_documents(documents)
-        index = VectorStoreIndex(nodes, embed_model=self.embedding)
+        pattern = re.compile(r'xpath="([^"]+)"')
         possible_interactions = self.driver.get_possible_interactions()
-
-        compatible_nodes = []
+        compatibles = []
         for node in nodes:
-            soup = BeautifulSoup(node.text, "html.parser")
-            for element in soup.find_all(True):
-                if len(possible_interactions.get(element.get("xpath", ""), set())) > 0:
-                    compatible_nodes.append(node)
+            xpaths = re.findall(pattern, node.text)
+            for xpath in xpaths:
+                if xpath in possible_interactions:
+                    compatibles.append(node)
                     break
+        return compatibles
 
-        if len(compatible_nodes) == 0:
-            # no interactive node matches, let the retriever decide
-            compatible_nodes = nodes
-
-        index = VectorStoreIndex(compatible_nodes, embed_model=self.embedding)
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
+        html = self._add_xpath_attributes(self.driver.get_html())
+        nodes = self._get_interactable_nodes(html)
+        index = VectorStoreIndex(nodes, embed_model=self.embedding)
         retriever = BM25Retriever.from_defaults(
             index=index, similarity_top_k=self.top_k
         )

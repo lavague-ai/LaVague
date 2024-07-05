@@ -25,9 +25,9 @@ class PlaywrightDriver(BaseDriver):
         height: int = 1080,
         user_data_dir: Optional[str] = None,
     ):
-        os.environ["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = (
-            "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
-        )
+        os.environ[
+            "PW_TEST_SCREENSHOT_NO_FONTS_READY"
+        ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
         self.headless = headless
         self.user_data_dir = user_data_dir
         self.width = width
@@ -136,16 +136,18 @@ class PlaywrightDriver(BaseDriver):
     def destroy(self) -> None:
         self.page.close()
 
-    def resolve_xpath(self, xpath) -> Locator:
+    def _resolve_xpath_impl(self, frame, xpath) -> Locator:
         before, sep, after = xpath.partition("iframe")
         if len(before) == 0:
             return None
         if len(sep) == 0:
             return self.page.locator(f"xpath={xpath}")
-        iframe = self.page.frame_locator(f"xpath={before + sep}")
-        self.page = iframe
-        element = self.resolve_xpath(after)
+        frame = frame.frame_locator(f"xpath={before + sep}")
+        element = self._resolve_xpath_impl(frame, after)
         return element
+
+    def resolve_xpath(self, xpath) -> Locator:
+        return self._resolve_xpath_impl(self.page, xpath)
 
     def get_highlighted_element(self, generated_code: str):
         elements = []
@@ -157,8 +159,11 @@ class PlaywrightDriver(BaseDriver):
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
-                elem = self.page.locator(f"xpath={xpath}").first
-                elements.append(elem)
+                try:
+                    elem = self.page.locator(f"xpath={xpath}")
+                    elements.append(elem)
+                except:
+                    pass
 
         if len(elements) == 0:
             raise ValueError("No element found.")
@@ -233,11 +238,11 @@ class PlaywrightDriver(BaseDriver):
         return self.page.evaluate(script, args)
 
     def click(self, xpath: str):
-        elem = self.page.locator(f"xpath={xpath}").first
+        elem = self.resolve_xpath(xpath).first
         elem.click()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.page.locator(f"xpath={xpath}").first
+        elem = self.resolve_xpath(xpath).first
         elem.clear()
         elem.click()
         elem.fill(value)

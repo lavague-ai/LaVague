@@ -100,6 +100,12 @@ class BaseDriver(ABC):
         """
         pass
 
+    def resolve_xpath(self, xpath):
+        """
+        Return the element for the corresponding xpath, the underlying driver may switch iframe if necessary
+        """
+        pass
+
     def save_screenshot(self, current_screenshot_folder: Path) -> str:
         """Save the screenshot data to a file and return the path. If the screenshot already exists, return the path. If not save it to the folder."""
 

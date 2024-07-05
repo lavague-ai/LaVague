@@ -157,8 +157,11 @@ driver.set_window_size({width}, {height} + height_difference)
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
+            try:
                 elem = self.driver.find_element(By.XPATH, xpath)
                 elements.append(elem)
+            except:
+                pass
 
         if len(elements) == 0:
             raise ValueError(f"No element found.")
@@ -249,6 +252,7 @@ driver.set_window_size({width}, {height} + height_difference)
     def click(self, xpath: str):
         elem = self.resolve_xpath(xpath)
         elem.click()
+        self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
         elem = self.resolve_xpath(xpath)
@@ -257,6 +261,7 @@ driver.set_window_size({width}, {height} + height_difference)
         elem.send_keys(value)
         if enter:
             elem.send_keys(Keys.ENTER)
+        self.driver.switch_to.default_content()
 
     def perform_wait(self, duration: float):
         import time
