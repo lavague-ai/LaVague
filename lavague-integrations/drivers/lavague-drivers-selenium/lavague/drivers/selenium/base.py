@@ -143,10 +143,13 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            element = self.driver.find_element(By.XPATH, xpath)
-            return element.is_displayed() and element.is_enabled()
+            element = self.resolve_xpath(xpath)
+            is_visible = element.is_displayed() and element.is_enabled()
+            return is_visible
         except:
             return False
+        finally:
+            self.driver.switch_to.default_content()
 
     def get_highlighted_element(self, generated_code: str):
         elements = []
@@ -195,6 +198,17 @@ driver.set_window_size({width}, {height} + height_difference)
             }
             outputs.append(output)
         return outputs
+
+    def resolve_xpath(self, xpath: str) -> WebElement:
+        before, sep, after = xpath.partition("iframe")
+        if len(before) == 0:
+            return None
+        if len(sep) == 0:
+            return self.driver.find_element(By.XPATH, before)
+        iframe = self.driver.find_element(By.XPATH, before + sep)
+        self.driver.switch_to.frame(iframe)
+        element = self.resolve_xpath(after)
+        return element
 
     def exec_code(
         self,
@@ -246,11 +260,11 @@ driver.set_window_size({width}, {height} + height_difference)
         self.driver.set_window_size(width, targeted_height + height_difference)
 
     def click(self, xpath: str):
-        elem = self.driver.find_element(By.XPATH, xpath)
+        elem = self.resolve_xpath(xpath)
         elem.click()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.driver.find_element(By.XPATH, xpath)
+        elem = self.resolve_xpath(xpath)
         elem.clear()
         elem.click()
         elem.send_keys(value)

@@ -127,6 +127,17 @@ class PlaywrightDriver(BaseDriver):
     def destroy(self) -> None:
         self.page.close()
 
+    def resolve_xpath(self, xpath) -> Locator:
+        before, sep, after = xpath.partition("iframe")
+        if len(before) == 0:
+            return None
+        if len(sep) == 0:
+            return self.page.locator(f"xpath={xpath}")
+        iframe = self.page.frame_locator(f"xpath={before + sep}")
+        self.page = iframe
+        element = self.resolve_xpath(after)
+        return element
+
     def check_visibility(self, xpath: str) -> bool:
         try:
             locator = self.page.locator(f"xpath={xpath}")
