@@ -21,7 +21,7 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.21"
+lavague-core = "^0.2.20"
 selenium = "^4.18.1"
 
 [build-system]
