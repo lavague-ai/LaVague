@@ -199,7 +199,7 @@ class BaseDriver(ABC):
             "screenshots_path": str(current_screenshot_folder),
             "url": url,
             "date": datetime.now().isoformat(),
-            "tabs": self.get_tabs(),
+            "tab_info": self.get_tabs(),
         }
 
         return obs
