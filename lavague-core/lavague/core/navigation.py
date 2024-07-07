@@ -577,6 +577,13 @@ class NavigationControl(BaseEngine):
         elif "MAXIMIZE_WINDOW" in instruction:
             self.driver.maximize_window()
             code = inspect.getsource(self.driver.maximize_window)
+        elif "SWITCH_TAB" in instruction:
+            tab_id = int(instruction.split(" ")[1])
+            try:
+                self.driver.switch_tab(tab_id=tab_id)
+            except Exception as e:
+                raise ValueError(f"Error while switching tab: {e}")
+            code = inspect.getsource(self.driver.switch_tab)
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         success = True

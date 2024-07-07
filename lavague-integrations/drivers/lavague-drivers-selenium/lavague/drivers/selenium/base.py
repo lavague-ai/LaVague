@@ -264,6 +264,47 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
+    
+    def get_tabs(self):
+        driver = self.driver
+        window_handles = driver.window_handles
+    
+        # Store the current window handle (focused tab)
+        current_handle = driver.current_window_handle
+        
+        tab_info = []
+        
+        tab_id = 0
+        
+        for handle in window_handles:
+            # Switch to each tab
+            driver.switch_to.window(handle)
+            
+            # Get the title of the current tab
+            title = driver.title
+            
+            # Check if this is the focused tab
+            if handle == current_handle:
+                tab_info.append(f"{tab_id} - [CURRENT] {title}")
+            else:
+                tab_info.append(f"{tab_id} - {title}")
+                
+            tab_id += 1
+        
+        # Switch back to the original tab
+        driver.switch_to.window(current_handle)
+        
+        tab_info = "\n".join(tab_info)
+        tab_info = "Tabs opened:\n" + tab_info
+        
+        return tab_info
+    
+    def switch_tab(self, tab_id: int):
+        driver = self.driver
+        window_handles = driver.window_handles
+        
+        # Switch to the tab with the given id
+        driver.switch_to.window(window_handles[tab_id])
 
 
 SELENIUM_PROMPT_TEMPLATE = """
