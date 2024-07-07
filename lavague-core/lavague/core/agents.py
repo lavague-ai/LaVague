@@ -81,8 +81,8 @@ class WebAgent:
             output=None,
         )
 
-        self.mm_llm_token_counter = token_counter.get("llm_token_counter", None)
-        self.embedding_token_counter = token_counter.get("embedding_token_counter", None)
+        self.mm_llm_token_counter = token_counter.get("llm_token_counter", None) if token_counter else None
+        self.embedding_token_counter = token_counter.get("embedding_token_counter", None) if token_counter else None
 
     def get(self, url):
         self.driver.get(url)
