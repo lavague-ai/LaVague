@@ -2,7 +2,6 @@ from typing import Optional
 from llama_index.llms.openai import OpenAI
 from llama_index.llms.azure_openai import AzureOpenAI
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
-from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal

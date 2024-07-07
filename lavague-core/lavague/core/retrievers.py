@@ -2,28 +2,20 @@ from __future__ import annotations
 from typing import List
 from abc import ABC, abstractmethod
 from bs4 import BeautifulSoup
-from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import Document
-from llama_index.core import VectorStoreIndex
 from llama_index.core import QueryBundle
 from llama_index.core.schema import NodeWithScore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
 from lavague.core.base_driver import BaseDriver
 from lavague.core.utilities.format_utils import clean_html
-from lavague.core.context import get_default_context
 import re
 
 
 class BaseHtmlRetriever(ABC):
-    def __init__(
-        self, driver: BaseDriver, embedding: BaseEmbedding = None, top_k: int = 3
-    ):
-        if embedding is None:
-            embedding = get_default_context().embedding
+    def __init__(self, driver: BaseDriver, top_k: int = 3):
         self.driver = driver
-        self.embedding = embedding
         self.top_k = top_k
 
     @abstractmethod
@@ -47,10 +39,8 @@ class BM25HtmlRetriever(BaseHtmlRetriever):
             )
         )
         nodes = splitter.get_nodes_from_documents(documents)
-
-        index = VectorStoreIndex(nodes, embed_model=self.embedding)
         retriever = BM25Retriever.from_defaults(
-            index=index, similarity_top_k=self.top_k
+            nodes=nodes, similarity_top_k=self.top_k
         )
         return retriever.retrieve(query)
 
@@ -59,10 +49,9 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
     def __init__(
         self,
         driver: BaseDriver,
-        embedding: BaseEmbedding = None,
         top_k: int = 5,
     ):
-        super().__init__(driver, embedding, top_k)
+        super().__init__(driver, top_k)
 
     def _generate_xpath(self, element, path=""):  # used to generate dict nodes
         """Recursive function to generate the xpath of an element"""
@@ -121,9 +110,8 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         html = self._add_xpath_attributes(self.driver.get_html())
         nodes = self._get_interactable_nodes(html)
-        index = VectorStoreIndex(nodes, embed_model=self.embedding)
         retriever = BM25Retriever.from_defaults(
-            index=index, similarity_top_k=self.top_k
+            nodes=nodes, similarity_top_k=self.top_k
         )
         results = retriever.retrieve(query)
         return results

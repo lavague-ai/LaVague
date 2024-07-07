@@ -136,9 +136,11 @@ def extract_and_eval(string):
             result = ast.literal_eval(list_string)
             return result
         except (SyntaxError, ValueError):
-            return "Error: The extracted string is not a valid Python literal."
+            raise ValueError(
+                f"The extracted string is not a valid Python literal: {list_string}"
+            )
     else:
-        return "Error: No list found in the string."
+        raise ValueError(f"No list can be extracted from: {match}")
 
 
 def clean_html(
