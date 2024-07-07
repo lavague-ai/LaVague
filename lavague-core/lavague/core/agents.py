@@ -41,6 +41,7 @@ class WebAgent:
         self,
         world_model: WorldModel,
         action_engine: ActionEngine,
+        token_counter: dict,
         n_steps: int = 10,
         clean_screenshot_folder: bool = True,
         logger: AgentLogger = None,
@@ -79,6 +80,9 @@ class WebAgent:
             success=False,
             output=None,
         )
+
+        self.mm_llm_token_counter = token_counter.get("llm_token_counter", None)
+        self.embedding_token_counter = token_counter.get("embedding_token_counter", None)
 
     def get(self, url):
         self.driver.get(url)
@@ -310,6 +314,7 @@ class WebAgent:
                     clear_animation()
                     logging_print.info("Objective reached. Stopping...")
                     self.logger.add_log(obs)
+                    self.add_token_count_log()
                     self.logger.end_step()
                     break
 
@@ -327,6 +332,7 @@ class WebAgent:
                 )
 
                 self.logger.add_log(obs)
+                self.add_token_count_log()
                 self.logger.end_step()
 
                 obs = self.driver.get_obs()
@@ -344,6 +350,32 @@ class WebAgent:
                 local_db_logger = LocalDBLogger()
                 local_db_logger.insert_logs(self)
         return self.result
+
+    def add_token_count_log(self) -> None:
+        if self.embedding_token_counter is not None and self.mm_llm_token_counter is not None:
+            embedding_token_count_info_per_step = {
+                "embedding_tokens": self.embedding_token_counter.total_embedding_token_count
+            }
+            llm_token_count_info_per_step = {
+                "llm_prompt_tokens": self.mm_llm_token_counter.prompt_llm_token_count,
+                "llm_completion_tokens": self.mm_llm_token_counter.completion_llm_token_count,
+                "total_llm_tokens": self.mm_llm_token_counter.total_llm_token_count,
+            }
+            self.logger.add_log(embedding_token_count_info_per_step)
+            self.logger.add_log(llm_token_count_info_per_step)
+            self.embedding_token_counter.reset_counts()
+            self.mm_llm_token_counter.reset_counts()
+        else:
+            embedding_token_count_info_per_step = {
+                "embedding_tokens": 0
+            }
+            llm_token_count_info_per_step = {
+                "llm_prompt_tokens": 0,
+                "llm_completion_tokens": 0,
+                "total_llm_tokens": 0
+            }
+            self.logger.add_log(embedding_token_count_info_per_step)
+            self.logger.add_log(llm_token_count_info_per_step)
 
     def display_previous_nodes(self, steps: int) -> None:
         """prints out all nodes per each sub-instruction for given steps"""
