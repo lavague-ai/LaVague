@@ -105,7 +105,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                 if xpath in possible_interactions:
                     compatibles.append(node)
                     break
-        return compatibles
+        return compatibles if len(compatibles) > 0 else nodes
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         html = self._add_xpath_attributes(self.driver.get_html())
