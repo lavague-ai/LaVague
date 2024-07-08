@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import shutil
 from typing import Any, Callable, Optional, Mapping
 from abc import ABC, abstractmethod
 from lavague.core.utilities.format_utils import (
@@ -185,7 +184,15 @@ class BaseDriver(ABC):
             # If the last operation was not to scan the whole page, we clear the screenshot folder
             try:
                 if os.path.isdir(current_screenshot_folder):
-                    shutil.rmtree(current_screenshot_folder)
+                    for filename in os.listdir(current_screenshot_folder):
+                        file_path = os.path.join(current_screenshot_folder, filename)
+                        try:
+                            # Check if it's a file and then delete it
+                            if os.path.isfile(file_path) or os.path.islink(file_path):
+                                os.remove(file_path)
+                        except Exception as e:
+                            print(f'Failed to delete {file_path}. Reason: {e}')
+
             except Exception as e:
                 raise Exception(f"Error while clearing screenshot folder: {e}")
         else:
