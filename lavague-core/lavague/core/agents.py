@@ -41,7 +41,7 @@ class WebAgent:
         self,
         world_model: WorldModel,
         action_engine: ActionEngine,
-        token_counter: dict,
+        token_counter: Optional[dict] = None,
         n_steps: int = 10,
         clean_screenshot_folder: bool = True,
         logger: AgentLogger = None,
