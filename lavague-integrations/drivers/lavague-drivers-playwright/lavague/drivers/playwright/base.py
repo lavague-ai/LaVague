@@ -2,14 +2,15 @@ from io import BytesIO
 import json
 import os
 from PIL import Image
-from typing import Callable, Optional, Any, Mapping
-from lavague.core.utilities.format_utils import (
-    extract_code_from_funct,
-    keep_assignments,
-    return_assigned_variables,
-)
+from typing import Callable, Optional, Any, Mapping, Iterable, Dict, List
+from lavague.core.utilities.format_utils import extract_code_from_funct
 from playwright.sync_api import Page, Locator
-from lavague.core.base_driver import BaseDriver
+from lavague.core.base_driver import (
+    BaseDriver,
+    JS_GET_INTERACTIVES,
+    PossibleInteractionsByXpath,
+    InteractionType,
+)
 
 
 class PlaywrightDriver(BaseDriver):
@@ -29,13 +30,15 @@ class PlaywrightDriver(BaseDriver):
         )
         self.headless = headless
         self.user_data_dir = user_data_dir
-        self.width = 1080
-        self.height = 1080
+        self.width = width
+        self.height = height
         super().__init__(url, get_sync_playwright_page)
 
     # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
     # these imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Page:
+        from lavague.core.base_driver import JS_SETUP_GET_EVENTS
+
         try:
             from playwright.sync_api import sync_playwright
         except (ImportError, ModuleNotFoundError) as error:
@@ -45,13 +48,19 @@ class PlaywrightDriver(BaseDriver):
         p = sync_playwright().__enter__()
         user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
         if self.user_data_dir is None:
-            browser = p.chromium.launch(headless=self.headless)
+            browser = p.chromium.launch(
+                headless=self.headless,
+                args=["--disable-web-security", "--disable-site-isolation-trials"],
+            )
         else:
             browser = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
+                args=["--disable-web-security", "--disable-site-isolation-trials"],
             )
+
         context = browser.new_context(user_agent=user_agent)
+        context.add_init_script(JS_SETUP_GET_EVENTS)
         page = context.new_page()
         self.page = page
         self.resize_driver(self.width, self.height)
@@ -127,26 +136,27 @@ class PlaywrightDriver(BaseDriver):
     def destroy(self) -> None:
         self.page.close()
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            locator = self.page.locator(f"xpath={xpath}")
-            return locator.is_visible() and locator.is_enabled()
-        except:
-            return False
+    def resolve_xpath(self, xpath) -> Locator:
+        return self.page.locator(f"xpath={xpath}")
 
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
         data = json.loads(generated_code)
+        if not isinstance(data, Iterable):
+            data = [data]
         for item in data:
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
-                elem = self.page.locator(f"xpath={xpath}").first
-                elements.append(elem)
+                try:
+                    elem = self.page.locator(f"xpath={xpath}")
+                    elements.append(elem)
+                except:
+                    pass
 
         if len(elements) == 0:
-            raise ValueError(f"No element found.")
+            raise ValueError("No element found.")
 
         outputs = []
         for element in elements:
@@ -218,11 +228,11 @@ class PlaywrightDriver(BaseDriver):
         return self.page.evaluate(script, args)
 
     def click(self, xpath: str):
-        elem = self.page.locator(f"xpath={xpath}").first
+        elem = self.resolve_xpath(xpath).first
         elem.click()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.page.locator(f"xpath={xpath}").first
+        elem = self.resolve_xpath(xpath).first
         elem.clear()
         elem.click()
         elem.fill(value)
@@ -238,10 +248,17 @@ class PlaywrightDriver(BaseDriver):
         return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
 
     def scroll_up(self):
-        code = self.execute_script("window.scrollBy(0, -window.innerHeight);")
+        self.execute_script("window.scrollBy(0, -window.innerHeight);")
 
     def scroll_down(self):
-        code = self.execute_script("window.scrollBy(0, window.innerHeight);")
+        self.execute_script("window.scrollBy(0, window.innerHeight);")
+
+    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = self.execute_script(JS_GET_INTERACTIVES)
+        res = dict()
+        for k, v in exe.items():
+            res[k] = set(InteractionType[i] for i in v)
+        return res
 
     def get_capability(self) -> str:
         return """

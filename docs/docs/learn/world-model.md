@@ -23,6 +23,7 @@ world_model = WorldModel()
 ```
 
 The World Model receives multiple inputs to make informed decisions:
+
 - `objective`: The user's objective
 - `current_state`: Internal and external state that includes some internal memory from agent outputs and user inputs
 - `past`: previous generated instructions

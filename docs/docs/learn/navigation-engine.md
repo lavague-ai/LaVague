@@ -16,7 +16,7 @@ from lavague.drivers.selenium import SeleniumDriver
 from lavague.core.navigation import NavigationEngine
 
 
-selenium_driver = SeleniumDriver(headless=True, url="https://huggingface.co/")
+selenium_driver = SeleniumDriver(headless=True, url="https://huggingface.co/docs")
 nav_engine = NavigationEngine(selenium_driver)
 ```
 
@@ -65,6 +65,7 @@ The LLM was queried with our default Navigation Engine prompt template which you
 ![navigation engine prompt](../../assets/nav-engine-prompt-template.png)
 
 We see that the prompt is made up of three parts:
+
 - The `driver capability` or driver prompt template
 - The `context string`, or retrieved nodes
 - The `query` itself - this will be the original instruction received by the Navigation Engine after passing through the `rephrase_query` method which standardizes and optimizes instructions for the best AI Performance
