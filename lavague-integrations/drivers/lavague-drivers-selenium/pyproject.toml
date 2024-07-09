@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-drivers-selenium"
-version = "0.2.7"
+version = "0.2.8"
 description = "Selenium integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -21,7 +21,7 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.20"
+lavague-core = "^0.2.21"
 selenium = "^4.18.1"
 
 [build-system]
