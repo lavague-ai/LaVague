@@ -200,14 +200,23 @@ driver.set_window_size({width}, {height} + height_difference)
             outputs.append(output)
         return outputs
 
+    def switch_frame(self, xpath):
+        iframe = self.driver.find_element(By.XPATH, xpath)
+        self.driver.switch_to.frame(iframe)
+
+    def switch_default_frame(self) -> None:
+        self.driver.switch_to.default_content()
+
+    def switch_parent_frame(self) -> None:
+        self.driver.switch_to.parent_frame()
+
     def resolve_xpath(self, xpath: str) -> WebElement:
         before, sep, after = xpath.partition("iframe")
         if len(before) == 0:
             return None
         if len(sep) == 0:
             return self.driver.find_element(By.XPATH, before)
-        iframe = self.driver.find_element(By.XPATH, before + sep)
-        self.driver.switch_to.frame(iframe)
+        self.switch_frame(before + sep)
         element = self.resolve_xpath(after)
         return element
 

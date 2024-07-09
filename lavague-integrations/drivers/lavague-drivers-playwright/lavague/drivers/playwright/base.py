@@ -136,18 +136,8 @@ class PlaywrightDriver(BaseDriver):
     def destroy(self) -> None:
         self.page.close()
 
-    def _resolve_xpath_impl(self, frame, xpath) -> Locator:
-        before, sep, after = xpath.partition("iframe")
-        if len(before) == 0:
-            return None
-        if len(sep) == 0:
-            return self.page.locator(f"xpath={xpath}")
-        frame = frame.frame_locator(f"xpath={before + sep}")
-        element = self._resolve_xpath_impl(frame, after)
-        return element
-
     def resolve_xpath(self, xpath) -> Locator:
-        return self._resolve_xpath_impl(self.page, xpath)
+        return self.page.locator(f"xpath={xpath}")
 
     def get_highlighted_element(self, generated_code: str):
         elements = []

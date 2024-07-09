@@ -100,6 +100,24 @@ class BaseDriver(ABC):
         """
         pass
 
+    def switch_frame(self, xpath) -> None:
+        """
+        switch to the frame pointed at by the xpath
+        """
+        raise NotImplemented
+
+    def switch_default_frame(self) -> None:
+        """
+        Switch back to the default frame
+        """
+        raise NotImplemented
+
+    def switch_parent_frame(self) -> None:
+        """
+        Switch back to the parent frame
+        """
+        raise NotImplemented
+
     def resolve_xpath(self, xpath):
         """
         Return the element for the corresponding xpath, the underlying driver may switch iframe if necessary

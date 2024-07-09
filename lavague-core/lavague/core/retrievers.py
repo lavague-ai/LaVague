@@ -78,14 +78,14 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         for iframe_tag in soup.find_all("iframe"):
             frame_xpath = self._generate_xpath(iframe_tag)
             try:
-                self.driver.resolve_xpath(frame_xpath)
-            except Exception as e:
+                self.driver.switch_frame(frame_xpath)
+            except Exception:
                 continue
             frame_soup_str = self._add_xpath_attributes(
                 self.driver.get_html(), xpath_prefix + frame_xpath
             )
             iframe_tag.replace_with(frame_soup_str)
-            self.driver.driver.switch_to.parent_frame()
+            self.driver.switch_parent_frame()
         return str(soup)
 
     def _get_interactable_nodes(self, html):
