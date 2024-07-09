@@ -388,7 +388,7 @@ class WorldModel(ABC, Loggable):
 
         previous_instructions = past["previous_instructions"]
         last_engine = past["last_engine"]
-        
+
         tab_info = observations["tab_info"]
 
         try:
