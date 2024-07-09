@@ -29,7 +29,7 @@ class BaseDriver(ABC):
             init_function if init_function is not None else self.default_init_code
         )
         self.driver = self.init_function()
-        
+
         # Flag to check if the page has been previously scanned to avoid erasing screenshots from previous scan
         self.previously_scanned = False
 
@@ -164,7 +164,7 @@ class BaseDriver(ABC):
 
             if self.is_bottom_of_page():
                 break
-            
+
         self.previously_scanned = True
         return screenshot_paths
 
@@ -214,7 +214,7 @@ class BaseDriver(ABC):
     def get_obs(self) -> dict:
         """Get the current observation of the driver"""
         current_screenshot_folder = self.get_current_screenshot_folder()
-        
+
         if not self.previously_scanned:
             # If the last operation was not to scan the whole page, we clear the screenshot folder
             try:
@@ -226,17 +226,17 @@ class BaseDriver(ABC):
                             if os.path.isfile(file_path) or os.path.islink(file_path):
                                 os.remove(file_path)
                         except Exception as e:
-                            print(f'Failed to delete {file_path}. Reason: {e}')
+                            print(f"Failed to delete {file_path}. Reason: {e}")
 
             except Exception as e:
                 raise Exception(f"Error while clearing screenshot folder: {e}")
         else:
             # If the last operation was to scan the whole page, we reset the flag
             self.previously_scanned = False
-        
+
         # We take a screenshot and computes its hash to see if it already exists
         self.save_screenshot(current_screenshot_folder)
-        
+
         url = self.get_url()
         html = self.get_html()
         obs = {
