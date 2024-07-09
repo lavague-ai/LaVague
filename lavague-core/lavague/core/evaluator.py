@@ -25,6 +25,7 @@ from lavague.core.utilities.format_utils import (
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
+from lavague.core.base_driver import JS_SETUP_GET_EVENTS
 
 
 def init_driver() -> WebDriver:
@@ -39,13 +40,21 @@ def init_driver() -> WebDriver:
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--proxy-server=127.0.0.1:9999")
+    # allow access to cross origin iframes
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--disable-site-isolation-trials")
 
-    return webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.execute_cdp_cmd(
+        "Page.addScriptToEvaluateOnNewDocument",
+        {"source": JS_SETUP_GET_EVENTS},
+    )
+
+    return driver
 
 
 class SeleniumDriverForEval(SeleniumDriver):
-    def check_visibility(self, xpath: str) -> bool:
-        return True
+    pass
 
 
 class Evaluator(ABC):

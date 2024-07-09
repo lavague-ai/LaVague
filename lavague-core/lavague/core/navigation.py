@@ -1,7 +1,7 @@
 from io import BytesIO
 import logging
 import time
-from typing import Any, List, Tuple, Optional
+from typing import Any, List, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
@@ -13,13 +13,11 @@ from lavague.core.utilities.web_utils import (
     sort_files_by_creation,
 )
 from lavague.core.logger import AgentLogger
-from llama_index.core.base.embeddings.base import BaseEmbedding
 from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.base_driver import BaseDriver
-from llama_index.core import QueryBundle, PromptTemplate, get_response_synthesizer
+from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
-from llama_index.core.query_engine import RetrieverQueryEngine
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -94,15 +92,13 @@ class Rephraser:
 
 class NavigationEngine(BaseEngine):
     """
-    NavigationEngine leverages the llm model and the embedding model to output code from the prompt and the html page.
+    NavigationEngine leverages the llm model and the to output code from the prompt and the html page.
 
     Args:
         driver (`BaseDriver`):
             The Web driver used to interact with the headless browser
         llm (`BaseLLM`)
             llama-index LLM that will generate the action
-        embedding (`BaseEmbedding`)
-            llama-index Embedding model
         retriever (`BaseHtmlRetriever`)
             Specify which algorithm will be used for RAG
         prompt_template (`PromptTemplate`)
@@ -119,7 +115,6 @@ class NavigationEngine(BaseEngine):
         self,
         driver: BaseDriver,
         llm: BaseLLM = None,
-        embedding: BaseEmbedding = None,
         rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
@@ -128,19 +123,16 @@ class NavigationEngine(BaseEngine):
         n_attempts: int = 5,
         logger: AgentLogger = None,
         display: bool = False,
-        raise_on_error=False,
+        raise_on_error: bool = False,
     ):
         if llm is None:
             llm: BaseLLM = get_default_context().llm
-        if embedding is None:
-            embedding: BaseEmbedding = get_default_context().embedding
         if rephraser is None:
             rephraser = Rephraser(llm)
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver, embedding)
+            retriever = OpsmSplitRetriever(driver)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
-        self.embedding: BaseEmbedding = embedding
         self.rephraser = rephraser
         self.retriever: BaseHtmlRetriever = retriever
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
@@ -169,7 +161,6 @@ class NavigationEngine(BaseEngine):
         return cls(
             driver,
             context.llm,
-            context.embedding,
             rephraser,
             retriever,
             prompt_template,

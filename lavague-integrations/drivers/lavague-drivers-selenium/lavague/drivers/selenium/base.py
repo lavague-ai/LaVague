@@ -1,19 +1,18 @@
-from pathlib import Path
-import time
-from typing import Any, Optional, Callable, Mapping
+from typing import Any, Optional, Callable, Mapping, Dict, List, Iterable
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
-from lavague.core.base_driver import BaseDriver
+from lavague.core.base_driver import (
+    BaseDriver,
+    JS_GET_INTERACTIVES,
+    PossibleInteractionsByXpath,
+    InteractionType,
+)
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
-from lavague.core.utilities.format_utils import (
-    return_assigned_variables,
-    keep_assignments,
-    extract_code_from_funct,
-)
+from lavague.core.utilities.format_utils import extract_code_from_funct
 import json
 
 
@@ -48,6 +47,7 @@ class SeleniumDriver(BaseDriver):
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.common.action_chains import ActionChains
+        from lavague.core.base_driver import JS_SETUP_GET_EVENTS
 
         if self.options:
             chrome_options = self.options
@@ -63,9 +63,15 @@ class SeleniumDriver(BaseDriver):
             chrome_options.page_load_strategy = (
                 "normal" if self.no_load_strategy is False else "none"
             )
+        # allow access to cross origin iframes
+        chrome_options.add_argument("--disable-web-security")
+        chrome_options.add_argument("--disable-site-isolation-trials")
 
-        driver = webdriver.Chrome(options=chrome_options)
-        self.driver = driver
+        self.driver = webdriver.Chrome(options=chrome_options)
+        self.driver.execute_cdp_cmd(
+            "Page.addScriptToEvaluateOnNewDocument",
+            {"source": JS_SETUP_GET_EVENTS},
+        )
         self.resize_driver(self.width, self.height)
         return self.driver
 
@@ -141,23 +147,21 @@ driver.set_window_size({width}, {height} + height_difference)
     def maximize_window(self) -> None:
         self.driver.maximize_window()
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            element = self.driver.find_element(By.XPATH, xpath)
-            return element.is_displayed() and element.is_enabled()
-        except:
-            return False
-
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
         data = json.loads(generated_code)
+        if not isinstance(data, Iterable):
+            data = [data]
         for item in data:
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
+            try:
                 elem = self.driver.find_element(By.XPATH, xpath)
                 elements.append(elem)
+            except:
+                pass
 
         if len(elements) == 0:
             raise ValueError(f"No element found.")
@@ -195,6 +199,26 @@ driver.set_window_size({width}, {height} + height_difference)
             }
             outputs.append(output)
         return outputs
+
+    def switch_frame(self, xpath):
+        iframe = self.driver.find_element(By.XPATH, xpath)
+        self.driver.switch_to.frame(iframe)
+
+    def switch_default_frame(self) -> None:
+        self.driver.switch_to.default_content()
+
+    def switch_parent_frame(self) -> None:
+        self.driver.switch_to.parent_frame()
+
+    def resolve_xpath(self, xpath: str) -> WebElement:
+        before, sep, after = xpath.partition("iframe")
+        if len(before) == 0:
+            return None
+        if len(sep) == 0:
+            return self.driver.find_element(By.XPATH, before)
+        self.switch_frame(before + sep)
+        element = self.resolve_xpath(after)
+        return element
 
     def exec_code(
         self,
@@ -234,28 +258,19 @@ driver.set_window_size({width}, {height} + height_difference)
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
 
-    def resize_driver(self, width, targeted_height):
-        """Resize the Selenium driver viewport to a targeted height and width.
-        This is due to Selenium only being able to set window size and not viewport size.
-        """
-        self.driver.set_window_size(width, targeted_height)
-
-        viewport_height = self.driver.execute_script("return window.innerHeight;")
-
-        height_difference = targeted_height - viewport_height
-        self.driver.set_window_size(width, targeted_height + height_difference)
-
     def click(self, xpath: str):
-        elem = self.driver.find_element(By.XPATH, xpath)
+        elem = self.resolve_xpath(xpath)
         elem.click()
+        self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.driver.find_element(By.XPATH, xpath)
+        elem = self.resolve_xpath(xpath)
         elem.clear()
         elem.click()
         elem.send_keys(value)
         if enter:
             elem.send_keys(Keys.ENTER)
+        self.driver.switch_to.default_content()
 
     def perform_wait(self, duration: float):
         import time
@@ -264,6 +279,13 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
+
+    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
+        res = dict()
+        for k, v in exe.items():
+            res[k] = set(InteractionType[i] for i in v)
+        return res
 
 
 SELENIUM_PROMPT_TEMPLATE = """

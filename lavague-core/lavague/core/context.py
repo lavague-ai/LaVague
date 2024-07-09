@@ -21,7 +21,7 @@ class Context:
         mm_llm (`MultiModalLLM`):
             The multimodal llm that will be used by the world model
         embedding: (`BaseEmbedding`)
-            The embedder used by the retriever
+            The embedder used by the python engine
         """
         self.llm = llm
         self.mm_llm = mm_llm

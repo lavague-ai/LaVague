@@ -343,6 +343,7 @@ class WebAgent:
             if log_to_db:
                 local_db_logger = LocalDBLogger()
                 local_db_logger.insert_logs(self)
+            clear_animation()
         return self.result
 
     def display_previous_nodes(self, steps: int) -> None:
