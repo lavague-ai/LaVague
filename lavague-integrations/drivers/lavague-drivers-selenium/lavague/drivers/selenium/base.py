@@ -157,11 +157,11 @@ driver.set_window_size({width}, {height} + height_difference)
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
-            try:
-                elem = self.driver.find_element(By.XPATH, xpath)
-                elements.append(elem)
-            except:
-                pass
+                try:
+                    elem = self.driver.find_element(By.XPATH, xpath)
+                    elements.append(elem)
+                except:
+                    pass
 
         if len(elements) == 0:
             raise ValueError(f"No element found.")

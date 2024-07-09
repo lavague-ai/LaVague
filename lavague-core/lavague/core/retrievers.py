@@ -8,7 +8,7 @@ from llama_index.core import QueryBundle
 from llama_index.core.schema import NodeWithScore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
-from lavague.core.base_driver import BaseDriver
+from lavague.core.base_driver import BaseDriver, PossibleInteractionsByXpath
 from lavague.core.utilities.format_utils import clean_html
 import re
 
@@ -71,10 +71,18 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                 path = f"/{element.name}{path}"
             return self._generate_xpath(element.parent, path)
 
-    def _add_xpath_attributes(self, html_content, xpath_prefix=""):
+    def _add_xpath_attributes(
+        self,
+        html_content,
+        possible_interactions: PossibleInteractionsByXpath,
+        xpath_prefix="",
+    ):
         soup = BeautifulSoup(html_content, "html.parser")
         for element in soup.find_all(True):
-            element["xpath"] = xpath_prefix + self._generate_xpath(element)
+            xpath = xpath_prefix + self._generate_xpath(element)
+            if xpath in possible_interactions:
+                # we only mark interactive elements
+                element["xpath"] = xpath
         for iframe_tag in soup.find_all("iframe"):
             frame_xpath = self._generate_xpath(iframe_tag)
             try:
@@ -82,13 +90,17 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             except Exception:
                 continue
             frame_soup_str = self._add_xpath_attributes(
-                self.driver.get_html(), xpath_prefix + frame_xpath
+                self.driver.get_html(),
+                possible_interactions,
+                xpath_prefix + frame_xpath,
             )
             iframe_tag.replace_with(frame_soup_str)
             self.driver.switch_parent_frame()
         return str(soup)
 
-    def _get_interactable_nodes(self, html):
+    def _get_interactable_nodes(
+        self, html: str, possible_interactions: PossibleInteractionsByXpath
+    ):
         documents = [Document(text=html)]
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
@@ -97,7 +109,6 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         )
         nodes = splitter.get_nodes_from_documents(documents)
         pattern = re.compile(r'xpath="([^"]+)"')
-        possible_interactions = self.driver.get_possible_interactions()
         compatibles = []
         for node in nodes:
             xpaths = re.findall(pattern, node.text)
@@ -108,8 +119,9 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         return compatibles if len(compatibles) > 0 else nodes
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        html = self._add_xpath_attributes(self.driver.get_html())
-        nodes = self._get_interactable_nodes(html)
+        possible_interactions = self.driver.get_possible_interactions()
+        html = self._add_xpath_attributes(self.driver.get_html(), possible_interactions)
+        nodes = self._get_interactable_nodes(html, possible_interactions)
         retriever = BM25Retriever.from_defaults(
             nodes=nodes, similarity_top_k=self.top_k
         )
