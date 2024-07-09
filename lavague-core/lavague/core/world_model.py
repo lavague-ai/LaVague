@@ -216,7 +216,7 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state:
 external_observations:
-vision: '[SCREENSHOT]'
+  vision: '[SCREENSHOT]'
 internal_state:
   agent_outputs: []
   user_inputs: []
@@ -228,6 +228,25 @@ Thoughts:
 - The next step should involve selecting 'Paris (ORY)' from the dropdown to proceed with the booking.
 Next engine: Navigation Engine
 Instruction: Click on 'Paris (ORY)' in the dropdown list.
+-----
+Objective: Book a hotel room in Tokyo
+Previous instructions:
+- Click on 'Destination' input field and type 'Tokyo'
+Last engine: Navigation Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Thoughts:
+
+- The current screenshot shows a dropdown list with multiple options for 'Tokyo' after typing 'Tokyo' in the 'Destination' input field.
+- Typing alone is not sufficient as the dropdown requires selecting one of the options. Not selecting an option is likely to not proceed with the booking.
+- The objective requires to choose a correct 'Tokyo' option (e.g., Tokyo (Shinjuku)) from the dropdown list.
+- The next step should involve selecting 'Tokyo (Shinjuku)' from the dropdown to proceed with the booking.
+Next engine: Navigation Engine
+Instruction: Click on 'Tokyo (Shinjuku)' in the dropdown list.
 """
 
 
