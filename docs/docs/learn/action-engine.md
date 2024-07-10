@@ -52,6 +52,7 @@ And in all cases then:
 - Logs information about the action process with the Engine's `logger`
 
 The `dispatch_instruction` method returns an `ActionResult` object, which contains:
+
     - instruction: the instruction an action was generated for
     - code: the generated code for the action
     - success: whether the code was executed successfully or not

@@ -6,6 +6,8 @@ screenshot*
 node_modules
 extension_chrome/dist
 extension_chrome/node_modules
+.vscode
+remote-profile
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

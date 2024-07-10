@@ -7,6 +7,7 @@ from llama_index.core import SimpleDirectoryReader
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 from functools import lru_cache
+from PIL import Image
 import time
 import yaml
 
@@ -236,19 +237,37 @@ Previous instructions:
 Last engine: Navigation Engine
 Current state:
 external_observations:
-vision: '[SCREENSHOT]'
+  vision: '[SCREENSHOT]'
 internal_state:
   agent_outputs: []
   user_inputs: []
 Thoughts:
+
 - The current screenshot shows a dropdown list with multiple options for 'Paris' after typing 'Paris' in the 'From' input field.
 - Typing alone is not sufficient as the dropdown requires selecting one of the options.
 - The objective is to select the correct 'Paris' option (e.g., Paris (ORY)) from the dropdown list.
 - The next step should involve selecting 'Paris (ORY)' from the dropdown to proceed with the booking.
 Next engine: Navigation Engine
 Instruction: Click on 'Paris (ORY)' in the dropdown list.
+-----
+Objective: Book a hotel room in Tokyo
+Previous instructions:
+- Click on 'Destination' input field and type 'Tokyo'
+Last engine: Navigation Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Thoughts:
+- The current screenshot shows a dropdown list with multiple options for 'Tokyo' after typing 'Tokyo' in the 'Destination' input field.
+- Typing alone is not sufficient as the dropdown requires selecting one of the options. Not selecting an option is likely to not proceed with the booking.
+- The objective requires to choose a correct 'Tokyo' option (e.g., Tokyo (Shinjuku)) from the dropdown list.
+- The next step should involve selecting 'Tokyo (Shinjuku)' from the dropdown to proceed with the booking.
+Next engine: Navigation Engine
+Instruction: Click on 'Tokyo (Shinjuku)' in the dropdown list.
 """
-
 
 WORLD_MODEL_PROMPT_TEMPLATE = PromptTemplate(
     """
@@ -397,6 +416,10 @@ class WorldModel(ABC, Loggable):
                 "world_model_prompt": prompt,
                 "world_model_output": mm_llm_output,
                 "world_model_inference_time": world_model_inference_time,
+                "screenshots": [
+                    Image.open(image_document.image_path)
+                    for image_document in image_documents
+                ],
             }
             logger.add_log(log)
 

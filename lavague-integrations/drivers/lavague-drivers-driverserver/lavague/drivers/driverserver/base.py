@@ -61,13 +61,6 @@ class DriverServer(BaseDriver):
     def switch_tab(self, tab_id: str) -> None:
         return super().switch_tab(tab_id)
 
-    def check_visibility(self, xpath: str) -> bool:
-        return self.send_command_and_get_response_sync("is_visible", xpath)
-        # try:
-        #     return self.driver.find_element(By.XPATH, xpath).is_displayed()
-        # except:
-        #     return False
-
     def get_highlighted_element(self, generated_code: str):
         # local_scope = {"driver": self.get_driver()}
         # assignment_code = keep_assignments(generated_code)
