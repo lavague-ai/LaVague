@@ -66,6 +66,7 @@ class SeleniumDriver(BaseDriver):
         # allow access to cross origin iframes
         chrome_options.add_argument("--disable-web-security")
         chrome_options.add_argument("--disable-site-isolation-trials")
+        chrome_options.add_argument("--disable-notifications")
 
         self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.execute_cdp_cmd(

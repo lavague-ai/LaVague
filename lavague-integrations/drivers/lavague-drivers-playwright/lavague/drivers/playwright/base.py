@@ -50,13 +50,21 @@ class PlaywrightDriver(BaseDriver):
         if self.user_data_dir is None:
             browser = p.chromium.launch(
                 headless=self.headless,
-                args=["--disable-web-security", "--disable-site-isolation-trials"],
+                args=[
+                    "--disable-web-security",
+                    "--disable-site-isolation-trials",
+                    "--disable-notifications",
+                ],
             )
         else:
             browser = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
-                args=["--disable-web-security", "--disable-site-isolation-trials"],
+                args=[
+                    "--disable-web-security",
+                    "--disable-site-isolation-trials",
+                    "--disable-notifications",
+                ],
             )
 
         context = browser.new_context(user_agent=user_agent)
