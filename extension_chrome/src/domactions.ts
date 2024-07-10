@@ -3,6 +3,90 @@ import { sleep, waitTillStable } from './tools';
 const DEFAULT_INTERVAL = 500;
 const DEFAULT_TIMEOUT = 10000; // 10 seconds
 
+function getNodeFromXPATH(xpath: string): Node | null {
+    const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    const res2 = result.singleNodeValue;
+    return res2
+}
+  
+function getCoordinatesFromXPATH(xpath: string): { x: number; y: number } | null {
+    const element = getNodeFromXPATH(xpath);
+    if (element && element instanceof HTMLElement) {
+      const rect = element.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + 8};
+    }
+    return null;
+}
+
+const JS_GET_INTERACTIVES = `
+(function() {
+    function getInteractions(e) {
+        const tag = e.tagName.toLowerCase();
+        if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
+          || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
+            return [];
+        }
+        const style = getComputedStyle(e);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            return [];
+        }
+        const events = getEventListeners(e);
+        const role = e.getAttribute('role');
+        const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
+        function hasEvent(n) {
+            return events[n]?.length || e.hasAttribute('on' + n);
+        }
+        const evts = [];
+        if (hasEvent('keydown') || hasEvent('keyup') || hasEvent('keypress') || hasEvent('keydown') || hasEvent('input') || e.isContentEditable
+          || (
+            (tag === 'input' || tag === 'textarea' || role === 'searchbox' || role === 'input')
+            ) && !clickableInputs.includes(e.getAttribute('type'))
+          ) {
+            evts.push('TYPE');
+        }
+        if (tag === 'a' || tag === 'button' || role === 'button' || role === 'checkbox' || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup')
+          || hasEvent('dblclick') || style.cursor === 'pointer' || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')) )
+          || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
+            evts.push('CLICK');
+        }
+        if (hasEvent('mouseover')) {
+            evts.push('HOVER');
+        }
+        return evts;
+    }
+
+    const results = {};
+    function traverse(node, xpath) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            const interactions = getInteractions(node);
+            if (interactions.length > 0) {
+                results[xpath] = interactions;
+            }
+        }
+        const countByTag = {};
+        for (let child = node.firstChild; child; child = child.nextSibling) {
+            const tag = child.nodeName.toLowerCase();
+            countByTag[tag] = (countByTag[tag] || 0) + 1;
+            let childXpath = xpath + '/' + tag;
+            if (countByTag[tag] > 1) {
+                childXpath += '[' + countByTag[tag] + ']';
+            }
+            if (tag === 'iframe') {
+                try {
+                    traverse(child.contentWindow.document.body, childXpath + '/html/body');
+                } catch (e) {
+                    console.error("iframe access blocked", child, e);
+                }
+            } else {
+                traverse(child, childXpath);
+            } 
+        }
+    }
+    traverse(document.body, '/html/body');
+    return results;
+})();
+`;
+
 export class DomActions {
     static delayBetweenClicks = 500;
     static delayBetweenKeystrokes = 10;
@@ -17,9 +101,10 @@ export class DomActions {
         return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
     }
 
-    public async execCode(code: string) {
+    public async execCode(code: string, returnByValue: boolean = false) {
         return await this.sendCommand('Runtime.evaluate', {
             expression: code,
+            returnByValue: returnByValue
         });
     }
 
@@ -82,30 +167,37 @@ export class DomActions {
 
     private async typeText(text: string): Promise<void> {
         for (const char of text) {
-            // handle enter
             if (char === '\n') {
-                await this.sendCommand('Input.dispatchKeyEvent', {
-                    type: 'rawKeyDown',
-                    key: 'Enter',
-                });
-                await sleep(DomActions.delayBetweenKeystrokes / 2);
-                await this.sendCommand('Input.dispatchKeyEvent', {
-                    type: 'keyUp',
-                    key: 'Enter',
-                });
+                this.enterButton()
                 continue;
             }
             await this.sendCommand('Input.dispatchKeyEvent', {
                 type: 'keyDown',
                 text: char,
             });
-            await sleep(DomActions.delayBetweenKeystrokes / 2);
+            await sleep(DomActions.delayBetweenKeystrokes);
             await this.sendCommand('Input.dispatchKeyEvent', {
                 type: 'keyUp',
                 text: char,
             });
-            await sleep(DomActions.delayBetweenKeystrokes / 2);
+            await sleep(DomActions.delayBetweenKeystrokes);
         }
+    }
+    private async enterButton(): Promise<void> {
+        await this.sendCommand("Input.dispatchKeyEvent", {
+            type: 'keyDown',
+            windowsVirtualKeyCode: 13,
+            key: 'Enter',
+            code: 'Enter',
+            text: '\r',
+          });
+          await this.sendCommand('Input.dispatchKeyEvent', {
+            type: 'keyUp',
+            windowsVirtualKeyCode: 13,
+            key: 'Enter',
+            code: 'Enter',
+            text: '\r',
+          })
     }
 
     public async waitTillHTMLRendered(interval = DEFAULT_INTERVAL, timeout = DEFAULT_TIMEOUT): Promise<void> {
@@ -149,55 +241,56 @@ export class DomActions {
         await sleep(300);
     }
 
+    public async setFocus(xpath: string) {
+        const code = `
+        (function(xpath) {
+          ${getNodeFromXPATH.toString()}
+          ${getCoordinatesFromXPATH.toString()}
+          res = getNodeFromXPATH(xpath);
+          return res
+        })(${JSON.stringify(xpath)});`;
+        const ret = await this.execCode(code);
+        console.log(ret)
+
+        //Workaround so the nodeId can be retrieved. Might need some optimizations.
+        await this.sendCommand('DOM.getDocument', {depth: -1});
+        const nodeId = await this.sendCommand('DOM.requestNode', {
+            objectId: ret.result.objectId,
+        });
+        console.log(nodeId)
+        await this.sendCommand('DOM.focus', { nodeId: nodeId.nodeId })
+    }
+
+    public async pressEnter(payload: { xpath: string;}): Promise<boolean> {
+        await this.setFocus(payload.xpath)
+        await sleep(300)
+        await this.enterButton()
+        return true;
+    }
+
     public async setValueWithXPATH(payload: { xpath: string; value: string }): Promise<boolean> {
-        await this.clickwithXPath(payload.xpath);
+        await this.setFocus(payload.xpath)
         await this.selectAllText();
         await this.typeText(payload.value);
         return true;
     }
 
     public async clickwithXPath(xpath: string) {
+        // const ret_test = await this.execCode(JS_GET_INTERACTIVES, true);
+        // console.log(ret_test)
         const code = `
-      (function(xpath) {
-        function getNodeFromXPATH(xpath) {
-          var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-          return result.singleNodeValue;
-        }
-    
-        function clickElementByXPath(xpath) {
-          var element = getNodeFromXPATH(xpath);
-          if (element && element instanceof HTMLElement) {
-            if (element.tagName.toLowerCase() === 'a' && element.href) {
-              // Navigate to the href URL to ensure history update
-              console.log("Navigating to:", element.href);
-              window.location.href = element.href;
-            } else {
-              // Simulate a user-initiated click
-              var event = new MouseEvent('click', {
-                view: window,
-                bubbles: true,
-                cancelable: true,
+          (function(xpath) {
+            ${getNodeFromXPATH.toString()}
+            res = getNodeFromXPATH(xpath);
+            event = new MouseEvent('click', {
+                'view': window,
+                'bubbles': true,
+                'cancelable': true,
                 buttons: 1
-              });
-              element.dispatchEvent(event);
-              if (element.tagName.toLowerCase() === 'button' || element.tagName.toLowerCase() === 'input' && element.type === 'submit') {
-                // Special handling for button and submit inputs to ensure form submission
-                element.form.submit();
-              }
-            }
-            console.log(element.textContent);
-            console.log("clicked!");
-            return true;
-          } else {
-            console.log("failed to click!");
-            return false;
-          }
-        }
-    
-        clickElementByXPath(xpath);
-      })(${JSON.stringify(xpath)});`;
-        const ret = this.execCode(code);
-        console.log(ret);
+            });
+            res.dispatchEvent(event);
+          })(${JSON.stringify(xpath)});`;
+        const ret = await this.execCode(code);
         return true;
     }
 }

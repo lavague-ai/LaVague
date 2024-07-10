@@ -15,6 +15,13 @@ export async function setValueWithXPATH(domActions: DomActions, xpath: string, v
     });
 }
 
+export async function pressEnter(domActions: DomActions, xpath: string): Promise<boolean> {
+    console.log('pressEnter', xpath);
+    return await domActions.pressEnter({
+        xpath,
+    });
+}
+
 export async function scroll(domActions: DomActions, value: string) {
     switch (value) {
         case 'up':
@@ -62,6 +69,13 @@ function createOperateTool(
             }
             case 'setValue': {
                 const success = await setValue(domActions, action.args.xpath, action.args.value || '');
+                if (!success) {
+                    console.error('Unable to find element with xpath: ', action.args.xpath);
+                }
+                break;
+            }
+            case 'enter': {
+                const success = await pressEnter(domActions, action.args.xpath);
                 if (!success) {
                     console.error('Unable to find element with xpath: ', action.args.xpath);
                 }

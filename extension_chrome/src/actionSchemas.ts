@@ -8,6 +8,14 @@ export const clickSchema = z.object({
     }),
 });
 
+export const enterSchema = z.object({
+    name: z.literal('enter'),
+    description: z.literal('Press enter').optional(),
+    args: z.object({
+        xpath: z.string(),
+    }),
+});
+
 export const setValueSchema = z.object({
     name: z.literal('setValue'),
     description: z.literal('Focus on and set the value of an input element with the specified xpath').optional(),
@@ -60,6 +68,7 @@ export const failSchema = z.object({
 
 export const toolSchemaUnion = z.discriminatedUnion('name', [
     clickSchema,
+    enterSchema,
     setValueSchema,
     setValueAndEnterSchema,
     scrollSchema,

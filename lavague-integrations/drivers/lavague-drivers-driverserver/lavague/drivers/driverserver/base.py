@@ -55,6 +55,12 @@ class DriverServer(BaseDriver):
     def destroy(self) -> None:
         pass
 
+    def get_tabs(self) -> str:
+        return super().get_tabs()
+
+    def switch_tab(self, tab_id: str) -> None:
+        return super().switch_tab(tab_id)
+
     def check_visibility(self, xpath: str) -> bool:
         return self.send_command_and_get_response_sync("is_visible", xpath)
         # try:
@@ -206,10 +212,15 @@ Arguments:
   - value (string)
 
 Name: setValueAndEnter
-Description: Like "setValue", except then it presses ENTER. Use this tool can submit the form when there's no "submit" button.
+Description: Like "setValue", except then it presses ENTER. Use this tool can submit the form when there's no "submit" button. This method is more appropriate if a search has to be initiated.
 Arguments:
   - xpath (string)
   - value (string)
+
+Name: enter
+Description: Press the enter button. Use this tool can submit the form when there's no "submit" button and when a textbox is already filled, or filled previously with setValue.
+Arguments:
+  - xpath (string)
 
 Name: fail
 Description: Indicate that you are unable to complete the task
