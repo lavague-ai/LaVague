@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import re
-from typing import Callable, Dict, Any, Union
+from typing import Callable, Dict, Any, Union, Optional
 
 OperatorFunction = Callable[[Any, Any], bool]
 
@@ -20,7 +20,7 @@ def add_operator(name: str, fn: OperatorFunction):
 
 class TaskTest(ABC):
     @abstractmethod
-    def is_passing(self, context: Any) -> bool:
+    def get_error(self, context: Any) -> Optional[str]:
         pass
 
 
@@ -30,6 +30,7 @@ class ExpectTest(TaskTest):
     value: str
 
     def __init__(self, expect: str):
+        self.expect = expect
         operator_pattern = "|".join(re.escape(op) for op in operators)
         pattern = rf"([\s\w]+)\s*({operator_pattern})\s*(.+)"
         match = re.match(pattern, expect)
@@ -40,10 +41,14 @@ class ExpectTest(TaskTest):
         else:
             raise ValueError(f"Invalid expect string '{expect}'")
 
-    def is_passing(self, context: Any) -> bool:
+    def get_error(self, context: Any) -> Optional[str]:
         prop_value = context.get(self.prop, "")
-        op_fn = operators[self.op]
-        return op_fn(prop_value, self.value)
+        if self.op(prop_value, self.value):
+            return None
+        return f"was: {prop_value[:60]}"
+
+    def __str__(self) -> str:
+        return self.expect
 
     @classmethod
     def parse(cls, tests: Union[str, list[str]]) -> list[TaskTest]:

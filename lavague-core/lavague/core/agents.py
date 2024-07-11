@@ -324,6 +324,7 @@ class WebAgent:
         step_by_step=False,
     ) -> ActionResult:
         self.action_engine.set_display_all(display)
+
         try:
             if user_data:
                 self.st_memory.set_user_data(user_data)

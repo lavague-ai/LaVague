@@ -23,7 +23,12 @@ from .runner import TestRunner
     multiple=True,
     help="site name",
 )
-def cli(directory: str, site: List[str]) -> None:
+@click.option(
+    "--display",
+    is_flag=True,
+    help="if set browser will be displayed",
+)
+def cli(directory: str, site: List[str], display: bool) -> None:
     sites_to_test: List[Path] = []
     try:
         for item in os.listdir(directory):
@@ -35,11 +40,14 @@ def cli(directory: str, site: List[str]) -> None:
                     sites_to_test.append(config)
                 except Exception as e:
                     click.echo(f"Invalid site config '{item}': {e}")
+                    raise e
     except FileNotFoundError:
         click.echo(f"Directory '{directory}' not found.")
 
-    runner = TestRunner(sites=sites_to_test)
-    runner.run()
+    runner = TestRunner(sites=sites_to_test, headless=not display)
+    res = runner.run()
+    print(str(res))
+    exit(0 if res.is_success() else -1)
 
 
 if __name__ == "__main__":

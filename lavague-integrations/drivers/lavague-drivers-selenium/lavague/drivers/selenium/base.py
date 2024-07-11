@@ -29,6 +29,7 @@ class SeleniumDriver(BaseDriver):
         height: int = 1080,
         no_load_strategy: bool = False,
         options: Optional[Options] = None,
+        driver: Optional[WebDriver] = None,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -36,6 +37,7 @@ class SeleniumDriver(BaseDriver):
         self.height = height
         self.no_load_strategy = no_load_strategy
         self.options = options
+        self.driver = driver
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -68,7 +70,8 @@ class SeleniumDriver(BaseDriver):
         chrome_options.add_argument("--disable-site-isolation-trials")
         chrome_options.add_argument("--disable-notifications")
 
-        self.driver = webdriver.Chrome(options=chrome_options)
+        if self.driver is None:
+            self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
             {"source": JS_SETUP_GET_EVENTS},

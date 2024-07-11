@@ -5,28 +5,36 @@ from .test import ExpectTest, TaskTest
 
 
 class Task:
-    def __init__(self, url: str, prompt: str, tests: List[TaskTest]):
+    def __init__(
+        self, name: str, url: str, prompt: str, max_steps: int, tests: List[TaskTest]
+    ):
+        self.name = name
         self.url = url
         self.prompt = prompt
+        self.max_steps = max_steps
         self.tests = tests
 
     def __str__(self) -> str:
-        return f"Task(url={self.url}, prompt={self.prompt}, tests={len(self.tests)})"
+        return f"Task(name={self.name}, url={self.url}, prompt={self.prompt}, tests={len(self.tests)})"
 
 
 class TestConfig:
     setup: Setup
-    tasks: list[Task] = []
 
     def __init__(self, directory: str):
         self.directory = directory
+        self.tasks: list[Task] = []
         with open(f"{directory}/config.yml", "r") as f:
             data = yaml.safe_load(f)
-            self.setup = Setup.parse(data)
+            self.setup = Setup.parse(directory, data)
             for task_data in data["tasks"]:
+                prompt = task_data["prompt"]
+                url = task_data.get("url", self.setup.default_url)
                 task = Task(
-                    task_data.get("url", self.setup.default_url),
-                    task_data["prompt"],
+                    task_data.get("name", f"{prompt} from {url}"),
+                    url,
+                    prompt,
+                    task_data.get("max_steps", 10),
                     self._parse_test(task_data),
                 )
                 self.tasks.append(task)
