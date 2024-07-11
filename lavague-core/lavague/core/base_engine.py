@@ -13,6 +13,7 @@ class ActionResult:
     code: str
     success: bool
     output: Any
+    total_estimated_cost: float
 
 
 class BaseEngine(ABC, Loggable, Display):
