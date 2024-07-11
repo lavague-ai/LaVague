@@ -399,14 +399,28 @@ class WebAgent:
     def calculate_pricing(self):
         """calculates cost of each step and adds it to logs"""
         # returning dummy cost (0) for type safety
-        embedding_token_cost = (self.embedding_token_counter.total_embedding_token_count / 1000000) * self.pricing_data.get('text-embedding-3-large', {'text-embedding-3-large': {'input_token': 0}}).get('input_token')
-        mm_llm_token_cost_input = (self.mm_llm_token_counter.prompt_llm_token_count / 1000000) * self.pricing_data.get('gpt-4o', {'gpt-4o': {'input_token': 0}}).get('input_token')
-        mm_llm_token_cost_output = (self.mm_llm_token_counter.total_llm_token_count / 1000000) * self.pricing_data.get('gpt-4o', {'gpt-4o': {'output_token': 0}}).get('output_token')
-        
-        total_cost_per_step = embedding_token_cost + mm_llm_token_cost_input + mm_llm_token_cost_output
-        
+        embedding_token_cost = (
+            self.embedding_token_counter.total_embedding_token_count / 1000000
+        ) * self.pricing_data.get(
+            "text-embedding-3-large", {"text-embedding-3-large": {"input_token": 0}}
+        ).get("input_token")
+        mm_llm_token_cost_input = (
+            self.mm_llm_token_counter.prompt_llm_token_count / 1000000
+        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"input_token": 0}}).get(
+            "input_token"
+        )
+        mm_llm_token_cost_output = (
+            self.mm_llm_token_counter.total_llm_token_count / 1000000
+        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"output_token": 0}}).get(
+            "output_token"
+        )
+
+        total_cost_per_step = (
+            embedding_token_cost + mm_llm_token_cost_input + mm_llm_token_cost_output
+        )
+
         self.result.total_estimated_cost += total_cost_per_step
-        
+
         cost_dict = {
             "embedding_tokens_cost": embedding_token_cost,
             "llm_prompt_tokens_cost": mm_llm_token_cost_input,
