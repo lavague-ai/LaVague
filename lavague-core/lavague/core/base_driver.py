@@ -173,6 +173,9 @@ class BaseDriver(ABC):
         """Get elements that can be interacted with as a dictionary mapped by xpath"""
         pass
 
+    def check_visibility(self, xpath: str) -> bool:
+        pass
+
     @abstractmethod
     def get_highlighted_element(self, generated_code: str):
         """Return the page elements that generated code interact with"""
