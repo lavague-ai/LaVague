@@ -289,15 +289,16 @@ class BaseDriver(ABC):
 
 JS_SETUP_GET_EVENTS = """
 (function() {
-  Element.prototype._addEventListener = Element.prototype.addEventListener;
-  Element.prototype.addEventListener = function(a,b,c) {
+  const targetProto = EventTarget.prototype;
+  targetProto._addEventListener = Element.prototype.addEventListener;
+  targetProto.addEventListener = function(a,b,c) {
     this._addEventListener(a,b,c);
     if(!this.eventListenerList) this.eventListenerList = {};
     if(!this.eventListenerList[a]) this.eventListenerList[a] = [];
     this.eventListenerList[a].push(b);
   };
-  Element.prototype._removeEventListener = Element.prototype.removeEventListener;
-  Element.prototype.removeEventListener = function(a, b, c) {
+  targetProto._removeEventListener = Element.prototype.removeEventListener;
+  targetProto.removeEventListener = function(a, b, c) {
     this._removeEventListener(a, b, c);
     if(this.eventListenerList && this.eventListenerList[a]) {
       const index = this.eventListenerList[a].indexOf(b);
