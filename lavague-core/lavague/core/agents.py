@@ -402,17 +402,17 @@ class WebAgent:
         embedding_token_cost = (
             self.embedding_token_counter.total_embedding_token_count / 1000000
         ) * self.pricing_data.get(
-            "text-embedding-3-large", {"text-embedding-3-large": {"input_token": 0}}
-        ).get("input_token")
+            "text-embedding-3-large", {"text-embedding-3-large": {"input_tokens": 0}}
+        ).get("input_tokens")
         mm_llm_token_cost_input = (
             self.mm_llm_token_counter.prompt_llm_token_count / 1000000
-        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"input_token": 0}}).get(
-            "input_token"
+        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"input_tokens": 0}}).get(
+            "input_tokens"
         )
         mm_llm_token_cost_output = (
             self.mm_llm_token_counter.total_llm_token_count / 1000000
-        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"output_token": 0}}).get(
-            "output_token"
+        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"output_tokens": 0}}).get(
+            "output_tokens"
         )
 
         total_cost_per_step = (
