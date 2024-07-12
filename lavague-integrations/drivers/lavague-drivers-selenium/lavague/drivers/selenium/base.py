@@ -148,6 +148,13 @@ driver.set_window_size({width}, {height} + height_difference)
     def maximize_window(self) -> None:
         self.driver.maximize_window()
 
+    def check_visibility(self, xpath: str) -> bool:
+        try:
+            locator = self.page.locator(f"xpath={xpath}")
+            return locator.is_visible() and locator.is_enabled()
+        except:
+            return False
+
     def get_highlighted_element(self, generated_code: str):
         elements = []
 

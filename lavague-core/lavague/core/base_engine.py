@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Tuple
+from typing import Any, Optional
 from lavague.core.display import Display
 from lavague.core.logger import Loggable
 from dataclasses import dataclass
@@ -13,6 +13,7 @@ class ActionResult:
     code: str
     success: bool
     output: Any
+    total_estimated_cost: Optional[float] = 0
 
 
 class BaseEngine(ABC, Loggable, Display):
