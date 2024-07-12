@@ -410,7 +410,7 @@ class WebAgent:
             "input_tokens"
         )
         mm_llm_token_cost_output = (
-            self.mm_llm_token_counter.total_llm_token_count / 1000000
+            self.mm_llm_token_counter.completion_llm_token_count / 1000000
         ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"output_tokens": 0}}).get(
             "output_tokens"
         )
@@ -424,7 +424,7 @@ class WebAgent:
         cost_dict = {
             "embedding_tokens_cost": embedding_token_cost,
             "llm_prompt_tokens_cost": mm_llm_token_cost_input,
-            "llm_completion_tokens": mm_llm_token_cost_output,
+            "llm_completion_tokens_cost": mm_llm_token_cost_output,
             "total_cost_per_step": total_cost_per_step,
         }
         self.logger.add_log(cost_dict)
