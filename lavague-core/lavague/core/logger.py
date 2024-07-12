@@ -115,9 +115,11 @@ class LocalDBLogger(AgentLogger):
         try:
             with sqlite3.connect(self.db_name) as conn:
                 cursor = conn.cursor()
-                
+
                 # check if the table exists
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Logs'")
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='Logs'"
+                )
                 table_exists = cursor.fetchone() is not None
 
                 if not table_exists:
@@ -145,17 +147,19 @@ class LocalDBLogger(AgentLogger):
             df_logs = agent.logger.return_pandas()
             try:
                 self.create_or_alter_table(df_logs)
-                
+
                 with sqlite3.connect(self.db_name) as conn:
                     cursor = conn.cursor()
-                    
-                    columns = ', '.join(df_logs.columns)
-                    placeholders = ', '.join(['?' for _ in df_logs.columns])
-                    insert_query = f"INSERT INTO Logs ({columns}) VALUES ({placeholders})"
+
+                    columns = ", ".join(df_logs.columns)
+                    placeholders = ", ".join(["?" for _ in df_logs.columns])
+                    insert_query = (
+                        f"INSERT INTO Logs ({columns}) VALUES ({placeholders})"
+                    )
 
                     data_to_insert = self.format_df_logs_to_sqlite3_types(df_logs)
                     cursor.executemany(insert_query, data_to_insert)
-                    
+
                     conn.commit()
                     print("Log insert complete")
             except sqlite3.Error as error:
