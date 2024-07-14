@@ -1,13 +1,25 @@
+import os
 from pathlib import Path
-from typing import Any, Callable, Optional, Mapping
+from typing import Any, Callable, Optional, Mapping, Dict, Set
 from abc import ABC, abstractmethod
 from lavague.core.utilities.format_utils import (
     extract_code_from_funct,
     extract_imports_from_lines,
 )
+from enum import Enum
 import time
 from datetime import datetime
 import hashlib
+
+
+class InteractionType(Enum):
+    CLICK = "click"
+    HOVER = "hover"
+    SCROLL = "scroll"
+    TYPE = "type"
+
+
+PossibleInteractionsByXpath = Dict[str, Set[InteractionType]]
 
 
 class BaseDriver(ABC):
@@ -17,6 +29,9 @@ class BaseDriver(ABC):
             init_function if init_function is not None else self.default_init_code
         )
         self.driver = self.init_function()
+
+        # Flag to check if the page has been previously scanned to avoid erasing screenshots from previous scan
+        self.previously_scanned = False
 
         # extract import lines for later exec of generated code
         init_lines = extract_code_from_funct(self.init_function)
@@ -105,6 +120,30 @@ class BaseDriver(ABC):
         """Switch to the tab with the given id"""
         pass
 
+    def switch_frame(self, xpath) -> None:
+        """
+        switch to the frame pointed at by the xpath
+        """
+        raise NotImplemented
+
+    def switch_default_frame(self) -> None:
+        """
+        Switch back to the default frame
+        """
+        raise NotImplemented
+
+    def switch_parent_frame(self) -> None:
+        """
+        Switch back to the parent frame
+        """
+        raise NotImplemented
+
+    def resolve_xpath(self, xpath):
+        """
+        Return the element for the corresponding xpath, the underlying driver may switch iframe if necessary
+        """
+        pass
+
     def save_screenshot(self, current_screenshot_folder: Path) -> str:
         """Save the screenshot data to a file and return the path. If the screenshot already exists, return the path. If not save it to the folder."""
 
@@ -141,11 +180,16 @@ class BaseDriver(ABC):
 
             if self.is_bottom_of_page():
                 break
+
+        self.previously_scanned = True
         return screenshot_paths
 
     @abstractmethod
+    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+        """Get elements that can be interacted with as a dictionary mapped by xpath"""
+        pass
+
     def check_visibility(self, xpath: str) -> bool:
-        """Check an element visibility by its xpath"""
         pass
 
     @abstractmethod
@@ -189,6 +233,26 @@ class BaseDriver(ABC):
     def get_obs(self) -> dict:
         """Get the current observation of the driver"""
         current_screenshot_folder = self.get_current_screenshot_folder()
+
+        if not self.previously_scanned:
+            # If the last operation was not to scan the whole page, we clear the screenshot folder
+            try:
+                if os.path.isdir(current_screenshot_folder):
+                    for filename in os.listdir(current_screenshot_folder):
+                        file_path = os.path.join(current_screenshot_folder, filename)
+                        try:
+                            # Check if it's a file and then delete it
+                            if os.path.isfile(file_path) or os.path.islink(file_path):
+                                os.remove(file_path)
+                        except Exception as e:
+                            print(f"Failed to delete {file_path}. Reason: {e}")
+
+            except Exception as e:
+                raise Exception(f"Error while clearing screenshot folder: {e}")
+        else:
+            # If the last operation was to scan the whole page, we reset the flag
+            self.previously_scanned = False
+
         # We take a screenshot and computes its hash to see if it already exists
         self.save_screenshot(current_screenshot_folder)
 
@@ -237,3 +301,107 @@ class BaseDriver(ABC):
     @abstractmethod
     def get_screenshot_as_png(self) -> bytes:
         pass
+
+    @abstractmethod
+    def resolve_xpath(self, xpath: str):
+        pass
+
+
+JS_SETUP_GET_EVENTS = """
+(function() {
+  const targetProto = EventTarget.prototype;
+  targetProto._addEventListener = Element.prototype.addEventListener;
+  targetProto.addEventListener = function(a,b,c) {
+    this._addEventListener(a,b,c);
+    if(!this.eventListenerList) this.eventListenerList = {};
+    if(!this.eventListenerList[a]) this.eventListenerList[a] = [];
+    this.eventListenerList[a].push(b);
+  };
+  targetProto._removeEventListener = Element.prototype.removeEventListener;
+  targetProto.removeEventListener = function(a, b, c) {
+    this._removeEventListener(a, b, c);
+    if(this.eventListenerList && this.eventListenerList[a]) {
+      const index = this.eventListenerList[a].indexOf(b);
+      if (index > -1) {
+        this.eventListenerList[a].splice(index, 1);
+        if(!this.eventListenerList[a].length) {
+          delete this.eventListenerList[a];
+        }
+      }
+    }
+  };
+  if (!window.getEventListeners) {
+    window.getEventListeners = function(e) {
+      return (e && e.eventListenerList) || [];
+    }
+  }
+})();"""
+
+JS_GET_INTERACTIVES = """
+return (function() {
+    function getInteractions(e) {
+        const tag = e.tagName.toLowerCase();
+        if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
+          || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
+            return [];
+        }
+        const style = getComputedStyle(e);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+            return [];
+        }
+        const events = getEventListeners(e);
+        const role = e.getAttribute('role');
+        const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
+        function hasEvent(n) {
+            return events[n]?.length || e.hasAttribute('on' + n);
+        }
+        const evts = [];
+        if (hasEvent('keydown') || hasEvent('keyup') || hasEvent('keypress') || hasEvent('keydown') || hasEvent('input') || e.isContentEditable
+          || (
+            (tag === 'input' || tag === 'textarea' || role === 'searchbox' || role === 'input')
+            ) && !clickableInputs.includes(e.getAttribute('type'))
+          ) {
+            evts.push('TYPE');
+        }
+        if (tag === 'a' || tag === 'button' || role === 'button' || role === 'checkbox' || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup')
+          || hasEvent('dblclick') || style.cursor === 'pointer' || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')) )
+          || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
+            evts.push('CLICK');
+        }
+        if (hasEvent('mouseover')) {
+            evts.push('HOVER');
+        }
+        return evts;
+    }
+
+    const results = {};
+    function traverse(node, xpath) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            const interactions = getInteractions(node);
+            if (interactions.length > 0) {
+                results[xpath] = interactions;
+            }
+        }
+        const countByTag = {};
+        for (let child = node.firstChild; child; child = child.nextSibling) {
+            const tag = child.nodeName.toLowerCase();
+            countByTag[tag] = (countByTag[tag] || 0) + 1;
+            let childXpath = xpath + '/' + tag;
+            if (countByTag[tag] > 1) {
+                childXpath += '[' + countByTag[tag] + ']';
+            }
+            if (tag === 'iframe') {
+                try {
+                    traverse(child.contentWindow.document.body, childXpath + '/html/body');
+                } catch (e) {
+                    console.error("iframe access blocked", child, e);
+                }
+            } else {
+                traverse(child, childXpath);
+            } 
+        }
+    }
+    traverse(document.body, '/html/body');
+    return results;
+})();
+"""

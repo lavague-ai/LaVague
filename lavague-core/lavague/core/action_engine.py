@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict
+from typing import Dict
 from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
@@ -65,13 +65,12 @@ class ActionEngine:
         self.driver = driver
 
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver, embedding)
+            retriever = OpsmSplitRetriever(driver)
 
         if navigation_engine is None:
             navigation_engine = NavigationEngine(
                 driver=driver,
                 llm=llm,
-                embedding=embedding,
                 retriever=retriever,
                 prompt_template=prompt_template,
                 extractor=extractor,

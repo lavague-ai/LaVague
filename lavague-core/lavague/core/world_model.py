@@ -7,6 +7,7 @@ from llama_index.core import SimpleDirectoryReader
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 from functools import lru_cache
+from PIL import Image
 import time
 import yaml
 
@@ -229,8 +230,44 @@ Thoughts:
 - The objective can be easily achieved by directly reading the information from the screenshot.
 Next engine: COMPLETE
 Instruction: The next company event is on June 10, 2024, at the Downtown Convention Center, New York.
-"""
+-----
+Objective: Book a flight from Paris to New York
+Previous instructions:
+- Click on 'From' input field and type 'Paris'
+Last engine: Navigation Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Thoughts:
 
+- The current screenshot shows a dropdown list with multiple options for 'Paris' after typing 'Paris' in the 'From' input field.
+- Typing alone is not sufficient as the dropdown requires selecting one of the options.
+- The objective is to select the correct 'Paris' option (e.g., Paris (ORY)) from the dropdown list.
+- The next step should involve selecting 'Paris (ORY)' from the dropdown to proceed with the booking.
+Next engine: Navigation Engine
+Instruction: Click on 'Paris (ORY)' in the dropdown list.
+-----
+Objective: Book a hotel room in Tokyo
+Previous instructions:
+- Click on 'Destination' input field and type 'Tokyo'
+Last engine: Navigation Engine
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Thoughts:
+- The current screenshot shows a dropdown list with multiple options for 'Tokyo' after typing 'Tokyo' in the 'Destination' input field.
+- Typing alone is not sufficient as the dropdown requires selecting one of the options. Not selecting an option is likely to not proceed with the booking.
+- The objective requires to choose a correct 'Tokyo' option (e.g., Tokyo (Shinjuku)) from the dropdown list.
+- The next step should involve selecting 'Tokyo (Shinjuku)' from the dropdown to proceed with the booking.
+Next engine: Navigation Engine
+Instruction: Click on 'Tokyo (Shinjuku)' in the dropdown list.
+"""
 
 WORLD_MODEL_PROMPT_TEMPLATE = PromptTemplate(
     """
@@ -270,6 +307,7 @@ Only provide directly the desired output in the instruction in cases where there
 # Navigation guidlines
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
 - If several steps have to be taken, provide instructions in bullet points.
+- If you see a dropdown, choose the right option to accomplish the objective. Do not take other actions until the dropdown is closed.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
 - If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.
 - If relevant information seems to be on another tab, use the Navigation Controls's command 'SWITCH_TAB' followed by the tab number to switch to the desired tab, such as 'SWITCH TAB 1'.
@@ -378,6 +416,10 @@ class WorldModel(ABC, Loggable):
                 "world_model_prompt": prompt,
                 "world_model_output": mm_llm_output,
                 "world_model_inference_time": world_model_inference_time,
+                "screenshots": [
+                    Image.open(image_document.image_path)
+                    for image_document in image_documents
+                ],
             }
             logger.add_log(log)
 

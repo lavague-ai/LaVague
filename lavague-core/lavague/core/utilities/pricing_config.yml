@@ -1,0 +1,8 @@
+# pricing per 1 million tokens
+# Currency for the following models is in USD
+models:
+    gpt-4o:
+      input_tokens: 5.00
+      output_tokens: 15.00
+    text-embedding-3-large:
+      input_tokens: 0.02
