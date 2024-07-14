@@ -225,7 +225,7 @@ class LLMEvaluator(Evaluator):
         retrieved_dataset: pd.DataFrame,
         csv_out_name: str,
         max_retry: int = 1,
-        eval_mode: Literal['exec', 'json', 'yaml', 'json_old'] = 'yaml',
+        eval_mode: Literal["exec", "json", "yaml", "json_old"] = "yaml",
     ) -> pd.DataFrame:
         if os.path.isfile(csv_out_name):
             raise ValueError(f"{csv_out_name} already exists")
@@ -290,12 +290,14 @@ class LLMEvaluator(Evaluator):
                         elif eval_mode == "yaml":
                             data = yaml.safe_load(generated_code)
                             for item in data:
-                                for action in item['actions']:
+                                for action in item["actions"]:
                                     action_name = action["action"]["name"]
                                     if action_name != "fail":
                                         xpath = action["action"]["args"]["xpath"]
-                                        target_element = self.driver.driver.find_element(
-                                            By.XPATH, xpath
+                                        target_element = (
+                                            self.driver.driver.find_element(
+                                                By.XPATH, xpath
+                                            )
                                         )
                                         break
 
