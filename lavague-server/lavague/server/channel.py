@@ -63,7 +63,8 @@ class AgentSession(ABC):
         if "response" in response_data:
             try:
                 jso = response_data["response"]
-                ret = jso["ret"]
+                if 'ret' in jso:
+                    ret = jso["ret"]
                 response_data.clear()
             except Exception as e:
                 print("Failed to get response data", e)

@@ -45,6 +45,7 @@ export class ChromeExtensionDriver {
         execute_script: (msg) => this.executeScript(msg.args),
         exec_code: (msg) => this.executeCode(msg.args),
         is_visible: (msg) => this.isVisible(msg.args),
+        get_possible_interactions: (msg) => this.get_possible_interactions(),
     };
     onTabDebugged?: (tabId: number) => void;
     onCommand?: (command: string) => void;
@@ -81,8 +82,7 @@ export class ChromeExtensionDriver {
                     if (chrome.runtime.lastError) {
                         reject(chrome.runtime.lastError.message);
                     } else {
-                        const res = await chrome.debugger.sendCommand({tabId}, "Page.addScriptToEvaluateOnNewDocument", {source: this.JS_SETUP_GET_EVENTS, runImmediately: true});
-                        console.log(res)
+                        const res = await chrome.debugger.sendCommand({tabId}, "Page.addScriptToEvaluateOnNewDocument", {source: this.JS_SETUP_GET_EVENTS, runImmediately: false});
                         resolve();
                         this.onTabDebugged?.(tabId);
                     }
@@ -237,6 +237,17 @@ export class ChromeExtensionDriver {
         return true;
     }
 
+    async get_possible_interactions() {
+        const tabId = await this.getTabId();
+        if (tabId == null) {
+            return false;
+        }
+        const dom = new DomActions(tabId);
+        const res = await dom.get_possible_interactions();
+        return res;
+    }
+
+    // left for compatibility reasons
     async isVisible(xpath: string) {
         const combinedExpression = `
     (function() {

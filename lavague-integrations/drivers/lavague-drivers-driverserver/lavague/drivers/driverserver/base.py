@@ -1,8 +1,18 @@
 import base64
-from lavague.core.base_driver import BaseDriver
-from typing import Any, Optional, Mapping
+import json
+import logging
+from lavague.core.base_driver import BaseDriver, InteractionType, PossibleInteractionsByXpath
+from typing import Any, Dict, List, Optional, Mapping
 from lavague.server.channel import AgentSession
 
+logging_print = logging.getLogger(__name__)
+logging_print.setLevel(logging.INFO)
+format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(format)
+logging_print.addHandler(ch)
+logging_print.propagate = False
 
 class DriverServer(BaseDriver):
     def __init__(self, session: AgentSession, url: Optional[str] = None):
@@ -60,6 +70,22 @@ class DriverServer(BaseDriver):
 
     def switch_tab(self, tab_id: str) -> None:
         return super().switch_tab(tab_id)
+
+    def resolve_xpath(self, xpath: str):
+        pass
+
+    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = {}
+        try:
+            exe_json = self.send_command_and_get_response_sync("get_possible_interactions")
+            exe = json.loads(exe_json)
+            print(exe)
+        except Exception as e:
+            logging_print.debug(f"JSON from the get_possible_interactions method could not be deserialized. Reason: {e}")
+        res = dict()
+        for k, v in exe.items():
+            res[k] = set(InteractionType[i] for i in v)
+        return res
 
     def get_highlighted_element(self, generated_code: str):
         # local_scope = {"driver": self.get_driver()}
@@ -214,10 +240,6 @@ Name: enter
 Description: Press the enter button. Use this tool can submit the form when there's no "submit" button and when a textbox is already filled, or filled previously with setValue.
 Arguments:
   - xpath (string)
-
-Name: fail
-Description: Indicate that you are unable to complete the task
-No arguments.
 
 Here are examples of previous answers:
 HTML:

@@ -148,20 +148,11 @@ driver.set_window_size({width}, {height} + height_difference)
     def maximize_window(self) -> None:
         self.driver.maximize_window()
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            locator = self.page.locator(f"xpath={xpath}")
-            return locator.is_visible() and locator.is_enabled()
-        except:
-            return False
-
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
         data = json.loads(generated_code)
-        if not isinstance(data, Iterable):
-            data = [data]
-        for item in data:
+        for item in data.get("actions", []):
             action_name = item["action"]["name"]
             if action_name != "fail":
                 xpath = item["action"]["args"]["xpath"]
@@ -235,22 +226,18 @@ driver.set_window_size({width}, {height} + height_difference)
         locals: Mapping[str, object] = None,
     ):
         data = json.loads(code)
-        for item in data:
+        for item in data.get("actions", []):
             action_name = item["action"]["name"]
+            args = item["action"]["args"]
+
             if action_name == "click":
-                self.click(item["action"]["args"]["xpath"])
+                self.click(args["xpath"])
             elif action_name == "setValue":
-                self.set_value(
-                    item["action"]["args"]["xpath"], item["action"]["args"]["value"]
-                )
+                self.set_value(args["xpath"], args["value"])
             elif action_name == "setValueAndEnter":
-                self.set_value(
-                    item["action"]["args"]["xpath"],
-                    item["action"]["args"]["value"],
-                    True,
-                )
+                self.set_value(args["xpath"], args["value"], True)
             elif action_name == "wait":
-                self.perform_wait(item["action"]["args"]["duration"])
+                self.perform_wait(args["duration"])
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
@@ -329,6 +316,13 @@ driver.set_window_size({width}, {height} + height_difference)
         # Switch to the tab with the given id
         driver.switch_to.window(window_handles[tab_id])
 
+    def check_visibility(self, xpath: str) -> bool:
+        try:
+            element = self.driver.find_element(By.XPATH, xpath)
+            return element.is_displayed() and element.is_enabled()
+        except:
+            return False
+
     def get_possible_interactions(self) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
         res = dict()
@@ -341,6 +335,9 @@ SELENIUM_PROMPT_TEMPLATE = """
 You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to return a list of actions that should be done in order to execute the actions.
 Always target elements by XPATH.
+
+Provide high level explanations about why you think this element is the right one.
+Your answer must be short and concise. 
 
 The actions available are:
 
@@ -361,11 +358,6 @@ Arguments:
   - xpath (string)
   - value (string)
 
-Name: wait
-Description: Wait for the amount of seconds specified as duration
-Arguments:
-  -  duration (float)
-
 Name: fail
 Description: Indicate that you are unable to complete the task
 No arguments.
@@ -379,12 +371,30 @@ Query: Click on the button labeled 'Alles accepteren' to accept all cookies.
 Completion:
 [
     {
-        "action": {
-            "name": "click",
-            "args": {
-            "xpath": "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
+        "thoughts": [
+            "Let's think step by step",
+            "First, we notice that the query asks us to click on the button labeled 'Alles accepteren' to accept all cookies.",
+            "In the provided HTML, we can see several button elements.",
+            "In the provided HTML, we can see several button elements.",
+            "We need to identify the correct button labeled 'Alles accepteren'.",
+            "We need to navigate through the hierarchy to accurately locate this button.",
+            "The correct button is located within a div element with a specific class and role attribute, which helps us ensure that we are targeting the right element.",
+            "Specifically, for 'Alles accepteren', there is a button element with a unique ID 'L2AGLb' which contains a div with the text 'Alles accepteren'.",
+            "We observe that this button element has the following XPath:",
+            "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]",
+            "Thus, we believe this is the correct element to be interacted with.",
+            "Then we can click on the button."
+        ],
+        "actions": [
+            {
+                "action": {
+                    "name": "click",
+                    "args": {
+                        "xpath": "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
+                    }
+                }
             }
-        }
+        ]
     }
 ]
 ---
@@ -416,21 +426,39 @@ Query: Click on "Gemma" under the "More" dropdown menu.
 Completion:
 [
     {
-        "action": {
-            "name": "click",
-            "args": {
-            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
+        "thoughts": [
+            "Let's think step by step",
+            "First, we notice that the query asks us to click on the "Gemma" option under the "More" dropdown menu.",
+            "In the provided HTML, we see that the "More" dropdown menu is within a tab element with a specific class and role attribute.",
+            "The "More" dropdown menu can be identified by its class 'devsite-overflow-tab' and contains a link element with the text 'More'.",
+            "We need to interact with this dropdown menu to reveal the hidden options.",
+            "Specifically, for the "More" dropdown menu, there is an anchor element within a tab element:",
+            "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a",
+            "We can use this XPATH to identify and click on the "More" dropdown menu.",
+            "After clicking the "More" dropdown, we need to select the "Gemma" option from the revealed menu.",
+            "The "Gemma" option is located within the dropdown menu and can be identified by its anchor element with the corresponding text:"
+            "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a",
+            "Thus, we use this XPATH to identify and click on the "Gemma" option."
+        ],
+        "actions": [
+            {
+                "action": {
+                    "name": "click",
+                    "args": {
+                        "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
+                    }
+                }
+            },
+            {
+                "action": {
+                    "name": "click",
+                    "args": {
+                        "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
+                    }
+                }
             }
-        }
-    },
-    {
-        "action": {
-            "name": "click",
-            "args": {
-            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
-            }
-        }
+        ]
     }
 ]
-Your response must always be in JSON format and must include object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
+Your response must always be in JSON format and must include the object "thoughts", and the object "actions", which will contains the objects "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
 """

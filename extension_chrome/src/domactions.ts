@@ -18,6 +18,43 @@ function getCoordinatesFromXPATH(xpath: string): { x: number; y: number } | null
     return null;
 }
 
+function clickElementByXPath(xpath: string): boolean {
+    var element = getNodeFromXPATH(xpath);
+    if (element && element instanceof HTMLElement) {
+      if (element.tagName.toLowerCase() === 'a') {
+        const anchorElement = element as HTMLAnchorElement;
+        if (anchorElement.href) {
+          // Navigate to the href URL to ensure history update
+          console.log("Navigating to:", anchorElement.href);
+          window.location.href = anchorElement.href;
+        }
+      } else {
+        // Simulate a user-initiated click
+        var event = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: true,
+          buttons: 1
+        });
+        element.dispatchEvent(event);
+        if (element.tagName.toLowerCase() === 'button' || (element.tagName.toLowerCase() === 'input' && (element as HTMLInputElement).type === 'submit')) {
+          // Special handling for button and submit inputs to ensure form submission
+          if ((element as HTMLInputElement).form) {
+            (element as HTMLInputElement).form!.submit();
+          }
+        }
+      }
+      console.log(element.textContent);
+      console.log("clicked!");
+      return true;
+    } else {
+      console.log("failed to click!");
+      return false;
+    }
+  }
+
+
+
 const JS_GET_INTERACTIVES = `
 (function() {
     function getInteractions(e) {
@@ -275,20 +312,96 @@ export class DomActions {
         return true;
     }
 
+    // // HTMLBodyElement
+    // private async getInteractions(e: any) {
+    //     const tag = e.tagName.toLowerCase();
+    //     if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
+    //       || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
+    //         return [];
+    //     }
+    //     const style = getComputedStyle(e);
+    //     if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+    //         return [];
+    //     }
+    //     const events = await this.sendCommand("DOMDebugger.getEventListeners", { nodeId });
+    //     const role = e.getAttribute('role');
+    //     const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
+    //     function hasEvent(n: any) {
+    //         return events[n]?.length || e.hasAttribute('on' + n);
+    //     }
+    //     const evts = [];
+    //     if (hasEvent('keydown') || hasEvent('keyup') || hasEvent('keypress') || hasEvent('keydown') || hasEvent('input') || e.isContentEditable
+    //       || (
+    //         (tag === 'input' || tag === 'textarea' || role === 'searchbox' || role === 'input')
+    //         ) && !clickableInputs.includes(e.getAttribute('type')!)
+    //       ) {
+    //         evts.push('TYPE');
+    //     }
+    //     if (tag === 'a' || tag === 'button' || role === 'button' || role === 'checkbox' || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup')
+    //       || hasEvent('dblclick') || style.cursor === 'pointer' || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')) )
+    //       || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
+    //         evts.push('CLICK');
+    //     }
+    //     if (hasEvent('mouseover')) {
+    //         evts.push('HOVER');
+    //     }
+    //     return evts;
+    // }
+
+    // private async traverse(node: any, xpath: string, results: any) {
+    //     if (node.nodeType === Node.ELEMENT_NODE) {
+    //         const interactions = await this.getInteractions(node);
+    //         if (interactions.length > 0) {
+    //             results[xpath] = interactions;
+    //         }
+    //     }
+    //     const countByTag: { [key: string]: number } = {};
+    //     for (let child = node.firstChild; child; child = child.nextSibling) {
+    //         const tag = child.nodeName.toLowerCase();
+    //         countByTag[tag] = (countByTag[tag] || 0) + 1;
+    //         let childXpath = xpath + '/' + tag;
+    //         if (countByTag[tag] > 1) {
+    //             childXpath += '[' + countByTag[tag] + ']';
+    //         }
+    //         if (tag === 'iframe') {
+    //             try {
+    //                 await this.traverse(child.contentWindow!.document.body, childXpath + '/html/body', results);
+    //             } catch (e) {
+    //                 console.error("iframe access blocked", child, e);
+    //             }
+    //         } else {
+    //             await this.traverse(child, childXpath, results);
+    //         } 
+    //     }
+    //     return results
+    // }
+
+    public async get_possible_interactions() {
+        const result = await chrome.scripting.executeScript({
+            target: { tabId: this.tabId },
+            func: () => {
+            chrome.runtime.sendMessage("test")
+              return document.body
+              }
+            },
+        );
+        console.log(result[0].result)
+        let results = {};
+    
+        // results = this.traverse(body_node, '/html/body', results);
+        const ret_json = JSON.stringify(results); 
+        return ret_json;
+    }
+
     public async clickwithXPath(xpath: string) {
         // const ret_test = await this.execCode(JS_GET_INTERACTIVES, true);
         // console.log(ret_test)
         const code = `
           (function(xpath) {
             ${getNodeFromXPATH.toString()}
+            ${clickElementByXPath.toString()}
             res = getNodeFromXPATH(xpath);
-            event = new MouseEvent('click', {
-                'view': window,
-                'bubbles': true,
-                'cancelable': true,
-                buttons: 1
-            });
-            res.dispatchEvent(event);
+            clickElementByXPath(xpath);
           })(${JSON.stringify(xpath)});`;
         const ret = await this.execCode(code);
         return true;

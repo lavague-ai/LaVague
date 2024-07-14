@@ -1,6 +1,7 @@
 from io import BytesIO
 import logging
 import time
+import traceback
 from typing import Any, List, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
@@ -465,6 +466,7 @@ class NavigationEngine(BaseEngine):
                     context_str=llm_context, query_str=instruction
                 )
                 response = self.llm.complete(prompt).text
+                print(response)
                 action = self.extractor.extract(response)
                 end = time.time()
                 action_generation_time = end - start
