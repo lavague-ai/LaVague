@@ -20,7 +20,5 @@ def get_pricing_data():
     pricing_file_path = os.path.join(os.path.dirname(__file__), pricing_file)
 
     data = load_yaml_file(pricing_file_path)
-    print(data)
     models = data.get("models", {})
-    print(models)
     return models
