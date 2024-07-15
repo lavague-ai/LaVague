@@ -29,6 +29,7 @@ class JsonFromMarkdownExtractor(BaseExtractor):
         
         if action_shape_validator:
             try:
+                #checks if the json returned from the llm matchs the schema
                 validate(instance=json.loads(match.group(1).strip()), schema=action_shape_validator)
             except json.JSONDecodeError as e:
                 raise(f"Invalid JSON format: {e}")
@@ -36,8 +37,10 @@ class JsonFromMarkdownExtractor(BaseExtractor):
                 raise(f"JSON does not match schema: {e}")
         else: 
             if (match):
+                # Return the first matched group, which is the code inside the ```python ```
                 return match.group(1).strip()
             else:
+                # Return None if no match is found
                 return None
 
 
