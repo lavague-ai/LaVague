@@ -19,6 +19,28 @@ from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 
+
+# JSON schema for the action shape 
+JSON_SCHEMA = {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "args": {
+                                    "type": "object"
+                                }
+                            },
+                        "required": ["name",'args']
+                        }
+                    },
+                    "required": ["action"]
+                }
+            }
+
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
 {driver_capability}
@@ -144,6 +166,7 @@ class NavigationEngine(BaseEngine):
         self.n_attempts = n_attempts
         self.display = display
         self.raise_on_error = raise_on_error
+        self.action_shape_validator = JSON_SCHEMA
 
     @classmethod
     def from_context(
@@ -271,7 +294,7 @@ class NavigationEngine(BaseEngine):
                     context_str=llm_context, query_str=instruction
                 )
                 response = self.llm.complete(prompt).text
-                action = self.extractor.extract(response)
+                action = self.extractor.extract(response,action_shape_validator=self.action_shape_validator)
                 end = time.time()
                 action_generation_time = end - start
                 action_outcome = {
@@ -465,7 +488,7 @@ class NavigationEngine(BaseEngine):
                     context_str=llm_context, query_str=instruction
                 )
                 response = self.llm.complete(prompt).text
-                action = self.extractor.extract(response)
+                action = self.extractor.extract(response,action_shape_validator=self.action_shape_validator)
                 end = time.time()
                 action_generation_time = end - start
                 action_outcome = {
