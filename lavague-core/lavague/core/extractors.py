@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import re
-
+import json
+from jsonschema import validate, ValidationError
 
 class BaseExtractor(ABC):
     @abstractmethod
@@ -16,16 +17,31 @@ class JsonFromMarkdownExtractor(BaseExtractor):
     Completion:
     --------------------------------------------
     """
-
-    def extract(self, markdown_text: str) -> str:
+   
+    def extract(self, markdown_text: str, action_shape_validator = None) -> str:
+        # Validate the JSON format
+        
         # Pattern to match the first ```python ``` code block
         pattern = r"```json(.*?)```"
 
         # Using re.DOTALL to make '.' match also newlines
         match = re.search(pattern, markdown_text, re.DOTALL)
+        
+        json_result = match.group(1).strip()
+        
+        print(json_result)
+        
+        if action_shape_validator:
+            try:
+                validate(instance=json.loads(json_result), schema=action_shape_validator)
+            except json.JSONDecodeError as e:
+                raise(f"Invalid JSON format: {e}")
+            except ValidationError as e:
+                raise(f"JSON does not match schema: {e}")
+        
         if match:
             # Return the first matched group, which is the code inside the ```python ```
-            return match.group(1).strip()
+            return json_result
         else:
             # Return None if no match is found
             return None
