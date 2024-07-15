@@ -29,8 +29,6 @@ class JsonFromMarkdownExtractor(BaseExtractor):
         
         json_result = match.group(1).strip()
         
-        print(json_result)
-        
         if action_shape_validator:
             try:
                 validate(instance=json.loads(json_result), schema=action_shape_validator)
@@ -39,12 +37,7 @@ class JsonFromMarkdownExtractor(BaseExtractor):
             except ValidationError as e:
                 raise(f"JSON does not match schema: {e}")
         
-        if match:
-            # Return the first matched group, which is the code inside the ```python ```
-            return json_result
-        else:
-            # Return None if no match is found
-            return None
+        return json_result
 
 
 class PythonFromMarkdownExtractor(BaseExtractor):
