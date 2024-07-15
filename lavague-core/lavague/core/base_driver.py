@@ -104,7 +104,6 @@ class BaseDriver(ABC):
         """
         pass
 
-    @abstractmethod
     def get_tabs(self) -> str:
         """Return description of the tabs opened with the current tab being focused.
 
@@ -113,9 +112,8 @@ class BaseDriver(ABC):
         0 - Overview - OpenAI API
         1 - [CURRENT] Nos destinations Train - SNCF Connect
         """
-        pass
+        return "Tabs opened:\n 0 - [CURRENT] tab"
 
-    @abstractmethod
     def switch_tab(self, tab_id: int) -> None:
         """Switch to the tab with the given id"""
         pass
@@ -124,19 +122,19 @@ class BaseDriver(ABC):
         """
         switch to the frame pointed at by the xpath
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def switch_default_frame(self) -> None:
         """
         Switch back to the default frame
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def switch_parent_frame(self) -> None:
         """
         Switch back to the parent frame
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def resolve_xpath(self, xpath):
         """
