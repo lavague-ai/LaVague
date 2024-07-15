@@ -294,7 +294,11 @@ class NavigationEngine(BaseEngine):
                     context_str=llm_context, query_str=instruction
                 )
                 response = self.llm.complete(prompt).text
-                action = self.extractor.extract(response,action_shape_validator=self.action_shape_validator)
+                try:
+                    action = self.extractor.extract(response,action_shape_validator=self.action_shape_validator)
+                except Exception as e:
+                    logging_print.error(f"Error extracting action: {e}")
+                    break
                 end = time.time()
                 action_generation_time = end - start
                 action_outcome = {
@@ -488,7 +492,11 @@ class NavigationEngine(BaseEngine):
                     context_str=llm_context, query_str=instruction
                 )
                 response = self.llm.complete(prompt).text
-                action = self.extractor.extract(response,action_shape_validator=self.action_shape_validator)
+                try:
+                    action = self.extractor.extract(response,action_shape_validator=self.action_shape_validator)
+                except Exception as e:
+                    logging_print.error(f"Error extracting action: {e}")
+                    break
                 end = time.time()
                 action_generation_time = end - start
                 action_outcome = {
