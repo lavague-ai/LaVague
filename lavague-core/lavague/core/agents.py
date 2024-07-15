@@ -2,7 +2,7 @@ from io import BytesIO
 import logging
 import os
 import shutil
-from typing import Any, List, Optional
+from typing import Any, Optional
 from lavague.core.action_engine import ActionEngine
 from lavague.core.world_model import WorldModel
 from lavague.core.utilities.format_utils import (
@@ -16,11 +16,6 @@ from lavague.core.base_engine import ActionResult
 from lavague.core.utilities.telemetry import send_telemetry
 from PIL import Image
 from IPython.display import display, HTML, Code
-from threading import Thread
-from lavague.core.utilities.unicode_animation import (
-    lavague_unicode_animation,
-    clear_animation,
-)
 from lavague.core.utilities.pricing_util import get_pricing_data
 
 logging_print = logging.getLogger(__name__)
@@ -283,74 +278,70 @@ class WebAgent:
             output,
         )
 
+    def run_step(self, objective: str) -> Optional[ActionResult]:
+        obs = self.driver.get_obs()
+        current_state, past = self.st_memory.get_state()
+
+        world_model_output = self.world_model.get_instruction(
+            objective, current_state, past, obs
+        )
+        logging_print.info(world_model_output)
+        next_engine_name = extract_next_engine(world_model_output)
+        instruction = extract_world_model_instruction(world_model_output)
+
+        if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
+            self.result.success = True
+            self.result.output = instruction
+            logging_print.info("Objective reached. Stopping...")
+            self.logger.add_log(obs)
+            self.add_token_count_log()
+            self.logger.end_step()
+            return self.result
+
+        action_result = self.action_engine.dispatch_instruction(
+            next_engine_name, instruction
+        )
+        if action_result.success:
+            self.result.code += action_result.code
+            self.result.output = action_result.output
+        self.st_memory.update_state(
+            instruction,
+            next_engine_name,
+            action_result.success,
+            action_result.output,
+        )
+
+        self.logger.add_log(obs)
+        self.add_token_count_log()
+        self.logger.end_step()
+
     def run(
         self,
         objective: str,
         user_data=None,
         display: bool = False,
         log_to_db: bool = False,
+        step_by_step=False,
     ) -> ActionResult:
         self.action_engine.set_display_all(display)
-        action_result: ActionResult
-
-        if os.getenv("DISABLE_LAVAGUE_ANIMATION") is None:
-            Thread(target=lavague_unicode_animation, daemon=True).start()
-
         try:
-            st_memory = self.st_memory
-            world_model = self.world_model
-
             if user_data:
                 self.st_memory.set_user_data(user_data)
 
-            obs = self.driver.get_obs()
-
             self.logger.new_run()
             for _ in range(self.n_steps):
-                current_state, past = st_memory.get_state()
+                result = self.run_step(objective)
 
-                world_model_output = world_model.get_instruction(
-                    objective, current_state, past, obs
-                )
-                clear_animation()
-                logging_print.info(world_model_output)
-                next_engine_name = extract_next_engine(world_model_output)
-                instruction = extract_world_model_instruction(world_model_output)
-
-                if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
-                    self.result.success = True
-                    self.result.output = instruction
-                    clear_animation()
-                    logging_print.info("Objective reached. Stopping...")
-                    self.logger.add_log(obs)
-                    self.add_token_count_log()
-                    self.logger.end_step()
+                if result is not None:
                     break
 
-                action_result = self.action_engine.dispatch_instruction(
-                    next_engine_name, instruction
-                )
-                if action_result.success:
-                    self.result.code += action_result.code
-                    self.result.output = action_result.output
-                st_memory.update_state(
-                    instruction,
-                    next_engine_name,
-                    action_result.success,
-                    action_result.output,
-                )
+                if step_by_step:
+                    input("Press ENTER to continue")
 
-                self.logger.add_log(obs)
-                self.add_token_count_log()
-                self.logger.end_step()
-
-                obs = self.driver.get_obs()
         except KeyboardInterrupt:
-            clear_animation()
             logging_print.warning("The agent was interrupted.")
             pass
         except Exception as e:
-            clear_animation()
             logging_print.error(f"Error while running the agent: {e}")
             raise e
         finally:
@@ -358,7 +349,6 @@ class WebAgent:
             if log_to_db:
                 local_db_logger = LocalDBLogger()
                 local_db_logger.insert_logs(self)
-            clear_animation()
         return self.result
 
     def add_token_count_log(self) -> None:
