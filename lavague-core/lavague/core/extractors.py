@@ -27,17 +27,19 @@ class JsonFromMarkdownExtractor(BaseExtractor):
         # Using re.DOTALL to make '.' match also newlines
         match = re.search(pattern, markdown_text, re.DOTALL)
         
-        json_result = match.group(1).strip()
-        
         if action_shape_validator:
             try:
-                validate(instance=json.loads(json_result), schema=action_shape_validator)
+                validate(instance=json.loads(match.group(1).strip()), schema=action_shape_validator)
             except json.JSONDecodeError as e:
                 raise(f"Invalid JSON format: {e}")
             except ValidationError as e:
                 raise(f"JSON does not match schema: {e}")
-        
-        return json_result
+        else: 
+            if (match):
+                return match.group(1).strip()
+            else:
+                return None
+
 
 
 class PythonFromMarkdownExtractor(BaseExtractor):
