@@ -220,7 +220,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
     def _match_element(self, attributes, element_specs):
         i = 0
         for spec in element_specs:
-            if attributes["xpath"] == spec["xpath"]:
+            if attributes.get("xpath") == spec["xpath"]:
                 return i
             i += 1
         return None
