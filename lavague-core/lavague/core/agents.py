@@ -296,12 +296,12 @@ class WebAgent:
             self.result.output = instruction
             logging_print.info("Objective reached. Stopping...")
             self.logger.add_log(obs)
-            
+
             # get and log token counts and costs
             token_counts, token_costs = self.process_token_usage()
             self.logger.add_log(token_counts)
             self.logger.add_log(token_costs)
-            
+
             self.logger.end_step()
             return self.result
 
@@ -323,7 +323,7 @@ class WebAgent:
         token_counts, token_costs = self.process_token_usage()
         self.logger.add_log(token_counts)
         self.logger.add_log(token_costs)
-        
+
         self.logger.end_step()
 
     def run(
@@ -364,20 +364,31 @@ class WebAgent:
 
     def process_token_usage(self) -> Tuple[dict, dict]:
         """Computes token counts and costs for the current step"""
+
         def deduplicate_events(events: List[Any]) -> List[Any]:
             """Helper function to deduplicate events if they are logged twice (temporary fix for #444)"""
+
             def are_events_equal(event1: Any, event2: Any) -> bool:
                 """Helper function to compare two events by their attributes"""
                 attributes_to_compare = [
-                    'prompt', 'completion', 'completion_token_count',
-                    'prompt_token_count', 'total_token_count'
+                    "prompt",
+                    "completion",
+                    "completion_token_count",
+                    "prompt_token_count",
+                    "total_token_count",
                 ]
-                return all(getattr(event1, attr) == getattr(event2, attr) for attr in attributes_to_compare)
-            
+                return all(
+                    getattr(event1, attr) == getattr(event2, attr)
+                    for attr in attributes_to_compare
+                )
+
             deduplicated = []
             for event in events:
-                print(getattr(event, 'event_id'))
-                if not any(are_events_equal(existing_event, event) for existing_event in deduplicated):
+                print(getattr(event, "event_id"))
+                if not any(
+                    are_events_equal(existing_event, event)
+                    for existing_event in deduplicated
+                ):
                     deduplicated.append(event)
             return deduplicated
 
@@ -385,17 +396,17 @@ class WebAgent:
             """Split events into world model and action engine events based on prompt start"""
             world_model_events = []
             other_events = []
-            
+
             world_model_prompt_start = "You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans."
-            
+
             for event in events:
                 if event.prompt.strip().startswith(world_model_prompt_start):
                     world_model_events.append(event)
                 else:
                     other_events.append(event)
-            
+
             return world_model_events, other_events
-        
+
         def sum_token_counts(events: List[Any]) -> Tuple[int, int, int]:
             """Helper function to sum token counts for a list of events that belong together"""
             input_tokens = sum(event.prompt_token_count for event in events)
@@ -408,55 +419,74 @@ class WebAgent:
             and self.mm_llm_token_counter is not None
         ):
             # deduplicate and split llm events into world model and action engine events
-            deduplicated_events = deduplicate_events(self.mm_llm_token_counter.llm_token_counts)
-            world_model_events, action_engine_events = triage_events(deduplicated_events)
- 
+            deduplicated_events = deduplicate_events(
+                self.mm_llm_token_counter.llm_token_counts
+            )
+            world_model_events, action_engine_events = triage_events(
+                deduplicated_events
+            )
+
             # compute llm token counts
-            WM_input_tokens, WM_output_tokens, WM_total_tokens = sum_token_counts(world_model_events)
-            AE_input_tokens, AE_output_tokens, AE_total_tokens = sum_token_counts(action_engine_events)
-            
+            WM_input_tokens, WM_output_tokens, WM_total_tokens = sum_token_counts(
+                world_model_events
+            )
+            AE_input_tokens, AE_output_tokens, AE_total_tokens = sum_token_counts(
+                action_engine_events
+            )
+
             # compute embedding token counts
-            embedding_total_tokens = self.embedding_token_counter.total_embedding_token_count
-            
-            total_step_tokens = WM_total_tokens + AE_total_tokens + embedding_total_tokens
-            
+            embedding_total_tokens = (
+                self.embedding_token_counter.total_embedding_token_count
+            )
+
+            total_step_tokens = (
+                WM_total_tokens + AE_total_tokens + embedding_total_tokens
+            )
+
             token_counts = {
                 "world_model_input_tokens": WM_input_tokens,
                 "world_model_output_tokens": WM_output_tokens,
                 "action_engine_input_tokens": AE_input_tokens,
                 "action_engine_output_tokens": AE_output_tokens,
-                
                 "total_world_model_tokens": WM_total_tokens,
                 "total_action_engine_tokens": AE_total_tokens,
                 "total_llm_tokens": WM_total_tokens + AE_total_tokens,
                 "total_embedding_tokens": embedding_total_tokens,
                 "total_step_tokens": total_step_tokens,
             }
-            
+
             # compute llm and embedding token costs
-            WM_input_cost, WM_output_cost, WM_total_cost = self.calculate_llm_pricing(WM_input_tokens, WM_output_tokens, self.world_model.mm_llm.model)
-            AE_input_cost, AE_output_cost, AE_total_cost = self.calculate_llm_pricing(AE_input_tokens, AE_output_tokens, self.action_engine.navigation_engine.llm.model)
-            
-            total_embedding_cost = self.calculate_embedding_pricing(embedding_total_tokens, self.action_engine.python_engine.embedding.model_name)
+            WM_input_cost, WM_output_cost, WM_total_cost = self.calculate_llm_pricing(
+                WM_input_tokens, WM_output_tokens, self.world_model.mm_llm.model
+            )
+            AE_input_cost, AE_output_cost, AE_total_cost = self.calculate_llm_pricing(
+                AE_input_tokens,
+                AE_output_tokens,
+                self.action_engine.navigation_engine.llm.model,
+            )
+
+            total_embedding_cost = self.calculate_embedding_pricing(
+                embedding_total_tokens,
+                self.action_engine.python_engine.embedding.model_name,
+            )
             total_step_cost = WM_total_cost + AE_total_cost + total_embedding_cost
-            
+
             token_costs = {
                 "world_model_input_cost": WM_input_cost,
                 "world_model_output_cost": WM_output_cost,
                 "action_engine_input_cost": AE_input_cost,
                 "action_engine_output_cost": AE_output_cost,
-                
                 "total_world_model_cost": WM_total_cost,
                 "total_action_engine_cost": AE_total_cost,
                 "total_llm_cost": WM_total_cost + AE_total_cost,
                 "total_embedding_cost": total_embedding_cost,
                 "total_step_cost": total_step_cost,
             }
-            
+
             # update ActionEngine variables
             self.result.total_estimated_tokens += total_step_tokens
             self.result.total_estimated_cost += total_step_cost
-            
+
             # reset counters
             self.mm_llm_token_counter.reset_counts()
             self.embedding_token_counter.reset_counts()
@@ -467,7 +497,6 @@ class WebAgent:
                 "world_model_output_tokens": 0,
                 "action_engine_input_tokens": 0,
                 "action_engine_output_tokens": 0,
-                
                 "total_world_model_tokens": 0,
                 "total_action_engine_tokens": 0,
                 "total_llm_tokens": 0,
@@ -479,21 +508,28 @@ class WebAgent:
                 "world_model_output_cost": 0,
                 "action_engine_input_cost": 0,
                 "action_engine_output_cost": 0,
-                
                 "total_world_model_cost": 0,
                 "total_action_engine_cost": 0,
                 "total_llm_cost": 0,
                 "total_embedding_cost": 0,
                 "total_step_cost": 0,
             }
-        
+
         return token_counts, token_costs
 
-    def calculate_llm_pricing(self, input_token_count: int, output_token_count: int, model: str) -> Tuple[int, int, int]:        
+    def calculate_llm_pricing(
+        self, input_token_count: int, output_token_count: int, model: str
+    ) -> Tuple[int, int, int]:
         """Computes token costs for LLM according to the pricing data available in pricing_config.yaml"""
-        input_pricing = self.pricing_data.get(model, {model: {"input_tokens": 0}}).get("input_tokens", 0)
-        output_pricing = self.pricing_data.get(model, {model: {"output_tokens": 0}}).get("output_tokens", 0)
-        token_ratio = self.pricing_data.get(model, {model: {"token_ratio": 1}}).get("token_ratio", 1)
+        input_pricing = self.pricing_data.get(model, {model: {"input_tokens": 0}}).get(
+            "input_tokens", 0
+        )
+        output_pricing = self.pricing_data.get(
+            model, {model: {"output_tokens": 0}}
+        ).get("output_tokens", 0)
+        token_ratio = self.pricing_data.get(model, {model: {"token_ratio": 1}}).get(
+            "token_ratio", 1
+        )
 
         llm_input_token_cost = (input_token_count * input_pricing) / token_ratio
         llm_output_token_cost = (output_token_count * output_pricing) / token_ratio
@@ -501,11 +537,15 @@ class WebAgent:
         llm_cost = llm_input_token_cost + llm_output_token_cost
 
         return llm_input_token_cost, llm_output_token_cost, llm_cost
-    
+
     def calculate_embedding_pricing(self, token_count: int, model: str) -> int:
         """Computes token costs for Embedding according to the pricing data available in pricing_config.yaml"""
-        embedding_pricing = self.pricing_data.get(model, {model: {"tokens": 0}}).get("tokens", 0)
-        token_ratio = self.pricing_data.get(model, {model: {"token_ratio": 1}}).get("token_ratio", 1)
+        embedding_pricing = self.pricing_data.get(model, {model: {"tokens": 0}}).get(
+            "tokens", 0
+        )
+        token_ratio = self.pricing_data.get(model, {model: {"token_ratio": 1}}).get(
+            "token_ratio", 1
+        )
         total_embedding_cost = (token_count * embedding_pricing) / token_ratio
 
         return total_embedding_cost
