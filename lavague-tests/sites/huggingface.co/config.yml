@@ -1,0 +1,16 @@
+tasks:
+
+  - name: HuggingFace navigation
+    url: https://huggingface.co/docs
+    prompt: Go on the quicktour of PEFT
+    expect:
+      - URL is https://huggingface.co/docs/peft/quicktour
+      - Status is success
+      - HTML contains PEFT offers parameter-efficient methods for finetuning large pretrained models
+
+  - name: HuggingFace search
+    url: https://huggingface.co
+    prompt: Find the-wave-250 dataset
+    expect:
+      - URL is https://huggingface.co/datasets/BigAction/the-wave-250
+      - Status is success
