@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable, Mapping, Dict, List, Iterable
+from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -150,8 +150,10 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            locator = self.page.locator(f"xpath={xpath}")
-            return locator.is_visible() and locator.is_enabled()
+            element = self.resolve_xpath(xpath)
+            return (
+                element is not None and element.is_displayed() and element.is_enabled()
+            )
         except:
             return False
 
@@ -159,7 +161,7 @@ driver.set_window_size({width}, {height} + height_difference)
         elements = []
 
         data = json.loads(generated_code)
-        if not isinstance(data, Iterable):
+        if not isinstance(data, List):
             data = [data]
         for item in data:
             action_name = item["action"]["name"]
@@ -226,6 +228,7 @@ driver.set_window_size({width}, {height} + height_difference)
             return self.driver.find_element(By.XPATH, before)
         self.switch_frame(before + sep)
         element = self.resolve_xpath(after)
+        self.switch_default_frame()
         return element
 
     def exec_code(
@@ -235,6 +238,8 @@ driver.set_window_size({width}, {height} + height_difference)
         locals: Mapping[str, object] = None,
     ):
         data = json.loads(code)
+        if not isinstance(data, List):
+            data = [data]
         for item in data:
             action_name = item["action"]["name"]
             if action_name == "click":

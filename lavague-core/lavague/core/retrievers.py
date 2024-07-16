@@ -231,14 +231,12 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             split_html = node.text
             soup = BeautifulSoup(split_html, "html.parser")
             for element in soup.descendants:
-                try:
+                if not isinstance(element, NavigableString):
                     indice = self._match_element(element.attrs, results_dict)
                     if indice is not None:
                         node.metadata["score"] = score[indice]
                         returned_nodes.append(node)
                         break
-                except:
-                    pass
         return returned_nodes
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
