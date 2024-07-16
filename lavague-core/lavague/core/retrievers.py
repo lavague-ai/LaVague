@@ -279,14 +279,17 @@ class IxpathRetriever(BaseHtmlRetriever):
             siblings = [
                 sib for sib in element.parent.children if sib.name == element.name
             ]
+            tag = element.name
+            if tag in ["svg", "path", "circle", "g"]:
+                tag = f"*[local-name() = '{tag}']"
             if len(siblings) > 1:
                 count = siblings.index(element) + 1
                 if count == 1:
-                    path = f"/{element.name}{path}"
+                    path = f"/{tag}{path}"
                 else:
-                    path = f"/{element.name}[{count}]{path}"
+                    path = f"/{tag}[{count}]{path}"
             else:
-                path = f"/{element.name}{path}"
+                path = f"/{tag}{path}"
             return self._generate_xpath(element.parent, path)
 
     def _add_xpath_attributes(

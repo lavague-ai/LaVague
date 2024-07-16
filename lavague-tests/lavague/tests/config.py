@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Dict
 import yaml
 from .setup import Setup
 from .test import ExpectTest, TaskTest
@@ -6,13 +6,22 @@ from .test import ExpectTest, TaskTest
 
 class Task:
     def __init__(
-        self, name: str, url: str, prompt: str, max_steps: int, tests: List[TaskTest]
+        self,
+        name: str,
+        url: str,
+        prompt: str,
+        max_steps: int,
+        tests: List[TaskTest],
+        user_data: Dict,
+        n_attempts: int,
     ):
         self.name = name
         self.url = url
         self.prompt = prompt
         self.max_steps = max_steps
         self.tests = tests
+        self.user_data = user_data
+        self.n_attempts = n_attempts
 
     def __str__(self) -> str:
         return f"Task(name={self.name}, url={self.url}, prompt={self.prompt}, tests={len(self.tests)})"
@@ -30,12 +39,18 @@ class TestConfig:
             for task_data in data["tasks"]:
                 prompt = task_data["prompt"]
                 url = task_data.get("url", self.setup.default_url)
+                user_data = {
+                    **data.get("user_data", {}),
+                    **task_data.get("user_data", {}),
+                }
                 task = Task(
                     task_data.get("name", f"{prompt} from {url}"),
                     url,
                     prompt,
-                    task_data.get("max_steps", 10),
+                    task_data.get("max_steps", data.get("max_steps", 5)),
                     self._parse_test(task_data),
+                    user_data,
+                    task_data.get("n_attempts", data.get("n_attempts", 1)),
                 )
                 self.tasks.append(task)
 

@@ -103,11 +103,11 @@ class TestRunner:
 
     def _run_single_task(self, task: Task) -> SingleRunResult:
         driver = SeleniumDriver(headless=self.headless)
-        action_engine = ActionEngine(driver=driver)
+        action_engine = ActionEngine(driver=driver, n_attempts=task.n_attempts)
         world_model = WorldModel()
         agent = WebAgent(world_model, action_engine, n_steps=task.max_steps)
         agent.get(task.url)
-        agent.run(task.prompt, disable_animation=True)
+        agent.run(task.prompt, user_data=task.user_data)
         dataframe = agent.logger.return_pandas()
         context = self._get_context(agent)
         driver.destroy()

@@ -2,12 +2,14 @@ from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     PossibleInteractionsByXpath,
     InteractionType,
+    DOMNode,
 )
 from PIL import Image
 from io import BytesIO
@@ -299,12 +301,9 @@ driver.set_window_size({width}, {height} + height_difference)
     def get_tabs(self):
         driver = self.driver
         window_handles = driver.window_handles
-
         # Store the current window handle (focused tab)
         current_handle = driver.current_window_handle
-
         tab_info = []
-
         tab_id = 0
 
         for handle in window_handles:
@@ -327,7 +326,6 @@ driver.set_window_size({width}, {height} + height_difference)
 
         tab_info = "\n".join(tab_info)
         tab_info = "Tabs opened:\n" + tab_info
-
         return tab_info
 
     def switch_tab(self, tab_id: int):
@@ -337,12 +335,65 @@ driver.set_window_size({width}, {height} + height_difference)
         # Switch to the tab with the given id
         driver.switch_to.window(window_handles[tab_id])
 
+    def get_nodes(self, xpaths: List[str]) -> List["SeleniumNode"]:
+        nodes: List["SeleniumNode"] = []
+        for xpath in xpaths:
+            try:
+                element = self.resolve_xpath(xpath)
+                nodes.append(SeleniumNode(element, self.driver))
+            except NoSuchElementException:
+                print(f"WARN(missing-xpath): {xpath} not found")
+                pass
+        return nodes
+
+    def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
+        nodes = self.get_nodes(xpaths)
+        self.driver.execute_script(
+            "arguments[0].forEach(a => { a.style.outline = '2px dashed ' + arguments[1]; a.style['outline-offset'] = '-1px'})",
+            [n.element for n in nodes],
+            color,
+        )
+        return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
+
     def get_possible_interactions(self) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
         return res
+
+
+class SeleniumNode(DOMNode):
+    def __init__(self, element: WebElement, driver: WebDriver) -> None:
+        self.element = element
+        self._driver = driver
+        super().__init__()
+
+    def highlight(self, color: str = "red"):
+        self._driver.execute_script(
+            "arguments[0].style.outline = '2px dashed ' + arguments[1]; arguments[0].style['outline-offset'] = '-1px'",
+            self.element,
+            color,
+        )
+        return self
+
+    def clear(self):
+        self._driver.execute_script(
+            "arguments[0].style.removeProperty('outline')",
+            self.element,
+        )
+        return self
+
+    def take_screenshot(self):
+        try:
+            return Image.open(BytesIO(self.element.screenshot_as_png))
+        except WebDriverException:
+            return Image.new("RGB", (0, 0))
+
+    def get_html(self):
+        return self._driver.execute_script(
+            "return arguments[0].outerHTML", self.element
+        )
 
 
 SELENIUM_PROMPT_TEMPLATE = """
