@@ -13,6 +13,7 @@ class ActionResult:
     code: str
     success: bool
     output: Any
+    total_estimated_tokens: Optional[int] = 0
     total_estimated_cost: Optional[float] = 0
 
 
