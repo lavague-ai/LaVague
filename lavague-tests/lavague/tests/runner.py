@@ -3,6 +3,7 @@ from lavague.core.agents import WebAgent
 from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.drivers.selenium.base import SeleniumDriver
+from .util import HiddenPrints
 from .config import Task, TestConfig, TaskTest
 from pandas import DataFrame
 
@@ -129,6 +130,7 @@ class TestRunner:
             "Output": agent.result.output,
             "Steps": agent.logger.current_step,
             "HTML": agent.driver.get_html(),
+            "Tabs": agent.driver.get_tabs(),
         }
 
     def __str__(self) -> str:

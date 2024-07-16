@@ -16,7 +16,7 @@ class Setup:
 
     @staticmethod
     def parse(directory: str, args: Dict) -> "Setup":
-        if "type" not in args:
+        if args.get("type", "web") == "web":
             return Setup()
 
         if args["type"] == "static":

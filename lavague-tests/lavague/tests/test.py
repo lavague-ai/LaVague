@@ -1,16 +1,17 @@
 from abc import ABC, abstractmethod
 import re
 from typing import Callable, Dict, Any, Union, Optional
+from operator import eq, ne, contains, lt, gt
 
 OperatorFunction = Callable[[Any, Any], bool]
 
 operators: Dict[str, OperatorFunction] = {
-    "is": lambda a, b: a == b,
-    "is not": lambda a, b: a != b,
-    "is lower than": lambda a, b: a < b,
-    "is greater than": lambda a, b: a > b,
-    "contains": lambda a, b: b in a,
-    "does not contain": lambda a, b: b not in a,
+    "is": eq,
+    "is not": ne,
+    "is lower than": lt,
+    "is greater than": gt,
+    "contains": contains,
+    "does not contain": lambda a, b: not contains(a, b),
 }
 
 
@@ -39,7 +40,10 @@ class ExpectTest(TaskTest):
             self.op = operators[match.group(2)]
             self.value = match.group(3)
         else:
-            raise ValueError(f"Invalid expect string '{expect}'")
+            available = ", ".join(operators.keys())
+            raise ValueError(
+                f"Invalid expect string '{expect}', available operators are {available}"
+            )
 
     def get_error(self, context: Any) -> Optional[str]:
         prop_value = context.get(self.prop, "")
