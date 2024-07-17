@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 from typing import Any, Optional
+
 from lavague.core.action_engine import ActionEngine
 from lavague.core.world_model import WorldModel
 from lavague.core.utilities.format_utils import (
@@ -16,7 +17,7 @@ from lavague.core.base_engine import ActionResult
 from lavague.core.utilities.telemetry import send_telemetry
 from PIL import Image
 from IPython.display import display, HTML, Code
-from lavague.core.utilities.pricing_util import get_pricing_data
+from lavague.core.token_counter import TokenCounter
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -37,7 +38,7 @@ class WebAgent:
         self,
         world_model: WorldModel,
         action_engine: ActionEngine,
-        token_counter: Optional[dict] = None,
+        token_counter: Optional[TokenCounter] = None,
         n_steps: int = 10,
         clean_screenshot_folder: bool = True,
         logger: AgentLogger = None,
@@ -46,6 +47,7 @@ class WebAgent:
         self.action_engine: ActionEngine = action_engine
         self.world_model: WorldModel = world_model
         self.st_memory = ShortTermMemory()
+        self.token_counter = token_counter
 
         self.n_steps = n_steps
 
@@ -75,18 +77,9 @@ class WebAgent:
             code=self.driver.code_for_init(),
             success=False,
             output=None,
-            total_estimated_cost=0,
+            total_estimated_tokens=0,
+            total_estimated_cost=0.0,
         )
-
-        self.mm_llm_token_counter = (
-            token_counter.get("llm_token_counter", None) if token_counter else None
-        )
-        self.embedding_token_counter = (
-            token_counter.get("embedding_token_counter", None)
-            if token_counter
-            else None
-        )
-        self.pricing_data = get_pricing_data()
 
     def get(self, url):
         self.driver.get(url)
@@ -294,7 +287,8 @@ class WebAgent:
             self.result.output = instruction
             logging_print.info("Objective reached. Stopping...")
             self.logger.add_log(obs)
-            self.add_token_count_log()
+
+            self.process_token_usage()
             self.logger.end_step()
             return self.result
 
@@ -310,9 +304,9 @@ class WebAgent:
             action_result.success,
             action_result.output,
         )
-
         self.logger.add_log(obs)
-        self.add_token_count_log()
+
+        self.process_token_usage()
         self.logger.end_step()
 
     def run(
@@ -352,73 +346,13 @@ class WebAgent:
                 local_db_logger.insert_logs(self)
         return self.result
 
-    def add_token_count_log(self) -> None:
-        if (
-            self.embedding_token_counter is not None
-            and self.mm_llm_token_counter is not None
-        ):
-            embedding_token_count_info_per_step = {
-                "embedding_tokens": self.embedding_token_counter.total_embedding_token_count
-            }
-            llm_token_count_info_per_step = {
-                "llm_prompt_tokens": self.mm_llm_token_counter.prompt_llm_token_count,
-                "llm_completion_tokens": self.mm_llm_token_counter.completion_llm_token_count,
-                "total_llm_tokens": self.mm_llm_token_counter.total_llm_token_count,
-            }
-            self.logger.add_log(embedding_token_count_info_per_step)
-            self.logger.add_log(llm_token_count_info_per_step)
-            self.calculate_pricing()
-            self.embedding_token_counter.reset_counts()
-            self.mm_llm_token_counter.reset_counts()
-        else:
-            embedding_token_count_info_per_step = {"embedding_tokens": 0}
-            llm_token_count_info_per_step = {
-                "llm_prompt_tokens": 0,
-                "llm_completion_tokens": 0,
-                "total_llm_tokens": 0,
-            }
-            cost_dict = {
-                "embedding_tokens_cost": 0,
-                "llm_prompt_tokens_cost": 0,
-                "llm_completion_tokens": 0,
-                "total_cost_per_step": 0,
-            }
-            self.logger.add_log(cost_dict)
-            self.logger.add_log(embedding_token_count_info_per_step)
-            self.logger.add_log(llm_token_count_info_per_step)
-
-    def calculate_pricing(self):
-        """calculates cost of each step and adds it to logs"""
-        # returning dummy cost (0) for type safety
-        embedding_token_cost = (
-            self.embedding_token_counter.total_embedding_token_count / 1000000
-        ) * self.pricing_data.get(
-            "text-embedding-3-large", {"text-embedding-3-large": {"input_tokens": 0}}
-        ).get("input_tokens")
-        mm_llm_token_cost_input = (
-            self.mm_llm_token_counter.prompt_llm_token_count / 1000000
-        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"input_tokens": 0}}).get(
-            "input_tokens"
-        )
-        mm_llm_token_cost_output = (
-            self.mm_llm_token_counter.completion_llm_token_count / 1000000
-        ) * self.pricing_data.get("gpt-4o", {"gpt-4o": {"output_tokens": 0}}).get(
-            "output_tokens"
-        )
-
-        total_cost_per_step = (
-            embedding_token_cost + mm_llm_token_cost_input + mm_llm_token_cost_output
-        )
-
-        self.result.total_estimated_cost += total_cost_per_step
-
-        cost_dict = {
-            "embedding_tokens_cost": embedding_token_cost,
-            "llm_prompt_tokens_cost": mm_llm_token_cost_input,
-            "llm_completion_tokens_cost": mm_llm_token_cost_output,
-            "total_cost_per_step": total_cost_per_step,
-        }
-        self.logger.add_log(cost_dict)
+    def process_token_usage(self):
+        if self.token_counter is not None:
+            token_counts, token_costs = self.token_counter.process_token_usage(
+                self.world_model, self.action_engine, result_to_update=self.result
+            )
+            self.logger.add_log(token_counts)
+            self.logger.add_log(token_costs)
 
     def display_previous_nodes(self, steps: int) -> None:
         """prints out all nodes per each sub-instruction for given steps"""
