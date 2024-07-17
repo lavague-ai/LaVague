@@ -167,6 +167,8 @@ driver.set_window_size({width}, {height} + height_difference)
         elements = []
 
         data = yaml.safe_load(generated_code)
+        if not isinstance(data, List):
+            data = [data]
         for item in data:
             for action in item["actions"]:
                 action_name = action["action"]["name"]
@@ -243,6 +245,8 @@ driver.set_window_size({width}, {height} + height_difference)
         locals: Mapping[str, object] = None,
     ):
         data = yaml.safe_load(code)
+        if not isinstance(data, List):
+            data = [data]
         for item in data:
             for action in item["actions"]:
                 action_name = action["action"]["name"]

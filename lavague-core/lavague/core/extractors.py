@@ -90,3 +90,24 @@ class UntilEndOfMarkdownExtractor(BaseExtractor):
 
     def extract(self, text: str) -> str:
         return text.split("```")[0]
+
+
+class DynamicExtractor(BaseExtractor):
+    """
+    Extractor for typed markdown blocks
+    """
+
+    def __init__(self):
+        self.extractors = {
+            "json": JsonFromMarkdownExtractor(),
+            "yaml": YamlFromMarkdownExtractor(),
+            "python": PythonFromMarkdownExtractor(),
+        }
+
+    def extract(self, text: str) -> str:
+        types_pattern = "|".join(self.extractors.keys())
+        pattern = rf"```({types_pattern}).*?```"
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            type = match.group(1).strip()
+            return self.extractors[type].extract(text)

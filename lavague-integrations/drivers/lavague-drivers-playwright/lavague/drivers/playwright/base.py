@@ -2,7 +2,7 @@ from io import BytesIO
 import json
 import os
 from PIL import Image
-from typing import Callable, Optional, Any, Mapping, Iterable, Dict, List
+from typing import Callable, Optional, Any, Mapping, Dict, List
 from lavague.core.utilities.format_utils import extract_code_from_funct
 from playwright.sync_api import Page, Locator
 from lavague.core.base_driver import (
@@ -158,7 +158,7 @@ class PlaywrightDriver(BaseDriver):
         elements = []
 
         data = json.loads(generated_code)
-        if not isinstance(data, Iterable):
+        if not isinstance(data, List):
             data = [data]
         for item in data:
             action_name = item["action"]["name"]

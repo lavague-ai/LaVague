@@ -5,7 +5,11 @@ from typing import Any, List, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
-from lavague.core.extractors import BaseExtractor, YamlFromMarkdownExtractor
+from lavague.core.extractors import (
+    BaseExtractor,
+    YamlFromMarkdownExtractor,
+    DynamicExtractor,
+)
 from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
@@ -118,7 +122,7 @@ class NavigationEngine(BaseEngine):
         rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
-        extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
+        extractor: BaseExtractor = DynamicExtractor(),
         time_between_actions: float = 1.5,
         n_attempts: int = 5,
         logger: AgentLogger = None,
@@ -153,7 +157,7 @@ class NavigationEngine(BaseEngine):
         rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
-        extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
+        extractor: BaseExtractor = DynamicExtractor(),
     ) -> "NavigationEngine":
         """
         Create an NavigationEngine from a context
