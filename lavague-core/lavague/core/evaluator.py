@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 import pandas as pd
 from tqdm import tqdm
 from time import time
-from typing import Dict
+from typing import Dict, Literal
 from lavague.core.navigation import NavigationEngine
 from lavague.core.context import get_default_context
 from lavague.core.navigation import Rephraser
@@ -25,6 +25,7 @@ from lavague.core.utilities.format_utils import (
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
+import yaml
 from lavague.core.base_driver import JS_SETUP_GET_EVENTS
 
 
@@ -223,7 +224,7 @@ class LLMEvaluator(Evaluator):
         retrieved_dataset: pd.DataFrame,
         csv_out_name: str,
         max_retry: int = 1,
-        safe_mode: bool = True,
+        eval_mode: Literal["exec", "json", "yaml", "json_old"] = "yaml",
     ) -> pd.DataFrame:
         if os.path.isfile(csv_out_name):
             raise ValueError(f"{csv_out_name} already exists")
@@ -254,7 +255,7 @@ class LLMEvaluator(Evaluator):
                     )
                     duration = time() - start_time
                     try:
-                        if safe_mode == False:
+                        if eval_mode == "exec":
                             local_scope = {"driver": self.driver.get_driver()}
                             assignment_code = keep_assignments(generated_code)
                             self.driver.exec_code(assignment_code, locals=local_scope)
@@ -265,7 +266,17 @@ class LLMEvaluator(Evaluator):
                                 if type(local_scope[v]) == WebElement:
                                     target_element = local_scope[v]
                                     break
-                        else:
+                        elif eval_mode == "json":
+                            data = json.loads(generated_code)
+                            for item in data.get("actions", []):
+                                action_name = item["action"]["name"]
+                                if action_name != "fail":
+                                    xpath = item["action"]["args"]["xpath"]
+                                    target_element = self.driver.driver.find_element(
+                                        By.XPATH, xpath
+                                    )
+                                    break
+                        elif eval_mode == "json_old":
                             data = json.loads(generated_code)
                             for item in data:
                                 action_name = item["action"]["name"]
@@ -275,6 +286,19 @@ class LLMEvaluator(Evaluator):
                                         By.XPATH, xpath
                                     )
                                     break
+                        elif eval_mode == "yaml":
+                            data = yaml.safe_load(generated_code)
+                            for item in data:
+                                for action in item["actions"]:
+                                    action_name = action["action"]["name"]
+                                    if action_name != "fail":
+                                        xpath = action["action"]["args"]["xpath"]
+                                        target_element = (
+                                            self.driver.driver.find_element(
+                                                By.XPATH, xpath
+                                            )
+                                        )
+                                        break
 
                         target_outer_html = self.driver.execute_script(
                             "return arguments[0].outerHTML;", target_element
