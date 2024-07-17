@@ -433,9 +433,6 @@ return (function() {
           || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
             evts.push('CLICK');
         }
-        if (hasEvent('mouseover')) {
-            evts.push('HOVER');
-        }
         return evts;
     }
 

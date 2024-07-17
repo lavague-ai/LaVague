@@ -3,7 +3,6 @@ from lavague.core.agents import WebAgent
 from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.drivers.selenium.base import SeleniumDriver
-from .util import HiddenPrints
 from .config import Task, TestConfig, TaskTest
 from pandas import DataFrame
 

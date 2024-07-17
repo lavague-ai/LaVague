@@ -172,7 +172,7 @@ class NavigationEngine(BaseEngine):
         Get the nodes from the html page
 
         Args:
-            html (`str`): The html page
+            query (`str`): The query to search for
 
         Return:
             `List[str]`: The nodes
