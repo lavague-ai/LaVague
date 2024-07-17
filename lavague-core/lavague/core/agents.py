@@ -384,7 +384,6 @@ class WebAgent:
 
             deduplicated = []
             for event in events:
-                print(getattr(event, "event_id"))
                 if not any(
                     are_events_equal(existing_event, event)
                     for existing_event in deduplicated
@@ -540,9 +539,9 @@ class WebAgent:
 
     def calculate_embedding_pricing(self, token_count: int, model: str) -> int:
         """Computes token costs for Embedding according to the pricing data available in pricing_config.yaml"""
-        embedding_pricing = self.pricing_data.get(model, {model: {"input_tokens": 0}}).get(
-            "input_tokens", 0
-        )
+        embedding_pricing = self.pricing_data.get(
+            model, {model: {"input_tokens": 0}}
+        ).get("input_tokens", 0)
         token_ratio = self.pricing_data.get(model, {model: {"token_ratio": 1}}).get(
             "token_ratio", 1
         )
