@@ -8,6 +8,7 @@ from lavague.core.utilities.pricing_util import get_pricing_data
 from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.core.base_engine import ActionResult
+from lavague.core.world_model import WORLD_MODEL_PROMPT_TEMPLATE
 
 
 class TokenCounter:
@@ -239,7 +240,9 @@ def triage_events(events: List[Any]) -> Tuple[List[Any], List[Any]]:
     world_model_events = []
     other_events = []
 
-    world_model_prompt_start = "You are an AI system specialized in high level reasoning. Your goal is to generate instructions for other specialized AIs to perform web actions to reach objectives given by humans."
+    world_model_prompt_start = WORLD_MODEL_PROMPT_TEMPLATE.template.strip().split("\n")[
+        0
+    ]
 
     for event in events:
         if event.prompt.strip().startswith(world_model_prompt_start):
