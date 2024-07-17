@@ -2,7 +2,7 @@ from io import BytesIO
 import logging
 import os
 import shutil
-from typing import Any, Optional, List, Tuple
+from typing import Any, Optional
 
 from lavague.core.action_engine import ActionEngine
 from lavague.core.world_model import WorldModel
@@ -38,7 +38,7 @@ class WebAgent:
         self,
         world_model: WorldModel,
         action_engine: ActionEngine,
-        token_counter: TokenCounter = None,
+        token_counter: Optional[TokenCounter] = None,
         n_steps: int = 10,
         clean_screenshot_folder: bool = True,
         logger: AgentLogger = None,
