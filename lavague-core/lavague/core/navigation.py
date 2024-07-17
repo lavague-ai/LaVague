@@ -5,7 +5,7 @@ from typing import Any, List, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
-from lavague.core.extractors import BaseExtractor, JsonFromMarkdownExtractor
+from lavague.core.extractors import BaseExtractor, YamlFromMarkdownExtractor
 from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
@@ -31,7 +31,7 @@ Query: {query_str}
 Completion:
 
 """,
-    JsonFromMarkdownExtractor(),
+    YamlFromMarkdownExtractor(),
 )
 
 REPHRASE_PROMPT = Template(

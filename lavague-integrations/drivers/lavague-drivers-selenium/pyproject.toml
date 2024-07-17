@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-drivers-selenium"
-version = "0.2.10"
+version = "0.2.11"
 description = "Selenium integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
