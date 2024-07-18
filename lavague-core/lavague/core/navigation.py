@@ -5,7 +5,11 @@ from typing import Any, List, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
-from lavague.core.extractors import BaseExtractor, JsonFromMarkdownExtractor
+from lavague.core.extractors import (
+    BaseExtractor,
+    YamlFromMarkdownExtractor,
+    DynamicExtractor,
+)
 from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
@@ -31,7 +35,7 @@ Query: {query_str}
 Completion:
 
 """,
-    JsonFromMarkdownExtractor(),
+    YamlFromMarkdownExtractor(),
 )
 
 REPHRASE_PROMPT = Template(
@@ -118,7 +122,7 @@ class NavigationEngine(BaseEngine):
         rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
-        extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
+        extractor: BaseExtractor = DynamicExtractor(),
         time_between_actions: float = 1.5,
         n_attempts: int = 5,
         logger: AgentLogger = None,
@@ -153,7 +157,7 @@ class NavigationEngine(BaseEngine):
         rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
-        extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
+        extractor: BaseExtractor = DynamicExtractor(),
     ) -> "NavigationEngine":
         """
         Create an NavigationEngine from a context
@@ -172,7 +176,7 @@ class NavigationEngine(BaseEngine):
         Get the nodes from the html page
 
         Args:
-            html (`str`): The html page
+            query (`str`): The query to search for
 
         Return:
             `List[str]`: The nodes
@@ -571,6 +575,13 @@ class NavigationControl(BaseEngine):
         elif "MAXIMIZE_WINDOW" in instruction:
             self.driver.maximize_window()
             code = inspect.getsource(self.driver.maximize_window)
+        elif "SWITCH_TAB" in instruction:
+            tab_id = int(instruction.split(" ")[1])
+            try:
+                self.driver.switch_tab(tab_id=tab_id)
+            except Exception as e:
+                raise ValueError(f"Error while switching tab: {e}")
+            code = inspect.getsource(self.driver.switch_tab)
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         success = True

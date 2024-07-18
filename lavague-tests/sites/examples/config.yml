@@ -1,0 +1,12 @@
+type: static
+port: 8000
+directory: www
+tasks:
+
+  - name: Navigate using link
+    url: http://localhost:8000
+    prompt: Go to the menu
+    expect:
+      - URL is http://localhost:8000/menu.html
+      - Status is success
+      - HTML contains <h1>Menu</h1>

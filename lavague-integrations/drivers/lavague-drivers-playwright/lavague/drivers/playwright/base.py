@@ -2,7 +2,7 @@ from io import BytesIO
 import json
 import os
 from PIL import Image
-from typing import Callable, Optional, Any, Mapping, Iterable, Dict, List
+from typing import Callable, Optional, Any, Mapping, Dict, List
 from lavague.core.utilities.format_utils import extract_code_from_funct
 from playwright.sync_api import Page, Locator
 from lavague.core.base_driver import (
@@ -25,9 +25,9 @@ class PlaywrightDriver(BaseDriver):
         height: int = 1080,
         user_data_dir: Optional[str] = None,
     ):
-        os.environ[
-            "PW_TEST_SCREENSHOT_NO_FONTS_READY"
-        ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        os.environ["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = (
+            "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        )
         self.headless = headless
         self.user_data_dir = user_data_dir
         self.width = width
@@ -158,7 +158,7 @@ class PlaywrightDriver(BaseDriver):
         elements = []
 
         data = json.loads(generated_code)
-        if not isinstance(data, Iterable):
+        if not isinstance(data, List):
             data = [data]
         for item in data:
             action_name = item["action"]["name"]

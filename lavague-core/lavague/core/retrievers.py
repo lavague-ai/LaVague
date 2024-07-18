@@ -220,7 +220,7 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
     def _match_element(self, attributes, element_specs):
         i = 0
         for spec in element_specs:
-            if attributes["xpath"] == spec["xpath"]:
+            if attributes.get("xpath") == spec["xpath"]:
                 return i
             i += 1
         return None
@@ -231,14 +231,12 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             split_html = node.text
             soup = BeautifulSoup(split_html, "html.parser")
             for element in soup.descendants:
-                try:
+                if not isinstance(element, NavigableString):
                     indice = self._match_element(element.attrs, results_dict)
                     if indice is not None:
                         node.metadata["score"] = score[indice]
                         returned_nodes.append(node)
                         break
-                except:
-                    pass
         return returned_nodes
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
@@ -281,14 +279,17 @@ class IxpathRetriever(BaseHtmlRetriever):
             siblings = [
                 sib for sib in element.parent.children if sib.name == element.name
             ]
+            tag = element.name
+            if tag in ["svg", "path", "circle", "g"]:
+                tag = f"*[local-name() = '{tag}']"
             if len(siblings) > 1:
                 count = siblings.index(element) + 1
                 if count == 1:
-                    path = f"/{element.name}{path}"
+                    path = f"/{tag}{path}"
                 else:
-                    path = f"/{element.name}[{count}]{path}"
+                    path = f"/{tag}[{count}]{path}"
             else:
-                path = f"/{element.name}{path}"
+                path = f"/{tag}{path}"
             return self._generate_xpath(element.parent, path)
 
     def _add_xpath_attributes(

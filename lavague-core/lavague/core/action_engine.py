@@ -3,7 +3,7 @@ from typing import Dict
 from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from lavague.core.extractors import BaseExtractor
+from lavague.core.extractors import BaseExtractor, DynamicExtractor
 from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
@@ -51,7 +51,7 @@ class ActionEngine:
         embedding: BaseEmbedding = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
-        extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
+        extractor: BaseExtractor = DynamicExtractor(),
         time_between_actions: float = 1.5,
         n_attempts: int = 5,
         logger: AgentLogger = None,
@@ -108,7 +108,7 @@ class ActionEngine:
         navigation_control: BaseEngine = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
-        extractor: BaseExtractor = NAVIGATION_ENGINE_PROMPT_TEMPLATE.extractor,
+        extractor: BaseExtractor = DynamicExtractor(),
         time_between_actions: float = 1.5,
         n_attempts: int = 5,
         logger: AgentLogger = None,
