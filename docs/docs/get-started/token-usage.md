@@ -17,9 +17,9 @@ Token counts are separated in three main categories
 - ActionEngine: **llm tokens**
 - PythonEngine (if used): **embeddings**
 
-We also differentiate **input** and **ouput** tokens in the case of llm consumption since pricing is usually different for each of these token types. 
+We also differentiate **input** and **output** tokens in the case of llm consumption since pricing is usually different for each of these token types. 
 
-This allows for an in-depth tracking of all the different agent components that are consumming tokens from external providers. 
+This allows for an in-depth tracking of all the different agent components that are consuming tokens from external providers. 
 
 | **Variable Name**                  | **Explanation**                                                            | **Example Value** |
 |------------------------------------|----------------------------------------------------------------------------|-------------------|
