@@ -2,7 +2,7 @@
 
 When using LaVague, you may find that our Web Agents are not always able to successfully achieve the objective you set them out of the box, leading to either incorrect results or `Navigation errors`.
 
-Our Agents are designed to be as customizable as possible so you can adjust components to get the best result for your particular use case.
+Our Agents are designed to be as customizable as possible so you can adjust components to get the best result for your particular use case. To learn mode about the tools available to help you please consult our [Debug tools documentation ](./debug-tools.md). 
 
 !!! hint "Common issues"
 
@@ -12,7 +12,8 @@ Our Agents are designed to be as customizable as possible so you can adjust comp
     - The Retriever
     - The Action Engine
 
-In this guide, we'll take a look at how you can debug and make adjustments to rectify issues with each of these components.
+In this guide, we'll take a look at how you can debug and make adjustments to rectify issues with each of these components as well as the different debbuging tools we provide to make this easier. 
+
 
 ## Debugging the World Model
 

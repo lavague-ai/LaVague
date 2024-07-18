@@ -106,7 +106,9 @@ nav:
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
-  - End-to-end debugging: 'docs/learn/debugging.md'
+  - Debugging agents: 
+    - End-to-end debugging: 'docs/learn/debugging.md'
+    - Debug tools: 'docs/learn/debugging-tools.md'
 
 - 🧩 Module Guides:
   - Web Agents: 'docs/learn/agents.md'
