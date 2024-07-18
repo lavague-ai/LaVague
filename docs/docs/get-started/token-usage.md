@@ -77,8 +77,22 @@ agent = WebAgent(
     token_counter=token_counter,
     
 )
+
+# run the agent
 agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT", log_to_db=True)
+
+# get logs
+log_df = agent.logger.return_pandas()
+
+# compute and show steps taken, tokens consummed and cost
+total_cost = log_df["total_step_cost"].sum()
+total_tokens = log_df["total_step_tokens"].sum()
+total_steps = len(log_df)
+
+print("Total steps:", total_steps)
+print(f"Total tokens: {total_tokens}")
+print(f"Total cost: ${round(total_cost, 3)}")
 
 ```
 
