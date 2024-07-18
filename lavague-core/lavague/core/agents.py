@@ -309,6 +309,12 @@ class WebAgent:
         self.process_token_usage()
         self.logger.end_step()
 
+    def prepare_run(self, display: bool = False, user_data=None):
+        self.action_engine.set_display_all(display)
+        if user_data:
+            self.st_memory.set_user_data(user_data)
+        self.logger.new_run()
+
     def run(
         self,
         objective: str,
@@ -317,13 +323,9 @@ class WebAgent:
         log_to_db: bool = False,
         step_by_step=False,
     ) -> ActionResult:
-        self.action_engine.set_display_all(display)
+        self.prepare_run(display=display, user_data=user_data)
 
         try:
-            if user_data:
-                self.st_memory.set_user_data(user_data)
-
-            self.logger.new_run()
             for _ in range(self.n_steps):
                 result = self.run_step(objective)
 
