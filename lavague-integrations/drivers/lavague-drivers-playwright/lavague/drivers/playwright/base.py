@@ -47,27 +47,25 @@ class PlaywrightDriver(BaseDriver):
             ) from error
         p = sync_playwright().__enter__()
         user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+        args = [
+            "--disable-web-security",
+            "--disable-site-isolation-trials",
+            "--disable-notifications",
+        ]
         if self.user_data_dir is None:
             browser = p.chromium.launch(
                 headless=self.headless,
-                args=[
-                    "--disable-web-security",
-                    "--disable-site-isolation-trials",
-                    "--disable-notifications",
-                ],
+                args=args,
             )
+            context = browser.new_context(user_agent=user_agent)
         else:
-            browser = p.chromium.launch_persistent_context(
+            context = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
-                args=[
-                    "--disable-web-security",
-                    "--disable-site-isolation-trials",
-                    "--disable-notifications",
-                ],
+                user_agent=user_agent,
+                args=args,
             )
 
-        context = browser.new_context(user_agent=user_agent)
         context.add_init_script(JS_SETUP_GET_EVENTS)
         page = context.new_page()
         self.page = page
