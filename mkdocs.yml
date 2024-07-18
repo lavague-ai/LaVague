@@ -108,7 +108,7 @@ nav:
   - Architecture: 'docs/learn/architecture.md'
   - Debugging agents: 
     - End-to-end debugging: 'docs/learn/debugging.md'
-    - Debug tools: 'docs/learn/debugging-tools.md'
+    - Debug tools: 'docs/learn/debug-tools.md'
 
 - 🧩 Module Guides:
   - Web Agents: 'docs/learn/agents.md'
