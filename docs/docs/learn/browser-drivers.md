@@ -9,12 +9,12 @@ We have two Driver options:
 
 - ✅ SeleniumDriver: the Action Engine will generate and execute code using Selenium. We most often use and add support for Selenium. 
 - 🎭 PlaywrightDriver: the Action Engine will generate and execute code using Playwright
-- 🖥️ Chrome Extension: when used along the DriverServer to generate code, the ChromeExtension will execute Javascript
+- 🖥️ Chrome extension: when used along the DriverServer to generate code, the Chrome extension will execute JavaScript
 
 
 ## Driver feature support
 
-Not all agent features are supported by all drivers. **Selenium is our prefered option** since it currently supports the widest range of features. We welcome community contributions to help us increase support coverage for different drivers.
+Not all agent features are supported by all drivers. **Selenium is our preferred option** since it currently supports the widest range of features. We welcome community contributions to help us increase support coverage for different drivers.
 
 
 | Feature                  | Selenium  | Playwright       | Chrome Extension                     |
