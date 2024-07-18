@@ -12,7 +12,7 @@ Our Agents are designed to be as customizable as possible so you can adjust comp
     - The Retriever
     - The Action Engine
 
-In this guide, we'll take a look at how you can debug and make adjustments to rectify issues with each of these components as well as the different debbugging tools we provide to make this easier. 
+In this guide, we'll take a look at how you can debug and make adjustments to rectify issues with each of these components as well as the different debugging tools we provide to make this easier. 
 
 
 ## Debugging the World Model

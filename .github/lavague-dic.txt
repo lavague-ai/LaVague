@@ -139,4 +139,8 @@ XPATH
 dataframe
 retiever
 iframe
+iframes
+debugging
 interactable
+DriverServer
+CAPTCHAs
