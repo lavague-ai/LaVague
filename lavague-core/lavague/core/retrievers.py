@@ -3,8 +3,7 @@ from typing import List
 from abc import ABC, abstractmethod
 from bs4 import BeautifulSoup, NavigableString
 from llama_index.retrievers.bm25 import BM25Retriever
-from llama_index.core import Document
-from llama_index.core import QueryBundle
+from llama_index.core import Document, VectorStoreIndex, QueryBundle
 from llama_index.core.schema import NodeWithScore, TextNode
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
@@ -28,22 +27,41 @@ class BaseHtmlRetriever(ABC):
 
 
 class BM25HtmlRetriever(BaseHtmlRetriever):
-    """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
+    """Syntaxic retriever"""
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        text_list = [clean_html(self.driver.get_html())]
-        documents = [Document(text=t) for t in text_list]
+        html = clean_html(self.driver.get_html())
+        cleaned_html = clean_html(html)
 
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
             )
         )
-        nodes = splitter.get_nodes_from_documents(documents)
+        nodes = splitter.get_nodes_from_documents([Document(text=cleaned_html)])
+
         retriever = BM25Retriever.from_defaults(
             nodes=nodes, similarity_top_k=self.top_k
         )
         return retriever.retrieve(query)
+
+
+class SemanticRetriever(BaseHtmlRetriever):
+    """Semantic retriever"""
+
+    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
+        html = self.driver.get_html()
+
+        splitter = LangchainNodeParser(
+            lc_splitter=RecursiveCharacterTextSplitter.from_language(
+                language="html",
+            )
+        )
+        nodes = splitter.get_nodes_from_documents([Document(text=html)])
+
+        index = VectorStoreIndex(nodes=nodes)
+        query_engine = index.as_retriever(similarity_top_k=self.top_k)
+        return query_engine.retrieve(query)
 
 
 class OpsmSplitRetriever(BaseHtmlRetriever):
