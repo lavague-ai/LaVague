@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-drivers-remote"
-version = "0.2.2"
+version = "0.2.3"
 description = "Remote driver execution for Lavague"
 authors = ["lavague-ai"]
 readme = "README.md"

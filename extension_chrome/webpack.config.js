@@ -10,6 +10,9 @@ module.exports = (env, { mode }) => {
 
     return {
         entry: {
+            main: [
+                path.resolve(__dirname, 'src', 'main.ts'),
+            ],
             background: path.resolve(__dirname, 'src', 'background.ts'),
             content: path.resolve(__dirname, 'src', 'content.ts'),
         },

@@ -1,7 +1,7 @@
 {
     "name": "LaVague",
     "description": "LaVague Web Agent",
-    "version": "0.2",
+    "version": "0.3",
     "manifest_version": 3,
     "minimum_chrome_version": "116",
     "action": {
@@ -19,6 +19,12 @@
       "default_path": "content.html"
     },
     "host_permissions": ["<all_urls>"],
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["main.js"]
+      }
+    ],
     "permissions": [
       "activeTab",
       "tabs",
