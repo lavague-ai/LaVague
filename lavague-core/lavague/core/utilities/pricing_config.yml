@@ -1,6 +1,14 @@
 # Pricing table for common LLMs and text embedding models
 # Currency: USD
 models:
+    gpt-4o-mini:
+      token_ratio: 1000000.00
+      input_tokens: 0.15
+      output_tokens: 0.60
+    gpt-3.5-turbo:
+      token_ratio: 1000000.00
+      input_tokens: 0.50
+      output_tokens: 1.5
     gpt-4o:
       token_ratio: 1000000.00
       input_tokens: 5.00
