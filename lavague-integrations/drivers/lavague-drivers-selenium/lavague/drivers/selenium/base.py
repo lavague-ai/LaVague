@@ -1,8 +1,13 @@
+import re
 from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    WebDriverException,
+    ElementClickInterceptedException,
+)
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
@@ -277,7 +282,16 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def click(self, xpath: str):
         elem = self.resolve_xpath(xpath)
-        elem.click()
+        try:
+            elem.click()
+        except ElementClickInterceptedException as e:
+            # if another element captures the click, perform the action on it
+            xpath_pattern = r'xpath="([^"]*)"'
+            xpath_matches = re.findall(xpath_pattern, e.msg)
+            if len(xpath_matches) >= 2:
+                self.click(xpath_matches[1])
+            else:
+                raise e
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):

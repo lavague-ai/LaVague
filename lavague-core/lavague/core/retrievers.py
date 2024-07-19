@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 from abc import ABC, abstractmethod
 from bs4 import BeautifulSoup, NavigableString
 from llama_index.retrievers.bm25 import BM25Retriever
@@ -11,6 +11,61 @@ from lavague.core.base_driver import BaseDriver, PossibleInteractionsByXpath
 from lavague.core.utilities.format_utils import clean_html
 import re
 import ast
+
+
+class XPathRetrievable:
+    def __init__(self, driver: BaseDriver):
+        self.driver = driver
+
+    def _generate_xpath(self, element, path=""):  # used to generate dict nodes
+        """Recursive function to generate the xpath of an element"""
+        if element.parent is None:
+            return path
+        else:
+            siblings = [
+                sib for sib in element.parent.children if sib.name == element.name
+            ]
+            tag = element.name
+            if tag in ["svg", "path", "circle", "g"]:
+                tag = f"*[local-name() = '{tag}']"
+            if len(siblings) > 1:
+                count = siblings.index(element) + 1
+                if count == 1:
+                    path = f"/{tag}{path}"
+                else:
+                    path = f"/{tag}[{count}]{path}"
+            else:
+                path = f"/{tag}{path}"
+            return self._generate_xpath(element.parent, path)
+
+    def get_html_with_xpath(
+        self,
+        html_content,
+        filter_by_possible_interactions: Optional[PossibleInteractionsByXpath],
+        xpath_prefix="",
+    ):
+        soup = BeautifulSoup(html_content, "html.parser")
+        for element in soup.find_all(True):
+            xpath = xpath_prefix + self._generate_xpath(element)
+            if (
+                filter_by_possible_interactions is None
+                or xpath in filter_by_possible_interactions
+            ):
+                element["xpath"] = xpath
+        for iframe_tag in soup.find_all("iframe"):
+            frame_xpath = self._generate_xpath(iframe_tag)
+            try:
+                self.driver.switch_frame(frame_xpath)
+            except Exception:
+                continue
+            frame_soup_str = self.get_html_with_xpath(
+                self.driver.get_html(),
+                filter_by_possible_interactions,
+                xpath_prefix + frame_xpath,
+            )
+            iframe_tag.replace_with(frame_soup_str)
+            self.driver.switch_parent_frame()
+        return str(soup)
 
 
 class BaseHtmlRetriever(ABC):
@@ -27,7 +82,7 @@ class BaseHtmlRetriever(ABC):
 
 
 class BM25HtmlRetriever(BaseHtmlRetriever):
-    """Syntaxic retriever"""
+    """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         html = clean_html(self.driver.get_html())
@@ -46,25 +101,28 @@ class BM25HtmlRetriever(BaseHtmlRetriever):
         return retriever.retrieve(query)
 
 
-class SemanticRetriever(BaseHtmlRetriever):
+class SemanticRetriever(BaseHtmlRetriever, XPathRetrievable):
     """Semantic retriever"""
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         html = self.driver.get_html()
+        xpath_html = self.get_html_with_xpath(
+            html, self.driver.get_possible_interactions()
+        )
 
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
             )
         )
-        nodes = splitter.get_nodes_from_documents([Document(text=html)])
+        nodes = splitter.get_nodes_from_documents([Document(text=xpath_html)])
 
         index = VectorStoreIndex(nodes=nodes)
         query_engine = index.as_retriever(similarity_top_k=self.top_k)
         return query_engine.retrieve(query)
 
 
-class OpsmSplitRetriever(BaseHtmlRetriever):
+class OpsmSplitRetriever(BaseHtmlRetriever, XPathRetrievable):
     def __init__(
         self,
         driver: BaseDriver,
@@ -75,31 +133,6 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         super().__init__(driver, top_k)
         self.group_by = group_by
         self.rank_fields = rank_fields
-
-    def _generate_xpath(self, element, path=""):  # used to generate dict nodes
-        """Recursive function to generate the xpath of an element"""
-        if element.parent is None:
-            return path
-        else:
-            siblings = [
-                sib for sib in element.parent.children if sib.name == element.name
-            ]
-            if len(siblings) > 1:
-                count = siblings.index(element) + 1
-                path = f"/{element.name}[{count}]{path}"
-            else:
-                path = f"/{element.name}{path}"
-            return self._generate_xpath(element.parent, path)
-
-    def _add_xpath_attributes(self, html_content):
-        """
-        Add an 'xpath' attribute to each element in the HTML content with its computed XPath.
-        """
-        soup = BeautifulSoup(html_content, "lxml")
-        for element in soup.find_all(True):
-            xpath = self._generate_xpath(element)
-            element["xpath"] = xpath
-        return str(soup)
 
     def _create_nodes_dict(
         self, html, only_body=True, max_length=200
@@ -258,7 +291,9 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         return returned_nodes
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        html = self._add_xpath_attributes(self.driver.get_html())
+        html = self.get_html_with_xpath(
+            self.driver.get_html(), self.driver.get_possible_interactions()
+        )
         text_list = [html]
         documents = [Document(text=t) for t in text_list]
         splitter = LangchainNodeParser(
@@ -281,61 +316,13 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         return results
 
 
-class IxpathRetriever(BaseHtmlRetriever):
+class IxpathRetriever(BaseHtmlRetriever, XPathRetrievable):
     def __init__(
         self,
         driver: BaseDriver,
         top_k: int = 5,
     ):
         super().__init__(driver, top_k)
-
-    def _generate_xpath(self, element, path=""):  # used to generate dict nodes
-        """Recursive function to generate the xpath of an element"""
-        if element.parent is None:
-            return path
-        else:
-            siblings = [
-                sib for sib in element.parent.children if sib.name == element.name
-            ]
-            tag = element.name
-            if tag in ["svg", "path", "circle", "g"]:
-                tag = f"*[local-name() = '{tag}']"
-            if len(siblings) > 1:
-                count = siblings.index(element) + 1
-                if count == 1:
-                    path = f"/{tag}{path}"
-                else:
-                    path = f"/{tag}[{count}]{path}"
-            else:
-                path = f"/{tag}{path}"
-            return self._generate_xpath(element.parent, path)
-
-    def _add_xpath_attributes(
-        self,
-        html_content,
-        possible_interactions: PossibleInteractionsByXpath,
-        xpath_prefix="",
-    ):
-        soup = BeautifulSoup(html_content, "html.parser")
-        for element in soup.find_all(True):
-            xpath = xpath_prefix + self._generate_xpath(element)
-            if xpath in possible_interactions:
-                # we only mark interactive elements
-                element["xpath"] = xpath
-        for iframe_tag in soup.find_all("iframe"):
-            frame_xpath = self._generate_xpath(iframe_tag)
-            try:
-                self.driver.switch_frame(frame_xpath)
-            except Exception:
-                continue
-            frame_soup_str = self._add_xpath_attributes(
-                self.driver.get_html(),
-                possible_interactions,
-                xpath_prefix + frame_xpath,
-            )
-            iframe_tag.replace_with(frame_soup_str)
-            self.driver.switch_parent_frame()
-        return str(soup)
 
     def _get_interactable_nodes(
         self, html: str, possible_interactions: PossibleInteractionsByXpath
@@ -359,7 +346,7 @@ class IxpathRetriever(BaseHtmlRetriever):
 
     def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
         possible_interactions = self.driver.get_possible_interactions()
-        html = self._add_xpath_attributes(self.driver.get_html(), possible_interactions)
+        html = self.get_html_with_xpath(self.driver.get_html(), possible_interactions)
         nodes = self._get_interactable_nodes(html, possible_interactions)
         retriever = BM25Retriever.from_defaults(
             nodes=nodes, similarity_top_k=self.top_k
