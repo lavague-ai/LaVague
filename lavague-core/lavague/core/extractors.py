@@ -30,6 +30,7 @@ class YamlFromMarkdownExtractor(BaseExtractor):
             # Return None if no match is found
             return None
 
+
 class JsonFromMarkdownExtractor(BaseExtractor):
     """
     Extractor for the prompts that end with (or similar to) the following:
