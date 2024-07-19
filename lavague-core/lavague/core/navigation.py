@@ -1,7 +1,6 @@
 from io import BytesIO
 import logging
 import time
-import traceback
 from typing import Any, List, Optional
 from string import Template
 from lavague.core.action_template import ActionTemplate
