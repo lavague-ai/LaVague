@@ -108,22 +108,6 @@ class BaseDriver(ABC):
         """
         pass
 
-    @abstractmethod
-    def get_tabs(self) -> str:
-        """Return description of the tabs opened with the current tab being focused.
-
-        Example of output:
-        Tabs opened:
-        0 - Overview - OpenAI API
-        1 - [CURRENT] Nos destinations Train - SNCF Connect
-        """
-        pass
-
-    @abstractmethod
-    def switch_tab(self, tab_id: int) -> None:
-        """Switch to the tab with the given id"""
-        pass
-
     def get_tabs(self) -> str:
         """Return description of the tabs opened with the current tab being focused.
 
