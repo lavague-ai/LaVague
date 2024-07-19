@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-drivers-playwright"
-version = "0.2.8"
+version = "0.2.10"
 description = "Playwright integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -21,7 +21,7 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.22"
+lavague-core = "^0.2.24"
 playwright = "^1.42.0"
 
 [build-system]

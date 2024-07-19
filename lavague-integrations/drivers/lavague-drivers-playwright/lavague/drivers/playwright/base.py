@@ -2,7 +2,7 @@ from io import BytesIO
 import json
 import os
 from PIL import Image
-from typing import Callable, Optional, Any, Mapping, Iterable, Dict, List
+from typing import Callable, Optional, Any, Mapping, Dict, List
 from lavague.core.utilities.format_utils import extract_code_from_funct
 from playwright.sync_api import Page, Locator
 from lavague.core.base_driver import (
@@ -25,9 +25,9 @@ class PlaywrightDriver(BaseDriver):
         height: int = 1080,
         user_data_dir: Optional[str] = None,
     ):
-        os.environ[
-            "PW_TEST_SCREENSHOT_NO_FONTS_READY"
-        ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        os.environ["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = (
+            "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        )
         self.headless = headless
         self.user_data_dir = user_data_dir
         self.width = width
@@ -47,27 +47,25 @@ class PlaywrightDriver(BaseDriver):
             ) from error
         p = sync_playwright().__enter__()
         user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+        args = [
+            "--disable-web-security",
+            "--disable-site-isolation-trials",
+            "--disable-notifications",
+        ]
         if self.user_data_dir is None:
             browser = p.chromium.launch(
                 headless=self.headless,
-                args=[
-                    "--disable-web-security",
-                    "--disable-site-isolation-trials",
-                    "--disable-notifications",
-                ],
+                args=args,
             )
+            context = browser.new_context(user_agent=user_agent)
         else:
-            browser = p.chromium.launch_persistent_context(
+            context = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
-                args=[
-                    "--disable-web-security",
-                    "--disable-site-isolation-trials",
-                    "--disable-notifications",
-                ],
+                user_agent=user_agent,
+                args=args,
             )
 
-        context = browser.new_context(user_agent=user_agent)
         context.add_init_script(JS_SETUP_GET_EVENTS)
         page = context.new_page()
         self.page = page
@@ -158,7 +156,7 @@ class PlaywrightDriver(BaseDriver):
         elements = []
 
         data = json.loads(generated_code)
-        if not isinstance(data, Iterable):
+        if not isinstance(data, List):
             data = [data]
         for item in data:
             action_name = item["action"]["name"]

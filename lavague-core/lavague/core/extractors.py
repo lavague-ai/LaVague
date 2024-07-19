@@ -29,6 +29,29 @@ class YamlFromMarkdownExtractor(BaseExtractor):
             # Return None if no match is found
             return None
 
+class YamlFromMarkdownExtractor(BaseExtractor):
+    """
+    Extractor for the prompts that end with (or similar to) the following:
+
+    --------------------------------------------
+    Completion:
+    --------------------------------------------
+    """
+
+    def extract(self, markdown_text: str) -> str:
+        # Pattern to match the first ```yaml ``` code block
+        pattern = r"```yaml(.*?)```"
+
+        # Using re.DOTALL to make '.' match also newlines
+        match = re.search(pattern, markdown_text, re.DOTALL)
+        if match:
+            # Return the first matched group, which is the code inside the ```python ```
+            return match.group(1).strip()
+        else:
+            # Return None if no match is found
+            return None
+
+
 class JsonFromMarkdownExtractor(BaseExtractor):
     """
     Extractor for the prompts that end with (or similar to) the following:
@@ -88,3 +111,24 @@ class UntilEndOfMarkdownExtractor(BaseExtractor):
 
     def extract(self, text: str) -> str:
         return text.split("```")[0]
+
+
+class DynamicExtractor(BaseExtractor):
+    """
+    Extractor for typed markdown blocks
+    """
+
+    def __init__(self):
+        self.extractors = {
+            "json": JsonFromMarkdownExtractor(),
+            "yaml": YamlFromMarkdownExtractor(),
+            "python": PythonFromMarkdownExtractor(),
+        }
+
+    def extract(self, text: str) -> str:
+        types_pattern = "|".join(self.extractors.keys())
+        pattern = rf"```({types_pattern}).*?```"
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            type = match.group(1).strip()
+            return self.extractors[type].extract(text)

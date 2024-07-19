@@ -1,19 +1,22 @@
-from typing import Any, Optional, Callable, Mapping, Dict, List, Iterable
+from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     PossibleInteractionsByXpath,
     InteractionType,
+    DOMNode,
 )
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import extract_code_from_funct
 import json
+import yaml
 
 
 class SeleniumDriver(BaseDriver):
@@ -29,6 +32,7 @@ class SeleniumDriver(BaseDriver):
         height: int = 1080,
         no_load_strategy: bool = False,
         options: Optional[Options] = None,
+        driver: Optional[WebDriver] = None,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -36,6 +40,7 @@ class SeleniumDriver(BaseDriver):
         self.height = height
         self.no_load_strategy = no_load_strategy
         self.options = options
+        self.driver = driver
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -68,7 +73,8 @@ class SeleniumDriver(BaseDriver):
         chrome_options.add_argument("--disable-site-isolation-trials")
         chrome_options.add_argument("--disable-notifications")
 
-        self.driver = webdriver.Chrome(options=chrome_options)
+        if self.driver is None:
+            self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
             {"source": JS_SETUP_GET_EVENTS},
@@ -148,19 +154,31 @@ driver.set_window_size({width}, {height} + height_difference)
     def maximize_window(self) -> None:
         self.driver.maximize_window()
 
+    def check_visibility(self, xpath: str) -> bool:
+        try:
+            element = self.resolve_xpath(xpath)
+            return (
+                element is not None and element.is_displayed() and element.is_enabled()
+            )
+        except:
+            return False
+
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
-        data = json.loads(generated_code)
-        for item in data.get("actions", []):
-            action_name = item["action"]["name"]
-            if action_name != "fail":
-                xpath = item["action"]["args"]["xpath"]
-                try:
-                    elem = self.driver.find_element(By.XPATH, xpath)
-                    elements.append(elem)
-                except:
-                    pass
+        data = yaml.safe_load(generated_code)
+        if not isinstance(data, List):
+            data = [data]
+        for item in data:
+            for action in item["actions"]:
+                action_name = action["action"]["name"]
+                if action_name != "fail":
+                    xpath = action["action"]["args"]["xpath"]
+                    try:
+                        elem = self.driver.find_element(By.XPATH, xpath)
+                        elements.append(elem)
+                    except:
+                        pass
 
         if len(elements) == 0:
             raise ValueError(f"No element found.")
@@ -217,6 +235,7 @@ driver.set_window_size({width}, {height} + height_difference)
             return self.driver.find_element(By.XPATH, before)
         self.switch_frame(before + sep)
         element = self.resolve_xpath(after)
+        self.switch_default_frame()
         return element
 
     def exec_code(
@@ -225,19 +244,22 @@ driver.set_window_size({width}, {height} + height_difference)
         globals: dict[str, Any] = None,
         locals: Mapping[str, object] = None,
     ):
-        data = json.loads(code)
-        for item in data.get("actions", []):
-            action_name = item["action"]["name"]
-            args = item["action"]["args"]
+        data = yaml.safe_load(code)
+        if not isinstance(data, List):
+            data = [data]
+        for item in data:
+            for action in item["actions"]:
+                action_name = action["action"]["name"]
+                args = action["action"]["args"]
 
-            if action_name == "click":
-                self.click(args["xpath"])
-            elif action_name == "setValue":
-                self.set_value(args["xpath"], args["value"])
-            elif action_name == "setValueAndEnter":
-                self.set_value(args["xpath"], args["value"], True)
-            elif action_name == "wait":
-                self.perform_wait(args["duration"])
+                if action_name == "click":
+                    self.click(args["xpath"])
+                elif action_name == "setValue":
+                    self.set_value(args["xpath"], args["value"])
+                elif action_name == "setValueAndEnter":
+                    self.set_value(args["xpath"], args["value"], True)
+                elif action_name == "wait":
+                    self.perform_wait(args["duration"])
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
@@ -274,54 +296,63 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
-    
+
     def get_tabs(self):
         driver = self.driver
         window_handles = driver.window_handles
-    
         # Store the current window handle (focused tab)
         current_handle = driver.current_window_handle
-        
         tab_info = []
-        
         tab_id = 0
-        
+
         for handle in window_handles:
             # Switch to each tab
             driver.switch_to.window(handle)
-            
+
             # Get the title of the current tab
             title = driver.title
-            
+
             # Check if this is the focused tab
             if handle == current_handle:
                 tab_info.append(f"{tab_id} - [CURRENT] {title}")
             else:
                 tab_info.append(f"{tab_id} - {title}")
-                
+
             tab_id += 1
-        
+
         # Switch back to the original tab
         driver.switch_to.window(current_handle)
-        
+
         tab_info = "\n".join(tab_info)
         tab_info = "Tabs opened:\n" + tab_info
-        
         return tab_info
-    
+
     def switch_tab(self, tab_id: int):
         driver = self.driver
         window_handles = driver.window_handles
-        
+
         # Switch to the tab with the given id
         driver.switch_to.window(window_handles[tab_id])
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            element = self.driver.find_element(By.XPATH, xpath)
-            return element.is_displayed() and element.is_enabled()
-        except:
-            return False
+    def get_nodes(self, xpaths: List[str]) -> List["SeleniumNode"]:
+        nodes: List["SeleniumNode"] = []
+        for xpath in xpaths:
+            try:
+                element = self.resolve_xpath(xpath)
+                nodes.append(SeleniumNode(element, self.driver))
+            except NoSuchElementException:
+                print(f"WARN(missing-xpath): {xpath} not found")
+                pass
+        return nodes
+
+    def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
+        nodes = self.get_nodes(xpaths)
+        self.driver.execute_script(
+            "arguments[0].forEach(a => { a.style.outline = '2px dashed ' + arguments[1]; a.style['outline-offset'] = '-1px'})",
+            [n.element for n in nodes],
+            color,
+        )
+        return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
 
     def get_possible_interactions(self) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
@@ -331,13 +362,50 @@ driver.set_window_size({width}, {height} + height_difference)
         return res
 
 
+class SeleniumNode(DOMNode):
+    def __init__(self, element: WebElement, driver: WebDriver) -> None:
+        self.element = element
+        self._driver = driver
+        super().__init__()
+
+    def highlight(self, color: str = "red"):
+        self._driver.execute_script(
+            "arguments[0].style.outline = '2px dashed ' + arguments[1]; arguments[0].style['outline-offset'] = '-1px'",
+            self.element,
+            color,
+        )
+        return self
+
+    def clear(self):
+        self._driver.execute_script(
+            "arguments[0].style.removeProperty('outline')",
+            self.element,
+        )
+        return self
+
+    def take_screenshot(self):
+        try:
+            return Image.open(BytesIO(self.element.screenshot_as_png))
+        except WebDriverException:
+            return Image.new("RGB", (0, 0))
+
+    def get_html(self):
+        return self._driver.execute_script(
+            "return arguments[0].outerHTML", self.element
+        )
+
+
 SELENIUM_PROMPT_TEMPLATE = """
 You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to return a list of actions that should be done in order to execute the actions.
 Always target elements by XPATH.
 
+Your response must always be in the YAML format with the yaml markdown indicator and must include the main item "actions" , which will contains the objects "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool. 
+There must be only ONE args sub-object, such as args (if the tool has multiple arguments). 
+You must always include the comments as well, describing your actions step by step, following strictly the format in the examples provided.
+
 Provide high level explanations about why you think this element is the right one.
-Your answer must be short and concise. 
+Your answer must be short and concise. Always includes comments in the YAML before listing the actions.
 
 The actions available are:
 
@@ -369,35 +437,28 @@ HTML:
 <div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
 Query: Click on the button labeled 'Alles accepteren' to accept all cookies.
 Completion:
-[
-    {
-        "thoughts": [
-            "Let's think step by step",
-            "First, we notice that the query asks us to click on the button labeled 'Alles accepteren' to accept all cookies.",
-            "In the provided HTML, we can see several button elements.",
-            "In the provided HTML, we can see several button elements.",
-            "We need to identify the correct button labeled 'Alles accepteren'.",
-            "We need to navigate through the hierarchy to accurately locate this button.",
-            "The correct button is located within a div element with a specific class and role attribute, which helps us ensure that we are targeting the right element.",
-            "Specifically, for 'Alles accepteren', there is a button element with a unique ID 'L2AGLb' which contains a div with the text 'Alles accepteren'.",
-            "We observe that this button element has the following XPath:",
-            "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]",
-            "Thus, we believe this is the correct element to be interacted with.",
-            "Then we can click on the button."
-        ],
-        "actions": [
-            {
-                "action": {
-                    "name": "click",
-                    "args": {
-                        "xpath": "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
-                    }
-                }
-            }
-        ]
-    }
-]
----
+```yaml
+# Let's think step by step
+# First, we notice that the query asks us to click on the button labeled 'Alles accepteren' to accept all cookies.
+# In the provided HTML, we can see several button elements.
+# We need to identify the correct button labeled 'Alles accepteren'.
+# Upon examining the HTML structure, we see that the button with the text 'Alles accepteren' is located within a specific hierarchy.
+# We need to navigate through the hierarchy to accurately locate this button.
+# The correct button is located within a div element with a specific class and role attribute, which helps us ensure that we are targeting the right element.
+# Specifically, for 'Alles accepteren', there is a button element with a unique ID 'L2AGLb' which contains a div with the text 'Alles accepteren'.
+# We observe that this button element has the following XPath:
+# /html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]
+
+- actions:
+    - action:
+        # Thus, we believe this is the correct element to be interacted with:
+        args:
+            xpath: "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
+            value: ""
+        # Then we can click on the button
+        name: "click"
+```
+-----
 HTML:
 <div class="devsite-top-logo-row-middle" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]">
 <div class="devsite-header-upper-tabs" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]">
@@ -424,41 +485,30 @@ HTML:
 
 Query: Click on "Gemma" under the "More" dropdown menu.
 Completion:
-[
-    {
-        "thoughts": [
-            "Let's think step by step",
-            "First, we notice that the query asks us to click on the "Gemma" option under the "More" dropdown menu.",
-            "In the provided HTML, we see that the "More" dropdown menu is within a tab element with a specific class and role attribute.",
-            "The "More" dropdown menu can be identified by its class 'devsite-overflow-tab' and contains a link element with the text 'More'.",
-            "We need to interact with this dropdown menu to reveal the hidden options.",
-            "Specifically, for the "More" dropdown menu, there is an anchor element within a tab element:",
-            "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a",
-            "We can use this XPATH to identify and click on the "More" dropdown menu.",
-            "After clicking the "More" dropdown, we need to select the "Gemma" option from the revealed menu.",
-            "The "Gemma" option is located within the dropdown menu and can be identified by its anchor element with the corresponding text:"
-            "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a",
-            "Thus, we use this XPATH to identify and click on the "Gemma" option."
-        ],
-        "actions": [
-            {
-                "action": {
-                    "name": "click",
-                    "args": {
-                        "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
-                    }
-                }
-            },
-            {
-                "action": {
-                    "name": "click",
-                    "args": {
-                        "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
-                    }
-                }
-            }
-        ]
-    }
-]
-Your response must always be in JSON format and must include the object "thoughts", and the object "actions", which will contains the objects "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
+```yaml
+# Let's think step by step
+# First, we notice that the query asks us to click on the "Gemma" option under the "More" dropdown menu.
+# In the provided HTML, we see that the "More" dropdown menu is within a tab element with a specific class and role attribute.
+# The "More" dropdown menu can be identified by its class 'devsite-overflow-tab' and contains a link element with the text 'More'.
+# We need to interact with this dropdown menu to reveal the hidden options.
+# Specifically, for the "More" dropdown menu, there is an anchor element within a tab element:
+# /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a
+
+- actions:
+    - action:
+        # We can use this XPATH to identify and click on the "More" dropdown menu:
+        args:
+            xpath: "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
+            value: ""
+        name: "click"
+    - action:
+        # After clicking the "More" dropdown, we need to select the "Gemma" option from the revealed menu.
+        # The "Gemma" option is located within the dropdown menu and can be identified by its anchor element with the corresponding text:
+        # /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a
+        # Thus, we use this XPATH to identify and click on the "Gemma" option:
+        args:
+            xpath: "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
+            value: ""
+        name: "click"
+```
 """

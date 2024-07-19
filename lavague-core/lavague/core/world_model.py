@@ -3,7 +3,7 @@ import os
 from abc import ABC
 from llama_index.core import PromptTemplate
 from llama_index.core.multi_modal_llms import MultiModalLLM
-from llama_index.core import SimpleDirectoryReader
+from llama_index.legacy.readers.file.base import SimpleDirectoryReader
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 from functools import lru_cache
@@ -388,6 +388,8 @@ class WorldModel(ABC, Loggable):
         previous_instructions = past["previous_instructions"]
         last_engine = past["last_engine"]
         
+        tab_info = observations["tab_info"]
+
         tab_info = observations["tab_info"]
 
         try:

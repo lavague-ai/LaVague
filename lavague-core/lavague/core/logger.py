@@ -101,66 +101,69 @@ class LocalLogger(AgentLogger):
 class LocalDBLogger(AgentLogger):
     def __init__(self, db_name: str = "lavague_logs.db"):
         self.db_name = db_name
-        # on init connect to db and create table and close connection
+        self.ensure_connection()
+
+    def ensure_connection(self):
         try:
-            sqliteConnection = sqlite3.connect(db_name)
-            cursor = sqliteConnection.cursor()
-            print("Connected to SQLite")
-            create_table = """
-                CREATE TABLE IF NOT EXISTS Logs
-                    (current_state TEXT,
-                    past TEXT,
-                    world_model_prompt TEXT,
-                    world_model_output TEXT,
-                    world_model_inference_time REAL,
-                    engine TEXT,
-                    instruction TEXT,
-                    engine_log TEXT,
-                    success TEXT,
-                    output TEXT,
-                    code TEXT,
-                    html TEXT,
-                    screenshots_path TEXT,
-                    url TEXT,
-                    date TEXT,
-                    run_id TEXT,
-                    step INTEGER,
-                    screenshots TEXT)"""
-            cursor.execute(create_table)
-            cursor.close()
-            print("Created table : Logs")
+            with sqlite3.connect(self.db_name) as conn:
+                print("Connected to SQLite")
         except sqlite3.Error as error:
-            print("Error occurred - ", error)
-        finally:
-            if sqliteConnection:
-                sqliteConnection.close()
-                print("sqlite connection is closed")
+            print("Error occurred while connecting to SQLite -", error)
+
+    def create_or_alter_table(self, df_logs: DataFrame):
+        columns = df_logs.columns
+        try:
+            with sqlite3.connect(self.db_name) as conn:
+                cursor = conn.cursor()
+
+                # check if the table exists
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='Logs'"
+                )
+                table_exists = cursor.fetchone() is not None
+
+                if not table_exists:
+                    # create the table with all columns as TEXT
+                    create_query = f"CREATE TABLE Logs ({', '.join([f'{col} TEXT' for col in columns])})"
+                    cursor.execute(create_query)
+                else:
+                    # get existing columns
+                    cursor.execute("PRAGMA table_info(Logs)")
+                    existing_columns = set(row[1] for row in cursor.fetchall())
+
+                    # add new columns
+                    for col in columns:
+                        if col not in existing_columns:
+                            alter_query = f"ALTER TABLE Logs ADD COLUMN {col} TEXT"
+                            cursor.execute(alter_query)
+
+                conn.commit()
+                print("Table created or altered successfully")
+        except sqlite3.Error as error:
+            print("Error occurred while creating or altering table -", error)
 
     def insert_logs(self, agent) -> None:
         if agent:
             df_logs = agent.logger.return_pandas()
             try:
-                sqliteConnection = sqlite3.connect(self.db_name)
-                cursor = sqliteConnection.cursor()
-                print("Connected to SQLite")
+                self.create_or_alter_table(df_logs)
 
-                dataToInsert = self.format_df_logs_to_sqlite3_types(df_logs)
+                with sqlite3.connect(self.db_name) as conn:
+                    cursor = conn.cursor()
 
-                cursor.executemany(
-                    "INSERT INTO Logs VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    dataToInsert,
-                )
-                sqliteConnection.commit()
-                cursor.close()
-                print("Log insert complete")
+                    columns = ", ".join(df_logs.columns)
+                    placeholders = ", ".join(["?" for _ in df_logs.columns])
+                    insert_query = (
+                        f"INSERT INTO Logs ({columns}) VALUES ({placeholders})"
+                    )
+
+                    data_to_insert = self.format_df_logs_to_sqlite3_types(df_logs)
+                    cursor.executemany(insert_query, data_to_insert)
+
+                    conn.commit()
+                    print("Log insert complete")
             except sqlite3.Error as error:
-                print("Error occurred - ", error)
-            finally:
-                if sqliteConnection:
-                    sqliteConnection.close()
-                    print("sqlite connection is closed")
-        else:
-            print("Please pass an appropriate agent!")
+                print("Error occurred while inserting logs -", error)
 
     def format_df_logs_to_sqlite3_types(self, df_logs: DataFrame) -> list:
         if df_logs is not None and isinstance(df_logs, DataFrame):

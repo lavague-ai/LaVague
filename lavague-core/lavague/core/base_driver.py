@@ -1,6 +1,8 @@
+from PIL import Image
 import os
 from pathlib import Path
-from typing import Any, Callable, Optional, Mapping, Dict, Set
+import re
+from typing import Any, Callable, Optional, Mapping, Dict, Set, List, Union
 from abc import ABC, abstractmethod
 from lavague.core.utilities.format_utils import (
     extract_code_from_funct,
@@ -20,6 +22,8 @@ class InteractionType(Enum):
 
 
 PossibleInteractionsByXpath = Dict[str, Set[InteractionType]]
+
+r_get_xpaths_from_html = r'xpath=["\'](.*?)["\']'
 
 
 class BaseDriver(ABC):
@@ -120,23 +124,37 @@ class BaseDriver(ABC):
         """Switch to the tab with the given id"""
         pass
 
+    def get_tabs(self) -> str:
+        """Return description of the tabs opened with the current tab being focused.
+
+        Example of output:
+        Tabs opened:
+        0 - Overview - OpenAI API
+        1 - [CURRENT] Nos destinations Train - SNCF Connect
+        """
+        return "Tabs opened:\n 0 - [CURRENT] tab"
+
+    def switch_tab(self, tab_id: int) -> None:
+        """Switch to the tab with the given id"""
+        pass
+
     def switch_frame(self, xpath) -> None:
         """
         switch to the frame pointed at by the xpath
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def switch_default_frame(self) -> None:
         """
         Switch back to the default frame
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def switch_parent_frame(self) -> None:
         """
         Switch back to the parent frame
         """
-        raise NotImplemented
+        raise NotImplementedError()
 
     def resolve_xpath(self, xpath):
         """
@@ -302,35 +320,98 @@ class BaseDriver(ABC):
     def get_screenshot_as_png(self) -> bytes:
         pass
 
+    def get_nodes(self, xpaths: List[str]) -> List["DOMNode"]:
+        raise NotImplementedError("get_nodes not implemented")
+
+    def get_nodes_from_html(self, html: str) -> List["DOMNode"]:
+        return self.get_nodes(re.findall(r_get_xpaths_from_html, html))
+
+    def highlight_node_from_xpath(self, xpath: str, color: str = "red") -> Callable:
+        return self.highlight_nodes([xpath], color)
+
+    def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
+        nodes = [n.highlight(color) for n in self.get_nodes(xpaths)]
+        return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
+
+    def highlight_nodes_from_html(self, html: str, color: str = "blue") -> Callable:
+        return self.highlight_nodes(re.findall(r_get_xpaths_from_html, html), color)
+
+    def remove_highlight(self):
+        if hasattr(self, "_highlight_destructors"):
+            for destructor in self._highlight_destructors:
+                destructor()
+            delattr(self, "_highlight_destructors")
+
+    def _add_highlighted_destructors(
+        self, destructors: Union[List[Callable], Callable]
+    ):
+        if not hasattr(self, "_highlight_destructors"):
+            self._highlight_destructors = []
+        if isinstance(destructors, Callable):
+            self._highlight_destructors.append(destructors)
+        else:
+            self._highlight_destructors.extend(destructors)
+        return destructors
+
+    def highlight_interactive_nodes(
+        self, *with_interactions: tuple[InteractionType], color: str = "red"
+    ):
+        if with_interactions is None or len(with_interactions) == 0:
+            return self.highlight_nodes(
+                list(self.get_possible_interactions().keys()), color
+            )
+
+        return self.highlight_nodes(
+            [
+                xpath
+                for xpath, interactions in self.get_possible_interactions().items()
+                if set(interactions) & set(with_interactions)
+            ],
+            color,
+        )
+
+
+class DOMNode(ABC):
     @abstractmethod
-    def resolve_xpath(self, xpath: str):
+    def highlight(self, color: str = "red"):
         pass
+
+    @abstractmethod
+    def clear(self):
+        return self
+
+    @abstractmethod
+    def take_screenshot(self) -> Image:
+        pass
+
+    def __str__(self) -> str:
+        return self.get_html()
 
 
 JS_SETUP_GET_EVENTS = """
 (function() {
-  const targetProto = EventTarget.prototype;
-  targetProto._addEventListener = Element.prototype.addEventListener;
-  targetProto.addEventListener = function(a,b,c) {
-    this._addEventListener(a,b,c);
-    if(!this.eventListenerList) this.eventListenerList = {};
-    if(!this.eventListenerList[a]) this.eventListenerList[a] = [];
-    this.eventListenerList[a].push(b);
-  };
-  targetProto._removeEventListener = Element.prototype.removeEventListener;
-  targetProto.removeEventListener = function(a, b, c) {
-    this._removeEventListener(a, b, c);
-    if(this.eventListenerList && this.eventListenerList[a]) {
-      const index = this.eventListenerList[a].indexOf(b);
-      if (index > -1) {
-        this.eventListenerList[a].splice(index, 1);
-        if(!this.eventListenerList[a].length) {
-          delete this.eventListenerList[a];
+  if (window && !window.getEventListeners) {
+    const targetProto = EventTarget.prototype;
+    targetProto._addEventListener = Element.prototype.addEventListener;
+    targetProto.addEventListener = function(a,b,c) {
+        this._addEventListener(a,b,c);
+        if(!this.eventListenerList) this.eventListenerList = {};
+        if(!this.eventListenerList[a]) this.eventListenerList[a] = [];
+        this.eventListenerList[a].push(b);
+    };
+    targetProto._removeEventListener = Element.prototype.removeEventListener;
+    targetProto.removeEventListener = function(a, b, c) {
+        this._removeEventListener(a, b, c);
+        if(this.eventListenerList && this.eventListenerList[a]) {
+        const index = this.eventListenerList[a].indexOf(b);
+        if (index > -1) {
+            this.eventListenerList[a].splice(index, 1);
+            if(!this.eventListenerList[a].length) {
+            delete this.eventListenerList[a];
+            }
         }
-      }
-    }
-  };
-  if (!window.getEventListeners) {
+        }
+    };
     window.getEventListeners = function(e) {
       return (e && e.eventListenerList) || [];
     }
@@ -345,11 +426,11 @@ return (function() {
           || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
             return [];
         }
-        const style = getComputedStyle(e);
+        const style = getComputedStyle(e) || {};
         if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
             return [];
         }
-        const events = getEventListeners(e);
+        const events = window && typeof window.getEventListeners === 'function' ? window.getEventListeners(e) : [];
         const role = e.getAttribute('role');
         const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
         function hasEvent(n) {
@@ -368,9 +449,6 @@ return (function() {
           || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
             evts.push('CLICK');
         }
-        if (hasEvent('mouseover')) {
-            evts.push('HOVER');
-        }
         return evts;
     }
 
@@ -384,7 +462,11 @@ return (function() {
         }
         const countByTag = {};
         for (let child = node.firstChild; child; child = child.nextSibling) {
-            const tag = child.nodeName.toLowerCase();
+            let tag = child.nodeName.toLowerCase();
+            let isLocal = ['svg'].includes(tag);
+            if (isLocal) {
+                tag = `*[local-name() = '${tag}']`;
+            }
             countByTag[tag] = (countByTag[tag] || 0) + 1;
             let childXpath = xpath + '/' + tag;
             if (countByTag[tag] > 1) {
@@ -396,7 +478,7 @@ return (function() {
                 } catch (e) {
                     console.error("iframe access blocked", child, e);
                 }
-            } else {
+            } else if (!isLocal) {
                 traverse(child, childXpath);
             } 
         }
