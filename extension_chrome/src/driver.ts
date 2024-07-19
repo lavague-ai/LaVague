@@ -8,34 +8,6 @@ export interface DriverCommandHandler {
 }
 
 export class ChromeExtensionDriver {
-    private JS_SETUP_GET_EVENTS = `
-    (function() {
-    Element.prototype._addEventListener = Element.prototype.addEventListener;
-    Element.prototype.addEventListener = function(a,b,c) {
-        this._addEventListener(a,b,c);
-        if(!this.eventListenerList) this.eventListenerList = {};
-        if(!this.eventListenerList[a]) this.eventListenerList[a] = [];
-        this.eventListenerList[a].push(b);
-    };
-    Element.prototype._removeEventListener = Element.prototype.removeEventListener;
-    Element.prototype.removeEventListener = function(a, b, c) {
-        this._removeEventListener(a, b, c);
-        if(this.eventListenerList && this.eventListenerList[a]) {
-        const index = this.eventListenerList[a].indexOf(b);
-        if (index > -1) {
-            this.eventListenerList[a].splice(index, 1);
-            if(!this.eventListenerList[a].length) {
-            delete this.eventListenerList[a];
-            }
-        }
-        }
-    };
-    if (!window.getEventListeners) {
-        window.getEventListeners = function(e) {
-        return (e && e.eventListenerList) || [];
-        }
-    }
-    })();`;
     private currentTabId: number | null = null;
     private readonly handlers: { [command: string]: DriverCommandHandler } = {
         get_url: () => this.sendTabURL(),
@@ -86,7 +58,6 @@ export class ChromeExtensionDriver {
                     if (chrome.runtime.lastError) {
                         reject(chrome.runtime.lastError.message);
                     } else {
-                        const res = await chrome.debugger.sendCommand({tabId}, "Page.addScriptToEvaluateOnNewDocument", {source: this.JS_SETUP_GET_EVENTS, runImmediately: false});
                         resolve();
                         this.onTabDebugged?.(tabId);
                     }

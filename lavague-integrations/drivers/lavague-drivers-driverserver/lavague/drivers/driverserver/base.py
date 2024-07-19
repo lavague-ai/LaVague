@@ -92,7 +92,6 @@ class DriverServer(BaseDriver):
             exe = json.loads(exe_json) 
         except Exception as e:
             logging_print.error(f"JSON from the get_possible_interactions method could not be deserialized. Reason: {e}")
-            raise e
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
@@ -237,6 +236,10 @@ Name: enter
 Description: Press the enter button. Use this tool can submit the form when there's no "submit" button and when a textbox is already filled, or filled previously with setValue.
 Arguments:
   - xpath (string)
+
+Name: fail
+Description: Indicate that you are unable to complete the task
+No arguments.
 
 Here are examples of previous answers:
 HTML:
