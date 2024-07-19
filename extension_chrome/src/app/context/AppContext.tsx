@@ -5,17 +5,19 @@ export interface AppContextProps {
     connector: AgentServerConnector;
     serverState: AgentServerState;
     runningAgentState: RunningAgentState;
+    setRunningAgentState: React.Dispatch<React.SetStateAction<RunningAgentState>>;
 }
 
 export const AppContext = createContext<AppContextProps>({
     connector: new AgentServerConnector(),
     serverState: AgentServerState.DISCONNECTED,
     runningAgentState: RunningAgentState.IDLE,
+    setRunningAgentState: () => {},
 });
 
 export const AppProvider = ({ children, port }: { children: React.ReactNode; port: chrome.runtime.Port }) => {
     const [serverState, setServerState] = useState<AgentServerState>(AgentServerState.DISCONNECTED);
-    const [runningAgentState, setrunningAgentState] = useState<RunningAgentState>(RunningAgentState.IDLE);
+    const [runningAgentState, setRunningAgentState] = useState<RunningAgentState>(RunningAgentState.IDLE);
     const connector = useMemo(() => new AgentServerConnector(), []);
 
     useEffect(() => {
@@ -29,6 +31,7 @@ export const AppProvider = ({ children, port }: { children: React.ReactNode; por
                 connector,
                 serverState,
                 runningAgentState,
+                setRunningAgentState,
             }}
         >
             {children}

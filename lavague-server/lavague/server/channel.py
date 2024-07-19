@@ -37,6 +37,10 @@ class AgentSession(ABC):
                     json_message["type"], json_message["args"]
                 )
 
+            if json_message["type"] == "start":
+                print("start?")
+                message_start = {"type": "start"}
+                asyncio.run(self.send_message(json.dumps(message_start)))
             task = threading.Thread(target=exe_task)
             task.start()
 

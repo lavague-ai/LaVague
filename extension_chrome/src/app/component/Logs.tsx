@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import { Badge, Stack, Text } from '@chakra-ui/react';
+import { RunningAgentState } from '../../connector';
 
 type LogType = 'network' | 'cmd' | 'userprompt' | 'agent_log';
 
@@ -25,7 +26,7 @@ const COMMAND_LABELS: { [key: string]: string } = {
 };
 
 export default function Logs({ logTypes }: { logTypes: LogType[] }) {
-    const { connector } = useContext(AppContext);
+    let { connector, serverState, runningAgentState, setRunningAgentState } = useContext(AppContext);
     const [logs, setLogs] = useState<RepeatableLog[]>([]);
     const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
@@ -62,6 +63,9 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 } else if (message.type === 'agent_log') {
                     log = message.agent_log.world_model_output;
                     type = 'agent_log';
+                } else if (message.type === 'start') {
+                    setRunningAgentState(RunningAgentState.RUNNING)
+                    console.log("START")
                 }
                 if (log) {
                     addLog({ log, type });

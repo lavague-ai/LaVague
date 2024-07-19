@@ -223,24 +223,13 @@ export class ChromeExtensionDriver {
     }
 
     async highlight_elem(xpath: string) {
-        let json_ret = '';
         const tabId = await this.getTabId();
         if (tabId == null) {
             return false;
         }
         const dom = new DomActions(tabId);
         let res = await dom.highlight_elem(xpath);
-        if (res == null) {
-            res = {
-                x: 0,
-                y: 0,
-                x2: 0,
-                y2: 0,
-            };
-            json_ret = JSON.stringify(res);
-        } else {
-            json_ret = JSON.stringify(res.result.value);
-        }
+        const json_ret = JSON.stringify(res.result.value);
         return json_ret;
     }
 

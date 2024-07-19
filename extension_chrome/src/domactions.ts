@@ -220,7 +220,12 @@ export class DomActions {
                     y2: rect.top + rect.height,
                 };
             } else {
-                return null;
+                return {
+                    x: 0,
+                    y: 0,
+                    x2: 0,
+                    y2: 0,
+                };
             }
         })();`;
         const ret = await this.execCode(code, true);
