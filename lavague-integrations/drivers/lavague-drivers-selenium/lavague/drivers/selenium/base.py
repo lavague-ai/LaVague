@@ -7,6 +7,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
+    JS_GET_INTERACTIVES_IN_VIEWPORT,
     PossibleInteractionsByXpath,
     InteractionType,
     DOMNode,
@@ -15,7 +16,6 @@ from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import extract_code_from_funct
-import json
 import yaml
 
 
@@ -354,8 +354,12 @@ driver.set_window_size({width}, {height} + height_difference)
         )
         return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
 
-    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
-        exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
+    def get_possible_interactions(
+        self, in_viewport=True
+    ) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = self.driver.execute_script(
+            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES
+        )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
