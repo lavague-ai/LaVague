@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import traceback
 from lavague.core.retrievers import BaseHtmlRetriever
 from lavague.drivers.selenium import SeleniumDriver
 from selenium.webdriver.remote.webdriver import WebDriver
