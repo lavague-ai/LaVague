@@ -289,12 +289,21 @@ class WebAgent:
         user_data=None,
         display: bool = False,
         log_to_db: bool = False,
+        clear_screenshot: bool = False,
     ) -> ActionResult:
         self.action_engine.set_display_all(display)
         action_result: ActionResult
 
         if os.getenv("DISABLE_LAVAGUE_ANIMATION") is None:
             Thread(target=lavague_unicode_animation, daemon=True).start()
+            
+        if clear_screenshot:
+            try:
+                if os.path.isdir("screenshots"):
+                    shutil.rmtree("screenshots")
+                logging_print.info("Screenshot folder cleared")
+            except:
+                pass
 
         try:
             st_memory = self.st_memory

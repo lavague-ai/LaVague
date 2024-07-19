@@ -1,9 +1,11 @@
 import base64
+from io import BytesIO
 import json
 import logging
 from lavague.core.base_driver import BaseDriver, InteractionType, PossibleInteractionsByXpath
 from typing import Any, Dict, List, Optional, Mapping
 from lavague.server.channel import AgentSession
+from PIL import Image
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -66,10 +68,19 @@ class DriverServer(BaseDriver):
         pass
 
     def get_tabs(self) -> str:
-        return super().get_tabs()
+        tab_info = []
+        try:
+            tab_list = self.send_command_and_get_response_sync("get_tabs")
+            tab_info = json.loads(tab_list) 
+        except Exception as e:
+            logging_print.error(f"JSON from the get_tabs method could not be deserialized. Reason: {e}")
+        tab_info = "\n".join(tab_info)
+        tab_info = "Tabs opened:\n" + tab_info
+        
+        return tab_info
 
-    def switch_tab(self, tab_id: str) -> None:
-        return super().switch_tab(tab_id)
+    def switch_tab(self, tab_id: int) -> None:
+        self.send_command_and_get_response_sync("switch_tab", str(tab_id))
 
     def resolve_xpath(self, xpath: str):
         pass
@@ -78,65 +89,51 @@ class DriverServer(BaseDriver):
         exe: Dict[str, List[str]] = {}
         try:
             exe_json = self.send_command_and_get_response_sync("get_possible_interactions")
-            exe = json.loads(exe_json)
-            print(exe)
+            exe = json.loads(exe_json) 
         except Exception as e:
-            logging_print.debug(f"JSON from the get_possible_interactions method could not be deserialized. Reason: {e}")
+            logging_print.error(f"JSON from the get_possible_interactions method could not be deserialized. Reason: {e}")
+            raise e
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
         return res
 
     def get_highlighted_element(self, generated_code: str):
-        # local_scope = {"driver": self.get_driver()}
-        # assignment_code = keep_assignments(generated_code)
-        # self.exec_code(assignment_code, locals=local_scope)
+        outputs = []
 
-        # # We extract pairs of variables assigned during execution with their name and pointer
-        # variable_names = return_assigned_variables(generated_code)
+        data = json.loads(generated_code)
+        if not isinstance(data, List):
+            data = [data]
+        for item in data:
+            action_name = item["action"]["name"]
+            if action_name != "fail":
+                xpath = item["action"]["args"]["xpath"]
+                try:
+                    bounding_box = {}
+                    viewport_size = {}
 
-        # elements = []
+                    res_json = self.send_command_and_get_response_sync("highlight_elem", xpath)
+                    res = json.loads(res_json)
+                    screenshot = self.get_screenshot_as_png()
 
-        # for variable_name in variable_names:
-        #     var = local_scope[variable_name]
-        #     if type(var) == WebElement:
-        #         elements.append(var)
+                    bounding_box["x1"] = res["x"]
+                    bounding_box["y1"] = res["y"]
+                    bounding_box["x2"] = res["x2"]
+                    bounding_box["y2"] = res["y2"]
 
-        # if len(elements) == 0:
-        #     raise ValueError(f"No element found.")
-
-        # outputs = []
-        # for element in elements:
-        #     element: WebElement
-
-        #     bounding_box = {}
-        #     viewport_size = {}
-
-        #     self.execute_script(
-        #         "arguments[0].setAttribute('style', arguments[1]);",
-        #         element,
-        #         "border: 2px solid red;",
-        #     )
-        #     self.execute_script(
-        #         "arguments[0].scrollIntoView({block: 'center'});", element
-        #     )
-        #     screenshot = self.get_screenshot_as_png()
-
-        #     bounding_box["x1"] = element.location["x"]
-        #     bounding_box["y1"] = element.location["y"]
-        #     bounding_box["x2"] = bounding_box["x1"] + element.size["width"]
-        #     bounding_box["y2"] = bounding_box["y1"] + element.size["height"]
-
-        #     viewport_size["width"] = self.execute_script("return window.innerWidth;")
-        #     viewport_size["height"] = self.execute_script("return window.innerHeight;")
-        #     screenshot = BytesIO(screenshot)
-        #     screenshot = Image.open(screenshot)
-        #     output = {
-        #         "screenshot": screenshot,
-        #         "bounding_box": bounding_box,
-        #         "viewport_size": viewport_size,
-        #     }
-        #     outputs.append(output)
+                    viewport_size["width"] = self.execute_script("return window.innerWidth;")
+                    viewport_size["height"] = self.execute_script("return window.innerHeight;")
+                    screenshot = BytesIO(screenshot)
+                    screenshot = Image.open(screenshot)
+                    output = {
+                        "screenshot": screenshot,
+                        "bounding_box": bounding_box,
+                        "viewport_size": viewport_size,
+                    }
+                    outputs.append(output)
+                except Exception as e:
+                    logging_print.error(f"An error occured while rendering the highlighted element: {e}")
+                    raise e        
         return None
 
     def exec_code(

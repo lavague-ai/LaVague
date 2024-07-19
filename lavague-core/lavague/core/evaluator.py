@@ -307,9 +307,6 @@ class LLMEvaluator(Evaluator):
                         )
                         break
                     except Exception as e:
-                        traceback.print_exc()
-                        print(generated_code)
-                        print(xpath)
                         execution_error = str(e)
                 new_row = {
                     "recall_llm": recall_llm,

@@ -8,6 +8,7 @@ from lavague.core.agents import WebAgent
 from lavague.core.extractors import JsonFromMarkdownExtractor
 from lavague.core.logger import AgentLogger
 import types
+import copy
 
 
 class AgentSession(ABC):
@@ -101,8 +102,12 @@ class CommunicationChannel(ABC):
         add_log = session.agent.logger.add_log
 
         def send_log(self, message):
-            add_log(message)
-            message = {"type": "agent_log", "agent_log": message}
-            asyncio.run(session.send_message(json.dumps(message)))
+
+            message_cp = copy.deepcopy(message)
+            add_log(message_cp)
+            if "screenshots" in message_cp:
+                del message_cp["screenshots"]
+            message_cp = {"type": "agent_log", "agent_log": message_cp}
+            asyncio.run(session.send_message(json.dumps(message_cp)))
 
         session.agent.logger.add_log = types.MethodType(send_log, session.agent.logger)

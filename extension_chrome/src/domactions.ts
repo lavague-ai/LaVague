@@ -8,15 +8,6 @@ function getNodeFromXPATH(xpath: string): Node | null {
     const res2 = result.singleNodeValue;
     return res2
 }
-  
-function getCoordinatesFromXPATH(xpath: string): { x: number; y: number } | null {
-    const element = getNodeFromXPATH(xpath);
-    if (element && element instanceof HTMLElement) {
-      const rect = element.getBoundingClientRect();
-      return { x: rect.left + rect.width / 2, y: rect.top + 8};
-    }
-    return null;
-}
 
 function clickElementByXPath(xpath: string): boolean {
     var element = getNodeFromXPATH(xpath);
@@ -51,78 +42,7 @@ function clickElementByXPath(xpath: string): boolean {
       console.log("failed to click!");
       return false;
     }
-  }
-
-
-
-const JS_GET_INTERACTIVES = `
-(function() {
-    function getInteractions(e) {
-        const tag = e.tagName.toLowerCase();
-        if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
-          || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
-            return [];
-        }
-        const style = getComputedStyle(e);
-        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-            return [];
-        }
-        const events = getEventListeners(e);
-        const role = e.getAttribute('role');
-        const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
-        function hasEvent(n) {
-            return events[n]?.length || e.hasAttribute('on' + n);
-        }
-        const evts = [];
-        if (hasEvent('keydown') || hasEvent('keyup') || hasEvent('keypress') || hasEvent('keydown') || hasEvent('input') || e.isContentEditable
-          || (
-            (tag === 'input' || tag === 'textarea' || role === 'searchbox' || role === 'input')
-            ) && !clickableInputs.includes(e.getAttribute('type'))
-          ) {
-            evts.push('TYPE');
-        }
-        if (tag === 'a' || tag === 'button' || role === 'button' || role === 'checkbox' || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup')
-          || hasEvent('dblclick') || style.cursor === 'pointer' || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')) )
-          || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
-            evts.push('CLICK');
-        }
-        if (hasEvent('mouseover')) {
-            evts.push('HOVER');
-        }
-        return evts;
-    }
-
-    const results = {};
-    function traverse(node, xpath) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-            const interactions = getInteractions(node);
-            if (interactions.length > 0) {
-                results[xpath] = interactions;
-            }
-        }
-        const countByTag = {};
-        for (let child = node.firstChild; child; child = child.nextSibling) {
-            const tag = child.nodeName.toLowerCase();
-            countByTag[tag] = (countByTag[tag] || 0) + 1;
-            let childXpath = xpath + '/' + tag;
-            if (countByTag[tag] > 1) {
-                childXpath += '[' + countByTag[tag] + ']';
-            }
-            if (tag === 'iframe') {
-                try {
-                    traverse(child.contentWindow.document.body, childXpath + '/html/body');
-                } catch (e) {
-                    console.error("iframe access blocked", child, e);
-                }
-            } else {
-                traverse(child, childXpath);
-            } 
-        }
-    }
-    traverse(document.body, '/html/body');
-    return results;
-})();
-`;
+}
 
 export class DomActions {
     static delayBetweenClicks = 500;
@@ -134,7 +54,7 @@ export class DomActions {
         this.tabId = tabId;
     }
 
-    private async sendCommand(method: string, params?: any): Promise<any> {
+    public async sendCommand(method: string, params?: any): Promise<any> {
         return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
     }
 
@@ -143,36 +63,6 @@ export class DomActions {
             expression: code,
             returnByValue: returnByValue
         });
-    }
-
-    private async getObjectIdByXPath(xpath: string): Promise<string | undefined> {
-        // Step 1: Perform XPath search
-        const searchResults = await this.sendCommand('DOM.performSearch', {
-            query: xpath,
-            includeUserAgentShadowDOM: true,
-        });
-
-        // Step 2: Get search results
-        const { nodeIds } = await this.sendCommand('DOM.getSearchResults', {
-            searchId: searchResults.searchId,
-            fromIndex: 0,
-            toIndex: 1, // Adjust if expecting multiple results
-        });
-
-        if (nodeIds.length === 0) {
-            console.log('Element not found for XPath: ' + xpath);
-            return;
-        }
-
-        const elementNodeId = nodeIds[0];
-
-        // Step 3: Resolve node to get objectId
-        const result = await this.sendCommand('DOM.resolveNode', {
-            nodeId: elementNodeId,
-        });
-
-        const objectId = result.object.objectId;
-        return objectId;
     }
 
     public async clickAtPosition(x: number, y: number, clickCount = 1): Promise<void> {
@@ -200,6 +90,17 @@ export class DomActions {
             commands: ['selectAll'],
         });
         await sleep(200);
+    }
+
+    public async getCoordinatesFromXPATH(xpath: string) {
+        const objectId = this.getObjectID(xpath)
+        const { model } = await this.sendCommand("DOM.getBoxModel", {
+            objectId,
+        });
+        const [x1, y1, _x2, _y2, x3, y3] = model.border;
+        const centerX = (x1 + x3) / 2;
+        const centerY = (y1 + y3) / 2;
+        return { x: centerX, y: centerY };
     }
 
     private async typeText(text: string): Promise<void> {
@@ -278,11 +179,90 @@ export class DomActions {
         await sleep(300);
     }
 
+    public async getObjectID(xpath: string) {
+        const code = `
+        (function(xpath) {
+          ${getNodeFromXPATH.toString()}
+          res = getNodeFromXPATH(xpath);
+          return res
+        })(${JSON.stringify(xpath)});`;
+        const ret = await this.execCode(code);
+        return ret.result.objectId;
+    }
+
+    public async highlight_elem(xpath: string) {
+        const code = `
+        (function() {
+            function getElementByXpath(path) {
+                const nodes = [];
+                const result = document.evaluate(path, document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                let node;
+                while ((node = result.iterateNext())) {
+                    nodes.push(node);
+                }
+                return nodes;
+            }
+            
+            const elements = getElementByXpath("${xpath}");
+            if (elements.length > 0) {
+                elements[0].style.border = '2px solid red';
+                // elements[0].scrollIntoView({behavior: 'smooth', block: 'center'});
+
+                // Get the coordinates and size of the first element
+                const rect = elements[0].getBoundingClientRect();
+                return {
+                    x: rect.x,
+                    y: rect.y,
+                    x2: rect.left + rect.width,
+                    y2: rect.top + rect.height,
+                };
+            } else {
+                return null;
+            }
+        })();`;
+        const ret = await this.execCode(code, true);
+        console.log(ret)
+        return ret;
+    }
+
+
+    public async switchToTab(tabId: number) {
+        await chrome.tabs.update(tabId, {active: true});
+        chrome.tabs.highlight({ tabs: tabId }, function() {});        
+    }
+
+    public async getOpenTabs(): Promise<string[]> {
+        const queryTabs = (queryInfo: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> => {
+          return new Promise((resolve, reject) => {
+            chrome.tabs.query(queryInfo, (result) => {
+              if (chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError);
+              }
+              resolve(result);
+            });
+          });
+        };
+      
+        try {
+          // Query all tabs once
+          const tabs = await queryTabs({});
+      
+          // Map the tab titles, marking the active tab
+          const tabTitles = tabs.map(t => t.id === this.tabId ? `${t.id} - [CURRENT] ${t.title}` : `${t.id} - ${t.title}`);
+          console.log(tabTitles);
+      
+          return tabTitles;
+        } catch (error) {
+          console.error('Failed to get tabs:', error);
+          return [];
+        }
+    }
+      
+
     public async setFocus(xpath: string) {
         const code = `
         (function(xpath) {
           ${getNodeFromXPATH.toString()}
-          ${getCoordinatesFromXPATH.toString()}
           res = getNodeFromXPATH(xpath);
           return res
         })(${JSON.stringify(xpath)});`;
@@ -312,90 +292,29 @@ export class DomActions {
         return true;
     }
 
-    // // HTMLBodyElement
-    // private async getInteractions(e: any) {
-    //     const tag = e.tagName.toLowerCase();
-    //     if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
-    //       || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
-    //         return [];
-    //     }
-    //     const style = getComputedStyle(e);
-    //     if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-    //         return [];
-    //     }
-    //     const events = await this.sendCommand("DOMDebugger.getEventListeners", { nodeId });
-    //     const role = e.getAttribute('role');
-    //     const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
-    //     function hasEvent(n: any) {
-    //         return events[n]?.length || e.hasAttribute('on' + n);
-    //     }
-    //     const evts = [];
-    //     if (hasEvent('keydown') || hasEvent('keyup') || hasEvent('keypress') || hasEvent('keydown') || hasEvent('input') || e.isContentEditable
-    //       || (
-    //         (tag === 'input' || tag === 'textarea' || role === 'searchbox' || role === 'input')
-    //         ) && !clickableInputs.includes(e.getAttribute('type')!)
-    //       ) {
-    //         evts.push('TYPE');
-    //     }
-    //     if (tag === 'a' || tag === 'button' || role === 'button' || role === 'checkbox' || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup')
-    //       || hasEvent('dblclick') || style.cursor === 'pointer' || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')) )
-    //       || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
-    //         evts.push('CLICK');
-    //     }
-    //     if (hasEvent('mouseover')) {
-    //         evts.push('HOVER');
-    //     }
-    //     return evts;
-    // }
-
-    // private async traverse(node: any, xpath: string, results: any) {
-    //     if (node.nodeType === Node.ELEMENT_NODE) {
-    //         const interactions = await this.getInteractions(node);
-    //         if (interactions.length > 0) {
-    //             results[xpath] = interactions;
-    //         }
-    //     }
-    //     const countByTag: { [key: string]: number } = {};
-    //     for (let child = node.firstChild; child; child = child.nextSibling) {
-    //         const tag = child.nodeName.toLowerCase();
-    //         countByTag[tag] = (countByTag[tag] || 0) + 1;
-    //         let childXpath = xpath + '/' + tag;
-    //         if (countByTag[tag] > 1) {
-    //             childXpath += '[' + countByTag[tag] + ']';
-    //         }
-    //         if (tag === 'iframe') {
-    //             try {
-    //                 await this.traverse(child.contentWindow!.document.body, childXpath + '/html/body', results);
-    //             } catch (e) {
-    //                 console.error("iframe access blocked", child, e);
-    //             }
-    //         } else {
-    //             await this.traverse(child, childXpath, results);
-    //         } 
-    //     }
-    //     return results
-    // }
+    private async get_possible_interactions_dispatch() {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.sendMessage(this.tabId, { method: "get_possible_interactions" }, (res) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Error: " + chrome.runtime.lastError.message);
+                    reject(chrome.runtime.lastError.message);
+                } else {
+                    console.log("Received response:", res);
+                    resolve(res);
+                }
+            });
+        });
+    }
 
     public async get_possible_interactions() {
-        const result = await chrome.scripting.executeScript({
-            target: { tabId: this.tabId },
-            func: () => {
-            chrome.runtime.sendMessage("test")
-              return document.body
-              }
-            },
-        );
-        console.log(result[0].result)
         let results = {};
-    
-        // results = this.traverse(body_node, '/html/body', results);
-        const ret_json = JSON.stringify(results); 
-        return ret_json;
+        const res: any = await this.get_possible_interactions_dispatch()
+        console.log("res: " + res.response)
+        results = res.response
+        return results;
     }
 
     public async clickwithXPath(xpath: string) {
-        // const ret_test = await this.execCode(JS_GET_INTERACTIVES, true);
-        // console.log(ret_test)
         const code = `
           (function(xpath) {
             ${getNodeFromXPATH.toString()}

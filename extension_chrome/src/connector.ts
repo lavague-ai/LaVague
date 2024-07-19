@@ -7,13 +7,19 @@ export enum AgentServerState {
     CONNECTED,
 }
 
-export type EventType = 'error' | 'stateChange' | 'inputMessage' | 'outputMessage';
+export enum RunningAgentState {
+    IDLE,
+    RUNNING,
+}
+
+export type EventType = 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage';
 
 export class AgentServerConnector {
     private webSocket: WebSocket | null = null;
     private eventEmitter = new EventEmitter();
     readonly driver: ChromeExtensionDriver;
     currentState: AgentServerState = AgentServerState.DISCONNECTED;
+    runningAgentState: RunningAgentState = RunningAgentState.IDLE;
 
     constructor() {
         this.driver = new ChromeExtensionDriver();
@@ -61,6 +67,7 @@ export class AgentServerConnector {
             await this.driver.start();
         } catch (e) {
             this.updateState(AgentServerState.DISCONNECTED);
+            this.updateRunningState(RunningAgentState.IDLE);
             throw e;
         }
     }
@@ -81,12 +88,17 @@ export class AgentServerConnector {
             this.webSocket.close();
             this.webSocket = null;
             this.updateState(AgentServerState.DISCONNECTED);
+            this.updateRunningState(RunningAgentState.IDLE);
         }
         await this.driver.stop();
     }
 
-    sendPrompt(type: 'run' | 'get', args: string) {
+    sendPrompt(type: 'run' | 'get' | 'stop', args: string) {
         this.sendMessage({ type, args });
+    }
+
+    runningStateChange(fn: (state: RunningAgentState) => void) {
+        return this.on('runningStateChange', fn);
     }
 
     onStateChange(fn: (state: AgentServerState) => void) {
@@ -114,6 +126,13 @@ export class AgentServerConnector {
 
     private emit(event: EventType, ...args: any[]) {
         this.eventEmitter.emit(event, ...args);
+    }
+
+    private updateRunningState(state: RunningAgentState) {
+        if (state !== this.runningAgentState) {
+            this.emit('runningStateChange', state);
+            this.runningAgentState = state;
+        }
     }
 
     private updateState(state: AgentServerState) {
