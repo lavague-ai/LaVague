@@ -2,7 +2,11 @@ import base64
 from io import BytesIO
 import json
 import logging
-from lavague.core.base_driver import BaseDriver, InteractionType, PossibleInteractionsByXpath
+from lavague.core.base_driver import (
+    BaseDriver,
+    InteractionType,
+    PossibleInteractionsByXpath,
+)
 from typing import Any, Dict, List, Optional, Mapping
 
 import yaml
@@ -17,6 +21,7 @@ ch.setLevel(logging.INFO)
 ch.setFormatter(format)
 logging_print.addHandler(ch)
 logging_print.propagate = False
+
 
 class DriverServer(BaseDriver):
     def __init__(self, session: AgentSession, url: Optional[str] = None):
@@ -73,12 +78,14 @@ class DriverServer(BaseDriver):
         tab_info = []
         try:
             tab_list = self.send_command_and_get_response_sync("get_tabs")
-            tab_info = json.loads(tab_list) 
+            tab_info = json.loads(tab_list)
         except Exception as e:
-            logging_print.error(f"JSON from the get_tabs method could not be deserialized. Reason: {e}")
+            logging_print.error(
+                f"JSON from the get_tabs method could not be deserialized. Reason: {e}"
+            )
         tab_info = "\n".join(tab_info)
         tab_info = "Tabs opened:\n" + tab_info
-        
+
         return tab_info
 
     def switch_tab(self, tab_id: int) -> None:
@@ -90,10 +97,14 @@ class DriverServer(BaseDriver):
     def get_possible_interactions(self) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = {}
         try:
-            exe_json = self.send_command_and_get_response_sync("get_possible_interactions")
-            exe = json.loads(exe_json) 
+            exe_json = self.send_command_and_get_response_sync(
+                "get_possible_interactions"
+            )
+            exe = json.loads(exe_json)
         except Exception as e:
-            logging_print.error(f"JSON from the get_possible_interactions method could not be deserialized. Reason: {e}")
+            logging_print.error(
+                f"JSON from the get_possible_interactions method could not be deserialized. Reason: {e}"
+            )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
@@ -114,7 +125,9 @@ class DriverServer(BaseDriver):
                         bounding_box = {}
                         viewport_size = {}
 
-                        res_json = self.send_command_and_get_response_sync("highlight_elem", xpath)
+                        res_json = self.send_command_and_get_response_sync(
+                            "highlight_elem", xpath
+                        )
                         res = json.loads(res_json)
 
                         bounding_box["x1"] = res["x"]
@@ -122,15 +135,21 @@ class DriverServer(BaseDriver):
                         bounding_box["x2"] = res["x2"]
                         bounding_box["y2"] = res["y2"]
 
-                        viewport_size["width"] = self.execute_script("return window.innerWidth;")
-                        viewport_size["height"] = self.execute_script("return window.innerHeight;")
+                        viewport_size["width"] = self.execute_script(
+                            "return window.innerWidth;"
+                        )
+                        viewport_size["height"] = self.execute_script(
+                            "return window.innerHeight;"
+                        )
                         output = {
                             "bounding_box": bounding_box,
                             "viewport_size": viewport_size,
                         }
                         outputs.append(output)
                     except Exception as e:
-                        logging_print.error(f"An error occured while rendering the highlighted element: {e}")
+                        logging_print.error(
+                            f"An error occured while rendering the highlighted element: {e}"
+                        )
         return outputs
 
     def exec_code(

@@ -64,7 +64,7 @@ class AgentSession(ABC):
         if "response" in response_data:
             try:
                 jso = response_data["response"]
-                if 'ret' in jso:
+                if "ret" in jso:
                     ret = jso["ret"]
                 response_data.clear()
             except Exception as e:
@@ -102,7 +102,6 @@ class CommunicationChannel(ABC):
         add_log = session.agent.logger.add_log
 
         def send_log(self, message):
-
             message_cp = copy.deepcopy(message)
             add_log(message_cp)
             if "screenshots" in message_cp:

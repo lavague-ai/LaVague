@@ -7,6 +7,7 @@ class BaseExtractor(ABC):
     def extract(self, text: str) -> str:
         pass
 
+
 class YamlFromMarkdownExtractor(BaseExtractor):
     """
     Extractor for the prompts that end with (or similar to) the following:
@@ -28,6 +29,7 @@ class YamlFromMarkdownExtractor(BaseExtractor):
         else:
             # Return None if no match is found
             return None
+
 
 class YamlFromMarkdownExtractor(BaseExtractor):
     """
