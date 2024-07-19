@@ -390,8 +390,6 @@ class WorldModel(ABC, Loggable):
 
         tab_info = observations["tab_info"]
 
-        tab_info = observations["tab_info"]
-
         try:
             current_state_str = yaml.dump(current_state, default_flow_style=False)
         except:
