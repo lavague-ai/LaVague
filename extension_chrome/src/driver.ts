@@ -21,7 +21,7 @@ export class ChromeExtensionDriver {
         is_visible: (msg) => this.isVisible(msg.args),
         get_possible_interactions: (msg) => this.get_possible_interactions(),
         get_tabs: (msg) => this.get_tabs(),
-        switch_tab: (msg) => this.switch_tab(msg.args)
+        switch_tab: (msg) => this.switch_tab(msg.args),
     };
     onTabDebugged?: (tabId: number) => void;
     onCommand?: (command: string) => void;
@@ -223,7 +223,7 @@ export class ChromeExtensionDriver {
     }
 
     async highlight_elem(xpath: string) {
-        let json_ret = ""
+        let json_ret = '';
         const tabId = await this.getTabId();
         if (tabId == null) {
             return false;
@@ -236,17 +236,16 @@ export class ChromeExtensionDriver {
                 y: 0,
                 x2: 0,
                 y2: 0,
-            }
+            };
             json_ret = JSON.stringify(res);
-        }
-        else {
+        } else {
             json_ret = JSON.stringify(res.result.value);
         }
-        return json_ret
+        return json_ret;
     }
 
     async switch_tab(tab_id_str: string) {
-        console.log(tab_id_str)
+        console.log(tab_id_str);
         const tab_id_num = Number(tab_id_str);
         const tabId = await this.getTabId();
         if (tabId == null) {
@@ -263,7 +262,7 @@ export class ChromeExtensionDriver {
         }
         const dom = new DomActions(tabId);
         const res = await dom.getOpenTabs();
-        const ret_json = JSON.stringify(res); 
+        const ret_json = JSON.stringify(res);
         return ret_json;
     }
 

@@ -3,8 +3,8 @@
 import { get_possible_interactions, traverse } from './pages';
 
 export const initializeRPC = () => {
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        if (request.method == "get_possible_interactions") {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.method == 'get_possible_interactions') {
             try {
                 (async () => {
                     const res = await get_possible_interactions();
@@ -15,6 +15,6 @@ export const initializeRPC = () => {
                 sendResponse({ error: 'Failed to get interactions' });
             }
         }
-        return true; 
+        return true;
     });
 };

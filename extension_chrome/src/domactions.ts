@@ -6,41 +6,44 @@ const DEFAULT_TIMEOUT = 10000; // 10 seconds
 function getNodeFromXPATH(xpath: string): Node | null {
     const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
     const res2 = result.singleNodeValue;
-    return res2
+    return res2;
 }
 
 function clickElementByXPath(xpath: string): boolean {
     var element = getNodeFromXPATH(xpath);
     if (element && element instanceof HTMLElement) {
-      if (element.tagName.toLowerCase() === 'a') {
-        const anchorElement = element as HTMLAnchorElement;
-        if (anchorElement.href) {
-          // Navigate to the href URL to ensure history update
-          console.log("Navigating to:", anchorElement.href);
-          window.location.href = anchorElement.href;
+        if (element.tagName.toLowerCase() === 'a') {
+            const anchorElement = element as HTMLAnchorElement;
+            if (anchorElement.href) {
+                // Navigate to the href URL to ensure history update
+                console.log('Navigating to:', anchorElement.href);
+                window.location.href = anchorElement.href;
+            }
+        } else {
+            // Simulate a user-initiated click
+            var event = new MouseEvent('click', {
+                view: window,
+                bubbles: true,
+                cancelable: true,
+                buttons: 1,
+            });
+            element.dispatchEvent(event);
+            if (
+                element.tagName.toLowerCase() === 'button' ||
+                (element.tagName.toLowerCase() === 'input' && (element as HTMLInputElement).type === 'submit')
+            ) {
+                // Special handling for button and submit inputs to ensure form submission
+                if ((element as HTMLInputElement).form) {
+                    (element as HTMLInputElement).form!.submit();
+                }
+            }
         }
-      } else {
-        // Simulate a user-initiated click
-        var event = new MouseEvent('click', {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-          buttons: 1
-        });
-        element.dispatchEvent(event);
-        if (element.tagName.toLowerCase() === 'button' || (element.tagName.toLowerCase() === 'input' && (element as HTMLInputElement).type === 'submit')) {
-          // Special handling for button and submit inputs to ensure form submission
-          if ((element as HTMLInputElement).form) {
-            (element as HTMLInputElement).form!.submit();
-          }
-        }
-      }
-      console.log(element.textContent);
-      console.log("clicked!");
-      return true;
+        console.log(element.textContent);
+        console.log('clicked!');
+        return true;
     } else {
-      console.log("failed to click!");
-      return false;
+        console.log('failed to click!');
+        return false;
     }
 }
 
@@ -61,7 +64,7 @@ export class DomActions {
     public async execCode(code: string, returnByValue: boolean = false) {
         return await this.sendCommand('Runtime.evaluate', {
             expression: code,
-            returnByValue: returnByValue
+            returnByValue: returnByValue,
         });
     }
 
@@ -93,8 +96,8 @@ export class DomActions {
     }
 
     public async getCoordinatesFromXPATH(xpath: string) {
-        const objectId = this.getObjectID(xpath)
-        const { model } = await this.sendCommand("DOM.getBoxModel", {
+        const objectId = this.getObjectID(xpath);
+        const { model } = await this.sendCommand('DOM.getBoxModel', {
             objectId,
         });
         const [x1, y1, _x2, _y2, x3, y3] = model.border;
@@ -106,7 +109,7 @@ export class DomActions {
     private async typeText(text: string): Promise<void> {
         for (const char of text) {
             if (char === '\n') {
-                this.enterButton()
+                this.enterButton();
                 continue;
             }
             await this.sendCommand('Input.dispatchKeyEvent', {
@@ -122,20 +125,20 @@ export class DomActions {
         }
     }
     private async enterButton(): Promise<void> {
-        await this.sendCommand("Input.dispatchKeyEvent", {
+        await this.sendCommand('Input.dispatchKeyEvent', {
             type: 'keyDown',
             windowsVirtualKeyCode: 13,
             key: 'Enter',
             code: 'Enter',
             text: '\r',
-          });
-          await this.sendCommand('Input.dispatchKeyEvent', {
+        });
+        await this.sendCommand('Input.dispatchKeyEvent', {
             type: 'keyUp',
             windowsVirtualKeyCode: 13,
             key: 'Enter',
             code: 'Enter',
             text: '\r',
-          })
+        });
     }
 
     public async waitTillHTMLRendered(interval = DEFAULT_INTERVAL, timeout = DEFAULT_TIMEOUT): Promise<void> {
@@ -224,39 +227,37 @@ export class DomActions {
         return ret;
     }
 
-
     public async switchToTab(tabId: number) {
-        await chrome.tabs.update(tabId, {active: true});
-        chrome.tabs.highlight({ tabs: tabId }, function() {});        
+        await chrome.tabs.update(tabId, { active: true });
+        chrome.tabs.highlight({ tabs: tabId }, function () {});
     }
 
     public async getOpenTabs(): Promise<string[]> {
         const queryTabs = (queryInfo: chrome.tabs.QueryInfo): Promise<chrome.tabs.Tab[]> => {
-          return new Promise((resolve, reject) => {
-            chrome.tabs.query(queryInfo, (result) => {
-              if (chrome.runtime.lastError) {
-                return reject(chrome.runtime.lastError);
-              }
-              resolve(result);
+            return new Promise((resolve, reject) => {
+                chrome.tabs.query(queryInfo, (result) => {
+                    if (chrome.runtime.lastError) {
+                        return reject(chrome.runtime.lastError);
+                    }
+                    resolve(result);
+                });
             });
-          });
         };
-      
+
         try {
-          // Query all tabs once
-          const tabs = await queryTabs({});
-      
-          // Map the tab titles, marking the active tab
-          const tabTitles = tabs.map(t => t.id === this.tabId ? `${t.id} - [CURRENT] ${t.title}` : `${t.id} - ${t.title}`);
-          console.log(tabTitles);
-      
-          return tabTitles;
+            // Query all tabs once
+            const tabs = await queryTabs({});
+
+            // Map the tab titles, marking the active tab
+            const tabTitles = tabs.map((t) => (t.id === this.tabId ? `${t.id} - [CURRENT] ${t.title}` : `${t.id} - ${t.title}`));
+            console.log(tabTitles);
+
+            return tabTitles;
         } catch (error) {
-          console.error('Failed to get tabs:', error);
-          return [];
+            console.error('Failed to get tabs:', error);
+            return [];
         }
     }
-      
 
     public async setFocus(xpath: string) {
         const code = `
@@ -266,26 +267,26 @@ export class DomActions {
           return res
         })(${JSON.stringify(xpath)});`;
         const ret = await this.execCode(code);
-        console.log(ret)
+        console.log(ret);
 
         //Workaround so the nodeId can be retrieved. Might need some optimizations.
-        await this.sendCommand('DOM.getDocument', {depth: -1});
+        await this.sendCommand('DOM.getDocument', { depth: -1 });
         const nodeId = await this.sendCommand('DOM.requestNode', {
             objectId: ret.result.objectId,
         });
-        console.log(nodeId)
-        await this.sendCommand('DOM.focus', { nodeId: nodeId.nodeId })
+        console.log(nodeId);
+        await this.sendCommand('DOM.focus', { nodeId: nodeId.nodeId });
     }
 
-    public async pressEnter(payload: { xpath: string;}): Promise<boolean> {
-        await this.setFocus(payload.xpath)
-        await sleep(300)
-        await this.enterButton()
+    public async pressEnter(payload: { xpath: string }): Promise<boolean> {
+        await this.setFocus(payload.xpath);
+        await sleep(300);
+        await this.enterButton();
         return true;
     }
 
     public async setValueWithXPATH(payload: { xpath: string; value: string }): Promise<boolean> {
-        await this.setFocus(payload.xpath)
+        await this.setFocus(payload.xpath);
         await this.selectAllText();
         await this.typeText(payload.value);
         return true;
@@ -293,12 +294,12 @@ export class DomActions {
 
     private async get_possible_interactions_dispatch() {
         return new Promise((resolve, reject) => {
-            chrome.tabs.sendMessage(this.tabId, { method: "get_possible_interactions" }, (res) => {
+            chrome.tabs.sendMessage(this.tabId, { method: 'get_possible_interactions' }, (res) => {
                 if (chrome.runtime.lastError) {
-                    console.error("Error: " + chrome.runtime.lastError.message);
+                    console.error('Error: ' + chrome.runtime.lastError.message);
                     reject(chrome.runtime.lastError.message);
                 } else {
-                    console.log("Received response:", res);
+                    console.log('Received response:', res);
                     resolve(res);
                 }
             });
@@ -307,9 +308,9 @@ export class DomActions {
 
     public async get_possible_interactions() {
         let results = {};
-        const res: any = await this.get_possible_interactions_dispatch()
-        console.log("res: " + res.response)
-        results = res.response
+        const res: any = await this.get_possible_interactions_dispatch();
+        console.log('res: ' + res.response);
+        results = res.response;
         return results;
     }
 
