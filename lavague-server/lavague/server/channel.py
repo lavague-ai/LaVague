@@ -5,7 +5,7 @@ import threading
 from typing import Callable
 import uuid
 from lavague.core.agents import WebAgent
-from lavague.core.extractors import JsonFromMarkdownExtractor
+from lavague.core.extractors import YamlFromMarkdownExtractor
 from lavague.core.logger import AgentLogger
 import types
 import copy
@@ -95,7 +95,7 @@ class CommunicationChannel(ABC):
     def setup_session_agent(self, session: AgentSession):
         # override extractor for JSON format
         session.agent.action_engine.navigation_engine.extractor = (
-            JsonFromMarkdownExtractor()
+            YamlFromMarkdownExtractor()
         )
 
         # override logger method

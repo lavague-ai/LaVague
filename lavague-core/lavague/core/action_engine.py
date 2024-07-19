@@ -4,7 +4,7 @@ from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from lavague.core.extractors import BaseExtractor, DynamicExtractor
-from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
+from lavague.core.retrievers import BaseHtmlRetriever, IxpathRetriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger
@@ -65,7 +65,7 @@ class ActionEngine:
         self.driver = driver
 
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver)
+            retriever = IxpathRetriever(driver)
 
         if navigation_engine is None:
             navigation_engine = NavigationEngine(

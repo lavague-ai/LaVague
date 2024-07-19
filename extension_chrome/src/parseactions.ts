@@ -1,5 +1,6 @@
 import { fromError } from 'zod-validation-error';
 import { toolSchemaUnion } from './actionSchemas';
+import * as yaml from 'js-yaml';
 
 // sometimes AI replies with a JSON wrapped in triple backticks
 export function extractJsonFromMarkdown(input: string): string[] {
@@ -20,20 +21,14 @@ export function extractJsonFromMarkdown(input: string): string[] {
 }
 
 export function parseResponse(text: string) {
-    let action;
+    let action: any;
     const action_list = [];
-    try {
-        action = JSON.parse(text);
-    } catch (_e) {
-        try {
-            action = JSON.parse(extractJsonFromMarkdown(text)[0]);
-        } catch (_e) {
-            throw new Error('Response does not contain valid JSON.');
-        }
-    }
+    action = yaml.load(text);
+    console.log(action);
+    console.log(action[0].actions);
 
-    for (let i = 0; i < action.length; i++) {
-        const act = action[i];
+    for (let i = 0; i < action[0].actions.length; i++) {
+        const act = action[0].actions[i];
         console.log(act);
 
         if (act.action == null) {

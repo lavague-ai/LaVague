@@ -221,7 +221,6 @@ export class DomActions {
             }
         })();`;
         const ret = await this.execCode(code, true);
-        console.log(ret)
         return ret;
     }
 

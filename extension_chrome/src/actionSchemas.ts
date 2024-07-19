@@ -5,6 +5,7 @@ export const clickSchema = z.object({
     description: z.literal('Click on an element with the specified xpath').optional(),
     args: z.object({
         xpath: z.string(),
+        value: z.string().optional(),
     }),
 });
 
@@ -13,6 +14,7 @@ export const enterSchema = z.object({
     description: z.literal('Press enter').optional(),
     args: z.object({
         xpath: z.string(),
+        value: z.string().optional(),
     }),
 });
 
@@ -54,12 +56,6 @@ export const waitSchema = z.object({
     }),
 });
 
-export const finishSchema = z.object({
-    name: z.literal('finish'),
-    description: z.literal('Indicate the task is finished').optional(),
-    args: z.object({}).optional(),
-});
-
 export const failSchema = z.object({
     name: z.literal('fail'),
     description: z.literal('Indicate that the task cannot be completed').optional(),
@@ -73,7 +69,6 @@ export const toolSchemaUnion = z.discriminatedUnion('name', [
     setValueAndEnterSchema,
     scrollSchema,
     waitSchema,
-    finishSchema,
     failSchema,
 ]);
 const allTools = toolSchemaUnion.options;

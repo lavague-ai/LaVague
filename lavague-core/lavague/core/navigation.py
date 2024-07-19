@@ -470,7 +470,6 @@ class NavigationEngine(BaseEngine):
                     context_str=llm_context, query_str=instruction
                 )
                 response = self.llm.complete(prompt).text
-                print(response)
                 action = self.extractor.extract(response)
                 end = time.time()
                 action_generation_time = end - start
