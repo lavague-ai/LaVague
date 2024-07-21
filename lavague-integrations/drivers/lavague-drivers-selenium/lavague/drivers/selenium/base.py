@@ -23,6 +23,13 @@ from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import extract_code_from_funct
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    WebDriverException,
+)
+import re
+import json
 import yaml
 
 
@@ -283,20 +290,36 @@ driver.set_window_size({width}, {height} + height_difference)
         )
 
     def click(self, xpath: str):
-        elem = self.resolve_xpath(xpath)
+        element = self.resolve_xpath(xpath)
+        driver = self.driver
         try:
-            elem.click()
+            element.click()
         except ElementClickInterceptedException as e:
-            # if another element captures the click, perform the action on it
-            coords_pattern = r"at point \((\d+), (\d+)\)"
-            coords_matches = re.findall(coords_pattern, e.msg)
-            if len(coords_matches) >= 1:
-                action = ActionChains(self.driver)
-                action.move_by_offset(
-                    int(coords_matches[0][0]), int(coords_matches[0][1])
-                ).click().perform()
+            # Extract coordinates from the exception message
+            match = re.search(r"not clickable at point \((\d+), (\d+)\)", str(e))
+            if match:
+                x, y = map(int, match.groups())
+
+                try:
+                    # Move to the element first (this can help scroll it into view)
+                    ActionChains(driver).move_to_element(element).perform()
+
+                    # Then move to the specific coordinates and click
+                    ActionChains(driver).move_by_offset(
+                        x - int(element.location["x"]), y - int(element.location["y"])
+                    ).click().perform()
+                except WebDriverException as click_error:
+                    raise Exception(
+                        f"Failed to click at coordinates ({x}, {y}): {str(click_error)}"
+                    )
             else:
-                raise e
+                raise Exception(
+                    f"Could not extract coordinates from the exception message: {str(e)}"
+                )
+        except Exception as e:
+            raise Exception(
+                f"An unexpected error occurend when trying to click: {str(e)}"
+            )
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
@@ -454,8 +477,9 @@ Arguments:
   - value (string)
 
 Name: fail
-Description: Indicate that you are unable to complete the task
-No arguments.
+Description: Indicate that you are unable to complete the task and explain why.
+Arguments:
+  - value (string)
 
 Here are examples of previous answers:
 HTML:
