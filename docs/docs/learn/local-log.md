@@ -2,9 +2,13 @@
 
 ### What is the Agent Logger?
 
-When you use `agent.run()`, the `AgentLogger` captures information about the last agentic run, which can be retrieved and viewed as a Panda's DataFrame. 
+When you use `agent.run()`, the `AgentLogger` captures information about the last agentic run. 
 
-This DataFrame is accessible via the `agent.logging.return_pandas()` method.
+Logs can be retrieved and viewed in **several formats**:
+
+- as a pandas DataFrame
+- logged locally to a `.txt` file
+- logged to a SQLite database
 
 You can view the columns of information added to the log per step in the agentic run attempted here:
 
@@ -31,12 +35,13 @@ You can view the columns of information added to the log per step in the agentic
 
 ## Examples
 
+### Logging to a pandas DataFrame
+
 <a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/learn/notebooks/logger.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open code examples in Colab"></a>
 
-Let's take a look at how we can access the logs after using `agent.run()` and examine specific information from the logs.
 
-Firstly, we need to use our agent as usual, and then retrieve the logs DataFrame:
+Run your agent as usual, and then retrieve the logs DataFrame with `agent.logging.return_pandas()`. This is best suited for usage in a Jupyter notebook. 
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
@@ -136,7 +141,29 @@ After using the agent, your logs will now be stored in the file you specified.
 
 > If you don't appear to have the `LocalLogger` in your current version of LaVague, you can upgrade lavague-core with" `pip install --upgrade lavague-core`
 
-### Advanced: Manually logging sub-components
+### Logging to SQLite
+
+LaVague also supports logging directly to a SQLite database when running your agent. This feature provides a structured way to store and query your agent's logs. 
+
+Here's how to use it:
+
+1. First, ensure you have SQLite installed on your system. If not, you can typically install it using your system's package manager or download it from the [official SQLite website](https://www.sqlite.org/download.html).
+
+2. When running your agent, add the `log_to_db=True` parameter to the `run()` method:
+
+```python
+agent.run("Go to the first Model in the Models section", log_to_db=True)
+```
+
+This will automatically create (if it doesn't already exist in your current environment) or add to a SQLite database file named `lavague_logs.db` in your current working directory and log all the agent's actions to it.
+
+- The database will contain a table named "Logs" with columns corresponding to the various aspects of the agent's operations.
+
+- You can then use SQLite to query and analyze your logs.
+
+This feature allows for more persistent logging, which can be especially useful for debugging and tracking the performance of your LaVague agents over time.
+
+## Advanced: Manually logging sub-components
 
 The logger runs automatically whenever you use the `agent.run()` method and is accessible via `agent.logger`. 
 

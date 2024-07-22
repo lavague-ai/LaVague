@@ -90,7 +90,7 @@ You can take a quick look at the `demo` feature in the video below:
 
 The Driver component is used to perform actions on web browsers and get information about our current web page.
 
-We currently provide a Selenium Driver component by default, as well as a Playwright Driver option.
+We currently provide a Selenium Driver component by default, as well as a Playwright Driver option. Feature support varies based on the driver used, learn more in our [Driver documentation](../learn/browser-drivers.md).
 
 !!! tip "Avoiding issues around pop ups, CAPTCHA, logins, etc."
     You may experience difficulties using LaVague for logins due to bot protections.

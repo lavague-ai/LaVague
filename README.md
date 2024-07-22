@@ -73,6 +73,17 @@ For more information on this example and how to use LaVague, see our [quick-tour
 
 For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
+## 💰 How much does it cost to run an agent
+
+Pricing depends on: 
+- the models chosen to run a given agent
+- the complexity of the objective
+- the website you're interacting with. 
+
+As such, pricing can vary greatly at the cost of speed or performance. 
+
+Please see our [dedicated documentation on token counting and cost estimations](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) to learn how you can track all tokens and estimate costs for running your agents.
+
 ## 🙋 Contributing
 
 We would love your help and support on our quest to build a robust and reliable Large Action Model for web automation.

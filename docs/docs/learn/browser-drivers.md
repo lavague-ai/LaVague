@@ -7,8 +7,26 @@ Our Driver modules are used to perform actions on web browsers and to get inform
 
 We have two Driver options:
 
-- ✅ SeleniumDriver: When the SeleniumDriver is used, our Action Engine will generate and execute code using Selenium
-- 🎭 PlaywrightDriver: When the PlaywrightDriver is used, our Action Engine will generate and execute code using Playwright
+- ✅ SeleniumDriver: the Action Engine will generate and execute code using Selenium. We use the SeleniumDriver by default and it has the most complete feature set. 
+- 🎭 PlaywrightDriver: the Action Engine will generate and execute code using Playwright
+- 🖥️ Chrome extension: when used along the DriverServer to generate code, the Chrome extension will execute JavaScript
+
+## Driver feature support
+
+Not all agent features are supported by all drivers. **Selenium is our preferred option** since it currently supports the widest range of features. We welcome community contributions to help us increase support coverage for different drivers.
+
+
+| Feature                  | Selenium  | Playwright       | Chrome Extension                     |
+|--------------------------|-----------|------------------|--------------------------------------|
+| Headless agents    | ✅ | ⏳ | N/A |
+| Handle iframes     | ✅ | ✅ | ❌ |
+| Open several tabs  | ✅ | ⏳ | ✅  |
+| Highlight elements | ✅ | ✅  | ✅ |
+
+
+✅ supported  
+⏳ coming soon  
+❌ not supported 
 
 ## Selenium Driver
 

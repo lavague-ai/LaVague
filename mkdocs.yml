@@ -97,6 +97,7 @@ nav:
   - Installation: 'docs/get-started/installation.md'
   - Quick tour: 'docs/get-started/quick-tour.md'
   - Gradio: 'docs/get-started/gradio.md'
+  - Token usage and cost: 'docs/get-started/token-usage.md'
   # - Under the hood: 'docs/get-started/under-the-hood.md'
   - Customization: 'docs/get-started/customization.md'
   - Troubleshooting: 'docs/get-started/troubleshoot.md'
@@ -105,7 +106,9 @@ nav:
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
-  - End-to-end debugging: 'docs/learn/debugging.md'
+  - Debugging agents: 
+    - End-to-end debugging: 'docs/learn/debugging.md'
+    - Debug tools: 'docs/learn/debug-tools.md'
 
 - 🧩 Module Guides:
   - Web Agents: 'docs/learn/agents.md'

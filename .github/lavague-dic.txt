@@ -24,6 +24,7 @@ lavague
 repo
 boolean
 codebase
+TokenCounter
 macos
 sandboxed
 VSCode
@@ -138,3 +139,9 @@ RetrieverEvaluator
 XPATH
 dataframe
 retiever
+iframe
+iframes
+debugging
+interactable
+DriverServer
+CAPTCHAs
