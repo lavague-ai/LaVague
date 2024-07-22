@@ -271,21 +271,9 @@ class BaseDriver(ABC):
         return obs
 
     def wait(self, duration):
-        import json
+        import time
 
-        code = json.dumps(
-            [
-                {
-                    "action": {
-                        "name": "wait",
-                        "args": {
-                            "duration": duration,
-                        },
-                    }
-                }
-            ]
-        )
-        self.exec_code(code)
+        time.sleep(duration)
 
     def get_current_screenshot_folder(self) -> Path:
         url = self.get_url()
