@@ -1,8 +1,10 @@
 from typing import List, Dict
+from lavague.core.context import Context
 from lavague.core.agents import WebAgent
 from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.drivers.selenium.base import SeleniumDriver
+from lavague.core.token_counter import TokenCounter
 from .config import Task, TestConfig, TaskTest
 from pandas import DataFrame
 
@@ -58,15 +60,23 @@ class RunnerResult:
     def __str__(self) -> str:
         successes = 0
         failures = 0
+        tokens_used = 0
+        tokens_cost = 0.0
+
         for r in self.results:
             for sr in r.results:
                 successes += len(sr.successes)
                 failures += len(sr.failures)
+                tokens_used += sr.dataframe["total_step_tokens"].sum()
+                tokens_cost += sr.dataframe["total_step_cost"].sum()
 
         total = successes + failures
         if total == 0:
             return "No tests run"
-        summary = f"Result: {round(100 * successes / total)} % ({successes} / {total})"
+        summary = (
+            f"Result: {round(100 * successes / total)} % ({successes} / {total})\n"
+        )
+        summary += f"Tokens: {tokens_used} ({tokens_cost:.4f} $)"
         return "\n".join(str(r) for r in self.results) + "\n" + summary
 
     def is_success(self) -> bool:
@@ -74,9 +84,20 @@ class RunnerResult:
 
 
 class TestRunner:
-    def __init__(self, sites: List[TestConfig], headless=True):
+    def __init__(
+        self,
+        context: Context,
+        sites: List[TestConfig],
+        token_counter: TokenCounter,
+        headless=True,
+    ):
+        self.context = context
         self.sites = sites
+        self.token_counter = token_counter
         self.headless = headless
+        
+        print("context", context.llm.model)
+        print("token_counter", token_counter)
 
     def run(self) -> RunnerResult:
         results: List[RunResults] = []
@@ -103,9 +124,14 @@ class TestRunner:
 
     def _run_single_task(self, task: Task) -> SingleRunResult:
         driver = SeleniumDriver(headless=self.headless)
-        action_engine = ActionEngine(driver=driver, n_attempts=task.n_attempts)
-        world_model = WorldModel()
-        agent = WebAgent(world_model, action_engine, n_steps=task.max_steps)
+        action_engine = ActionEngine.from_context(context=self.context, driver=driver, n_attempts=task.n_attempts)
+        world_model = WorldModel.from_context(context=self.context)
+        agent = WebAgent(
+            world_model,
+            action_engine,
+            token_counter=self.token_counter,
+            n_steps=task.max_steps,
+        )
         agent.get(task.url)
         agent.run(task.prompt, user_data=task.user_data)
         dataframe = agent.logger.return_pandas()
