@@ -8,6 +8,14 @@ from .runner import TestRunner
 
 @click.command()
 @click.option(
+    "--context",
+    "-c",
+    type=str,
+    default=os.getcwd() + "/lavague-tests/contexts/default_context.py",
+    required=False,
+    help="python file containing an initialized context and token_counter. Default is context/default_context.py",
+)
+@click.option(
     "--directory",
     "-d",
     default=os.getcwd() + "/lavague-tests/sites",
@@ -28,7 +36,23 @@ from .runner import TestRunner
     is_flag=True,
     help="if set browser will be displayed",
 )
-def cli(directory: str, site: List[str], display: bool) -> None:
+def cli(context: str, directory: str, site: List[str], display: bool) -> None:
+    context, token_counter = _load_context(context)
+    sites_to_test = _load_sites(directory, site)
+
+    # add methods, extract site loading as well.
+    runner = TestRunner(
+        context=context,
+        sites=sites_to_test,
+        token_counter=token_counter,
+        headless=not display,
+    )
+    res = runner.run()
+    print(str(res))
+    exit(0 if res.is_success() else -1)
+
+
+def _load_sites(directory, site):
     sites_to_test: List[Path] = []
     try:
         for item in os.listdir(directory):
@@ -43,11 +67,23 @@ def cli(directory: str, site: List[str], display: bool) -> None:
                     raise e
     except FileNotFoundError:
         click.echo(f"Directory '{directory}' not found.")
+    return sites_to_test
 
-    runner = TestRunner(sites=sites_to_test, headless=not display)
-    res = runner.run()
-    print(str(res))
-    exit(0 if res.is_success() else -1)
+
+def _load_context(context):
+    # read context file and execute it
+    with open(context, "r") as file:
+        file_content = file.read()
+    local_namespace = {}
+    exec(file_content, {}, local_namespace)
+
+    # ensure variables are defined
+    if "context" in local_namespace and "token_counter" in local_namespace:
+        return local_namespace["context"], local_namespace["token_counter"]
+    else:
+        raise Exception(
+            "Expected variables (`context` and `token_counter`) not found in the provided context file"
+        )
 
 
 if __name__ == "__main__":
