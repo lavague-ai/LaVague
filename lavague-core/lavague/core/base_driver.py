@@ -188,7 +188,7 @@ class BaseDriver(ABC):
 
     @abstractmethod
     def get_possible_interactions(
-        self, in_viewport=True
+        self, in_viewport=True, foreground_only=True
     ) -> PossibleInteractionsByXpath:
         """Get elements that can be interacted with as a dictionary mapped by xpath"""
         pass
@@ -332,17 +332,24 @@ class BaseDriver(ABC):
         *with_interactions: tuple[InteractionType],
         color: str = "red",
         in_viewport=True,
+        foreground_only=True,
     ):
         if with_interactions is None or len(with_interactions) == 0:
             return self.highlight_nodes(
-                list(self.get_possible_interactions(in_viewport=in_viewport).keys()),
+                list(
+                    self.get_possible_interactions(
+                        in_viewport=in_viewport, foreground_only=foreground_only
+                    ).keys()
+                ),
                 color,
             )
 
         return self.highlight_nodes(
             [
                 xpath
-                for xpath, interactions in self.get_possible_interactions().items()
+                for xpath, interactions in self.get_possible_interactions(
+                    in_viewport=in_viewport, foreground_only=foreground_only
+                ).items()
                 if set(interactions) & set(with_interactions)
             ],
             color,
@@ -367,7 +374,7 @@ class DOMNode(ABC):
 
 
 def js_wrap_function_call(fn: str):
-    return f"(function() { {fn} })()"
+    return "(function(){" + fn + "})()"
 
 
 JS_SETUP_GET_EVENTS = """
@@ -458,7 +465,7 @@ return (function() {
                 try {
                     traverse(child.contentWindow.document.body, childXpath + '/html/body');
                 } catch (e) {
-                    console.error("iframe access blocked", child, e);
+                    console.warn("iframe access blocked", child, e);
                 }
             } else if (!isLocal) {
                 traverse(child, childXpath);
@@ -474,7 +481,7 @@ JS_GET_INTERACTIVES_IN_VIEWPORT = (
     """
 const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
 const windowWidth = (window.innerWidth || document.documentElement.clientWidth);
-return Object.entries("""
+return Object.fromEntries(Object.entries("""
     + js_wrap_function_call(JS_GET_INTERACTIVES)
     + """).filter(([xpath, evts]) => {
     const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -489,12 +496,20 @@ return Object.entries("""
         rect.right += iframeRect.left;
         iframe = iframe.ownerDocument.defaultView.frameElement;
     }
-    return (
-        rect.top < windowHeight &&
-        rect.bottom > 0 &&
-        rect.left < windowWidth &&
-        rect.right > 0
-    );
-});
+    const elemCenter = {
+        x: rect.left + element.offsetWidth / 2,
+        y: rect.top + element.offsetHeight / 2
+    };
+    if (elemCenter.x < 0) return false;
+    if (elemCenter.x > windowWidth) return false;
+    if (elemCenter.y < 0) return false;
+    if (elemCenter.y > windowHeight) return false;
+    if (arguments?.[0] !== true) return true; // whenever to check for elements above
+    let pointContainer = document.elementFromPoint(elemCenter.x, elemCenter.y);
+    do {
+        if (pointContainer === element) return true;
+    } while (pointContainer = pointContainer.parentNode);
+    return false;
+}));
 """
 )

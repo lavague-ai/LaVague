@@ -268,10 +268,11 @@ class PlaywrightDriver(BaseDriver):
         self.execute_script("window.scrollBy(0, window.innerHeight);")
 
     def get_possible_interactions(
-        self, in_viewport=True
+        self, in_viewport=True, foreground_only=True
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.execute_script(
-            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES
+            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES,
+            foreground_only,
         )
         res = dict()
         for k, v in exe.items():

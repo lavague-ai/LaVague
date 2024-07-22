@@ -7,7 +7,9 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     WebDriverException,
     ElementClickInterceptedException,
+    StaleElementReferenceException,
 )
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
@@ -286,10 +288,13 @@ driver.set_window_size({width}, {height} + height_difference)
             elem.click()
         except ElementClickInterceptedException as e:
             # if another element captures the click, perform the action on it
-            xpath_pattern = r'xpath="([^"]*)"'
-            xpath_matches = re.findall(xpath_pattern, e.msg)
-            if len(xpath_matches) >= 2:
-                self.click(xpath_matches[1])
+            coords_pattern = r"at point \((\d+), (\d+)\)"
+            coords_matches = re.findall(coords_pattern, e.msg)
+            if len(coords_matches) >= 1:
+                action = ActionChains(self.driver)
+                action.move_by_offset(
+                    int(coords_matches[0][0]), int(coords_matches[0][1])
+                ).click().perform()
             else:
                 raise e
         self.driver.switch_to.default_content()
@@ -369,10 +374,11 @@ driver.set_window_size({width}, {height} + height_difference)
         return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
 
     def get_possible_interactions(
-        self, in_viewport=True
+        self, in_viewport=True, foreground_only=True
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.driver.execute_script(
-            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES
+            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES,
+            foreground_only,
         )
         res = dict()
         for k, v in exe.items():
@@ -395,10 +401,13 @@ class SeleniumNode(DOMNode):
         return self
 
     def clear(self):
-        self._driver.execute_script(
-            "arguments[0].style.removeProperty('outline')",
-            self.element,
-        )
+        try:
+            self._driver.execute_script(
+                "arguments[0].style.removeProperty('outline')",
+                self.element,
+            )
+        except StaleElementReferenceException:
+            pass
         return self
 
     def take_screenshot(self):
