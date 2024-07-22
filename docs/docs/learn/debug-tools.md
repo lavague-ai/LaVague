@@ -1,11 +1,11 @@
 # Debug tools
 
-Some simple tools are built-in into LaVague to help you debug agents. Some external tools can also be used. This document provides an overview of basic debugging tools and a full example setup. 
+This page provides an overview of the basic built-in debugging tools we provide and a full example setup. 
 
 
 ## Using Chrome debug tools
 
-You can bind LaVague to a Chrome instance launched in debug mode. This often helps avoiding CAPTCHAs. 
+You can bind LaVague to an existing Chrome instance launched in debug mode. This can help avoiding CAPTCHAs and allows you to leverage your session settings and passwords. 
 
 ### Launching Chrome in debug
 
@@ -29,10 +29,9 @@ chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
 selenium_driver = SeleniumDriver(headless=False, options=chrome_options)
 ```
 
-
 ## Run your agent in step by step mode
 
-This parameter is used to enable step-by-step execution of the `WebAgent`. When set to `True`, it prompts the user at each step to continue or not. This is best used in a Python script where interactive step-by-step control is required.
+The `step_by_step` parameter can be used to enable step-by-step execution of the `WebAgent`. When set to `True`, it pauses at each step and enables the user to agree whether to continue or not. This is best used in a Python script where interactive step-by-step control is required.
 
 ```python
 agent = WebAgent(world_model, action_engine, step_by_step=True)
@@ -40,20 +39,19 @@ agent = WebAgent(world_model, action_engine, step_by_step=True)
 
 ## Run one agent step
 
-This method allows the agent to perform a single step. It is useful for controlled step-by-step debugging, making it ideal for use in a Jupyter notebook environment where you can manually control and observe each step.
+This method allows the agent to perform a single step. It is useful for controlled step-by-step debugging. It is ideal for use within a Jupyter notebook environment where you can manually control and observe each step.
 
 ```python
 agent.run_step()
 ```
 
 ## Highlight nodes 
-This feature is only supported on Selenium
 
 This SeleniumDriver method highlights interactive nodes in the specified color (e.g., red). It is useful for visually debugging and identifying interactive elements on a web page. Works better along with notebooks. 
 
 ```python
 selenium_driver.remove_highlight()
-selenium_driver.highlight_interactive_nodes(color = "blue")
+selenium_driver.highlight_interactive_nodes(color="blue")
 ```
 
 ## Example debug setup
@@ -95,4 +93,3 @@ selenium_driver.highlight_interactive_nodes(color = "blue")
 agent.run_step(objective)
 selenium_driver.highlight_interactive_nodes(color = "green")
 ```
-
