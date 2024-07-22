@@ -177,8 +177,7 @@ class DriverServer(BaseDriver):
         )
 
     def wait(self, time_between_actions):
-        json_str = f"""
-- actions:
+        json_str = f"""- actions:
     - action:
         args:
             value: {time_between_actions}
@@ -188,8 +187,7 @@ class DriverServer(BaseDriver):
         pass
 
     def scroll_up(self):
-        json_str = f"""
-- actions:
+        json_str = f"""- actions:
     - action:
         args:
             value: "up"
@@ -199,8 +197,7 @@ class DriverServer(BaseDriver):
         pass
 
     def scroll_down(self):
-        json_str = f"""
-- actions:
+        json_str = f"""- actions:
     - action:
         args:
             value: "down"
