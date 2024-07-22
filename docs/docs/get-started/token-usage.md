@@ -2,16 +2,17 @@
 
 LaVague uses LLMs to reason and interact with web pages. LLM inference consumes tokens and estimating pricing for different use cases is possible with the LaVague `TokenCounter` module.
 
-This allow an in-depth understanding of all the factors influencing the cost at each step of an agent's task. **Pricing estimation currently only supports `gpt-4o` and `text-embedding-3-large`**.
+This allows an in-depth understanding of all the factors influencing the cost at each step of an agent's task. **Pricing estimation currently only supports `gpt-4o` and `text-embedding-3-large`**.
 
 !!! warning "`TokenCounter` is currently not enabled by default"
 
-    While we keep testing and improving this feature, you'll need to manually enable the `TokenCounter` to track your usage. Keep on reading this documentation to learn how. 
+    While we keep testing and improving this feature, you'll need to manually enable the `TokenCounter` to track your usage.
 
+Let's take a look at how to use the `TokenCounter` module
 
 ## Available metrics
 
-Token counts are separated in three main categories
+Token counts are separated into three main categories
 
 - WorldModel: **multi-modal llm tokens**
 - ActionEngine: **llm tokens**
@@ -19,7 +20,7 @@ Token counts are separated in three main categories
 
 We also differentiate **input** and **output** tokens in the case of llm consumption since pricing is usually different for each of these token types. 
 
-This allows for an in-depth tracking of all the different agent components that are consuming tokens from external providers. 
+This allows for in-depth tracking of all the different agent components that are consuming tokens from external providers. 
 
 | **Variable Name**                  | **Explanation**                                                            | **Example Value** |
 |------------------------------------|----------------------------------------------------------------------------|-------------------|
@@ -52,7 +53,7 @@ To enable logging of all tokens consumed:
 
 !!! warning "Initialize `TokenCounter` before all other modules"
 
-    We use callbacks to count tokens, make sure to declare the counter as the very first module to make sure all callbacks will be properly registered and ensure all tokens will be counter. 
+    We use callbacks to count tokens. Make sure to initalize your TokenCounter before any other modules to make sure all callbacks will be properly registered and ensure all tokens will be counted.
 
 
 ```python
@@ -75,7 +76,6 @@ agent = WebAgent(
     world_model,
     action_engine,
     token_counter=token_counter,
-    
 )
 
 # run the agent
@@ -96,7 +96,7 @@ print(f"Total cost: ${round(total_cost, 3)}")
 
 ```
 
-Tokens consumed will be logged along cost estimations. To learn more about different ways of accessing those logs, please visit our [Logger documentation](../learn/local-log.md). 
+Tokens consumed will be logged along with cost estimations. To learn more about different ways of accessing those logs, please visit our [Logger documentation](../learn/local-log.md). 
 
 
 ## Current support
@@ -107,7 +107,7 @@ This module can only track token usage from `llama-index` supported models. To l
 ### Price estimations
 Prices are defined and calculated according to our `pricing_config.yaml` file. You can find the [most up to date version of this file](https://github.com/lavague-ai/LaVague/blob/main/lavague-core/lavague/core/utilities/pricing_config.yml) in our repository.
 
-Currently we support price estimations for the following models: 
+Currently, we support price estimations for the following models: 
 
 - llms: 
     - `gpt-4o`

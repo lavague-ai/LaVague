@@ -143,23 +143,23 @@ After using the agent, your logs will now be stored in the file you specified.
 
 ### Logging to SQLite
 
-LaVague now supports logging directly to a SQLite database when running your agent. This feature provides a structured way to store and query your agent's logs. Here's how to use it:
+LaVague also supports logging directly to a SQLite database when running your agent. This feature provides a structured way to store and query your agent's logs. 
+
+Here's how to use it:
 
 1. First, ensure you have SQLite installed on your system. If not, you can typically install it using your system's package manager or download it from the [official SQLite website](https://www.sqlite.org/download.html).
 
-2. When running your agent, simply add the `log_to_db=True` parameter to the `run()` method. Here's an example:
+2. When running your agent, add the `log_to_db=True` parameter to the `run()` method:
 
 ```python
 agent.run("Go to the first Model in the Models section", log_to_db=True)
 ```
 
-This will automatically create a SQLite database file named `lavague_logs.db` in your current working directory and log all the agent's actions to it.
+This will automatically create (if it doesn't already exist in your current environment) or add to a SQLite database file named `lavague_logs.db` in your current working directory and log all the agent's actions to it.
 
 - The database will contain a table named "Logs" with columns corresponding to the various aspects of the agent's operations.
 
-- You can then use SQLite tools module to query and analyze your logs.
-
-
+- You can then use SQLite to query and analyze your logs.
 
 This feature allows for more persistent logging, which can be especially useful for debugging and tracking the performance of your LaVague agents over time.
 
