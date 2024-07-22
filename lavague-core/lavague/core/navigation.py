@@ -10,7 +10,7 @@ from lavague.core.extractors import (
     YamlFromMarkdownExtractor,
     DynamicExtractor,
 )
-from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
+from lavague.core.retrievers import BaseHtmlRetriever, SemanticRetriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
     display_screenshot,
@@ -40,22 +40,38 @@ Completion:
 
 REPHRASE_PROMPT = Template(
     """
-You are an AI system designed to convert text-based instructions for web actions into standardized instructions.
+You are an AI system designed to convert text-based instructions for web actions into standardized instructions for another AI to execute.
+For the other AI to execute actions, it first searches through the DOM of the current page to find the code of the element to interact with.
+It will then generate the code to interact with the element based on the previsouly retrieved code.
+
+Therefore your goal is to convert the text-based instructions into two parts:
+- A search query optimized to allow a retriever to find the right element using the current DOM. 
+- A standardized instruction to enable the other AI to generate the code to interact with the element using the retrieved code of the previous stage.
+
+The search query should not contain information about the action but optimized to not confuse the retriever but rewrite the query to highlight as much as possible HTML information to make it easier for the retriever to find the element.
+As the other AI has only access to the DOM and no visual input, remove all visual information cues. You can use cues by mentioning nearby elements to the element to interact with.
+
 Here are previous examples:
 Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
-Standardized instruction: [{'query':'input"Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
+Standardized instruction: [{'query':'input "Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
+---
 Text instruction: Click on the search bar with placeholder "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter.
-Standardized instruction: [{'query':'input"Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
+Standardized instruction: [{'query':'input "Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
+---
 Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
-Standardized instruction: [{'query':'button"Installation"', 'action':'Click on "Installation"'}]
-
+Standardized instruction: [{'query':'button "Installation"' text "Effective and efficient diffusion", 'action':'Click on "Installation"'}]
+---
 Text instruction:  Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
-Standardized instruction: [{'query':'input"Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'}, {'query':'input"First name"', 'action':'Click on the input "First name" and type "John"'}, {'query':'input"Last name"', 'action':'Click on the input "Last name" and type "Doe"'}, {'query':'input"Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}]
-Text instruction: In the login form, locate the input element labeled “Username” and type “user123”. Locate the input element labeled “Password” and type “pass456”.
-Standardized instruction: [{'query':'input”Username”', 'action':'Click on the input “Username” and type “user123”'}, {'query':'input”Password”', 'action':'Click on the input “Password” and type “pass456”'}]
-
+Standardized instruction:
+[
+{'query':'input "Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'},
+{'query':'input "First name"', 'action':'Click on the input "First name" and type "John"'},
+{'query':'input "Last name"', 'action':'Click on the input "Last name" and type "Doe"'},
+{'query':'input "Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}
+]
+---
 Text instruction: Press the button labeled “Submit” at the bottom of the form.
-Standardized instruction: [{'query':'button”Submit”', 'action':'Click on the button “Submit”'}]
+Standardized instruction: [{'query':'button ”Submit”', 'action':'Click on the button “Submit”'}]
 
 Text instruction: ${instruction}
 Standardized instruction:
@@ -134,7 +150,7 @@ class NavigationEngine(BaseEngine):
         if rephraser is None:
             rephraser = Rephraser(llm)
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver)
+            retriever = SemanticRetriever(driver)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.rephraser = rephraser
