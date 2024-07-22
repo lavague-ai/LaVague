@@ -24,6 +24,7 @@ lavague
 repo
 boolean
 codebase
+TokenCounter
 macos
 sandboxed
 VSCode

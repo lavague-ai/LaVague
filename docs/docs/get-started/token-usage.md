@@ -53,7 +53,7 @@ To enable logging of all tokens consumed:
 
 !!! warning "Initialize `TokenCounter` before all other modules"
 
-    We use callbacks to count tokens. Make sure to initalize your TokenCounter before any other modules to make sure all callbacks will be properly registered and ensure all tokens will be counted.
+    We use callbacks to count tokens. Make sure to initialize your TokenCounter before any other modules to make sure all callbacks will be properly registered and ensure all tokens will be counted.
 
 
 ```python
