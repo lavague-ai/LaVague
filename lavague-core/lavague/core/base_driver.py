@@ -272,6 +272,7 @@ class BaseDriver(ABC):
 
     def wait(self, duration):
         import time
+
         time.sleep(duration)
 
     def get_current_screenshot_folder(self) -> Path:
