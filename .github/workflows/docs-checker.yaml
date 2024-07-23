@@ -100,7 +100,8 @@ jobs:
 
       - name: Extract Python code
         run: |
-          python .github/extract-python-code.py ./docs/docs/examples/hf-papers-retrieval.md ./docs/docs/examples/job-application.md docs/docs/use-cases/forms.md docs/docs/use-cases/notion.md
+          rm ./docs/docs/examples/qa-automation.md
+          python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md
 
       - name: Run extracted Python scripts
         run: |
