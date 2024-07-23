@@ -91,7 +91,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install lavague llama-index-embeddings-huggingface ipython==8.26.0
+          pip cache purge
+          pip install lavague
+          pip install llama-index-embeddings-huggingface 
+          pip install ipython==8.26.0
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
       - name: Extract Python code
@@ -104,6 +107,7 @@ jobs:
             while IFS= read -r script_file
             do
               echo "Running $script_file"
+              cat $script_file
               python "$script_file"
             done < generated_scripts.txt
           else
