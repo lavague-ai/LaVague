@@ -161,9 +161,11 @@ LaVague has two main components:
 
 For this demo, we will use a local embedding model ([bge-small](https://huggingface.co/BAAI/bge-small-en-v1.5)) and GPT-3.5 for our Action Engine.
 
-```python
+```bash
 pip install llama-index-embeddings-huggingface
+```
 
+```python
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 embedding = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")

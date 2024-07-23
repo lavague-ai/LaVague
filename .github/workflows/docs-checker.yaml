@@ -82,6 +82,7 @@ jobs:
   check-docs-examples:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'schedule'
     steps:
@@ -90,12 +91,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install lavague
+          pip install lavague llama-index-embeddings-huggingface
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
       - name: Extract Python code
         run: |
-          python .github/extract-python-code.py ./docs/docs/examples/hf-papers-retrieval.md
+          python .github/extract-python-code.py ./docs/docs/examples/hf-papers-retrieval.md ./docs/docs/examples/job-application.md
 
       - name: Run extracted Python scripts
         run: |
