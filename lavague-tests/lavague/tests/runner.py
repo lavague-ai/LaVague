@@ -77,15 +77,12 @@ class RunnerResult:
         total = successes + failures
         if total == 0:
             return "No tests run"
-        summary = (
-            f"Result: {round(100 * successes / total)} % ({successes} / {total}) in {total_execution_time:.1f}s\n"
-        )
+        summary = f"Result: {round(100 * successes / total)} % ({successes} / {total}) in {total_execution_time:.1f}s\n"
         summary += f"Tokens: {tokens_used} ({tokens_cost:.4f} $)"
         return "\n".join(str(r) for r in self.results) + "\n" + summary
 
     def is_success(self) -> bool:
         return all([r.is_success() for r in self.results])
-
 
 class TestRunner:
     def __init__(
@@ -138,13 +135,12 @@ class TestRunner:
             n_steps=task.max_steps,
         )
         agent.get(task.url)
-        
+
         # run agent and measure execution time
         start_time = time.time()
         agent.run(task.prompt, user_data=task.user_data, log_to_db=self.log_to_db)
         end_time = time.time()
         execution_time = end_time - start_time
-
 
         dataframe = agent.logger.return_pandas()
         context = self._get_context(agent)
