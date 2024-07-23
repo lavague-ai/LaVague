@@ -1,70 +1,113 @@
-# LaVague testing
 
-Our `lavague-tests` CLI can help you test and benchmark LaVague on common use cases.
+# LaVague Testing Documentation
 
-## Example
+The `lavague-tests` command-line interface (CLI) facilitates the testing and benchmarking of LaVague across a variety of common use cases.
 
-Run LaVague on the amazon.com test cases with a custom set of LLMs defined in `custom_context.py`
+## Installation
+
+Install the CLI tool via pip:
+
+```bash
+pip install lavague-tests
+```
+
+## Quick Start Examples
+
+### Example 1 (no arguments)
+
+By default, `lavague-tests` will run all tests defined in `/sites` with the default set of LLMs (`gpt-4o`)
+
+```bash
+> lavague-tests
+```
+
+Output
+
+```
+Result: 80 % (8 / 10) in 183.7s
+Tokens: 155963 (0.9255 $)
+```
+
+### Example 2 (one site only, custom set of LLMs)
+Test LaVague on the amazon.com use cases using a custom set of Large Language Models (LLMs) defined in `custom_context.py`:
 
 ```bash
 lavague-tests -s amazon.com -c lavague-tests/contexts/custom_context.py
 ```
 
 Output
+
 ```
 Result: 100 % (2 / 2) in 59.88s
 Tokens: 41872 (0.2229 $)
 ```
 
-## Installation
-
-To use the CLI tool install it with `pip`: 
-```
-pip install lavague-tests
-```
-
 ## Usage
+
+Display help and command-line options:
 
 ```bash
 ❯ lavague-test --help
 Usage: lavague-test [OPTIONS]
 
 Options:
-  -c, --context TEXT    python file containing an initialized context and
-                        token_counter. Default is context/default_context.py
-  -d, --directory TEXT  sites directory
-  -s, --site TEXT       site name
-  --display             if set browser will be displayed
-  -db, --log-to-db      if set, enables logging to the default SQLite database
+  -c, --context TEXT    Python file containing an initialized context and token_counter. Default is context/default_context.py
+  -d, --directory TEXT  Sites directory
+  -s, --site TEXT       Site name
+  --display             If set, the browser will be displayed
+  -db, --log-to-db      If set, enables logging to the default SQLite database
   --help                Show this message and exit.
 ```
 
-## Command-Line Options
-
+## Command-Line Options Overview
 
 | Option       | Alias | Description   | Default Value   | Required |
-| ------------ | ------------ | ------------- | --------------- | -------- |
-| `--context` | `-c` | Path to a Python file containing an initialized `Context` and `TokenCounter`. | `{current_dir}/lavague-tests/contexts/default_context.py` | No |
-| `--directory` | `-d` | Directory where the sites configurations are stored. | `{current_dir}/lavague-tests/sites` | No |
-| `--site` | `-s` | Name(s) of specific sites to test. Multiple sites can be specified. | All sites in `lavague-tests/sites` | No |
-| `--display` | NA | If set, the browser will be displayed during the test. | False | No |
-| `--log-to-db` | `-db` | If set, enables logging test results to the default SQLite database. | False | No |
+| ------------ | ------| ------------- | --------------- | -------- |
+| `--context`  | `-c`  | Path to a Python file containing an initialized `Context` and `TokenCounter`. | `./lavague-tests/contexts/default_context.py` | No |
+| `--directory`| `-d`  | Directory where the site configurations are stored. | `./lavague-tests/sites` | No |
+| `--site`     | `-s`  | Name of the site(s) to test. Multiple sites can be specified. | All sites in `./lavague-tests/sites` | No |
+| `--display`  | None  | If set, displays the browser during the test. | False | No |
+| `--log-to-db`| `-db` | If enabled, logs test results to the default SQLite database. | False | No |
 
-## Defining Custom Use Cases in `/sites`
+## Custom Use Cases Configuration in `/sites`
 
-To define custom use cases for your testing tool, you need to create configuration files within the `sites/` directory. Each site should have its own folder and a `config.yml` file where you specify tasks that the tool should execute during testing.
+To define custom use cases, create configuration files within the `sites/` directory. Each site should have its own folder and a `config.yml` file specifying the tasks to execute during testing.
 
-### Configuration Structure
-
-Each configuration file should follow this basic structure:
+### Example Configuration Structure
 
 ```yaml
 tasks:
   - name: Task name (optional)
     url: URL to test
-    prompt: Description of what the task is meant to simulate
+    prompt: Description of the task
     expect:
-      - Conditions to be met for the test to be considered successful
+      - Conditions for successful test completion
 ```
 
+## Custom Contexts Definition in `/contexts`
 
+To define custom LLMs for test cases, create a `.py` file in `/contexts` containing the `context` and `token_counter` variables. We provide a default context (uses `gpt-4o`) and a custom example.
+
+### Example `custom_context.py`
+
+```python
+from lavague.core.token_counter import TokenCounter
+from llama_index.llms.openai import OpenAI
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from llama_index.embeddings.openai import OpenAIEmbedding
+from lavague.core.context import Context
+
+llm_name = "gpt-4o-mini"
+mm_llm_name = "gpt-4o-mini"
+embedding_name = "text-embedding-3-large"
+
+token_counter = TokenCounter()
+
+# Initialize models
+llm = OpenAI(model=llm_name)
+mm_llm = OpenAIMultiModal(model=mm_llm_name)
+embedding = OpenAIEmbedding(model=embedding_name)
+
+# Initialize context
+context = Context(llm, mm_llm, embedding)
+```
