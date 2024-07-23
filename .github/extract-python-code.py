@@ -19,7 +19,7 @@ def extract_python_code(file_path):
     modified_code = re.sub(r",\s*display=True", "", modified_code)
 
     # Remove occurrences of `, display=True`
-    modified_code = re.sub(r"\bdisplay\s*\([^)]*\)", "", modified_code)
+    modified_code = re.sub(r'display\(Image\(url\)\)', '', modified_code)
     return modified_code
 
 
