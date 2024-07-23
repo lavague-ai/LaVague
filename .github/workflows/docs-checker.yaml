@@ -94,8 +94,10 @@ jobs:
           pip cache purge
           pip install lavague
           pip install llama-index-embeddings-huggingface 
-          pip install ipython==8.26.0
+          pip install ipython>=7.34.0,<8.0.0
           pip install text_generation
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
       - name: Extract Python code
