@@ -1,10 +1,8 @@
 # Understanding token usage and cost
 
-LaVague leverages LLMs for web page interaction and reasoning. To estimate costs for various use cases, LaVague provides a `TokenCounter` module. This tool offers insights into cost factors at each step of an agent's task.
-
 LaVague uses LLMs to reason and interact with web pages. The cost of LLM inference depends on the number of tokens consumed and the pricing per token of the models used. You can use the LaVague `TokenCounter` module to generate an estimate of the tokens consumed while using LaVague.
 
-As well as providing information about the `total_llm_tokens` consumed and `total_llm_cost` by your agent's run, you can also access in-depth information to help you undestand the different factors or agent components behind this cost.
+As well as providing information about the `total_llm_tokens` consumed and `total_llm_cost` by your agent's run, you can also access in-depth information to help you understand the different factors or agent components behind this cost.
 
 ## Key points:
 
