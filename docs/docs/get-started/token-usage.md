@@ -1,8 +1,15 @@
 # Understanding token usage and cost
 
-LaVague uses LLMs to reason and interact with web pages. LLM inference consumes tokens and estimating pricing for different use cases is possible with the LaVague `TokenCounter` module.
+LaVague leverages LLMs for web page interaction and reasoning. To estimate costs for various use cases, LaVague provides a `TokenCounter` module. This tool offers insights into cost factors at each step of an agent's task.
 
-This allows an in-depth understanding of all the factors influencing the cost at each step of an agent's task. **Pricing estimation currently only supports `gpt-4o` and `text-embedding-3-large`**.
+
+## Key points:
+
+- Pricing estimates are available for models listed in `pricing_config.yml`.
+- Estimates use a default tokenizer (`o200k_base` from `tiktoken`) for all models.
+- Price approximations utilize multipliers from `pricing_config.yml` when necessary.
+
+For precise token usage and cost tracking, refer to your LLM provider's billing dashboard.
 
 !!! warning "`TokenCounter` is currently not enabled by default"
 
