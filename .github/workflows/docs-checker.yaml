@@ -84,7 +84,7 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -142,6 +142,7 @@ jobs:
           curl -X POST -H "Content-Type: application/json" \
             -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-links' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+  
   notify-checks-success:
     runs-on: ubuntu-latest
     needs: [check-docs-links, check-docs-links]
