@@ -90,14 +90,13 @@ class TestRunner:
         sites: List[TestConfig],
         token_counter: TokenCounter,
         headless=True,
+        log_to_db=False,
     ):
         self.context = context
         self.sites = sites
         self.token_counter = token_counter
         self.headless = headless
-        
-        print("context", context.llm.model)
-        print("token_counter", token_counter)
+        self.log_to_db = log_to_db
 
     def run(self) -> RunnerResult:
         results: List[RunResults] = []
@@ -124,7 +123,9 @@ class TestRunner:
 
     def _run_single_task(self, task: Task) -> SingleRunResult:
         driver = SeleniumDriver(headless=self.headless)
-        action_engine = ActionEngine.from_context(context=self.context, driver=driver, n_attempts=task.n_attempts)
+        action_engine = ActionEngine.from_context(
+            context=self.context, driver=driver, n_attempts=task.n_attempts
+        )
         world_model = WorldModel.from_context(context=self.context)
         agent = WebAgent(
             world_model,
@@ -133,7 +134,7 @@ class TestRunner:
             n_steps=task.max_steps,
         )
         agent.get(task.url)
-        agent.run(task.prompt, user_data=task.user_data)
+        agent.run(task.prompt, user_data=task.user_data, log_to_db=self.log_to_db)
         dataframe = agent.logger.return_pandas()
         context = self._get_context(agent)
         driver.destroy()

@@ -36,7 +36,15 @@ from .runner import TestRunner
     is_flag=True,
     help="if set browser will be displayed",
 )
-def cli(context: str, directory: str, site: List[str], display: bool) -> None:
+@click.option(
+    "--log-to-db",
+    "-db",
+    is_flag=True,
+    help="if set, enables logging to the default SQLite database",
+)
+def cli(
+    context: str, directory: str, site: List[str], display: bool, log_to_db: bool
+) -> None:
     context, token_counter = _load_context(context)
     sites_to_test = _load_sites(directory, site)
 
@@ -46,6 +54,7 @@ def cli(context: str, directory: str, site: List[str], display: bool) -> None:
         sites=sites_to_test,
         token_counter=token_counter,
         headless=not display,
+        log_to_db=log_to_db,
     )
     res = runner.run()
     print(str(res))
