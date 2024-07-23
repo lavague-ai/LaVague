@@ -117,9 +117,9 @@ class RetrieverEvaluator(Evaluator):
             llm = get_default_context().llm
         rephraser = Rephraser(llm)
         for i, row in tqdm(dataset.iterrows()):
-            rephrase_list = rephraser.rephrase_query(row["query"])
-            dataset.at[i, "retriever_query"] = rephrase_list[0]["query"]
-            dataset.at[i, "llm_query"] = rephrase_list[0]["action"]
+            rephrased = rephraser.rephrase_query(row["query"])
+            dataset.at[i, "retriever_query"] = rephrased["query"]
+            dataset.at[i, "llm_query"] = rephrased["action"]
         dataset.to_csv(csv_out_name)
         return dataset
 
@@ -146,9 +146,10 @@ class RetrieverEvaluator(Evaluator):
                     "return arguments[0].outerHTML", element
                 )
                 start_time = time()
-                results = retriever.retrieve_html(QueryBundle(row["retriever_query"]))
+                source_nodes = retriever.retrieve(
+                    QueryBundle(row["retriever_query"]), [self.driver.get_html()]
+                )
                 duration = time() - start_time
-                source_nodes = [node.text for node in results]
                 context_str = "\n".join(source_nodes)
                 (
                     recall_retriever,
