@@ -84,6 +84,7 @@ class RunnerResult:
     def is_success(self) -> bool:
         return all([r.is_success() for r in self.results])
 
+
 class TestRunner:
     def __init__(
         self,
