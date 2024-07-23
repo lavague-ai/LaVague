@@ -7,6 +7,7 @@ from lavague.drivers.selenium.base import SeleniumDriver
 from lavague.core.token_counter import TokenCounter
 from .config import Task, TestConfig, TaskTest
 from pandas import DataFrame
+import time
 
 
 class TestFailure:
@@ -19,11 +20,12 @@ class TestFailure:
 
 
 class SingleRunResult:
-    def __init__(self, task: Task, dataframe: DataFrame):
+    def __init__(self, task: Task, dataframe: DataFrame, execution_time: float):
         self.successes: List[TaskTest] = []
         self.failures: List[TestFailure] = []
         self.task = task
         self.dataframe = dataframe
+        self.execution_time = execution_time
 
     def get_test_count(self) -> int:
         return len(self.successes) + len(self.failures)
@@ -62,6 +64,7 @@ class RunnerResult:
         failures = 0
         tokens_used = 0
         tokens_cost = 0.0
+        total_execution_time = 0.0
 
         for r in self.results:
             for sr in r.results:
@@ -69,12 +72,13 @@ class RunnerResult:
                 failures += len(sr.failures)
                 tokens_used += sr.dataframe["total_step_tokens"].sum()
                 tokens_cost += sr.dataframe["total_step_cost"].sum()
+                total_execution_time += sr.execution_time
 
         total = successes + failures
         if total == 0:
             return "No tests run"
         summary = (
-            f"Result: {round(100 * successes / total)} % ({successes} / {total})\n"
+            f"Result: {round(100 * successes / total)} % ({successes} / {total}) in {total_execution_time:.1f}s\n"
         )
         summary += f"Tokens: {tokens_used} ({tokens_cost:.4f} $)"
         return "\n".join(str(r) for r in self.results) + "\n" + summary
@@ -134,12 +138,19 @@ class TestRunner:
             n_steps=task.max_steps,
         )
         agent.get(task.url)
+        
+        # run agent and measure execution time
+        start_time = time.time()
         agent.run(task.prompt, user_data=task.user_data, log_to_db=self.log_to_db)
+        end_time = time.time()
+        execution_time = end_time - start_time
+
+
         dataframe = agent.logger.return_pandas()
         context = self._get_context(agent)
         driver.destroy()
 
-        result = SingleRunResult(task, dataframe)
+        result = SingleRunResult(task, dataframe, execution_time)
         for test in task.tests:
             error = test.get_error(context)
             if error is None:
