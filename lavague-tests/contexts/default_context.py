@@ -4,13 +4,12 @@ from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.embeddings.openai import OpenAIEmbedding
 from lavague.core.context import Context
 
-# As of 22/07/2024 we only support OpenAI models
 llm_name = "gpt-4o"
-mm_llm_name = "gpt-4o-mini"
+mm_llm_name = "gpt-4o"
 embedding_name = "text-embedding-3-large"
 
 # declare the token counter before any LLMs are initialized
-token_counter = TokenCounter(llm_name, mm_llm_name, embedding_name)
+token_counter = TokenCounter()
 
 # init models
 llm = OpenAI(model=llm_name)
