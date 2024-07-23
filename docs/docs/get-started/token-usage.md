@@ -2,10 +2,13 @@
 
 LaVague leverages LLMs for web page interaction and reasoning. To estimate costs for various use cases, LaVague provides a `TokenCounter` module. This tool offers insights into cost factors at each step of an agent's task.
 
+LaVague uses LLMs to reason and interact with web pages. The cost of LLM inference depends on the number of tokens consumed and the pricing per token of the models used. You can use the LaVague `TokenCounter` module to generate an estimate of the tokens consumed while using LaVague.
+
+As well as providing information about the `total_llm_tokens` consumed and `total_llm_cost` by your agent's run, you can also access in-depth information to help you undestand the different factors or agent components behind this cost.
 
 ## Key points:
 
-- Pricing estimates are available for models listed in `pricing_config.yml`.
+- Pricing estimates are available for the models listed in [pricing_config.yml](https://github.com/lavague-ai/LaVague/blob/main/lavague-core/lavague/core/utilities/pricing_config.yml).
 - Estimates use a default tokenizer (`o200k_base` from `tiktoken`) for all models.
 - Price approximations utilize multipliers from `pricing_config.yml` when necessary.
 
@@ -103,20 +106,4 @@ print(f"Total cost: ${round(total_cost, 3)}")
 
 ```
 
-Tokens consumed will be logged along with cost estimations. To learn more about different ways of accessing those logs, please visit our [Logger documentation](../learn/local-log.md). 
-
-
-## Current support
-
-### Counting tokens
-This module can only track token usage from `llama-index` supported models. To learn how to use other models, please visit our [customization guide](./customization.md).
-
-### Price estimations
-Prices are defined and calculated according to our `pricing_config.yaml` file. You can find the [most up to date version of this file](https://github.com/lavague-ai/LaVague/blob/main/lavague-core/lavague/core/utilities/pricing_config.yml) in our repository.
-
-Currently, we support price estimations for the following models: 
-
-- llms: 
-    - `gpt-4o`
-- embeddings:
-    - text-embedding-3-large
+Tokens consumed will be logged along with cost estimations. To learn more about different ways of accessing those logs, please visit our [Logger documentation](../learn/local-log.md).

@@ -29,7 +29,7 @@ Tokens: 155963 (0.9255 $)
 ```
 
 ### Example 2 (one site only, custom set of LLMs)
-Test LaVague on the amazon.com use cases using a custom set of Large Language Models (LLMs) defined in `custom_context.py`:
+To test LaVague with a custom site, in this case `amazon.com`, and a custom configuration (custom Large Language Models (LLMs) defined in `custom_context.py`), you can use the `--site` or `-s` and `--context` or `-c` options:
 
 ```bash
 lavague-tests -s amazon.com -c lavague-tests/contexts/custom_context.py
