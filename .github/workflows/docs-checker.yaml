@@ -10,7 +10,7 @@ on:
       - 'docs/**'
       - '.github/workflows/docs-checker.yaml'
   schedule:
-    - cron: '20 8,17 * * *'
+    - cron: '0 9 * * 1,4' # runs twice a week
   workflow_dispatch:
 
 jobs:
@@ -91,7 +91,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install lavague llama-index-embeddings-huggingface
+          pip install lavague llama-index-embeddings-huggingface text_generation
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
       - name: Extract Python code
