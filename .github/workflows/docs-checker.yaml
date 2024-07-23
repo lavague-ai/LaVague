@@ -94,7 +94,7 @@ jobs:
           pip cache purge
           pip install lavague
           pip install llama-index-embeddings-huggingface 
-          pip install ipython>=7.34.0,<8.0.0
+          pip install ipython>=7.34.0
           pip install text_generation
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
