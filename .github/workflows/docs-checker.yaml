@@ -91,12 +91,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install lavague llama-index-embeddings-huggingface text_generation ipython
+          pip install lavague llama-index-embeddings-huggingface ipython==8.26.0
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
       - name: Extract Python code
         run: |
-          python .github/extract-python-code.py ./docs/docs/examples/hf-papers-retrieval.md ./docs/docs/examples/job-application.md
+          python .github/extract-python-code.py ./docs/docs/examples/hf-papers-retrieval.md ./docs/docs/examples/job-application.md docs/docs/use-cases/forms.md docs/docs/use-cases/notion.md
 
       - name: Run extracted Python scripts
         run: |
