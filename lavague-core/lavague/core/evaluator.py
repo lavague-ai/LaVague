@@ -146,9 +146,10 @@ class RetrieverEvaluator(Evaluator):
                     "return arguments[0].outerHTML", element
                 )
                 start_time = time()
-                results = retriever.retrieve_html(QueryBundle(row["retriever_query"]))
+                source_nodes = retriever.retrieve(
+                    QueryBundle(row["retriever_query"]), [self.driver.get_html()]
+                )
                 duration = time() - start_time
-                source_nodes = [node.text for node in results]
                 context_str = "\n".join(source_nodes)
                 (
                     recall_retriever,

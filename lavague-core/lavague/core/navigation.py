@@ -10,7 +10,7 @@ from lavague.core.extractors import (
     YamlFromMarkdownExtractor,
     DynamicExtractor,
 )
-from lavague.core.retrievers import BaseHtmlRetriever, SemanticRetriever
+from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
 from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
     display_screenshot,
@@ -150,7 +150,7 @@ class NavigationEngine(BaseEngine):
         if rephraser is None:
             rephraser = Rephraser(llm)
         if retriever is None:
-            retriever = SemanticRetriever(driver)
+            retriever = get_default_retriever(driver)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.rephraser = rephraser
@@ -197,8 +197,9 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[str]`: The nodes
         """
-        source_nodes = self.retriever.retrieve_html(QueryBundle(query_str=query))
-        source_nodes = [node.text for node in source_nodes]
+        source_nodes = self.retriever.retrieve(
+            QueryBundle(query_str=query), [self.driver.get_html()]
+        )
         return source_nodes
 
     def add_knowledge(self, knowledge: str):

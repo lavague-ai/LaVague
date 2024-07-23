@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from abc import ABC, abstractmethod
 from bs4 import BeautifulSoup, NavigableString
 from llama_index.retrievers.bm25 import BM25Retriever
@@ -13,9 +13,70 @@ import re
 import ast
 
 
-class XPathRetrievable:
+def get_default_retriever(driver: BaseDriver) -> BaseHtmlRetriever:
+    return RetrieversPipeline(
+        InteractiveXPathRetriever(driver),
+        ContextExpansionRetriever(),
+        SemanticRetriever(),
+    )
+
+
+class BaseHtmlRetriever(ABC):
+    @abstractmethod
+    def retrieve(self, query: QueryBundle, html_nodes: List[str]) -> List[str]:
+        """
+        This method must be implemented by the child retriever
+        """
+        pass
+
+
+class RetrieversPipeline(BaseHtmlRetriever):
+    """Executor for retrievers pipeline"""
+
+    retrievers: Tuple[BaseHtmlRetriever]
+
+    def __init__(self, *retrievers: BaseHtmlRetriever):
+        self.retrievers = retrievers
+
+    def retrieve(self, query: QueryBundle, html_nodes: List[str]) -> List[str]:
+        for retriever in self.retrievers:
+            html_nodes = retriever.retrieve(query, html_nodes)
+        return html_nodes
+
+
+class BM25HtmlRetriever(BaseHtmlRetriever):
+    """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
+
+    def __init__(self, top_k=3) -> None:
+        self.top_k = top_k
+
+    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+        html = clean_html(merge_html_chunks(html_chunks))
+        cleaned_html = clean_html(html)
+
+        splitter = LangchainNodeParser(
+            lc_splitter=RecursiveCharacterTextSplitter.from_language(
+                language="html",
+            )
+        )
+        nodes = splitter.get_nodes_from_documents([Document(text=cleaned_html)])
+
+        retriever = BM25Retriever.from_defaults(
+            nodes=nodes, similarity_top_k=self.top_k
+        )
+        nodes = retriever.retrieve(query)
+        return get_nodes_text(nodes)
+
+
+class InteractiveXPathRetriever(BaseHtmlRetriever):
     def __init__(self, driver: BaseDriver):
         self.driver = driver
+
+    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+        html = merge_html_chunks(html_chunks)
+        possible_interactions = self.driver.get_possible_interactions()
+        html = self.get_html_with_xpath(html, possible_interactions)
+        return [html]
 
     def _generate_xpath(self, element, path=""):  # used to generate dict nodes
         """Recursive function to generate the xpath of an element"""
@@ -68,39 +129,6 @@ class XPathRetrievable:
         return str(soup)
 
 
-class BaseHtmlRetriever(ABC):
-    def __init__(self, driver: BaseDriver, top_k: int = 3):
-        self.driver = driver
-        self.top_k = top_k
-
-    @abstractmethod
-    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        """
-        This method should be implemented by the user
-        """
-        pass
-
-
-class BM25HtmlRetriever(BaseHtmlRetriever):
-    """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
-
-    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        html = clean_html(self.driver.get_html())
-        cleaned_html = clean_html(html)
-
-        splitter = LangchainNodeParser(
-            lc_splitter=RecursiveCharacterTextSplitter.from_language(
-                language="html",
-            )
-        )
-        nodes = splitter.get_nodes_from_documents([Document(text=cleaned_html)])
-
-        retriever = BM25Retriever.from_defaults(
-            nodes=nodes, similarity_top_k=self.top_k
-        )
-        return retriever.retrieve(query)
-
-
 class OpsmSplitRetriever(BaseHtmlRetriever):
     def __init__(
         self,
@@ -109,7 +137,8 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
         group_by: int = 10,
         rank_fields: List[str] = ["element", "placeholder", "text", "name"],
     ):
-        super().__init__(driver, top_k)
+        self.driver = driver
+        self.top_k = top_k
         self.group_by = group_by
         self.rank_fields = rank_fields
 
@@ -294,8 +323,8 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                         break
         return returned_nodes
 
-    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        html = self._add_xpath_attributes(self.driver.get_html())
+    def retrieve(self, query: QueryBundle, html_nodes: List[str]) -> List[str]:
+        html = self._add_xpath_attributes(merge_html_chunks(html_nodes))
         text_list = [html]
         documents = [Document(text=t) for t in text_list]
         splitter = LangchainNodeParser(
@@ -315,49 +344,21 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
             NodeWithScore(node=node, score=node.metadata["score"])
             for node in results_nodes
         ]
-        return results
+        return get_nodes_text(results)
 
 
-class IxpathRetriever(BaseHtmlRetriever, XPathRetrievable):
-    def __init__(
-        self,
-        driver: BaseDriver,
-        top_k: int = 5,
-    ):
-        super().__init__(driver, top_k)
-
-    def _get_interactable_nodes(
-        self, html: str, possible_interactions: PossibleInteractionsByXpath
-    ):
-        documents = [Document(text=html)]
-        splitter = LangchainNodeParser(
-            lc_splitter=RecursiveCharacterTextSplitter.from_language(
-                language="html",
-            )
-        )
-        nodes = splitter.get_nodes_from_documents(documents)
+class XPathedChunkRetriever(BaseHtmlRetriever):
+    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
         pattern = re.compile(r'xpath="([^"]+)"')
-        compatibles = []
-        for node in nodes:
-            xpaths = re.findall(pattern, node.text)
-            for xpath in xpaths:
-                if xpath in possible_interactions:
-                    compatibles.append(node)
-                    break
-        return compatibles if len(compatibles) > 0 else nodes
-
-    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        possible_interactions = self.driver.get_possible_interactions()
-        html = self.get_html_with_xpath(self.driver.get_html(), possible_interactions)
-        nodes = self._get_interactable_nodes(html, possible_interactions)
-        retriever = BM25Retriever.from_defaults(
-            nodes=nodes, similarity_top_k=self.top_k
-        )
-        results = retriever.retrieve(query)
-        return results
+        interactive_chunks = []
+        for chunk in html_chunks:
+            match = re.search(pattern, chunk)
+            if match:
+                interactive_chunks.append(chunk)
+        return interactive_chunks
 
 
-class SemanticRetriever(BaseHtmlRetriever, XPathRetrievable):
+class ContextExpansionRetriever(BaseHtmlRetriever):
     """
     Retriever with expansion of HTML context around interactive elements (`chunk_size` in characters),
     then semantic contraction up to `top_k` results (number of chunks).
@@ -368,11 +369,8 @@ class SemanticRetriever(BaseHtmlRetriever, XPathRetrievable):
 
     def __init__(
         self,
-        driver: BaseDriver,
-        top_k: int = 5,
         chunk_size: int = 750,
     ):
-        super().__init__(driver, top_k)
         self.chunk_size = chunk_size
 
     def get_included_xpaths(self, element) -> List[str]:
@@ -383,12 +381,9 @@ class SemanticRetriever(BaseHtmlRetriever, XPathRetrievable):
             xpaths.append(element["xpath"])
         return xpaths
 
-    def get_expanded_chunks(self) -> List[str]:
-        html = self.driver.get_html()
-        xpath_html = self.get_html_with_xpath(
-            html, self.driver.get_possible_interactions()
-        )
-        soup = BeautifulSoup(xpath_html, "html.parser")
+    def get_expanded_chunks(self, html_chunks: List[str]) -> List[str]:
+        html = merge_html_chunks(html_chunks)
+        soup = BeautifulSoup(html, "html.parser")
         elements = soup.find_all(attrs={"xpath": True})
         chunks = []
         processed_xpaths = set()
@@ -448,20 +443,98 @@ class SemanticRetriever(BaseHtmlRetriever, XPathRetrievable):
 
         return chunks
 
-    def semantic_retrieve(self, query: QueryBundle, html: str) -> List[NodeWithScore]:
+    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+        results = self.get_expanded_chunks(html_chunks)
+        return results
+
+
+class SemanticRetriever(BaseHtmlRetriever):
+    """
+    Semantic retriever up to `top_k` results (number of chunks)
+    """
+
+    def __init__(
+        self,
+        top_k: int = 5,
+        xpathed_only=True,
+    ):
+        self.top_k = top_k
+        self.xpathed_only = xpathed_only
+
+    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
             )
         )
-        nodes = splitter.get_nodes_from_documents([Document(text=html)])
+        nodes = splitter.get_nodes_from_documents(
+            [Document(text=merge_html_chunks(html_chunks))]
+        )
+
+        if self.xpathed_only:
+            nodes = filter_for_xpathed_nodes(nodes)
+
         index = VectorStoreIndex(nodes=nodes)
         query_engine = index.as_retriever(similarity_top_k=self.top_k)
 
         retrieved_nodes = query_engine.retrieve(query)
-        return retrieved_nodes
+        return get_nodes_text(retrieved_nodes)
 
-    def retrieve_html(self, query: QueryBundle) -> List[NodeWithScore]:
-        xpath_context_chunks = self.get_expanded_chunks()
-        nodes = self.semantic_retrieve(query, "\n".join(xpath_context_chunks))
-        return nodes
+
+class SyntaxicRetriever(BaseHtmlRetriever):
+    """
+    Syntaxic retriever up to `top_k` results (number of chunks)
+    """
+
+    def __init__(
+        self,
+        top_k: int = 5,
+        xpathed_only=True,
+    ):
+        self.top_k = top_k
+        self.xpathed_only = xpathed_only
+
+    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+        documents = [Document(text=merge_html_chunks(html_chunks))]
+        splitter = LangchainNodeParser(
+            lc_splitter=RecursiveCharacterTextSplitter.from_language(
+                language="html",
+            )
+        )
+        nodes = splitter.get_nodes_from_documents(documents)
+        if self.xpathed_only:
+            nodes = filter_for_xpathed_nodes(nodes)
+
+        retriever = BM25Retriever.from_defaults(
+            nodes=nodes, similarity_top_k=self.top_k
+        )
+        results = retriever.retrieve(query)
+        return get_nodes_text(results)
+
+
+class XPathedElementRetriever(BaseHtmlRetriever):
+    """
+    Retriever for HTML elements with xpath attribute only
+    """
+
+    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+        pattern = re.compile(r'xpath="([^"]+)"')
+        return [c for c in html_chunks if re.search(pattern, c)]
+
+
+def filter_for_xpathed_nodes(nodes: List):
+    pattern = re.compile(r'xpath="([^"]+)"')
+    compatibles = []
+    for node in nodes:
+        match = re.search(pattern, node.text)
+        if match:
+            compatibles.append(node)
+    return compatibles if len(compatibles) > 0 else nodes
+
+
+def get_nodes_text(nodes: List[NodeWithScore]) -> List[str]:
+    return [n.text for n in nodes]
+
+
+def merge_html_chunks(html_chunks: List[str], separator="\n") -> str:
+    return separator.join(html_chunks)
