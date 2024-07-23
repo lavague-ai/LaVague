@@ -75,3 +75,37 @@ jobs:
         run: |
           chmod +x .github/bullet-points.sh
           .github/bullet-points.sh
+check-docs-examples:
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        pip install lavague
+        wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
+
+    - name: Extract Python code
+      run: |
+        python .github/extract-python-code.py ../hf-papers-retrieval.md
+
+    - name: Run extracted Python scripts
+      run: |
+        if [ -f generated_scripts.txt ]; then
+          while IFS= read -r script_file
+          do
+            echo "Running $script_file"
+            python "$script_file"
+          done < generated_scripts.txt
+        else
+          echo "No generated scripts found."
+        fi
+
+    - name: Clean up
+      run: |
+        rm hf_knowledge.txt
+        rm -f generated_scripts.txt
