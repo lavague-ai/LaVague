@@ -142,3 +142,13 @@ jobs:
           curl -X POST -H "Content-Type: application/json" \
             -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-links' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+  notify-checks-success:
+    runs-on: ubuntu-latest
+    needs: [check-docs-links, check-docs-links]
+    if: success() 
+    steps:
+      - name: Notify Discord on successful checks
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"<@762664509813817345> Checks successfully passed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
