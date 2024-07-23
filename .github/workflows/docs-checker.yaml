@@ -10,7 +10,7 @@ on:
       - 'docs/**'
       - '.github/workflows/docs-checker.yaml'
   schedule:
-    - cron: '0 9 * * 1,4' # runs twice a week
+    - cron: '0 9 * * 1,4'
   workflow_dispatch:
 
 jobs:
@@ -116,23 +116,23 @@ jobs:
           rm -f generated_scripts.txt
 
   notify-docs-examples-failure:
-      runs-on: ubuntu-latest
-      needs: check-docs-examples
-      if: failure() 
-      steps:
-        - name: Notify Discord on docs-examples failure
-          run: |
-            curl -X POST -H "Content-Type: application/json" \
-              -d "{\"content\": \"Chron job for 'check-docs-examples' failed" \
-              ${{ secrets.DOCS_DISCORD_WEBHOOK }}
-  
-    notify-docs-examples-failure:
-      runs-on: ubuntu-latest
-      needs: check-docs-links
-      if: failure() 
-      steps:
-        - name: Notify Discord on docs-link failure
-          run: |
-            curl -X POST -H "Content-Type: application/json" \
-              -d "{\"content\": \"Chron job for 'check-docs-links' failed" \
-              ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+    runs-on: ubuntu-latest
+    needs: check-docs-examples
+    if: failure() 
+    steps:
+      - name: Notify Discord on docs-examples failure
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"Cron job for 'check-docs-examples' failed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+
+  notify-docs-links-failure:
+    runs-on: ubuntu-latest
+    needs: check-docs-links
+    if: failure() 
+    steps:
+      - name: Notify Discord on docs-links failure
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"Cron job for 'check-docs-links' failed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
