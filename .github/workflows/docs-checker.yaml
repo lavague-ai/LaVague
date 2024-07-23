@@ -2,8 +2,11 @@ name: spellcheck & link checker
 
 on:
   push:
+    branches:
+      - '*'
     paths:
       - 'README.md'
+      - '.github/extract-python-code.py'
       - 'docs/**'
       - '.github/workflows/docs-checker.yaml'
   schedule:
