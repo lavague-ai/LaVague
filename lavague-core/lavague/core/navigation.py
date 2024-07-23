@@ -40,8 +40,8 @@ Completion:
 
 REPHRASE_PROMPT = Template(
     """
-You are an AI system designed to convert text-based instructions for web actions into standardized instructions for another AI to execute.
-For the other AI to execute actions, it first searches through the DOM of the current page to find the code of the element to interact with.
+You are an AI system designed to convert text-based instructions for web actions into a standardized instruction for another AI to execute.
+For the other AI to execute the action, it first searches through the DOM of the current page to find the code of the element to interact with.
 It will then generate the code to interact with the element based on the previsouly retrieved code.
 
 Therefore your goal is to convert the text-based instructions into two parts:
@@ -53,25 +53,19 @@ As the other AI has only access to the DOM and no visual input, remove all visua
 
 Here are previous examples:
 Text instruction: Type 'Command R plus' on the search bar with placeholder "Search ..."
-Standardized instruction: [{'query':'input "Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}]
+Standardized instruction: {'query':'input "Search ..."', 'action':'Click on the input "Search ..." and type "Command R plus"'}
 ---
 Text instruction: Click on the search bar with placeholder "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter.
-Standardized instruction: [{'query':'input "Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}]
+Standardized instruction: {'query':'input "Rechercher sur Wikipédia"', 'action':'Click on the input "Rechercher sur Wikipédia", type "Yann LeCun," and press Enter'}
 ---
 Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
-Standardized instruction: [{'query':'button "Installation"' text "Effective and efficient diffusion", 'action':'Click on "Installation"'}]
+Standardized instruction: {'query':'button "Installation"' text "Effective and efficient diffusion", 'action':'Click on "Installation"'}
 ---
-Text instruction:  Locate the input element labeled "Email Address" and type in "example@example.com". Locate the input element labeled "First name" and type in "John". Locate the input element labeled "Last name" and type in "Doe". Locate the input element labeled "Phone" and type in "555-555-5555".
-Standardized instruction:
-[
-{'query':'input "Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'},
-{'query':'input "First name"', 'action':'Click on the input "First name" and type "John"'},
-{'query':'input "Last name"', 'action':'Click on the input "Last name" and type "Doe"'},
-{'query':'input "Phone"', 'action':'Click on the input "Phone" and type "555-555-5555"'}
-]
+Text instruction: Locate the input element labeled "Email Address" and type in "example@example.com"
+Standardized instruction: {'query':'input "Email Address"', 'action':'Click on the input "Email Address" and type "example@example.com"'}
 ---
-Text instruction: Press the button labeled “Submit” at the bottom of the form.
-Standardized instruction: [{'query':'button ”Submit”', 'action':'Click on the button “Submit”'}]
+Text instruction: Press the button labeled “Submit” at the bottom of the form
+Standardized instruction: {'query':'button ”Submit”', 'action':'Click on the button “Submit”'}
 
 Text instruction: ${instruction}
 Standardized instruction:
@@ -89,24 +83,27 @@ logging_print.propagate = False
 
 
 class Rephraser:
-    def __init__(self, llm: BaseLLM = None, prompt: PromptTemplate = REPHRASE_PROMPT):
+    def __init__(
+        self,
+        llm: BaseLLM = None,
+        prompt: PromptTemplate = REPHRASE_PROMPT,
+    ):
         self.llm = llm
         self.prompt = prompt
         if self.llm is None:
             self.llm = get_default_context().llm
 
-    def rephrase_query(self, query: str) -> List[dict]:
+    def rephrase_query(self, query: str) -> dict:
         """
         Rephrase the query
         Args:
             query (`str`): The query to rephrase
         Return:
-            `List[dict]`: The rephrased query as a list of dictionaries
+            `dict`: The rephrased query as a dictionary
         """
         rephrase_prompt = self.prompt.safe_substitute(instruction=query)
         response = self.llm.complete(rephrase_prompt).text
-        response = response.strip("```json\n").strip("\n``` \n")
-        rephrased_query = extract_and_eval(response)
+        rephrased_query = extract_and_eval(response, extract_list=False)
         return rephrased_query
 
 
@@ -247,148 +244,141 @@ class NavigationEngine(BaseEngine):
         action_full = ""
         output = None
 
-        list_instructions = self.rephraser.rephrase_query(instruction)
+        action = self.rephraser.rephrase_query(instruction)
         original_instruction = instruction
         action_nb = 0
         navigation_log_total = []
 
-        for action in list_instructions:
-            logging_print.debug("query for retriever: " + action["query"])
-            logging_print.debug("Rephrased instruction: " + action["action"])
-            instruction = action["action"]
-            start = time.time()
-            source_nodes = self.get_nodes(action["query"])
-            end = time.time()
-            retrieval_time = end - start
+        logging_print.debug("query for retriever: " + action["query"])
+        logging_print.debug("Rephrased instruction: " + action["action"])
+        instruction = action["action"]
+        start = time.time()
+        source_nodes = self.get_nodes(action["query"])
+        end = time.time()
+        retrieval_time = end - start
 
-            llm_context = "\n".join(source_nodes)
-            success = False
-            logger = self.logger
+        llm_context = "\n".join(source_nodes)
+        success = False
+        logger = self.logger
 
-            navigation_log = {
-                "original_instruction": original_instruction,
-                "navigation_engine_input": instruction,
-                "retrieved_html": source_nodes,
-                "retrieval_time": retrieval_time,
-                "retrieval_name": self.retriever.__class__.__name__,
-            }
+        navigation_log = {
+            "original_instruction": original_instruction,
+            "navigation_engine_input": instruction,
+            "retrieved_html": source_nodes,
+            "retrieval_time": retrieval_time,
+            "retrieval_name": self.retriever.__class__.__name__,
+        }
 
-            action_outcomes = []
-            for _ in range(self.n_attempts):
-                if success:
-                    break
-                if self.display:
-                    try:
-                        scr_path = self.driver.get_current_screenshot_folder()
-                        lst = sort_files_by_creation(scr_path)
-                        for scr in lst:
-                            img = Image.open(scr_path.as_posix() + "/" + scr)
-                            display_screenshot(img)
-                            time.sleep(0.35)
-                    except:
-                        pass
-                start = time.time()
-                prompt = self.prompt_template.format(
-                    context_str=llm_context, query_str=instruction
-                )
-                response = self.llm.complete(prompt).text
-                action = self.extractor.extract(response)
-                end = time.time()
-                action_generation_time = end - start
-                action_outcome = {
-                    "action": action,
-                    "action_generation_time": action_generation_time,
-                    "navigation_engine_full_prompt": prompt,
-                    "navigation_engine_llm": get_model_name(self.llm),
-                }
+        action_outcomes = []
+        for _ in range(self.n_attempts):
+            if success:
+                break
+            if self.display:
                 try:
-                    # Get information to see which elements are selected
-                    vision_data = self.driver.get_highlighted_element(action)
-                    action_full += action
-                    for item in vision_data:
-                        screenshot = item["screenshot"]
-                        if action_engine.screenshot_ratio != 1:
-                            screenshot = screenshot.resize(
-                                (
-                                    int(
-                                        screenshot.width
-                                        / action_engine.screenshot_ratio
-                                    ),
-                                    int(
-                                        screenshot.height
-                                        / action_engine.screenshot_ratio
-                                    ),
-                                )
-                            )
-                        self.image_display = screenshot
-                        yield (
-                            self.objective,
-                            self.url_input,
-                            screenshot,
-                            self.instructions_history,
-                            self.history,
-                            output,
-                        )
-
-                    self.driver.exec_code(action)
-                    self.history[-1] = (
-                        self.history[-1][0],
-                        f"✅ Step {action_engine.curr_step}:\n{action_engine.curr_instruction}",
-                    )
-                    self.history.append((None, None))
-                    self.history[-1] = (self.history[-1][0], "⏳ Loading the page...")
-                    yield (
-                        self.objective,
-                        self.url_input,
-                        self.image_display,
-                        self.instructions_history,
-                        self.history,
-                        output,
-                    )
-                    time.sleep(1)
-                    img = self.driver.get_screenshot_as_png()
-                    img = BytesIO(img)
-                    img = Image.open(img)
+                    scr_path = self.driver.get_current_screenshot_folder()
+                    lst = sort_files_by_creation(scr_path)
+                    for scr in lst:
+                        img = Image.open(scr_path.as_posix() + "/" + scr)
+                        display_screenshot(img)
+                        time.sleep(0.35)
+                except:
+                    pass
+            start = time.time()
+            prompt = self.prompt_template.format(
+                context_str=llm_context, query_str=instruction
+            )
+            response = self.llm.complete(prompt).text
+            action = self.extractor.extract(response)
+            end = time.time()
+            action_generation_time = end - start
+            action_outcome = {
+                "action": action,
+                "action_generation_time": action_generation_time,
+                "navigation_engine_full_prompt": prompt,
+                "navigation_engine_llm": get_model_name(self.llm),
+            }
+            try:
+                # Get information to see which elements are selected
+                vision_data = self.driver.get_highlighted_element(action)
+                action_full += action
+                for item in vision_data:
+                    screenshot = item["screenshot"]
                     if action_engine.screenshot_ratio != 1:
-                        img = img.resize(
+                        screenshot = screenshot.resize(
                             (
-                                int(img.width / action_engine.screenshot_ratio),
-                                int(img.height / action_engine.screenshot_ratio),
+                                int(screenshot.width / action_engine.screenshot_ratio),
+                                int(screenshot.height / action_engine.screenshot_ratio),
                             )
                         )
-                    self.image_display = img
+                    self.image_display = screenshot
                     yield (
                         self.objective,
                         self.url_input,
-                        self.image_display,
+                        screenshot,
                         self.instructions_history,
                         self.history,
                         output,
                     )
 
-                    WebDriverWait(self.driver.get_driver(), 30).until(
-                        lambda d: d.execute_script("return document.readyState")
-                        == "complete"
+                self.driver.exec_code(action)
+                self.history[-1] = (
+                    self.history[-1][0],
+                    f"✅ Step {action_engine.curr_step}:\n{action_engine.curr_instruction}",
+                )
+                self.history.append((None, None))
+                self.history[-1] = (self.history[-1][0], "⏳ Loading the page...")
+                yield (
+                    self.objective,
+                    self.url_input,
+                    self.image_display,
+                    self.instructions_history,
+                    self.history,
+                    output,
+                )
+                time.sleep(1)
+                img = self.driver.get_screenshot_as_png()
+                img = BytesIO(img)
+                img = Image.open(img)
+                if action_engine.screenshot_ratio != 1:
+                    img = img.resize(
+                        (
+                            int(img.width / action_engine.screenshot_ratio),
+                            int(img.height / action_engine.screenshot_ratio),
+                        )
                     )
+                self.image_display = img
+                yield (
+                    self.objective,
+                    self.url_input,
+                    self.image_display,
+                    self.instructions_history,
+                    self.history,
+                    output,
+                )
 
-                    time.sleep(self.time_between_actions)
+                WebDriverWait(self.driver.get_driver(), 30).until(
+                    lambda d: d.execute_script("return document.readyState")
+                    == "complete"
+                )
 
-                    success = True
-                    action_outcome["success"] = True
-                    navigation_log["vision_data"] = vision_data
-                except Exception as e:
-                    logging_print.error(f"Navigation error: {e}")
-                    action_outcome["success"] = False
-                    action_outcome["error"] = str(e)
-                    if self.raise_on_error:
-                        raise e
+                time.sleep(self.time_between_actions)
 
-                action_outcomes.append(action_outcome)
+                success = True
+                action_outcome["success"] = True
+                navigation_log["vision_data"] = vision_data
+            except Exception as e:
+                logging_print.error(f"Navigation error: {e}")
+                action_outcome["success"] = False
+                action_outcome["error"] = str(e)
+                if self.raise_on_error:
+                    raise e
 
-            navigation_log["action_outcomes"] = action_outcomes
-            navigation_log["action_nb"] = action_nb
-            action_nb += 1
-            navigation_log_total.append(navigation_log)
+            action_outcomes.append(action_outcome)
+
+        navigation_log["action_outcomes"] = action_outcomes
+        navigation_log["action_nb"] = action_nb
+        action_nb += 1
+        navigation_log_total.append(navigation_log)
 
         if not success:
             self.history[-1] = (
@@ -441,94 +431,94 @@ class NavigationEngine(BaseEngine):
         success = False
         action_full = ""
 
-        list_instructions = self.rephraser.rephrase_query(instruction)
+        action = self.rephraser.rephrase_query(instruction)
         original_instruction = instruction
         action_nb = 0
         navigation_log_total = []
 
-        for action in list_instructions:
-            instruction = action["action"]
-            logging_print.debug("query for retriever: " + action["query"])
-            logging_print.debug("Rephrased instruction: " + action["action"])
+        instruction = action["action"]
+        logging_print.debug("query for retriever: " + action["query"])
+        logging_print.debug("Rephrased instruction: " + action["action"])
+        start = time.time()
+        source_nodes = self.get_nodes(instruction)
+        end = time.time()
+        retrieval_time = end - start
+
+        llm_context = "\n".join(source_nodes)
+        success = False
+        logger = self.logger
+
+        navigation_log = {
+            "original_instruction": original_instruction,
+            "navigation_engine_input": instruction,
+            "retrieved_html": source_nodes,
+            "retrieval_time": retrieval_time,
+            "retrieval_name": self.retriever.__class__.__name__,
+        }
+
+        action_outcomes = []
+        for _ in range(self.n_attempts):
+            if success:
+                break
+            if self.display:
+                try:
+                    scr_path = self.driver.get_current_screenshot_folder()
+                    lst = sort_files_by_creation(scr_path)
+                    for scr in lst:
+                        img = Image.open(scr_path.as_posix() + "/" + scr)
+                        display_screenshot(img)
+                        time.sleep(0.35)
+                except:
+                    pass
             start = time.time()
-            source_nodes = self.get_nodes(instruction)
+            prompt = self.prompt_template.format(
+                context_str=llm_context, query_str=instruction
+            )
+            response = self.llm.complete(prompt).text
+            action = self.extractor.extract(response)
             end = time.time()
-            retrieval_time = end - start
-
-            llm_context = "\n".join(source_nodes)
-            success = False
-            logger = self.logger
-
-            navigation_log = {
-                "original_instruction": original_instruction,
-                "navigation_engine_input": instruction,
-                "retrieved_html": source_nodes,
-                "retrieval_time": retrieval_time,
-                "retrieval_name": self.retriever.__class__.__name__,
+            action_generation_time = end - start
+            action_outcome = {
+                "action": action,
+                "action_generation_time": action_generation_time,
+                "navigation_engine_full_prompt": prompt,
+                "navigation_engine_llm": get_model_name(self.llm),
             }
-
-            action_outcomes = []
-            for _ in range(self.n_attempts):
-                if success:
-                    break
+            try:
+                # Get information to see which elements are selected
+                vision_data = self.driver.get_highlighted_element(action)
+                action_full += action
+                if self.display:
+                    for item in vision_data:
+                        display_screenshot(item["screenshot"])
+                        time.sleep(0.2)
+                self.driver.exec_code(action)
+                time.sleep(self.time_between_actions)
                 if self.display:
                     try:
-                        scr_path = self.driver.get_current_screenshot_folder()
-                        lst = sort_files_by_creation(scr_path)
-                        for scr in lst:
-                            img = Image.open(scr_path.as_posix() + "/" + scr)
-                            display_screenshot(img)
-                            time.sleep(0.35)
+                        screenshot = self.driver.get_screenshot_as_png()
+                        screenshot = BytesIO(screenshot)
+                        screenshot = Image.open(screenshot)
+                        display_screenshot(screenshot)
                     except:
                         pass
-                start = time.time()
-                prompt = self.prompt_template.format(
-                    context_str=llm_context, query_str=instruction
-                )
-                response = self.llm.complete(prompt).text
-                action = self.extractor.extract(response)
-                end = time.time()
-                action_generation_time = end - start
-                action_outcome = {
-                    "action": action,
-                    "action_generation_time": action_generation_time,
-                    "navigation_engine_full_prompt": prompt,
-                    "navigation_engine_llm": get_model_name(self.llm),
-                }
-                try:
-                    # Get information to see which elements are selected
-                    vision_data = self.driver.get_highlighted_element(action)
-                    action_full += action
-                    if self.display:
-                        for item in vision_data:
-                            display_screenshot(item["screenshot"])
-                            time.sleep(0.2)
-                    self.driver.exec_code(action)
-                    time.sleep(self.time_between_actions)
-                    if self.display:
-                        try:
-                            screenshot = self.driver.get_screenshot_as_png()
-                            screenshot = BytesIO(screenshot)
-                            screenshot = Image.open(screenshot)
-                            display_screenshot(screenshot)
-                        except:
-                            pass
-                    success = True
-                    action_outcome["success"] = True
-                    navigation_log["vision_data"] = vision_data
-                except Exception as e:
-                    logging_print.error(f"Navigation error: {e}")
-                    action_outcome["success"] = False
-                    action_outcome["error"] = str(e)
-                    if self.raise_on_error:
-                        raise e
+                success = True
+                action_outcome["success"] = True
+                navigation_log["vision_data"] = vision_data
+            except Exception as e:
+                logging_print.error(f"Navigation error: {e}")
+                action_outcome["success"] = False
+                action_outcome["error"] = str(e)
+                if self.raise_on_error:
+                    raise e
 
-                action_outcomes.append(action_outcome)
+            action_outcomes.append(action_outcome)
 
-            navigation_log["action_outcomes"] = action_outcomes
-            navigation_log["action_nb"] = action_nb
-            action_nb += 1
-            navigation_log_total.append(navigation_log)
+        navigation_log["action_outcomes"] = action_outcomes
+        navigation_log["action_nb"] = action_nb
+        action_nb += 1
+        navigation_log_total.append(navigation_log)
+
         if logger:
             log = {
                 "engine": "Navigation Engine",

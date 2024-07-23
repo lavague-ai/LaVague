@@ -16,7 +16,7 @@ import ast
 def get_default_retriever(driver: BaseDriver) -> BaseHtmlRetriever:
     return RetrieversPipeline(
         InteractiveXPathRetriever(driver),
-        ContextExpansionRetriever(),
+        FromXPathNodesExpansionRetriever(),
         SemanticRetriever(),
     )
 
@@ -358,7 +358,7 @@ class XPathedChunkRetriever(BaseHtmlRetriever):
         return interactive_chunks
 
 
-class ContextExpansionRetriever(BaseHtmlRetriever):
+class FromXPathNodesExpansionRetriever(BaseHtmlRetriever):
     """
     Retriever with expansion of HTML context around interactive elements (`chunk_size` in characters),
     then semantic contraction up to `top_k` results (number of chunks).
@@ -510,16 +510,6 @@ class SyntaxicRetriever(BaseHtmlRetriever):
         )
         results = retriever.retrieve(query)
         return get_nodes_text(results)
-
-
-class XPathedElementRetriever(BaseHtmlRetriever):
-    """
-    Retriever for HTML elements with xpath attribute only
-    """
-
-    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
-        pattern = re.compile(r'xpath="([^"]+)"')
-        return [c for c in html_chunks if re.search(pattern, c)]
 
 
 def filter_for_xpathed_nodes(nodes: List):

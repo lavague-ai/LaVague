@@ -508,6 +508,7 @@ return Object.fromEntries(Object.entries("""
     let pointContainer = document.elementFromPoint(elemCenter.x, elemCenter.y);
     do {
         if (pointContainer === element) return true;
+        if (pointContainer == null) return true;
     } while (pointContainer = pointContainer.parentNode);
     return false;
 }));
