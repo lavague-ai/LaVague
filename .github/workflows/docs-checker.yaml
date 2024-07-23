@@ -95,6 +95,7 @@ jobs:
           pip install lavague
           pip install llama-index-embeddings-huggingface 
           pip install ipython==8.26.0
+          pip install text_generation
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
       - name: Extract Python code
@@ -127,7 +128,7 @@ jobs:
       - name: Notify Discord on docs-examples failure
         run: |
           curl -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"Cron job for 'check-docs-examples' failed\"}" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-examples' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
 
   notify-docs-links-failure:
@@ -138,5 +139,5 @@ jobs:
       - name: Notify Discord on docs-links failure
         run: |
           curl -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"Cron job for 'check-docs-links' failed\"}" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-links' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
