@@ -95,7 +95,7 @@ jobs:
 
       - name: Extract Python code
         run: |
-          python .github/extract-python-code.py ../hf-papers-retrieval.md
+          python .github/extract-python-code.py ../docs/docs/examples/hf-papers-retrieval.md
 
       - name: Run extracted Python scripts
         run: |
