@@ -137,6 +137,10 @@ agent.run("Go to the first Model in the Models section", log_to_db=True)
 
 For more information about our loggers, see our [logging guide](../learn/local-log.md)
 
+### Debugging Tools
+
+We also provide debugging tools, allowing you to enable step-by-step agent execution, run individual agent steps or view the web elements LaVague has sent to the LLM as context for generating the action. You can learn more about these [here](../learn/debug-tools.md)
+
 ## Key components explained
 
 ### Driver
