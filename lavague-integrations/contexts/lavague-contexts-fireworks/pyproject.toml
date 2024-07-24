@@ -20,7 +20,7 @@ documentation = "https://docs.lavague.ai/en/latest/"
 packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
-python = "^3.10.0"
+python = ">=3.10.0,<3.12"
 lavague-core = "^0.2.26"
 llama-index-llms-fireworks = "^0.1.6"
 llama-index-embeddings-fireworks = "^0.1.2"
