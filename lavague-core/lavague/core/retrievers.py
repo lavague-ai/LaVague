@@ -81,7 +81,7 @@ class InteractiveXPathRetriever(BaseHtmlRetriever):
     ) -> List[str]:
         html = merge_html_chunks(html_chunks)
         possible_interactions = self.driver.get_possible_interactions(
-            viewport_only=viewport_only
+            in_viewport=viewport_only
         )
         html = self.get_html_with_xpath(html, possible_interactions)
         return [html]
