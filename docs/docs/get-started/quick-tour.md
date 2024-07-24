@@ -85,9 +85,9 @@ By default, we use the OpenAI models defined in our `OpenaiContext` module, foun
 
 We have several other built-in contexts that can be used to set your models to default models from other major AI Providers:
 
-- `GeminiContext`
-- `AzureOpenaiContext` (part of the lavague-contexts-openai package)
-- `FireworksContext`
+- GeminiContext
+- AzureOpenaiContext (part of the lavague-contexts-openai package)
+- FireworksContext
 
 To use these, you first need to install the relevant context package:
 

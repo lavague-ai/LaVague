@@ -18,12 +18,12 @@ These elements are initialized in a `Context` object, which can optionally passe
 
 There are currently four built-in Contexts provided as part of LaVague:
 
-- `OpenaiContext`: The **default configuration**. Uses `gpt-4o` as the llm and mm_llm, plus `text-embedding-3-small` as the embedding model
-- `GeminiContext`: uses `gemini-1.5-flash-latest` as the llm, `gemini-1.5-pro-latest` as the mm_llm & `text-embedding-004` as the embedding model.
-- `FireworksContext`: uses `llama-v3p1-70b-instruct` as the llm, OpenAI's `gpt-4o` as the mm_llm & `nomic-ai/nomic-embed-text-v1.5` as the embedding model
-- `AzureopenaiContext`: uses the llm and mm_llm names you specify, plus `text-embedding-ada-002` as the embedding model
+- **OpenaiContext**: The **default configuration**. Uses `gpt-4o` as the llm and mm_llm, plus `text-embedding-3-small` as the embedding model
+- **GeminiContext**: uses `gemini-1.5-flash-latest` as the llm, `gemini-1.5-pro-latest` as the mm_llm & `text-embedding-004` as the embedding model.
+- **FireworksContext**: uses `llama-v3p1-70b-instruct` as the llm, OpenAI's `gpt-4o` as the mm_llm & `nomic-ai/nomic-embed-text-v1.5` as the embedding model
+- **AzureOpenaiContext**: uses the llm and mm_llm names you specify, plus `text-embedding-ada-002` as the embedding model
 
-To use one of these contexts, you will first need to download the associated package - with the exception of the OpenaiContext and AzureopenaiContexts which are included in our `lavague-core`package:
+To use one of these contexts, you will first need to download the associated package (except for the OpenaiContext and AzureOpenaiContexts which are included in our `lavague-core`package):
 
 ```bash
 pip install lavague-contexts-gemini
