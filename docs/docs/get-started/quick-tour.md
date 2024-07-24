@@ -92,7 +92,7 @@ We have several other built-in contexts that can be used to set your models to d
 To use these, you first need to install the relevant context package:
 
 ```bash
-pip install lavague-contexts-gemini
+pip install lavague-contexts-fireworks
 ```
 
 > The packages are always named lavague-contexts-[name of context]
@@ -103,18 +103,20 @@ Then you can initialize your context and pass it to your ActionEngine and WorldM
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
 from lavague.drivers.selenium import SeleniumDriver
-from lavague.contexts.gemini import GeminiContext
+from lavague.contexts.fireworks import FireworksContext
 
-#initialize Gemini Context
-context = GeminiContext()
+# Initialize Context
+context = FireworksContext()
 
-selenium_driver = SeleniumDriver(headless=False)
+selenium_driver = SeleniumDriver()
 
-# initialize Action Engine and World Model models from context
-world_model = WorldModel.from_context(context)
+# Build AE and WM from Context
 action_engine = ActionEngine.from_context(context, selenium_driver)
+world_model = WorldModel.from_context(context)
 
 agent = WebAgent(world_model, action_engine)
+agent.get("https://huggingface.co/")
+agent.run("What is this week's top Space of the week?")
 ```
 
 For more information about our Contexts, see our [customization guide](./customization.md).
