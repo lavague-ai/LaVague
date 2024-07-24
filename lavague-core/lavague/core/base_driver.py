@@ -369,6 +369,10 @@ class DOMNode(ABC):
     def take_screenshot(self) -> Image:
         pass
 
+    @abstractmethod
+    def get_html(self) -> str:
+        pass
+
     def __str__(self) -> str:
         return self.get_html()
 
