@@ -148,6 +148,7 @@ CAPTCHAs
 GeminiContext
 gemini
 AzureOpenaiContext
+AzureOpenaiContexts
 AzureOpenai
 Openai
 FireworksContext
