@@ -145,3 +145,5 @@ debugging
 interactable
 DriverServer
 CAPTCHAs
+GeminiContext
+gemini

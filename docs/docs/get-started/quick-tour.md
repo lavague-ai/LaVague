@@ -97,7 +97,7 @@ pip install lavague-contexts-gemini
 
 > The packages are always named lavague-contexts-[name of context]
 
-Then you can initalize your context and pass it to your ActionEngine and WorldModel using the `from_context()` intitialization methods:
+Then you can initialize your context and pass it to your ActionEngine and WorldModel using the `from_context()` initialization methods:
 
 ```python
 from lavague.core import WorldModel, ActionEngine
