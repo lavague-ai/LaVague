@@ -10,7 +10,7 @@ class FireworksContext(Context):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        llm: str = "models/llama-v3p1-405b-instruct",
+        llm: str = "models/llama-v3p1-70b-instruct",
         mm_llm: str = "gpt-4o",
     ) -> Context:
         if api_key is None:
