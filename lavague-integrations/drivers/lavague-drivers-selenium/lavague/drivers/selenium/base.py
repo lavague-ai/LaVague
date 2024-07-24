@@ -7,9 +7,7 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     WebDriverException,
     ElementClickInterceptedException,
-    StaleElementReferenceException,
 )
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
@@ -24,12 +22,7 @@ from io import BytesIO
 from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import extract_code_from_funct
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import (
-    ElementClickInterceptedException,
-    WebDriverException,
-)
 import re
-import json
 import yaml
 
 
@@ -291,34 +284,19 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def click(self, xpath: str):
         element = self.resolve_xpath(xpath)
-        driver = self.driver
         try:
             element.click()
-        except ElementClickInterceptedException as e:
-            # Extract coordinates from the exception message
-            match = re.search(r"not clickable at point \((\d+), (\d+)\)", str(e))
-            if match:
-                x, y = map(int, match.groups())
-
-                try:
-                    # Move to the element first (this can help scroll it into view)
-                    ActionChains(driver).move_to_element(element).perform()
-
-                    # Then move to the specific coordinates and click
-                    ActionChains(driver).move_by_offset(
-                        x - int(element.location["x"]), y - int(element.location["y"])
-                    ).click().perform()
-                except WebDriverException as click_error:
-                    raise Exception(
-                        f"Failed to click at coordinates ({x}, {y}): {str(click_error)}"
-                    )
-            else:
+        except ElementClickInterceptedException:
+            try:
+                # Move to the element and click at its position
+                ActionChains(self.driver).move_to_element(element).click().perform()
+            except WebDriverException as click_error:
                 raise Exception(
-                    f"Could not extract coordinates from the exception message: {str(e)}"
+                    f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
                 )
         except Exception as e:
             raise Exception(
-                f"An unexpected error occurend when trying to click: {str(e)}"
+                f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
             )
         self.driver.switch_to.default_content()
 
