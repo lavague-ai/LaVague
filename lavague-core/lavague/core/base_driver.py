@@ -456,7 +456,7 @@ return (function() {
         const countByTag = {};
         for (let child = node.firstChild; child; child = child.nextSibling) {
             let tag = child.nodeName.toLowerCase();
-            if (tag.contains(":")) continue; //namespace
+            if (tag.includes(":")) continue; //namespace
             let isLocal = ['svg'].includes(tag);
             if (isLocal) {
                 tag = `*[local-name() = '${tag}']`;
