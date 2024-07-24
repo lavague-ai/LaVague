@@ -97,7 +97,9 @@ class Rephraser:
             `dict`: The rephrased query as a dictionary
         """
         rephrase_prompt = self.prompt.safe_substitute(instruction=instruction)
-        rephrased_query = self.llm.complete(rephrase_prompt).text.split("Search query: ")[1]
+        rephrased_query = self.llm.complete(rephrase_prompt).text
+        if "Search query:" in rephrased_query:
+            rephrased_query = rephrased_query.replace("Search query:", "")
         return rephrased_query
 
 
