@@ -161,6 +161,7 @@ class NavigationEngine(BaseEngine):
         self.n_attempts = n_attempts
         self.display = display
         self.raise_on_error = raise_on_error
+        self.viewport_only = True
 
     @classmethod
     def from_context(
@@ -195,7 +196,7 @@ class NavigationEngine(BaseEngine):
             `List[str]`: The nodes
         """
         source_nodes = self.retriever.retrieve(
-            QueryBundle(query_str=query), [self.driver.get_html()]
+            QueryBundle(query_str=query), [self.driver.get_html()], self.viewport_only
         )
         return source_nodes
 
@@ -549,14 +550,20 @@ class NavigationControl(BaseEngine):
         driver: BaseDriver,
         time_between_actions: float = 1.5,
         logger: AgentLogger = None,
+        navigation_engine: Optional[NavigationEngine] = None,
     ) -> None:
         self.driver: BaseDriver = driver
         self.time_between_actions = time_between_actions
         self.logger = logger
         self.display = False
+        self.navigation_engine = navigation_engine
 
     def set_display(self, display: bool):
         self.display = display
+
+    def set_is_full_page(self, is_fullpage: bool):
+        if self.navigation_engine is not None:
+            self.navigation_engine.viewport_only = not is_fullpage
 
     def execute_instruction(self, instruction: str) -> ActionResult:
         import inspect
@@ -576,9 +583,11 @@ class NavigationControl(BaseEngine):
         elif "BACK" in instruction:
             self.driver.back()
             code = inspect.getsource(self.driver.back)
+            self.set_is_full_page(False)
         elif "SCAN" in instruction:
             self.driver.get_screenshots_whole_page()
             code = inspect.getsource(self.driver.get_screenshots_whole_page)
+            self.set_is_full_page(True)
         elif "MAXIMIZE_WINDOW" in instruction:
             self.driver.maximize_window()
             code = inspect.getsource(self.driver.maximize_window)
@@ -589,6 +598,7 @@ class NavigationControl(BaseEngine):
             except Exception as e:
                 raise ValueError(f"Error while switching tab: {e}")
             code = inspect.getsource(self.driver.switch_tab)
+            self.set_is_full_page(False)
         else:
             raise ValueError(f"Unknown instruction: {instruction}")
         success = True

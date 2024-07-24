@@ -23,7 +23,9 @@ def get_default_retriever(driver: BaseDriver) -> BaseHtmlRetriever:
 
 class BaseHtmlRetriever(ABC):
     @abstractmethod
-    def retrieve(self, query: QueryBundle, html_nodes: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_nodes: List[str], viewport_only=True
+    ) -> List[str]:
         """
         This method must be implemented by the child retriever
         """
@@ -38,9 +40,11 @@ class RetrieversPipeline(BaseHtmlRetriever):
     def __init__(self, *retrievers: BaseHtmlRetriever):
         self.retrievers = retrievers
 
-    def retrieve(self, query: QueryBundle, html_nodes: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_nodes: List[str], viewport_only=True
+    ) -> List[str]:
         for retriever in self.retrievers:
-            html_nodes = retriever.retrieve(query, html_nodes)
+            html_nodes = retriever.retrieve(query, html_nodes, viewport_only)
         return html_nodes
 
 
@@ -72,9 +76,13 @@ class InteractiveXPathRetriever(BaseHtmlRetriever):
     def __init__(self, driver: BaseDriver):
         self.driver = driver
 
-    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_chunks: List[str], viewport_only=True
+    ) -> List[str]:
         html = merge_html_chunks(html_chunks)
-        possible_interactions = self.driver.get_possible_interactions()
+        possible_interactions = self.driver.get_possible_interactions(
+            viewport_only=viewport_only
+        )
         html = self.get_html_with_xpath(html, possible_interactions)
         return [html]
 
@@ -323,7 +331,9 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
                         break
         return returned_nodes
 
-    def retrieve(self, query: QueryBundle, html_nodes: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_nodes: List[str], viewport_only=True
+    ) -> List[str]:
         html = self._add_xpath_attributes(merge_html_chunks(html_nodes))
         text_list = [html]
         documents = [Document(text=t) for t in text_list]
@@ -348,7 +358,9 @@ class OpsmSplitRetriever(BaseHtmlRetriever):
 
 
 class XPathedChunkRetriever(BaseHtmlRetriever):
-    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_chunks: List[str], viewport_only=True
+    ) -> List[str]:
         pattern = re.compile(r'xpath="([^"]+)"')
         interactive_chunks = []
         for chunk in html_chunks:
@@ -443,7 +455,9 @@ class FromXPathNodesExpansionRetriever(BaseHtmlRetriever):
 
         return chunks
 
-    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_chunks: List[str], viewport_only=True
+    ) -> List[str]:
         results = self.get_expanded_chunks(html_chunks)
         return results
 
@@ -461,7 +475,9 @@ class SemanticRetriever(BaseHtmlRetriever):
         self.top_k = top_k
         self.xpathed_only = xpathed_only
 
-    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_chunks: List[str], viewport_only=True
+    ) -> List[str]:
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
@@ -494,7 +510,9 @@ class SyntaxicRetriever(BaseHtmlRetriever):
         self.top_k = top_k
         self.xpathed_only = xpathed_only
 
-    def retrieve(self, query: QueryBundle, html_chunks: List[str]) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_chunks: List[str], viewport_only=True
+    ) -> List[str]:
         documents = [Document(text=merge_html_chunks(html_chunks))]
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
