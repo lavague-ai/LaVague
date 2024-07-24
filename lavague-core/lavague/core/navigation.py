@@ -485,10 +485,10 @@ class NavigationEngine(BaseEngine):
                 "navigation_engine_full_prompt": prompt,
                 "navigation_engine_llm": get_model_name(self.llm),
             }
+            action_full += action
             try:
                 # Get information to see which elements are selected
                 vision_data = self.driver.get_highlighted_element(action)
-                action_full += action
                 if self.display:
                     for item in vision_data:
                         display_screenshot(item["screenshot"])
