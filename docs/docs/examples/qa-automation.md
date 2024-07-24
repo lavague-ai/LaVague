@@ -277,7 +277,8 @@ def run_test_case(url, scenario):
     return nodes, b64_img, selenium_code
 ```
 
-Here are the core setup components of this function: 
+Here are the core setup components of this function:
+ 
 - Create a `SeleniumDriver` (browser interaction), a `WorldModel` (uses vision and LLMs for reasoning)
 - Create a `WebAgent` with those two components.
 - Load the URL using `agent.get(url)`

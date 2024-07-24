@@ -14,17 +14,45 @@ These are attributes of a `Context` object, which can be optionally passed to th
 
 These elements are initialized in a `Context` object, which can optionally passed to both the `Action Engine` and `World Model` used by an Agent. If you don't pass them your own Context object, the default OpenaiContext will be used.
 
-!!! abstract "Default Configuration"
+## Using a built-in an Context
 
-    The default configuration is as follows:
+There are currently four built-in Contexts provided as part of LaVague:
 
-    - `llm`: OpenAI's gpt-3.5-turbo,
-    - `mm_llm`: OpenAi's gpt-4o,
-    - `embedding`: text-embedding-3-large,
+- `OpenaiContext`: The **default configuration**. Uses `gpt-4o` as the llm and mm_llm, plus `text-embedding-3-small` as the embedding model
+- `GeminiContext`: uses `gemini-1.5-flash-latest` as the llm, `gemini-1.5-pro-latest` as the mm_llm & `text-embedding-004` as the embedding model.
+- `FireworksContext`: uses `llama-v3p1-70b-instruct` as the llm, OpenAI's `gpt-4o` as the mm_llm & `nomic-ai/nomic-embed-text-v1.5` as the embedding model
+- `AzureopenaiContext`: uses the llm and mm_llm names you specify, plus `text-embedding-ada-002` as the embedding model
 
-## Customization an existing Context
+To use one of these contexts, you will first need to download the associated package - with the exception of the OpenaiContext and AzureopenaiContexts which are included in our `lavague-core`package:
 
-Let's take a look at how we can modify specific elements of an existing built-in Context.
+```bash
+pip install lavague-contexts-gemini
+pip install lavague-contexts-fireworks
+```
+
+Then to use these contexts, you will need to import and initialize the relevant context and then pass it to your Action Engine and World Model instances using the `from_context` initialization methods:
+
+```py
+from lavague.core import WorldModel, ActionEngine
+from lavague.core.agents import WebAgent
+from lavague.drivers.selenium import SeleniumDriver
+from lavague.contexts.gemini import GeminiContext
+
+#initialize Gemini Context
+context = GeminiContext()
+
+selenium_driver = SeleniumDriver(headless=False)
+
+# initialize Action Engine and World Model models from context
+world_model = WorldModel.from_context(context)
+action_engine = ActionEngine.from_context(context, selenium_driver)
+
+agent = WebAgent(world_model, action_engine)
+```
+
+## Modifying a built-in context
+
+Let's now take a look at how we can modify specific elements of an existing built-in Context.
 
 #### Example: Modifying a built in context
 

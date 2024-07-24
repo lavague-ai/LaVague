@@ -53,7 +53,7 @@ agent.run("Go on the quicktour of PEFT")
 
 You can also use LaVague to launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
 
-```python
+```py
 # We should set no_load_strategy to True when using the demo() method
 driver = SeleniumDriver(headless=True, no_load_strategy=True)
 action_engine = ActionEngine(driver)
@@ -69,13 +69,6 @@ agent.get("https://huggingface.co/docs")
 agent.demo("Go on the quicktour of PEFT")
 ```
 
-!!! note "Gradio Agent Demo no_load_strategy"
-    For faster performance when using the `agent.demo()` method, you should set the `no_load_strategy` Driver option to True.
-
-    This turns off Selenium's default load strategy that waits for the page to be fully loaded before giving you back control which was causing a significant slowdown with our `Gradio Agent Demo`. Instead, LaVague will detect when the page is loaded.
-
-    This option is not recommended with the `agent.run()` method however.
-
 You can take a quick look at the `demo` feature in the video below:
 
 <figure class="video_container">
@@ -83,6 +76,67 @@ You can take a quick look at the `demo` feature in the video below:
     <source src="https://github.com/lavague-ai/LaVague/blob/main/docs/assets/gradio.webm?raw=true" type="video/webm">
   </video>
 </figure>
+
+## Key features
+
+### Contexts
+
+By default, we use the OpenAI models defined in our `OpenaiContext` module, found in our `lavague-contexts-openai` package.
+
+We have several other built-in contexts that can be used to set your models to default models from other major AI Providers:
+
+- `GeminiContext`
+- `AzureOpenaiContext` (part of the lavague-contexts-openai package)
+- `FireworksContext`
+
+To use these, you first need to install the relevant context package:
+
+```bash
+pip install lavague-contexts-gemini
+```
+
+> The packages are always named lavague-contexts-[name of context]
+
+Then you can initalize your context and pass it to your ActionEngine and WorldModel using the `from_context()` intitialization methods:
+
+```python
+from lavague.core import WorldModel, ActionEngine
+from lavague.core.agents import WebAgent
+from lavague.drivers.selenium import SeleniumDriver
+from lavague.contexts.gemini import GeminiContext
+
+#initialize Gemini Context
+context = GeminiContext()
+
+selenium_driver = SeleniumDriver(headless=False)
+
+# initialize Action Engine and World Model models from context
+world_model = WorldModel.from_context(context)
+action_engine = ActionEngine.from_context(context, selenium_driver)
+
+agent = WebAgent(world_model, action_engine)
+```
+
+For more information about our Contexts, see our [customization guide](./customization.md).
+
+### TokenCounter
+
+We provide tooling to get token usage and cost estimations about your usage of LaVague.
+
+For more information about our TokenCounter, see our [TokenCounter guide](./token-usage.md).
+
+### Logging
+
+We provide various loggers, allowing you to log information about your LaVague usage to a local file, a local database or to memory.
+
+To log to a local database, you can use the `log_to_db` option when calling the `agent.run` method:
+
+```py
+agent.run("Go to the first Model in the Models section", log_to_db=True)
+```
+```
+
+For more information about our loggers, see our [logging guide](../learn/local-log.md)
 
 ## Key components explained
 
