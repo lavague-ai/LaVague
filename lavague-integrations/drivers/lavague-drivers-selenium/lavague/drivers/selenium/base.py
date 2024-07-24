@@ -1,4 +1,3 @@
-import re
 from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -9,7 +8,6 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException,
     StaleElementReferenceException,
 )
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
@@ -23,6 +21,7 @@ from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import extract_code_from_funct
+from selenium.webdriver.common.action_chains import ActionChains
 import yaml
 
 
@@ -188,7 +187,7 @@ driver.set_window_size({width}, {height} + height_difference)
                         pass
 
         if len(elements) == 0:
-            raise ValueError(f"No element found.")
+            raise ValueError("No element found.")
 
         outputs = []
         for element in elements:
@@ -283,20 +282,21 @@ driver.set_window_size({width}, {height} + height_difference)
         )
 
     def click(self, xpath: str):
-        elem = self.resolve_xpath(xpath)
+        element = self.resolve_xpath(xpath)
         try:
-            elem.click()
-        except ElementClickInterceptedException as e:
-            # if another element captures the click, perform the action on it
-            coords_pattern = r"at point \((\d+), (\d+)\)"
-            coords_matches = re.findall(coords_pattern, e.msg)
-            if len(coords_matches) >= 1:
-                action = ActionChains(self.driver)
-                action.move_by_offset(
-                    int(coords_matches[0][0]), int(coords_matches[0][1])
-                ).click().perform()
-            else:
-                raise e
+            element.click()
+        except ElementClickInterceptedException:
+            try:
+                # Move to the element and click at its position
+                ActionChains(self.driver).move_to_element(element).click().perform()
+            except WebDriverException as click_error:
+                raise Exception(
+                    f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
+                )
+        except Exception as e:
+            raise Exception(
+                f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
+            )
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
@@ -454,8 +454,9 @@ Arguments:
   - value (string)
 
 Name: fail
-Description: Indicate that you are unable to complete the task
-No arguments.
+Description: Indicate that you are unable to complete the task and explain why.
+Arguments:
+  - value (string)
 
 Here are examples of previous answers:
 HTML:
