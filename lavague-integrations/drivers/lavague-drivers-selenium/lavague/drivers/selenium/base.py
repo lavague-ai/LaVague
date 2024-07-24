@@ -1,4 +1,3 @@
-import re
 from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -7,6 +6,7 @@ from selenium.common.exceptions import (
     NoSuchElementException,
     WebDriverException,
     ElementClickInterceptedException,
+    StaleElementReferenceException,
 )
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
@@ -22,7 +22,6 @@ from io import BytesIO
 from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import extract_code_from_funct
 from selenium.webdriver.common.action_chains import ActionChains
-import re
 import yaml
 
 
@@ -188,7 +187,7 @@ driver.set_window_size({width}, {height} + height_difference)
                         pass
 
         if len(elements) == 0:
-            raise ValueError(f"No element found.")
+            raise ValueError("No element found.")
 
         outputs = []
         for element in elements:
