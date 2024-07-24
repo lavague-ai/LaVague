@@ -38,14 +38,13 @@ class PythonEngine(BaseEngine):
         if embedding is None:
             embedding = get_default_context().embedding
         if clean_html is None:
-            self.clean_html = trafilatura.extract 
-        
+            self.clean_html = trafilatura.extract
+
         self.llm = llm
         self.embedding = embedding
         self.driver = driver
         self.logger = logger
         self.display = False
-        
 
     @classmethod
     def from_context(
