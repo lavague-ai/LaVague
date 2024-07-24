@@ -25,7 +25,6 @@ lavague-core = "^0.2.26"
 llama-index-llms-fireworks = "^0.1.6"
 llama-index-embeddings-fireworks = "^0.1.2"
 llama-index-multi-modal-llms-openai = "^0.1.6"
-llama-index-core = "0.10.56"
 
 [build-system]
 requires = ["poetry-core"]
