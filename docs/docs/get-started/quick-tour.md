@@ -134,7 +134,6 @@ To log to a local database, you can use the `log_to_db` option when calling the 
 ```py
 agent.run("Go to the first Model in the Models section", log_to_db=True)
 ```
-```
 
 For more information about our loggers, see our [logging guide](../learn/local-log.md)
 
