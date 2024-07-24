@@ -145,3 +145,9 @@ debugging
 interactable
 DriverServer
 CAPTCHAs
+GeminiContext
+gemini
+AzureOpenaiContext
+AzureOpenai
+Openai
+FireworksContext
