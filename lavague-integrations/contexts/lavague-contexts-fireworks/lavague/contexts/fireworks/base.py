@@ -21,8 +21,11 @@ class FireworksContext(Context):
         if openai_api_key == None:
             raise ValueError("OPENAI_API_KEY is not set")
         return super().__init__(
-            Fireworks(model="accounts/fireworks/" + llm, max_tokens=DEFAULT_MAX_TOKENS, temperature=DEFAULT_TEMPERATURE),
+            Fireworks(
+                model="accounts/fireworks/" + llm,
+                max_tokens=DEFAULT_MAX_TOKENS,
+                temperature=DEFAULT_TEMPERATURE,
+            ),
             OpenAIMultiModal(api_key=openai_api_key, model=mm_llm),
             FireworksEmbedding(),
         )
-    
