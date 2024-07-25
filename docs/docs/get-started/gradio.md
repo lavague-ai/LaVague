@@ -21,7 +21,7 @@ You can take a quick look at this feature in the video below:
 
 To launch a LaVague Agent demo, we set up our Agent as in the usual way, as seen in the [quick tour guide](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/). Once we have our Agent, we can run the `agent.demo()` method to launch our Gradio Agent Demo.
 
-```python
+```py
 # We should set no_load_strategy to True when using the demo() method
 driver = SeleniumDriver(headless=True, no_load_strategy=True)
 action_engine = ActionEngine(driver)

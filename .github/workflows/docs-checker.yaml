@@ -10,7 +10,7 @@ on:
       - 'docs/**'
       - '.github/workflows/docs-checker.yaml'
   schedule:
-    - cron: '0 9 * * 1,4'
+    - cron: '0 9 * * 1'
   workflow_dispatch:
 
 jobs:
@@ -82,9 +82,11 @@ jobs:
   check-docs-examples:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -93,7 +95,10 @@ jobs:
         run: |
           pip cache purge
           pip install lavague
+          pip install lavague-contexts-gemini
+          pip install lavague-contexts-fireworks
           pip install llama-index-embeddings-huggingface 
+          pip install llama-index-llms-groq
           pip install ipython>=7.34.0
           pip install text_generation
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
@@ -101,7 +106,9 @@ jobs:
       - name: Extract Python code
         run: |
           rm ./docs/docs/examples/qa-automation.md
-          python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md
+# python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md
+          python ./docs/docs/get-started/*.md
+
 
       - name: Run extracted Python scripts
         run: |

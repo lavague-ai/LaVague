@@ -145,7 +145,7 @@ The World Model uses a multi-modal model to do this conversion. We use GPT-4o by
 ```python
 from llama_index.multi_modal_llms.gemini import GeminiMultiModal
 
-mm_llm = GeminiMultiModal(model_name="models/gemini-1.5-pro-latest"),
+mm_llm = GeminiMultiModal(model_name="models/gemini-1.5-pro-latest")
 
 world_model = WorldModel(mm_llm=mm_llm)
 ```
