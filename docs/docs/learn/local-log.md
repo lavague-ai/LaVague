@@ -33,7 +33,7 @@ You can view the columns of information added to the log per step in the agentic
     | `step`                       | An integer representing which step this row refers to in a multi-step pipeline                                   |
     | `screenshots`                | All screenshots taken during the run                                                                            |
     | `engine`                | The names of engines used for each step                                                                            |
-    | `engine`                | The instructions producedfor each step                                                                            |
+    | `engine`                | The instructions produced for each step                                                                            |
     | `tab_info`                | The currently opened tabs and which one is in focus                                                                          |
 
 ## Examples
