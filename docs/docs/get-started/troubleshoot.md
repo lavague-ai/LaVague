@@ -10,7 +10,7 @@ When you run LaVague without a `user_data_dir`, a blank Chrome session is starte
 
 However, you can change this and plug in your usual browser session with the following code:
 
-```python
+```py
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver(headless=False, user_data_dir="/home/<YourUsername>/.config/google-chrome")
 ```
