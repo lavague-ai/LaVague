@@ -122,7 +122,7 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
     You can limit the number of steps  (and thus potential LLM calls), by default 10, an Agent can take to reach an objective by passing a custom value to the Agent's `n_steps` option:
 
-    ```python
+    ```py
     agent = WebAgent(world_model, action_engine, n_steps=5)
     ```
 
@@ -132,7 +132,7 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
     You can limit the number of attempts (and thus potential LLM calls), set by default to 5, the Action Engine can take to generate the code for a step by passing a custom value to the Action Engine's `n_attempts` option 
 
-    ```python
+    ```py
     action_engine = ActionEngine(selenium_driver, n_attempts=3)
     ```
 

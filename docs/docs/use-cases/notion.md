@@ -15,8 +15,9 @@ On the left, you can see our agent navigating and highlighting the next elements
 
 After [installation](../get-started/quick-tour.md), create a new .py file and run this code to try LaVague with Notion!
 
-```py
-from lavague.core import WebAgent, WorldModel
+```python
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
 from lavague.drivers.selenium import SeleniumDriver
 
 selenium_driver = SeleniumDriver()
