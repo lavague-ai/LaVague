@@ -5,7 +5,7 @@ from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.drivers.selenium.base import SeleniumDriver
 from lavague.core.token_counter import TokenCounter
-from .config import Task, TestConfig, TaskTest
+from lavague.tests.config import Task, TestConfig, TaskTest
 from pandas import DataFrame
 import time
 

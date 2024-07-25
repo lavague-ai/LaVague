@@ -1,7 +1,7 @@
 from typing import Any, List, Dict
 import yaml
-from .setup import Setup
-from .test import ExpectTest, TaskTest
+from lavague.tests.setup import Setup
+from lavague.tests.test import ExpectTest, TaskTest
 
 
 class Task:

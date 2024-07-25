@@ -2,8 +2,8 @@ import click
 import os
 from pathlib import Path
 from typing import List
-from .config import TestConfig
-from .runner import TestRunner
+from lavague.tests.config import TestConfig
+from lavague.tests.runner import TestRunner
 
 
 @click.command()
