@@ -149,7 +149,7 @@ Thoughts:
 Next engine: Navigation Controls
 Instruction: SCAN
 -----
-Objective: Provide the company’s mission statement
+Objective: Provide the company's mission statement
 Previous instructions:
 - Extract the text of the mission statement
 Last engine: Python Engine
@@ -306,7 +306,7 @@ Only provide directly the desired output in the instruction in cases where there
 
 # Navigation guidlines
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
-- If several steps have to be taken, provide instructions in bullet points.
+- Only provide instructions one at a time. Do not provide instructions with multiple steps.
 - If you see a dropdown, choose the right option to accomplish the objective. Do not take other actions until the dropdown is closed.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
 - If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.

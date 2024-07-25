@@ -151,7 +151,7 @@ Here's how to use it:
 
 2. When running your agent, add the `log_to_db=True` parameter to the `run()` method:
 
-```python
+```py
 agent.run("Go to the first Model in the Models section", log_to_db=True)
 ```
 

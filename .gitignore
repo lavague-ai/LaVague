@@ -69,4 +69,4 @@ env/
 venv/
 
 tests/*.py
-tests/*.ipynb
+tests/**/*.ipynb

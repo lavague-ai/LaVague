@@ -369,6 +369,10 @@ class DOMNode(ABC):
     def take_screenshot(self) -> Image:
         pass
 
+    @abstractmethod
+    def get_html(self) -> str:
+        pass
+
     def __str__(self) -> str:
         return self.get_html()
 
@@ -452,6 +456,7 @@ return (function() {
         const countByTag = {};
         for (let child = node.firstChild; child; child = child.nextSibling) {
             let tag = child.nodeName.toLowerCase();
+            if (tag.includes(":")) continue; //namespace
             let isLocal = ['svg'].includes(tag);
             if (isLocal) {
                 tag = `*[local-name() = '${tag}']`;
