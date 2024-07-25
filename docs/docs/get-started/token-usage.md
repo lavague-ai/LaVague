@@ -54,7 +54,8 @@ This allows for in-depth tracking of all the different agent components that are
 
 ## Enable token logging
 
-To enable logging of all tokens consumed: 
+To enable logging of all tokens consumed:
+
 - import the `TokenCounter` module
 - create a `TokenCounter` object before any other modules to register all callbacks properly
 - include it as a parameter when creating the `WebAgent`

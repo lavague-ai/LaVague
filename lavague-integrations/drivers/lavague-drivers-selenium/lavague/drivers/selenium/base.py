@@ -2,11 +2,17 @@ from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    WebDriverException,
+    ElementClickInterceptedException,
+    StaleElementReferenceException,
+)
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
+    JS_GET_INTERACTIVES_IN_VIEWPORT,
     PossibleInteractionsByXpath,
     InteractionType,
     DOMNode,
@@ -15,7 +21,7 @@ from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
 from lavague.core.utilities.format_utils import extract_code_from_funct
-import json
+from selenium.webdriver.common.action_chains import ActionChains
 import yaml
 
 
@@ -181,7 +187,7 @@ driver.set_window_size({width}, {height} + height_difference)
                         pass
 
         if len(elements) == 0:
-            raise ValueError(f"No element found.")
+            raise ValueError("No element found.")
 
         outputs = []
         for element in elements:
@@ -276,8 +282,21 @@ driver.set_window_size({width}, {height} + height_difference)
         )
 
     def click(self, xpath: str):
-        elem = self.resolve_xpath(xpath)
-        elem.click()
+        element = self.resolve_xpath(xpath)
+        try:
+            element.click()
+        except ElementClickInterceptedException:
+            try:
+                # Move to the element and click at its position
+                ActionChains(self.driver).move_to_element(element).click().perform()
+            except WebDriverException as click_error:
+                raise Exception(
+                    f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
+                )
+        except Exception as e:
+            raise Exception(
+                f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
+            )
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
@@ -354,8 +373,13 @@ driver.set_window_size({width}, {height} + height_difference)
         )
         return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
 
-    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
-        exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
+    def get_possible_interactions(
+        self, in_viewport=True, foreground_only=True
+    ) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = self.driver.execute_script(
+            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES,
+            foreground_only,
+        )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
@@ -377,10 +401,13 @@ class SeleniumNode(DOMNode):
         return self
 
     def clear(self):
-        self._driver.execute_script(
-            "arguments[0].style.removeProperty('outline')",
-            self.element,
-        )
+        try:
+            self._driver.execute_script(
+                "arguments[0].style.removeProperty('outline')",
+                self.element,
+            )
+        except StaleElementReferenceException:
+            pass
         return self
 
     def take_screenshot(self):
@@ -398,7 +425,7 @@ class SeleniumNode(DOMNode):
 SELENIUM_PROMPT_TEMPLATE = """
 You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to return a list of actions that should be done in order to execute the actions.
-Always target elements by XPATH.
+Always target elements by XPATH. You can only use one of the Xpaths included in the HTML. Do not derive new Xpaths.
 
 Your response must always be in the YAML format with the yaml markdown indicator and must include the main item "actions" , which will contains the objects "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool. 
 There must be only ONE args sub-object, such as args (if the tool has multiple arguments). 
@@ -427,8 +454,9 @@ Arguments:
   - value (string)
 
 Name: fail
-Description: Indicate that you are unable to complete the task
-No arguments.
+Description: Indicate that you are unable to complete the task and explain why.
+Arguments:
+  - value (string)
 
 Here are examples of previous answers:
 HTML:

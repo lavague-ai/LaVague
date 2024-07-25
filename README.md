@@ -73,16 +73,14 @@ For more information on this example and how to use LaVague, see our [quick-tour
 
 For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
 
-## 💰 How much does it cost to run an agent
+## Key Features
 
-Pricing depends on: 
-- the models chosen to run a given agent
-- the complexity of the objective
-- the website you're interacting with. 
-
-As such, pricing can vary greatly at the cost of speed or performance. 
-
-Please see our [dedicated documentation on token counting and cost estimations](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) to learn how you can track all tokens and estimate costs for running your agents.
+- ✅ [Built-in Contexts](https://docs.lavague.ai/en/latest/docs/get-started/customization/) (aka. configurations)
+- ✅ [Customizable configuration](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
+- ✅ A [Token Counter](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) for estimating token usage and costs
+- ✅ [Logging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
+- ✅ An optional, interactive [Gradio interface](https://docs.lavague.ai/en/latest/docs/get-started/gradio/)
+- ✅ [Debugging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
 
 ## 🙋 Contributing
 
@@ -103,11 +101,18 @@ If you want to ask questions, contribute, or have proposals, please come on our 
 
 ## 🗺️ Roadmap
 
-TO keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
+To keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
 
-## 🚨 Security warning
+## 💰 How much does it cost to run an agent?
 
-Note, this project executes LLM-generated code using `exec`. This is not considered a safe practice. We therefore recommend taking extra care when using LaVague and running LaVague in a sandboxed environment!
+LaVague uses LLMs, (by default OpenAI's `gpt4-o` but this is completely customizable), under the hood.
+
+The cost of these LLM calls depends on: 
+- the models chosen to run a given agent
+- the complexity of the objective
+- the website you're interacting with. 
+
+Please see our [dedicated documentation on token counting and cost estimations](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) to learn how you can track all tokens and estimate costs for running your agents.
 
 ## 📈 Data collection
 

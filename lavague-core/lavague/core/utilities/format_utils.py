@@ -127,9 +127,13 @@ def extract_next_engine(text: str, next_engines: List[str] = DEFAULT_ENGINES) ->
     raise ValueError(f"No next engine found in the text: {text}")
 
 
-def extract_and_eval(string):
+def extract_and_eval(string, extract_list=True):
     # Regular expression to match a list inside a string
-    match = re.search(r"\[.*?\]", string, re.DOTALL)
+    if extract_list:
+        regex = r"\[.*?\]"
+    else:
+        regex = r"\{.*?\}"
+    match = re.search(regex, string, re.DOTALL)
     if match:
         list_string = match.group(0)
         try:

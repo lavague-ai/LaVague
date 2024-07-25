@@ -147,3 +147,10 @@ DriverServer
 CAPTCHAs
 benchmarking
 tokenizer
+GeminiContext
+gemini
+AzureOpenaiContext
+AzureOpenaiContexts
+AzureOpenai
+Openai
+FireworksContext
