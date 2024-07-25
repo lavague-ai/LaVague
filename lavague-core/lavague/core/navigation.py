@@ -11,7 +11,6 @@ from lavague.core.extractors import (
     DynamicExtractor,
 )
 from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
-from lavague.core.utilities.format_utils import extract_and_eval
 from lavague.core.utilities.web_utils import (
     display_screenshot,
     sort_files_by_creation,
@@ -39,11 +38,11 @@ Completion:
 )
 
 REPHRASE_PROMPT = Template(
-"""You are an AI system designed to convert text-based instructions for web actions into standardized instructions for another AI to execute.
+    """You are an AI system designed to convert text-based instruction for web actions into standardized instruction for another AI to execute.
 For the other AI to execute actions, it first searches through the DOM of the current page to find the code of the element to interact with.
 It will then generate the code to interact with the element based on the previsouly retrieved code.
 
-Therefore your goal is to convert the text-based instructions into a search query optimized to allow a retriever to find the right element using the current DOM. 
+Therefore your goal is to convert the text-based instruction into a search query optimized to allow a retriever to find the right element using the current DOM. 
 
 The search query should not contain information about the action but optimized to not confuse the retriever but rewrite the query to highlight as much as possible HTML information to make it easier for the retriever to find the element.
 As the other AI has only access to the DOM and no visual input, remove all visual information cues. You can use cues by mentioning nearby elements to the element to interact with.
@@ -63,8 +62,8 @@ Search query: button 'Installation' text 'Effective and efficient diffusion'
 Here is the next example to rephrase:
 
 Text instruction: ${instruction}
-Search query:""")
-
+Search query:"""
+)
 
 
 logging_print = logging.getLogger(__name__)
@@ -88,13 +87,13 @@ class Rephraser:
         if self.llm is None:
             self.llm = get_default_context().llm
 
-    def rephrase_query(self, instruction: str) -> dict:
+    def rephrase_query(self, instruction: str) -> str:
         """
         Rephrase the query
         Args:
             instruction (`str`): The instruction to rephrase for the retriever
         Return:
-            `dict`: The rephrased query as a dictionary
+            `str`: The rephrased query
         """
         rephrase_prompt = self.prompt.safe_substitute(instruction=instruction)
         rephrased_query = self.llm.complete(rephrase_prompt).text
@@ -242,12 +241,12 @@ class NavigationEngine(BaseEngine):
         output = None
 
         rephrased_query = self.rephraser.rephrase_query(instruction)
-        
+
         action_nb = 0
         navigation_log_total = []
 
         logging_print.debug("Query for retriever: " + rephrased_query)
-        
+
         start = time.time()
         source_nodes = self.get_nodes(rephrased_query)
         end = time.time()
@@ -427,14 +426,13 @@ class NavigationEngine(BaseEngine):
         success = False
         action_full = ""
 
-        
         rephrased_query = self.rephraser.rephrase_query(instruction)
-        
+
         action_nb = 0
         navigation_log_total = []
 
         logging_print.debug("Query for retriever: " + rephrased_query)
-        
+
         start = time.time()
         source_nodes = self.get_nodes(rephrased_query)
         end = time.time()
@@ -451,7 +449,7 @@ class NavigationEngine(BaseEngine):
             "retrieval_time": retrieval_time,
             "retrieval_name": self.retriever.__class__.__name__,
         }
-        
+
         action_outcomes = []
         for _ in range(self.n_attempts):
             if success:
