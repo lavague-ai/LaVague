@@ -118,8 +118,8 @@ class RetrieverEvaluator(Evaluator):
         rephraser = Rephraser(llm)
         for i, row in tqdm(dataset.iterrows()):
             rephrased = rephraser.rephrase_query(row["query"])
-            dataset.at[i, "retriever_query"] = rephrased["query"]
-            dataset.at[i, "llm_query"] = rephrased["action"]
+            dataset.at[i, "retriever_query"] = rephrased
+            dataset.at[i, "llm_query"] = row["query"]
         dataset.to_csv(csv_out_name)
         return dataset
 
