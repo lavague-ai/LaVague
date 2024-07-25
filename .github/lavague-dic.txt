@@ -145,6 +145,8 @@ debugging
 interactable
 DriverServer
 CAPTCHAs
+benchmarking
+tokenizer
 GeminiContext
 gemini
 AzureOpenaiContext
