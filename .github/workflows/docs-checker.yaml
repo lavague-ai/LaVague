@@ -86,7 +86,7 @@ jobs:
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -105,8 +105,9 @@ jobs:
 
       - name: Extract Python code
         run: |
-        rm ./docs/docs/examples/qa-automation.md
-          python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md
+          rm ./docs/docs/examples/qa-automation.md
+# python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md
+          python .github/extract-python-code.py ./docs/docs/get-started/*.md
 
 
       - name: Run extracted Python scripts
