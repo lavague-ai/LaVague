@@ -19,7 +19,7 @@ Run these commands in your terminal to launch Chrome in debug mode.
 
 Create and pass `chrome_options` to SeleniumDriver to attach to the debug instance you already launched. 
 
-```python
+```py
 from lavague.drivers.selenium import SeleniumDriver
 from selenium.webdriver.chrome.options import Options
 
@@ -33,7 +33,7 @@ selenium_driver = SeleniumDriver(headless=False, options=chrome_options)
 
 The `step_by_step` parameter can be used to enable step-by-step execution of the `WebAgent`. When set to `True`, it pauses at each step and enables the user to agree whether to continue or not. This is best used in a Python script where interactive step-by-step control is required.
 
-```python
+```py
 agent = WebAgent(world_model, action_engine, step_by_step=True)
 ```
 
@@ -41,15 +41,17 @@ agent = WebAgent(world_model, action_engine, step_by_step=True)
 
 This method allows the agent to perform a single step. It is useful for controlled step-by-step debugging. It is ideal for use within a Jupyter notebook environment where you can manually control and observe each step.
 
-```python
+```py
 agent.run_step()
 ```
 
 ## Highlight nodes 
 
-This SeleniumDriver method highlights interactive nodes in the specified color (e.g., red). It is useful for visually debugging and identifying interactive elements on a web page. Works better along with notebooks. 
+This SeleniumDriver method highlights interactive nodes in the specified color (e.g., red). 
 
-```python
+It is useful for visually debugging and identifying interactive elements on a web page.
+
+```py
 selenium_driver.remove_highlight()
 selenium_driver.highlight_interactive_nodes(color="blue")
 ```
