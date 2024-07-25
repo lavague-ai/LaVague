@@ -106,7 +106,6 @@ jobs:
       - name: Extract Python code
         run: |
           rm ./docs/docs/examples/qa-automation.md
-# python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md
           python .github/extract-python-code.py ./docs/docs/get-started/*.md
 
 
