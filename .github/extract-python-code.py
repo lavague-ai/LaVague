@@ -15,11 +15,15 @@ def extract_python_code(file_path):
     # Replace agent.demo with agent.run
     modified_code = extracted_code.replace("agent.demo", "agent.run")
 
-    # Remove occurrences of `, display=True`
+    # Remove occurrences of `, display=True
     modified_code = re.sub(r",\s*display=True", "", modified_code)
 
     # Remove headless is false
+    modified_code = re.sub(r"\bheadless=False\s*,\s*", "", modified_code)
     modified_code = re.sub(r"\bheadless=False\b", "", modified_code)
+
+    # Remove headless is false
+    modified_code = re.sub(r"\boptions=chrome_options\b", "", modified_code)
 
     # Remove occurrences of `, display=True`
     modified_code = re.sub(r"display\(Image\(url\)\)", "", modified_code)

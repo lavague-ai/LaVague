@@ -32,6 +32,9 @@ You can view the columns of information added to the log per step in the agentic
     | `run_id`                     | The unique ID for the agent run                                                                                 |
     | `step`                       | An integer representing which step this row refers to in a multi-step pipeline                                   |
     | `screenshots`                | All screenshots taken during the run                                                                            |
+    | `engine`                | The names of engines used for each step                                                                            |
+    | `engine`                | The instructions producedfor each step                                                                            |
+    | `tab_info`                | The currently opened tabs and which one is in focus                                                                          |
 
 ## Examples
 
@@ -55,7 +58,7 @@ world_model = WorldModel()
 agent = WebAgent(world_model, action_engine)
 
 agent.get("https://huggingface.co/")
-agent.run("Go to the first Model in the Models section")
+agent.run("What is the first model in the Models section?")
 
 # Retrieve pandas DataFrame with logs
 df_logs = agent.logger.return_pandas()
@@ -69,7 +72,7 @@ pd.set_option('display.max_colwidth', None)
 
 # Print the code generated for step 0 of our run
 step = 0
-print(df_logs.at[step, 'code'])
+print(df_logs['code'][step])
 ```
 
 This provides us with the following code.
@@ -128,6 +131,7 @@ If you are using the logs to debug and find that the nodes do not show the relev
 If you want your logs to be saved to a local file. You can create a `LocalLogger` object with the path of your logger file, or the file you wish LaVague to create:
 
 ```python
+from lavague.core.logger import LocalLogger
 log = LocalLogger(log_file_path="log.txt")
 ```
 
@@ -175,7 +179,7 @@ Below, we take a look at an example of how we can do this by with the Action Eng
 
     Firstly, let's create out Action Engine and instance of AgentLogger:
 
-    ```python
+    ```py
     from lavague.drivers.selenium import SeleniumDriver
     from lavague.core.logger import AgentLogger
     from lavague.core import ActionEngine
@@ -191,7 +195,7 @@ Below, we take a look at an example of how we can do this by with the Action Eng
 
     Next, we can start a new logger run and add our logger to our Action Engine sub-component. We will also need to collect observations from the driver as this must be added to each logger run.
 
-    ```python
+    ```py
     # Start a new logging run
     logger.new_run()
 
@@ -203,7 +207,7 @@ Below, we take a look at an example of how we can do this by with the Action Eng
 
     Now we will execute an action, add the required observations to the logger and signal to that we have finished our action with the `end_step()` method. We can then get a DataFrame with the logs for this action.
 
-    ```python
+    ```py
     # Engine & instruction
     engine_name = "Navigation Engine"
     instruction = "Show me the top model"
