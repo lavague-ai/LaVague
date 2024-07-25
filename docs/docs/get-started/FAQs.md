@@ -18,11 +18,11 @@ Each of these can be replaced with any llama-index compatible alternative with a
 
 LaVague collects telemetry by default to help us monitor and improve performance.
 
-If you want to turn off all telemetry, you can set your `TELEMETRY_VAR` environment variable to `"NONE"`.
+If you want to turn off all telemetry, you can set your `LAVAGUE_TELEMETRY` environment variable to `"NONE"`.
 
 For more information on how to set environment variables, see the following section.
 
-## How can I set my API keys as environment variables?
+## How can I set environment variables?
 
 When using LaVague, you will need to set any necessary API key environment variables for calls to the:
 
