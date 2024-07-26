@@ -439,16 +439,10 @@ class FromXPathNodesExpansionRetriever(BaseHtmlRetriever):
                     element = element.parent
                     chunk = str(element)
                     parent_xpaths = set(self.get_included_xpaths(element))
+                    processed_xpaths.update(parent_xpaths)
 
                     # Remove previous chunks that are now included in the parent
-                    r_get_xpath = r' xpath=["\'](.*?)["\']'
-                    chunks = [
-                        c
-                        for c in chunks
-                        if parent_xpaths.isdisjoint(
-                            [x for x in re.findall(r_get_xpath, c)]
-                        )
-                    ]
+                    chunks = [c for c in chunks if c not in chunk]
 
             if chunk.strip():
                 chunks.append(chunk)
