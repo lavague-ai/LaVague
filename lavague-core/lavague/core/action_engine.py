@@ -223,19 +223,19 @@ class ActionEngine:
 
         next_engine = self.engines[next_engine_name]
         return next_engine.execute_instruction(instruction)
-    
+
     def get_llm_name(self):
-      if hasattr(self.navigation_engine.llm, 'name'):
-          return self.navigation_engine.llm.name
-      elif hasattr(self.navigation_engine.llm, 'model_name'):
-          return self.navigation_engine.llm.model_name
-      else:
-          return None 
-    
+        if hasattr(self.navigation_engine.llm, "name"):
+            return self.navigation_engine.llm.name
+        elif hasattr(self.navigation_engine.llm, "model_name"):
+            return self.navigation_engine.llm.model_name
+        else:
+            return None
+
     def get_embedding_name(self):
-      if hasattr(self.python_engine.embedding, 'name'):
-          return self.python_engine.embedding.name
-      elif hasattr(self.python_engine.embedding, 'model_name'):
-          return self.python_engine.embedding.model_name
-      else:
-          return None
+        if hasattr(self.python_engine.embedding, "name"):
+            return self.python_engine.embedding.name
+        elif hasattr(self.python_engine.embedding, "model_name"):
+            return self.python_engine.embedding.model_name
+        else:
+            return None

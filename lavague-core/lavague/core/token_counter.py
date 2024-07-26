@@ -72,7 +72,6 @@ class TokenCounter:
             self.embedding_token_counter is not None
             and self.mm_llm_token_counter is not None
         ):
-            
             mm_llm_name = world_model.get_mm_llm_name()
             llm_name = action_engine.get_llm_name()
             embedding_name = action_engine.get_embedding_name()
