@@ -37,7 +37,7 @@ To make this workflow clear, let's consider an example:
 
 2. The Action Engine receives the instruction, and generates the following automation code, which is then executed:
 
-    ```python
+    ```py
 
     from selenium.webdriver.common.by import By
     from selenium.webdriver.common.keys import Keys

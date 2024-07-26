@@ -98,6 +98,7 @@ nav:
   - Quick tour: 'docs/get-started/quick-tour.md'
   - Gradio: 'docs/get-started/gradio.md'
   - Token usage and cost: 'docs/get-started/token-usage.md'
+  - Testing and benchmarking: 'docs/learn/testing.md'
   # - Under the hood: 'docs/get-started/under-the-hood.md'
   - Customization: 'docs/get-started/customization.md'
   - Troubleshooting: 'docs/get-started/troubleshoot.md'

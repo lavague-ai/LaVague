@@ -34,7 +34,7 @@ The Selenium Driver is installed by default when you install `lavague`.
 
 You then need to initialize the Driver and pass it to your Action Engine with the following code:
 
-```python
+```py
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
@@ -107,7 +107,7 @@ By default, the driver starts with a blank user session. But you can change thes
 By default, the drivers will start with a headless session. This means, it will not open a browser on your machine where you can watch in real-time the actions the driver is performing. This can be useful when running LaVague in an environment where you don't have access to the browser.
 
 You can change to non-headless mode by initializing your driver with the `headless=False` argument: 
-```python
+```py
 driver = SeleniumDriver(headless=False)
 ```
 
@@ -125,7 +125,7 @@ To use your existing Chrome profile, you need to locate the profile path on your
 
 You can then pass this path via the `user_data_dir` argument.
 
-```python
+```py
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver(headless=False, user_data_dir="C:/Users/YourUsername/AppData/Local/Google/Chrome/User Data")
 ```

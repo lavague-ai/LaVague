@@ -35,7 +35,7 @@ engine_name = "Navigation Engine"
 instruction = "Click on the Models button in the top menu"
 
 # Execute the instruction and get the output if applicable
-success, output = action_engine.dispatch_instruction(engine_name, instruction)
+output = action_engine.dispatch_instruction(engine_name, instruction)
 ```
 
 The `dispatch_instruction` method will call the `execute_instruction` method for the relevant sub-engine, which will:
@@ -99,13 +99,13 @@ A final thing to note is the Action Engine's `set_display` method.
 
 This method is used by the `Web Agent` when its `run` method is passed a `display=True` boolean value:
 
-```python
+```py
 agent.run(objective, display=True)
 ```
 
 When `display` is set to True, the Action Engine will display images updated in real-time as actions are performed on our browser. This can be useful when we are using the driver in headless mode and still want to visually see the impact of our actions.
 
 We can also use this method directly on the Action Engine with the following code:
-```python
+```py
 action_engine.set_display(True)
 ```

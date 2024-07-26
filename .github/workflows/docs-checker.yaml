@@ -1,13 +1,16 @@
-name: spellcheck & link checker
+name: Spellcheck & Link Checker
 
 on:
   push:
+    branches:
+      - '*'
     paths:
       - 'README.md'
+      - '.github/extract-python-code.py'
       - 'docs/**'
       - '.github/workflows/docs-checker.yaml'
   schedule:
-    - cron: '20 8,17 * * *'
+    - cron: '0 9 * * 1'
   workflow_dispatch:
 
 jobs:
@@ -75,3 +78,83 @@ jobs:
         run: |
           chmod +x .github/bullet-points.sh
           .github/bullet-points.sh
+
+  check-docs-examples:
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          pip cache purge
+          pip install lavague
+          pip install lavague-contexts-gemini
+          pip install lavague-contexts-fireworks
+          pip install llama-index-embeddings-huggingface 
+          pip install llama-index-llms-groq
+          pip install ipython>=7.34.0
+          pip install text_generation
+          wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
+
+      - name: Extract Python code
+        run: |
+          rm ./docs/docs/examples/qa-automation.md
+          python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md  ./docs/docs/learn/*.md
+
+      - name: Run extracted Python scripts
+        run: |
+          if [ -f generated_scripts.txt ]; then
+            while IFS= read -r script_file
+            do
+              echo "Running $script_file"
+              cat $script_file
+              python "$script_file"
+            done < generated_scripts.txt
+          else
+            echo "No generated scripts found."
+          fi
+
+      - name: Clean up
+        run: |
+          rm hf_knowledge.txt
+          rm -f generated_scripts.txt
+
+  notify-docs-examples-failure:
+    runs-on: ubuntu-latest
+    needs: check-docs-examples
+    if: failure() 
+    steps:
+      - name: Notify Discord on docs-examples failure
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-examples' failed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+
+  notify-docs-links-failure:
+    runs-on: ubuntu-latest
+    needs: check-docs-links
+    if: failure() 
+    steps:
+      - name: Notify Discord on docs-links failure
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-links' failed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+  
+  notify-checks-success:
+    runs-on: ubuntu-latest
+    needs: [check-docs-links, check-docs-links]
+    if: success() 
+    steps:
+      - name: Notify Discord on successful checks
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"<@762664509813817345> Checks successfully passed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
