@@ -25,5 +25,5 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.14"
+lavague-core = "^0.2.27"
 gradio = "4.29.0"
