@@ -7,7 +7,7 @@ from lavague.contexts.gemini import GeminiContext
 
 context = GeminiContext()
 selenium_driver = SeleniumDriver(headless=False)
-world_model = WorldModel()
+world_model = WorldModel.from_context(context=context)
 action_engine = ActionEngine.from_context(context, selenium_driver)
 agent = WebAgent(world_model, action_engine)
 agent.get("https://huggingface.co/docs")
