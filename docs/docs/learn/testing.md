@@ -15,10 +15,13 @@ pip install lavague-tests
 
 ### Example 1 (no arguments)
 
-By default, `lavague-tests` will run all tests defined in `/sites` with the default set of LLMs (`gpt-4o`)
+By default, `lavague-test` will run all tests defined in `/sites` with the default set of LLMs (`gpt-4o`)
+
+!!! warning "Running lavague-test"
+  Note that in order to use the default configuration, you will need to run `lavague-test` from the root of the LaVague repo.
 
 ```bash
-> lavague-tests
+> lavague-test
 ```
 
 Output
@@ -32,7 +35,7 @@ Tokens: 155963 (0.9255 $)
 To test LaVague with a custom site, in this case `amazon.com`, and a custom configuration (custom Large Language Models (LLMs) defined in `custom_context.py`), you can use the `--site` or `-s` and `--context` or `-c` options:
 
 ```bash
-lavague-tests -s amazon.com -c lavague-tests/contexts/custom_context.py
+lavague-test -s amazon.com -c lavague-tests/contexts/custom_context.py
 ```
 
 Output
