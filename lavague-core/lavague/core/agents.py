@@ -267,26 +267,26 @@ class WebAgent:
                 if success:
                     history[-1] = ChatMessage(
                         role="assistant",
-                        content=f"The objective was successfully executed after {curr_step} steps.",
+                        content=f"The objective was successfully executed after {curr_step} step(s).",
                         metadata={"title": f"🌊 Objective reached"},
                     )
                 else:
                     history[-1] = ChatMessage(
                         role="assistant",
-                        content=f"The objective was not successfully executed after {curr_step} steps.",
+                        content=f"The objective was not successfully executed after {curr_step} step(s).",
                         metadata={"title": f"❌ Failed to reach objective"},
                     )
             else:
                 if success:
                     history[-1] = ChatMessage(
                         role="assistant",
-                        content=f"The objective was successfully executed after {curr_step} steps.",
+                        content=f"The objective was successfully executed after {curr_step} step(s).",
                         metadata={"title": f"🌊 Objective reached"},
                     )
                 else:
                     history[-1] = ChatMessage(
                         role="assistant",
-                        content=f"The objective was not successfully executed after {curr_step} steps.",
+                        content=f"The objective was not successfully executed after {curr_step} step(s).",
                         metadata={"title": f"❌ Failed to reach objective"},
                     )
 
