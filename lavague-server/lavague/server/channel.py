@@ -25,7 +25,15 @@ class AgentSession(ABC):
 
     def handle_prompt_agent_action(self, type: str, args: str):
         if type == "run":
-            self.agent.run(args)
+            start = {"type": "start"}
+            asyncio.run(self.send_message(json.dumps(start)))
+            try:
+                self.agent.run(args)
+            except Exception as e:
+                pass
+            finally:
+                stop = {"type": "stop"}
+                asyncio.run(self.send_message(json.dumps(stop)))
         elif type == "get":
             self.agent.get(args)
 
