@@ -424,3 +424,11 @@ class WorldModel(ABC, Loggable):
             logger.add_log(log)
 
         return mm_llm_output
+      
+    def get_mm_llm_name(self):
+      if hasattr(self.mm_llm, 'name'):
+          return self.mm_llm.name
+      elif hasattr(self.mm_llm, 'model_name'):
+          return self.mm_llm.model_name
+      else:
+          return None 
