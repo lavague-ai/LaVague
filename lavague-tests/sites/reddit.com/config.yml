@@ -1,0 +1,7 @@
+tasks:
+  - name: Navigate on Reddit
+    url: https://www.reddit.com
+    prompt: "Go to the GitHub link provided on the article: 'GitHub - lavague-ai/LaVague: Automate automation with Large Action Model framework'"
+    expect:
+      - URL is https://github.com/lavague-ai/LaVague
+      - Status is success

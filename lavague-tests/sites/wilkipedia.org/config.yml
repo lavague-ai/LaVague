@@ -1,0 +1,7 @@
+tasks:
+  - name: Wilkipedia retrieval
+    url: https://www.wikipedia.org/
+    prompt: "Go to the page of the Beatle's first album in their discography"
+    expect:
+      - Status is success
+      - URL is https://en.wikipedia.org/wiki/Please_Please_Me
