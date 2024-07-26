@@ -6,7 +6,4 @@ from lavague.core.context import Context
 token_counter = TokenCounter()
 
 # init context
-fireworks_context = FireworksContext()
-context = Context(
-    fireworks_context.llm, fireworks_context.mm_llm, fireworks_context.embedding
-)
+context = FireworksContext()
