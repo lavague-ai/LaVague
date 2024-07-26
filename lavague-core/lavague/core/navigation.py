@@ -317,8 +317,14 @@ class NavigationEngine(BaseEngine):
                     )
 
                 self.driver.exec_code(action)
-                self.history[-1] = ChatMessage(role="assistant", content=f"{action_engine.curr_instruction}\n", metadata={"title": f"✅ Step {action_engine.curr_step}"})
-                self.history.append(ChatMessage(role="assistant", content="⏳ Loading the page..."))
+                self.history[-1] = ChatMessage(
+                    role="assistant",
+                    content=f"{action_engine.curr_instruction}\n",
+                    metadata={"title": f"✅ Step {action_engine.curr_step}"},
+                )
+                self.history.append(
+                    ChatMessage(role="assistant", content="⏳ Loading the page...")
+                )
                 yield (
                     self.objective,
                     self.url_input,
@@ -373,7 +379,11 @@ class NavigationEngine(BaseEngine):
         navigation_log_total.append(navigation_log)
 
         if not success:
-            self.history[-1] = ChatMessage(role="assistant", content=f"Instruction: {action_engine.curr_instruction}", metadata={"title": f"❌ Step {action_engine.curr_step + 1}"})
+            self.history[-1] = ChatMessage(
+                role="assistant",
+                content=f"Instruction: {action_engine.curr_instruction}",
+                metadata={"title": f"❌ Step {action_engine.curr_step + 1}"},
+            )
         if logger:
             log = {
                 "engine": "Navigation Engine",
