@@ -300,12 +300,16 @@ driver.set_window_size({width}, {height} + height_difference)
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.resolve_xpath(xpath)
-        elem.clear()
-        elem.click()
-        elem.send_keys(value)
+        try:
+            elem = self.resolve_xpath(xpath)
+            elem.clear()
+        except:
+            # might not be a clearable element, but global click + send keys can still success
+            pass
+        self.click(xpath)
+        ActionChains(self.driver).send_keys(value).perform()
         if enter:
-            elem.send_keys(Keys.ENTER)
+            ActionChains(self.driver).send_keys(Keys.ENTER).perform()
         self.driver.switch_to.default_content()
 
     def perform_wait(self, duration: float):
