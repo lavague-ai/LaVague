@@ -304,15 +304,22 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
         elem = self.resolve_xpath(xpath)
+
         if elem.tag_name == "select":
-            self.dropdown_select(xpath, value)
-        else:
+            # use the dropdown_select to set the value of a select
+            return self.dropdown_select(xpath, value)
+
+        try:
+            elem = self.resolve_xpath(xpath)
             elem.clear()
-            elem.click()
-            elem.send_keys(value)
-            if enter:
-                elem.send_keys(Keys.ENTER)
-            self.driver.switch_to.default_content()
+        except:
+            # might not be a clearable element, but global click + send keys can still success
+            pass
+        self.click(xpath)
+        ActionChains(self.driver).send_keys(value).perform()
+        if enter:
+            ActionChains(self.driver).send_keys(Keys.ENTER).perform()
+        self.driver.switch_to.default_content()
 
     def dropdown_select(self, xpath: str, value: str):
         element = self.resolve_xpath(xpath)
