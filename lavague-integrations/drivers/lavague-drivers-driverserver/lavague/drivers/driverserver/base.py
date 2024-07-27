@@ -1,7 +1,26 @@
 import base64
-from lavague.core.base_driver import BaseDriver
-from typing import Any, Optional, Mapping
+from io import BytesIO
+import json
+import logging
+from lavague.core.base_driver import (
+    BaseDriver,
+    InteractionType,
+    PossibleInteractionsByXpath,
+)
+from typing import Any, Dict, List, Optional, Mapping
+
+import yaml
 from lavague.server.channel import AgentSession
+from PIL import Image
+
+logging_print = logging.getLogger(__name__)
+logging_print.setLevel(logging.INFO)
+format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(format)
+logging_print.addHandler(ch)
+logging_print.propagate = False
 
 
 class DriverServer(BaseDriver):
@@ -55,57 +74,83 @@ class DriverServer(BaseDriver):
     def destroy(self) -> None:
         pass
 
+    def get_tabs(self) -> str:
+        tab_info = []
+        try:
+            tab_list = self.send_command_and_get_response_sync("get_tabs")
+            tab_info = json.loads(tab_list)
+        except Exception as e:
+            logging_print.error(
+                f"JSON from the get_tabs method could not be deserialized. Reason: {e}"
+            )
+        tab_info = "\n".join(tab_info)
+        tab_info = "Tabs opened:\n" + tab_info
+
+        return tab_info
+
+    def switch_tab(self, tab_id: int) -> None:
+        self.send_command_and_get_response_sync("switch_tab", str(tab_id))
+
+    def resolve_xpath(self, xpath: str):
+        pass
+
+    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = {}
+        try:
+            exe_json = self.send_command_and_get_response_sync(
+                "get_possible_interactions"
+            )
+            exe = json.loads(exe_json)
+        except Exception as e:
+            logging_print.error(
+                f"JSON from the get_possible_interactions method could not be deserialized. Reason: {e}"
+            )
+        res = dict()
+        for k, v in exe.items():
+            res[k] = set(InteractionType[i] for i in v)
+        return res
+
     def get_highlighted_element(self, generated_code: str):
-        # local_scope = {"driver": self.get_driver()}
-        # assignment_code = keep_assignments(generated_code)
-        # self.exec_code(assignment_code, locals=local_scope)
+        outputs = []
 
-        # # We extract pairs of variables assigned during execution with their name and pointer
-        # variable_names = return_assigned_variables(generated_code)
+        data = yaml.safe_load(generated_code)
+        if not isinstance(data, List):
+            data = [data]
+        for item in data:
+            for action in item["actions"]:
+                action_name = action["action"]["name"]
+                if action_name != "fail":
+                    xpath = action["action"]["args"]["xpath"]
+                    try:
+                        bounding_box = {}
+                        viewport_size = {}
 
-        # elements = []
+                        res_json = self.send_command_and_get_response_sync(
+                            "highlight_elem", xpath
+                        )
+                        res = json.loads(res_json)
 
-        # for variable_name in variable_names:
-        #     var = local_scope[variable_name]
-        #     if type(var) == WebElement:
-        #         elements.append(var)
+                        bounding_box["x1"] = res["x"]
+                        bounding_box["y1"] = res["y"]
+                        bounding_box["x2"] = res["x2"]
+                        bounding_box["y2"] = res["y2"]
 
-        # if len(elements) == 0:
-        #     raise ValueError(f"No element found.")
-
-        # outputs = []
-        # for element in elements:
-        #     element: WebElement
-
-        #     bounding_box = {}
-        #     viewport_size = {}
-
-        #     self.execute_script(
-        #         "arguments[0].setAttribute('style', arguments[1]);",
-        #         element,
-        #         "border: 2px solid red;",
-        #     )
-        #     self.execute_script(
-        #         "arguments[0].scrollIntoView({block: 'center'});", element
-        #     )
-        #     screenshot = self.get_screenshot_as_png()
-
-        #     bounding_box["x1"] = element.location["x"]
-        #     bounding_box["y1"] = element.location["y"]
-        #     bounding_box["x2"] = bounding_box["x1"] + element.size["width"]
-        #     bounding_box["y2"] = bounding_box["y1"] + element.size["height"]
-
-        #     viewport_size["width"] = self.execute_script("return window.innerWidth;")
-        #     viewport_size["height"] = self.execute_script("return window.innerHeight;")
-        #     screenshot = BytesIO(screenshot)
-        #     screenshot = Image.open(screenshot)
-        #     output = {
-        #         "screenshot": screenshot,
-        #         "bounding_box": bounding_box,
-        #         "viewport_size": viewport_size,
-        #     }
-        #     outputs.append(output)
-        return None
+                        viewport_size["width"] = self.execute_script(
+                            "return window.innerWidth;"
+                        )
+                        viewport_size["height"] = self.execute_script(
+                            "return window.innerHeight;"
+                        )
+                        output = {
+                            "bounding_box": bounding_box,
+                            "viewport_size": viewport_size,
+                        }
+                        outputs.append(output)
+                    except Exception as e:
+                        logging_print.error(
+                            f"An error occured while rendering the highlighted element: {e}"
+                        )
+        return outputs
 
     def exec_code(
         self,
@@ -132,44 +177,32 @@ class DriverServer(BaseDriver):
         )
 
     def wait(self, time_between_actions):
-        json_str = f"""[
-    {{
-        "action": {{
-            "name": "wait",
-            "args": {{
-                "value": {time_between_actions}
-            }}
-        }}
-    }}
-]"""
+        json_str = f"""- actions:
+    - action:
+        args:
+            value: {time_between_actions}
+        name: "wait"
+"""
         self.exec_code(json_str)
         pass
 
     def scroll_up(self):
-        json_str = """[
-    {
-        "action": {
-            "name": "scroll",
-            "args": {
-            "value": "up"
-            }
-        }
-    }
-]"""
+        json_str = f"""- actions:
+    - action:
+        args:
+            value: "up"
+        name: "scroll"
+"""
         self.exec_code(json_str)
         pass
 
     def scroll_down(self):
-        json_str = """[
-    {
-        "action": {
-            "name": "scroll",
-            "args": {
-            "value": "down"
-            }
-        }
-    }
-]"""
+        json_str = f"""- actions:
+    - action:
+        args:
+            value: "down"
+        name: "scroll"
+"""
         self.exec_code(json_str)
         pass
 
@@ -185,7 +218,14 @@ You are a chrome extension and your goal is to interact with web pages. You have
 Your goal is to return a list of actions that should be done in order to execute the actions.
 Always target elements by XPATH.
 
-The actions available are: 
+Your response must always be in the YAML format with the yaml markdown indicator and must include the main item "actions" , which will contains the objects "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool. 
+There must be only ONE args sub-object, such as args (if the tool has multiple arguments). 
+You must always include the comments as well, describing your actions step by step, following strictly the format in the examples provided.
+
+Provide high level explanations about why you think this element is the right one.
+Your answer must be short and concise. Always includes comments in the YAML before listing the actions.
+
+The actions available are:
 
 Name: click
 Description: Click on an element with a specific xpath
@@ -204,6 +244,11 @@ Arguments:
   - xpath (string)
   - value (string)
 
+Name: enter
+Description: Press the enter button. Use this tool can submit the form when there's no "submit" button and when a textbox is already filled, or filled previously with setValue.
+Arguments:
+  - xpath (string)
+
 Name: fail
 Description: Indicate that you are unable to complete the task
 No arguments.
@@ -215,17 +260,28 @@ HTML:
 <div class="spoKVd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]"><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Q4cIICHw" id="W0wltc" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[1]/div">Alles afwijzen</div></button><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiZAHCH0" id="L2AGLb" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"><div class="QS5gu sy4vM" role="none" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]/div">Alles accepteren</div></button></div><div class="GzLjMd" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]"><button class="tHlp8d" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4QiJAHCH4" id="VnjCcb" role="link" tabindex="-1" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button"><a class="eOjPIe" tabindex="0" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[2]/button/a">Meer opties</a></button></div></div><div class="XWlrff cG0Dmf" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]"><a class="peRL2e" data-ved="0ahUKEwjX3bmBmKeGAxU2xQIHHcGoAg4Qj5AHCH8" href="https://policies.google.com/privacy?hl=nl&amp;fg=1&amp;utm_source=ucbs" id="RP3V5c" xpath="/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[4]/a[1]">Privacy</a>
 Query: Click on the button labeled 'Alles accepteren' to accept all cookies.
 Completion:
-[
-    {
-        "action": {
-            "name": "click",
-            "args": {
-            "xpath": "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
-            }
-        }
-    }
-]
----
+```yaml
+# Let's think step by step
+# First, we notice that the query asks us to click on the button labeled 'Alles accepteren' to accept all cookies.
+# In the provided HTML, we can see several button elements.
+# We need to identify the correct button labeled 'Alles accepteren'.
+# Upon examining the HTML structure, we see that the button with the text 'Alles accepteren' is located within a specific hierarchy.
+# We need to navigate through the hierarchy to accurately locate this button.
+# The correct button is located within a div element with a specific class and role attribute, which helps us ensure that we are targeting the right element.
+# Specifically, for 'Alles accepteren', there is a button element with a unique ID 'L2AGLb' which contains a div with the text 'Alles accepteren'.
+# We observe that this button element has the following XPath:
+# /html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]
+
+- actions:
+    - action:
+        # Thus, we believe this is the correct element to be interacted with:
+        args:
+            xpath: "/html/body/div[2]/div[2]/div[3]/span/div/div/div/div[3]/div[1]/button[2]"
+            value: ""
+        # Then we can click on the button
+        name: "click"
+```
+-----
 HTML:
 <div class="devsite-top-logo-row-middle" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]">
 <div class="devsite-header-upper-tabs" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]">
@@ -252,23 +308,30 @@ HTML:
 
 Query: Click on "Gemma" under the "More" dropdown menu.
 Completion:
-[
-    {
-        "action": {
-            "name": "click",
-            "args": {
-            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
-            }
-        }
-    },
-    {
-        "action": {
-            "name": "click",
-            "args": {
-            "xpath": "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
-            }
-        }
-    }
-]
-Your response must always be in JSON format and must include object "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool.
+```yaml
+# Let's think step by step
+# First, we notice that the query asks us to click on the "Gemma" option under the "More" dropdown menu.
+# In the provided HTML, we see that the "More" dropdown menu is within a tab element with a specific class and role attribute.
+# The "More" dropdown menu can be identified by its class 'devsite-overflow-tab' and contains a link element with the text 'More'.
+# We need to interact with this dropdown menu to reveal the hidden options.
+# Specifically, for the "More" dropdown menu, there is an anchor element within a tab element:
+# /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a
+
+- actions:
+    - action:
+        # We can use this XPATH to identify and click on the "More" dropdown menu:
+        args:
+            xpath: "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/a"
+            value: ""
+        name: "click"
+    - action:
+        # After clicking the "More" dropdown, we need to select the "Gemma" option from the revealed menu.
+        # The "Gemma" option is located within the dropdown menu and can be identified by its anchor element with the corresponding text:
+        # /html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a
+        # Thus, we use this XPATH to identify and click on the "Gemma" option:
+        args:
+            xpath: "/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a"
+            value: ""
+        name: "click"
+```
 """

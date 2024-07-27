@@ -18,11 +18,11 @@ Each of these can be replaced with any llama-index compatible alternative with a
 
 LaVague collects telemetry by default to help us monitor and improve performance.
 
-If you want to turn off all telemetry, you can set your `TELEMETRY_VAR` environment variable to `"NONE"`.
+If you want to turn off all telemetry, you can set your `LAVAGUE_TELEMETRY` environment variable to `"NONE"`.
 
 For more information on how to set environment variables, see the following section.
 
-## How can I set my API keys as environment variables?
+## How can I set environment variables?
 
 When using LaVague, you will need to set any necessary API key environment variables for calls to the:
 
@@ -122,7 +122,7 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
     You can limit the number of steps  (and thus potential LLM calls), by default 10, an Agent can take to reach an objective by passing a custom value to the Agent's `n_steps` option:
 
-    ```python
+    ```py
     agent = WebAgent(world_model, action_engine, n_steps=5)
     ```
 
@@ -132,7 +132,7 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
     You can limit the number of attempts (and thus potential LLM calls), set by default to 5, the Action Engine can take to generate the code for a step by passing a custom value to the Action Engine's `n_attempts` option 
 
-    ```python
+    ```py
     action_engine = ActionEngine(selenium_driver, n_attempts=3)
     ```
 

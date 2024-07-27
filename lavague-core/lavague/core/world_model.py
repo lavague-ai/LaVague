@@ -3,7 +3,7 @@ import os
 from abc import ABC
 from llama_index.core import PromptTemplate
 from llama_index.core.multi_modal_llms import MultiModalLLM
-from llama_index.core import SimpleDirectoryReader
+from llama_index.legacy.readers.file.base import SimpleDirectoryReader
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 from functools import lru_cache
@@ -24,6 +24,8 @@ external_observations:
 internal_state:
   agent_outputs: []
   user_inputs: []
+Tabs opened:
+0 - [CURRENT] lavague-ai/LaVague - Issues
 
 Thoughts:
 - The current screenshot shows the issues page of the GitHub repository 'lavague-ai/LaVague'.
@@ -43,6 +45,8 @@ external_observations:
 internal_state:
   agent_outputs: []
   user_inputs: []
+Tabs opened:
+0 - [CURRENT] meta-llama/Meta-Llama-3-8B - Hugging Face
 
 Thoughts:
 - The current page shows the model page for 'meta-llama/Meta-Llama-3-8B' on Hugging Face.
@@ -65,6 +69,9 @@ external_observations:
 internal_state:
   agent_outputs: []
   user_inputs: []
+Tabs opened:
+0 - [CURRENT] Gemini API Documentation - Quickstart
+
 
 Thoughts:
 - The whole page has been scanned and current screenshot show the documentation page for the getting started of Gemini API.
@@ -85,6 +92,8 @@ external_observations:
 internal_state:
   agent_outputs: []
   user_inputs: []
+Tabs opened:
+0 - [CURRENT] ACME INC - Notion Page
 
 Thought:
 - The screenshot shows a Notion webpage with information about a company called ACME INC.
@@ -106,6 +115,9 @@ external_observations:
 internal_state:
   agent_outputs: []
   user_inputs: []
+Tabs opened:
+0 - [CURRENT] Author Biography Page
+
 
 Thoughts:
 - The screenshot shows a personal biography of the author.
@@ -125,6 +137,8 @@ external_observations:
 internal_state:
   agent_outputs: []
   user_inputs: []
+Tabs opened:
+0 - [CURRENT] OpenAI - Products
 
 Thoughts:
 - The current page shows the product page of the company OpenAI
@@ -135,7 +149,7 @@ Thoughts:
 Next engine: Navigation Controls
 Instruction: SCAN
 -----
-Objective: Provide the company’s mission statement
+Objective: Provide the company's mission statement
 Previous instructions:
 - Extract the text of the mission statement
 Last engine: Python Engine
@@ -145,6 +159,8 @@ external_observations:
 internal_state:
   agent_outputs: ["Our mission is to innovate and lead in the technology sector, creating solutions that drive progress and improve lives."]
   user_inputs: []
+Tabs opened:
+0 - [CURRENT] Company Vision and Mission - Page
 
 Thoughts:
 - The current screenshot shows the page about the company's vision and mision.
@@ -165,13 +181,17 @@ internal_state:
   agent_outputs: []
   user_inputs: []
 Thoughts:
+Tabs opened:
+0 - [CURRENT] Home
+1 - Contact us
 
-- The screenshot shows the 'Contact Us' section of the website.
-- The address of the headquarters is visible directly in the screenshot.
-- The visual information is sufficient to extract and provide the address.
-- No further processing is required as the address can be directly read from the screenshot.
-Next engine: COMPLETE
-Instruction: The address of the headquarters is 1234 Elm Street, Springfield, IL, 62701.
+- The screenshot shows the main page of a company website.
+- We note that a tab named 'Contact us' has been opened and that the previous action was to click on 'Contact Us'.
+- The objective is to provide the address of the headquarters.
+- The address is likely to be found on the 'Contact Us' page.
+- The best next step is to use the Navigation Controls to switch tab to find more information in the other page.
+Next engine: Navigation Controls
+Instruction: SWITCH_TAB 1
 -----
 Objective: Identify the list of services provided by the company
 Previous instructions:
@@ -286,10 +306,11 @@ Only provide directly the desired output in the instruction in cases where there
 
 # Navigation guidlines
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
-- If several steps have to be taken, provide instructions in bullet points.
+- Only provide instructions one at a time. Do not provide instructions with multiple steps.
 - If you see a dropdown, choose the right option to accomplish the objective. Do not take other actions until the dropdown is closed.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
 - If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.
+- If relevant information seems to be on another tab, use the Navigation Controls's command 'SWITCH_TAB' followed by the tab number to switch to the desired tab, such as 'SWITCH TAB 1'.
 
 Here are previous examples:
 {examples}
@@ -301,6 +322,7 @@ Previous instructions:
 Last engine: {last_engine}
 Current state:
 {current_state}
+{tab_info}
 
 Thought:
 """
@@ -366,6 +388,8 @@ class WorldModel(ABC, Loggable):
         previous_instructions = past["previous_instructions"]
         last_engine = past["last_engine"]
 
+        tab_info = observations["tab_info"]
+
         try:
             current_state_str = yaml.dump(current_state, default_flow_style=False)
         except:
@@ -379,6 +403,7 @@ class WorldModel(ABC, Loggable):
             previous_instructions=previous_instructions,
             last_engine=last_engine,
             current_state=current_state_str,
+            tab_info=tab_info,
         )
 
         start = time.time()

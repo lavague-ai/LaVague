@@ -2,7 +2,7 @@
 
 When using LaVague, you may find that our Web Agents are not always able to successfully achieve the objective you set them out of the box, leading to either incorrect results or `Navigation errors`.
 
-Our Agents are designed to be as customizable as possible so you can adjust components to get the best result for your particular use case.
+Our Agents are designed to be as customizable as possible so you can adjust components to get the best result for your particular use case. To learn mode about the tools available to help you please consult our [Debug tools documentation ](./debug-tools.md). 
 
 !!! hint "Common issues"
 
@@ -12,7 +12,8 @@ Our Agents are designed to be as customizable as possible so you can adjust comp
     - The Retriever
     - The Action Engine
 
-In this guide, we'll take a look at how you can debug and make adjustments to rectify issues with each of these components.
+In this guide, we'll take a look at how you can debug and make adjustments to rectify issues with each of these components as well as the different debugging tools we provide to make this easier. 
+
 
 ## Debugging the World Model
 
@@ -31,7 +32,7 @@ We can therefore visually verify the outputted instructions seem appropriate for
 
 In the following example, we want to get the current temperature in Birmingham UK from the website `weather.com`:
 
-```python
+```py
 selenium_driver = SeleniumDriver(headless=False)
 world_model = WorldModel()
 action_engine = ActionEngine(driver=selenium_driver)
@@ -74,7 +75,7 @@ For this example, we can provide the World Model with the following knowledge sa
 
 We send this extra knowledge to the World Model by providing the path to our `knowledge.txt` file to the `WorldModel.add_knowledge()` method:
 
-```python
+```py
 world_model = WorldModel()
 world_model.add_knowledge(file_path="knowledge.txt")
 ```
@@ -118,7 +119,7 @@ For example, if the instruction is to 'Type John into the first name field of th
 
 To view the nodes for each step (instruction sent to the Action Engine by the World Model). You can use the `display_previous_nodes` method:
 
-```python
+```py
 step = 0 # View nodes retrieved for first instruction
 agent.display_previous_nodes(step)
 ```
@@ -172,23 +173,6 @@ from lavague.core.retrievers import OpsmSplitRetriever
 driver=SeleniumDriver()
 retriever = OpsmSplitRetriever(top_k=10, driver=driver)
 action_engine = ActionEngine(driver=driver, retriever=retriever)
-agent = WebAgent(WorldModel(), action_engine)
-```
-
-#### Changing the Retriever
-
-We can also test out performance with different retrievers for your task.
-
-In the following example, we select the retriever to the built-in `CohereRetriever` from the optional package `lavague-retrievers-cohere`.
-
-```python
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.drivers.selenium import SeleniumDriver
-from lavague.retrievers.cohere import CohereRetriever
-
-retriever = CohereRetriever()
-action_engine = ActionEngine(driver=SeleniumDriver(), retriever=retriever)
 agent = WebAgent(WorldModel(), action_engine)
 ```
 

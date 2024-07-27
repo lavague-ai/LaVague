@@ -1,0 +1,7 @@
+tasks:
+  - name: Amazon add to basket
+    url: https://amazon.com
+    prompt: "Add `1984: 75th Anniversary` to my cart"
+    expect:
+      - URL contains https://www.amazon.com/cart/smart-wagon?newItems
+      - Status is success

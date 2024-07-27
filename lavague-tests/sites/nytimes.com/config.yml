@@ -1,0 +1,7 @@
+tasks:
+  - name: New York Times search task
+    url: https://www.nytimes.com/
+    prompt: "Find the What’s More Italian Than Making Pasta With Grandma? article"
+    expect:
+      - URL is https://www.nytimes.com/2024/07/24/travel/pasta-making-italy-grandmothers.html?searchResultPosition=1
+      - Status is success

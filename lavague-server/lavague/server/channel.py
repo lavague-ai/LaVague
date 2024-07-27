@@ -5,9 +5,10 @@ import threading
 from typing import Callable
 import uuid
 from lavague.core.agents import WebAgent
-from lavague.core.extractors import JsonFromMarkdownExtractor
+from lavague.core.extractors import YamlFromMarkdownExtractor
 from lavague.core.logger import AgentLogger
 import types
+import copy
 
 
 class AgentSession(ABC):
@@ -24,7 +25,15 @@ class AgentSession(ABC):
 
     def handle_prompt_agent_action(self, type: str, args: str):
         if type == "run":
-            self.agent.run(args)
+            start = {"type": "start"}
+            asyncio.run(self.send_message(json.dumps(start)))
+            try:
+                self.agent.run(args)
+            except Exception as e:
+                pass
+            finally:
+                stop = {"type": "stop"}
+                asyncio.run(self.send_message(json.dumps(stop)))
         elif type == "get":
             self.agent.get(args)
 
@@ -63,7 +72,8 @@ class AgentSession(ABC):
         if "response" in response_data:
             try:
                 jso = response_data["response"]
-                ret = jso["ret"]
+                if "ret" in jso:
+                    ret = jso["ret"]
                 response_data.clear()
             except Exception as e:
                 print("Failed to get response data", e)
@@ -93,15 +103,18 @@ class CommunicationChannel(ABC):
     def setup_session_agent(self, session: AgentSession):
         # override extractor for JSON format
         session.agent.action_engine.navigation_engine.extractor = (
-            JsonFromMarkdownExtractor()
+            YamlFromMarkdownExtractor()
         )
 
         # override logger method
         add_log = session.agent.logger.add_log
 
         def send_log(self, message):
-            add_log(message)
-            message = {"type": "agent_log", "agent_log": message}
-            asyncio.run(session.send_message(json.dumps(message)))
+            message_cp = copy.deepcopy(message)
+            add_log(message_cp)
+            if "screenshots" in message_cp:
+                del message_cp["screenshots"]
+            message_cp = {"type": "agent_log", "agent_log": message_cp}
+            asyncio.run(session.send_message(json.dumps(message_cp)))
 
         session.agent.logger.add_log = types.MethodType(send_log, session.agent.logger)

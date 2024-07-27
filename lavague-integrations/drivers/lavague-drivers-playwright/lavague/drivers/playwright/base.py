@@ -2,12 +2,13 @@ from io import BytesIO
 import json
 import os
 from PIL import Image
-from typing import Callable, Optional, Any, Mapping, Iterable, Dict, List
+from typing import Callable, Optional, Any, Mapping, Dict, List
 from lavague.core.utilities.format_utils import extract_code_from_funct
 from playwright.sync_api import Page, Locator
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
+    JS_GET_INTERACTIVES_IN_VIEWPORT,
     PossibleInteractionsByXpath,
     InteractionType,
 )
@@ -47,27 +48,25 @@ class PlaywrightDriver(BaseDriver):
             ) from error
         p = sync_playwright().__enter__()
         user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+        args = [
+            "--disable-web-security",
+            "--disable-site-isolation-trials",
+            "--disable-notifications",
+        ]
         if self.user_data_dir is None:
             browser = p.chromium.launch(
                 headless=self.headless,
-                args=[
-                    "--disable-web-security",
-                    "--disable-site-isolation-trials",
-                    "--disable-notifications",
-                ],
+                args=args,
             )
+            context = browser.new_context(user_agent=user_agent)
         else:
-            browser = p.chromium.launch_persistent_context(
+            context = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
-                args=[
-                    "--disable-web-security",
-                    "--disable-site-isolation-trials",
-                    "--disable-notifications",
-                ],
+                user_agent=user_agent,
+                args=args,
             )
 
-        context = browser.new_context(user_agent=user_agent)
         context.add_init_script(JS_SETUP_GET_EVENTS)
         page = context.new_page()
         self.page = page
@@ -158,7 +157,7 @@ class PlaywrightDriver(BaseDriver):
         elements = []
 
         data = json.loads(generated_code)
-        if not isinstance(data, Iterable):
+        if not isinstance(data, List):
             data = [data]
         for item in data:
             action_name = item["action"]["name"]
@@ -268,8 +267,13 @@ class PlaywrightDriver(BaseDriver):
     def scroll_down(self):
         self.execute_script("window.scrollBy(0, window.innerHeight);")
 
-    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
-        exe: Dict[str, List[str]] = self.execute_script(JS_GET_INTERACTIVES)
+    def get_possible_interactions(
+        self, in_viewport=True, foreground_only=True
+    ) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = self.execute_script(
+            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES,
+            foreground_only,
+        )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)

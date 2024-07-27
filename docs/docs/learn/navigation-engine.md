@@ -68,14 +68,12 @@ We see that the prompt is made up of three parts:
 
 - The `driver capability` or driver prompt template
 - The `context string`, or retrieved nodes
-- The `query` itself - this will be the original instruction received by the Navigation Engine after passing through the `rephrase_query` method which standardizes and optimizes instructions for the best AI Performance
+- The `query` itself - this will be the original instruction received by the Navigation Engine after passing through the `rephrase_query` method which standardizes and optimizes instruction for the best AI Performance
 
 We can see the default Selenium driver prompt template with the following code (or view the full code [here](https://github.com/lavague-ai/LaVague/blob/9764805bd756d15c83943baa968d35f979242314/lavague-integrations/drivers/lavague-drivers-selenium/lavague/drivers/selenium/base.py#L177)):
 
 ```python
-from lavague.drivers.selenium import SELENEIUM_PROMPT_TEMPLATE
-
-print(SELENIUM_PROMPT_TEMPLATE)
+print(nav_engine.prompt_template)
 ```
 ![Selenium prompt template](../../assets/selenium-driver-prompt-template.png)
 

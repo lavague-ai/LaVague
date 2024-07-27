@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "lavague-gradio"
 authors = ["lavague-ai"]
-version = "0.2.4"
+version = "0.2.5"
 description = "Gradio demo for lavague"
 license = "Apache-2.0"
 readme = "README.md"
@@ -25,5 +25,5 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.14"
-gradio = "4.26.0"
+lavague-core = "^0.2.27"
+gradio = "4.29.0"

@@ -1,8 +1,19 @@
-# pricing per 1 million tokens
-# Currency for the following models is in USD
+# Pricing table for common LLMs and text embedding models
+# Currency: USD
 models:
     gpt-4o:
+      token_ratio: 1000000.00
       input_tokens: 5.00
       output_tokens: 15.00
+    gpt-4o-mini:
+      token_ratio: 1000000.00
+      input_tokens: 0.15
+      output_tokens: 0.60
+    models/gemini-1.5-flash-001:
+      token_ratio: 1000000.00
+      input_tokens: 0.50
+      output_tokens: 1.50
+      token_multiplier: 1.15 # tokenizer usually yield a 15% increase for Gemini
     text-embedding-3-large:
+      token_ratio: 1000000.00
       input_tokens: 0.02

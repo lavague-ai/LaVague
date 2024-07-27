@@ -1,3 +1,4 @@
+import { json } from 'stream/consumers';
 import { operateToolWithXPATH } from './actions';
 import { DomActions } from './domactions';
 import { parseResponse } from './parseactions';
@@ -16,7 +17,11 @@ export class ChromeExtensionDriver {
         get_screenshot: () => this.takeScreenshot(),
         execute_script: (msg) => this.executeScript(msg.args),
         exec_code: (msg) => this.executeCode(msg.args),
+        highlight_elem: (msg) => this.highlight_elem(msg.args),
         is_visible: (msg) => this.isVisible(msg.args),
+        get_possible_interactions: (msg) => this.get_possible_interactions(),
+        get_tabs: (msg) => this.get_tabs(),
+        switch_tab: (msg) => this.switch_tab(msg.args),
     };
     onTabDebugged?: (tabId: number) => void;
     onCommand?: (command: string) => void;
@@ -49,7 +54,7 @@ export class ChromeExtensionDriver {
             if (tabId == null) {
                 resolve();
             } else {
-                chrome.debugger.attach({ tabId }, '1.3', () => {
+                chrome.debugger.attach({ tabId }, '1.3', async () => {
                     if (chrome.runtime.lastError) {
                         reject(chrome.runtime.lastError.message);
                     } else {
@@ -207,6 +212,50 @@ export class ChromeExtensionDriver {
         return true;
     }
 
+    async get_possible_interactions() {
+        const tabId = await this.getTabId();
+        if (tabId == null) {
+            return false;
+        }
+        const dom = new DomActions(tabId);
+        const res = await dom.get_possible_interactions();
+        return res;
+    }
+
+    async highlight_elem(xpath: string) {
+        const tabId = await this.getTabId();
+        if (tabId == null) {
+            return false;
+        }
+        const dom = new DomActions(tabId);
+        let res = await dom.highlight_elem(xpath);
+        const json_ret = JSON.stringify(res.result.value);
+        return json_ret;
+    }
+
+    async switch_tab(tab_id_str: string) {
+        console.log(tab_id_str);
+        const tab_id_num = Number(tab_id_str);
+        const tabId = await this.getTabId();
+        if (tabId == null) {
+            return false;
+        }
+        const dom = new DomActions(tabId);
+        await dom.switchToTab(tab_id_num);
+    }
+
+    async get_tabs() {
+        const tabId = await this.getTabId();
+        if (tabId == null) {
+            return false;
+        }
+        const dom = new DomActions(tabId);
+        const res = await dom.getOpenTabs();
+        const ret_json = JSON.stringify(res);
+        return ret_json;
+    }
+
+    // left for compatibility reasons
     async isVisible(xpath: string) {
         const combinedExpression = `
     (function() {

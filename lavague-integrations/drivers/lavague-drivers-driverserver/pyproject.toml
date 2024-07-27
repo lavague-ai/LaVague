@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-drivers-remote"
-version = "0.2.2"
+version = "0.2.5"
 description = "Remote driver execution for Lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -23,7 +23,7 @@ packages = [{include = "lavague/"}]
 python = "^3.10.0"
 lavague-core = "^0.2.0"
 websockets = "^11.0"
-lavague-server = "^0.0.2"
+lavague-server = "^0.0.3"
 
 [build-system]
 requires = ["poetry-core"]

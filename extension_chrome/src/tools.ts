@@ -1,9 +1,57 @@
+export async function copyToClipboard(text: string) {
+    await navigator.clipboard.writeText(text);
+}
+
 export async function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function truthyFilter<T>(value: T | null | undefined): value is T {
     return Boolean(value);
+}
+
+export function ripple(x: number, y: number) {
+    const rippleRadius = 30;
+    const ripple = document.createElement('div');
+    ripple.classList.add('web-agent-ripple');
+    ripple.style.width = ripple.style.height = `${rippleRadius * 2}px`;
+    // Take scroll position into account
+    ripple.style.top = `${window.scrollY + y - rippleRadius}px`;
+    ripple.style.left = `${x - rippleRadius}px`;
+
+    document.body.appendChild(ripple);
+
+    // remove after the animation to finish
+    // but we don't need to `await` it
+    sleep(800).then(() => {
+        ripple.remove();
+    });
+}
+
+function isInteractive(element: HTMLElement, style: CSSStyleDeclaration): boolean {
+    return (
+        element.tagName === 'A' ||
+        element.tagName === 'INPUT' ||
+        element.tagName === 'BUTTON' ||
+        element.tagName === 'SELECT' ||
+        element.tagName === 'TEXTAREA' ||
+        element.hasAttribute('onclick') ||
+        element.hasAttribute('onmousedown') ||
+        element.hasAttribute('onmouseup') ||
+        element.hasAttribute('onkeydown') ||
+        element.hasAttribute('onkeyup') ||
+        style.cursor === 'pointer'
+    );
+}
+
+function isVisible(element: HTMLElement, style: CSSStyleDeclaration): boolean {
+    return (
+        style.opacity !== '' &&
+        style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        style.opacity !== '0' &&
+        element.getAttribute('aria-hidden') !== 'true'
+    );
 }
 
 export function xpathToCss(xpath: string) {

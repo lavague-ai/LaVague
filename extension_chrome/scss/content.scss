@@ -39,18 +39,24 @@ html, #app {
   gap: 8px;
 
   .log {
-    border: 1px solid #ddf;
-    background: #fafaff;
-    padding: 4px 8px;
+    font-size: 16px;
+    background: #ebebeb;
+    padding: 14px 18px;
     border-radius: 16px;
     white-space: pre-wrap;
+    width: fit-content;
+    max-width: 90%;
 
     &.error {
-      background: #ffdada;
+      background: #ff9589;
     }
     &.userprompt {
-      background: #daffda;
+      background: #268bdd;
+      color: white;
+      font-weight: 600;
+      align-self: flex-end;
     }
+
   }
 }
 

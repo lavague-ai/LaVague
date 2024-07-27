@@ -15,31 +15,29 @@ On the left, you can see our agent navigating and highlighting the next elements
 
 After [installation](../get-started/quick-tour.md), create a new .py file and run this code to try LaVague with Notion!
 
-```py
-from lavague.core import WebAgent, WorldModel, ActionEngine
+```python
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
 from lavague.drivers.selenium import SeleniumDriver
 
 selenium_driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
 world_model = WorldModel()
 agent = WebAgent(world_model, action_engine)
-
 agent.get("https://form.jotform.com/241472287797370")
 
-instruction = """
-Fill out this form
-Data:
+data = """
 - job: product lead
-- name: john doe
+- first name: John
+- last name: Doe
 - email: john.doe@gmail.com
 - phone: 555-123-4567
 - cover letter: Excited to work with you!
 """
 
-agent.run(instruction)
+instruction = "Use the necessary data provided to fill in the form."
+agent.run(instruction, user_data=data)
 ```
-
-For now we suggest running this code in a Jupyter Notebook while we work on ways to improve the experience when running LaVague locally. 
 
 ## Tell us more about your use cases!
 
