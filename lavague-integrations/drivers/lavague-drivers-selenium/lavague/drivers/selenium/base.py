@@ -8,6 +8,7 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException,
     StaleElementReferenceException,
 )
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
@@ -264,8 +265,10 @@ driver.set_window_size({width}, {height} + height_difference)
                     self.set_value(args["xpath"], args["value"])
                 elif action_name == "setValueAndEnter":
                     self.set_value(args["xpath"], args["value"], True)
-                elif action_name == "wait":
-                    self.perform_wait(args["duration"])
+                elif action_name == "dropdownSelect":
+                    self.dropdown_select(args["xpath"], args["value"])
+                else:
+                    raise ValueError(f"Unknown action: {action_name}")
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
@@ -300,6 +303,12 @@ driver.set_window_size({width}, {height} + height_difference)
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
+        elem = self.resolve_xpath(xpath)
+
+        if elem.tag_name == "select":
+            # use the dropdown_select to set the value of a select
+            return self.dropdown_select(xpath, value)
+
         try:
             elem = self.resolve_xpath(xpath)
             elem.clear()
@@ -310,6 +319,15 @@ driver.set_window_size({width}, {height} + height_difference)
         ActionChains(self.driver).send_keys(value).perform()
         if enter:
             ActionChains(self.driver).send_keys(Keys.ENTER).perform()
+        self.driver.switch_to.default_content()
+
+    def dropdown_select(self, xpath: str, value: str):
+        element = self.resolve_xpath(xpath)
+        select = Select(element)
+        try:
+            select.select_by_value(value)
+        except NoSuchElementException:
+            select.select_by_visible_text(value)
         self.driver.switch_to.default_content()
 
     def perform_wait(self, duration: float):
@@ -450,6 +468,12 @@ Description: Focus on and set the value of an input element with a specific xpat
 Arguments:
   - xpath (string)
   - value (string)
+  
+Name: dropdownSelect
+Description: Select an option from a dropdown menu by its value
+Arguments:
+    - xpath (string)
+    - value (string)
 
 Name: setValueAndEnter
 Description: Like "setValue", except then it presses ENTER. Use this tool can submit the form when there's no "submit" button.
