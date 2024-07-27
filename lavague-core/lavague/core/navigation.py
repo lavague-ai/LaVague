@@ -496,7 +496,7 @@ class NavigationEngine(BaseEngine):
                     action = self.extractor.extract(response,action_shape_validator=self.action_shape_validator)
                 except Exception as e:
                     logging_print.error(f"Error extracting action: {e}")
-                    break
+                    continue
                 end = time.time()
                 action_generation_time = end - start
                 action_outcome = {
