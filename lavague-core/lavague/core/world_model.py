@@ -310,7 +310,8 @@ Only provide directly the desired output in the instruction in cases where there
 - If you see a dropdown, choose the right option to accomplish the objective. Do not take other actions until the dropdown is closed.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
 - If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.
-- If relevant information seems to be on another tab, use the Navigation Controls's command 'SWITCH_TAB' followed by the tab number to switch to the desired tab, such as 'SWITCH TAB 1'.
+- Switch tabs whenever a new one opens to check if it's relevant. Use the Navigation Controls's command 'SWITCH_TAB' followed by the tab number to switch to the desired tab, such as 'SWITCH TAB 1'.
+- Stick strictly to instructions on visible elements for the Navigation Engine. Do not make assumptions about the state of the page that are not visible in the screenshot.
 
 Here are previous examples:
 {examples}
