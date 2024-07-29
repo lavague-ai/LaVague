@@ -7,17 +7,20 @@ from llama_index.core import Document, VectorStoreIndex, QueryBundle
 from llama_index.core.schema import NodeWithScore, TextNode
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
+from llama_index.core.embeddings import BaseEmbedding
 from lavague.core.base_driver import BaseDriver, PossibleInteractionsByXpath
 from lavague.core.utilities.format_utils import clean_html
 import re
 import ast
 
 
-def get_default_retriever(driver: BaseDriver) -> BaseHtmlRetriever:
+def get_default_retriever(
+    driver: BaseDriver, embedding: Optional[BaseEmbedding] = None
+) -> BaseHtmlRetriever:
     return RetrieversPipeline(
         InteractiveXPathRetriever(driver),
         FromXPathNodesExpansionRetriever(),
-        SemanticRetriever(),
+        SemanticRetriever(embedding=embedding),
     )
 
 
@@ -463,11 +466,13 @@ class SemanticRetriever(BaseHtmlRetriever):
 
     def __init__(
         self,
+        embedding: Optional[BaseEmbedding],
         top_k: int = 5,
         xpathed_only=True,
     ):
         self.top_k = top_k
         self.xpathed_only = xpathed_only
+        self.embedding = embedding
 
     def retrieve(
         self, query: QueryBundle, html_chunks: List[str], viewport_only=True
@@ -484,7 +489,7 @@ class SemanticRetriever(BaseHtmlRetriever):
         if self.xpathed_only:
             nodes = filter_for_xpathed_nodes(nodes)
 
-        index = VectorStoreIndex(nodes=nodes)
+        index = VectorStoreIndex(nodes=nodes, embed_model=self.embedding)
         query_engine = index.as_retriever(similarity_top_k=self.top_k)
 
         retrieved_nodes = query_engine.retrieve(query)

@@ -21,6 +21,7 @@ from lavague.core.base_driver import BaseDriver
 from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
+from llama_index.core.embeddings import BaseEmbedding
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -121,6 +122,8 @@ class NavigationEngine(BaseEngine):
             Time between each action
         logger: (`AgentLogger`)
             Logger to log the actions taken by the agent
+        embedding: (`BaseEmbedding`)
+            Embedding to use for the retriever
     """
 
     def __init__(
@@ -136,13 +139,14 @@ class NavigationEngine(BaseEngine):
         logger: AgentLogger = None,
         display: bool = False,
         raise_on_error: bool = False,
+        embedding: BaseEmbedding = None,
     ):
         if llm is None:
             llm: BaseLLM = get_default_context().llm
         if rephraser is None:
             rephraser = Rephraser(llm)
         if retriever is None:
-            retriever = get_default_retriever(driver)
+            retriever = get_default_retriever(driver, embedding=embedding)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.rephraser = rephraser
