@@ -3,5 +3,5 @@ tasks:
     url: https://google.com
     prompt: "Go to LaVague.ai"
     expect:
-      - URL is https://lavague.ai
+      - URL is https://lavague.ai/
       - Status is success
