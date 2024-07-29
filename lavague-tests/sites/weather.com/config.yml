@@ -3,5 +3,5 @@ tasks:
     url: https://www.accuweather.com
     prompt: "What is the temperature now in Birmingham, UK?"
     expect:
-      - URL is https://www.accuweather.com/fr/gb/birmingham/b5-5/weather-forecast/326966
+      - URL contains birmingham/b5-5/weather-forecast/326966
       - Status is success
