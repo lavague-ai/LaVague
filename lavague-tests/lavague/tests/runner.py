@@ -5,6 +5,7 @@ from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.drivers.selenium.base import SeleniumDriver
 from lavague.core.token_counter import TokenCounter
+from lavague.core.utilities.pricing_util import build_summary_table
 from lavague.tests.config import Task, TestConfig, TaskTest
 from pandas import DataFrame
 import time
@@ -62,23 +63,38 @@ class RunnerResult:
     def __str__(self) -> str:
         successes = 0
         failures = 0
-        tokens_used = 0
-        tokens_cost = 0.0
         total_execution_time = 0.0
+
+        token_summary = {
+            "world_model_input_tokens": 0,
+            "world_model_output_tokens": 0,
+            "action_engine_input_tokens": 0,
+            "action_engine_output_tokens": 0,
+            "total_world_model_tokens": 0,
+            "total_action_engine_tokens": 0,
+            "total_embedding_tokens": 0,
+            "total_world_model_cost": 0.0,
+            "total_action_engine_cost": 0.0,
+            "total_embedding_cost": 0.0,
+            "total_step_tokens": 0,
+            "total_step_cost": 0.0,
+        }
 
         for r in self.results:
             for sr in r.results:
                 successes += len(sr.successes)
                 failures += len(sr.failures)
-                tokens_used += sr.dataframe["total_step_tokens"].sum()
-                tokens_cost += sr.dataframe["total_step_cost"].sum()
                 total_execution_time += sr.execution_time
+
+                for key in token_summary.keys():
+                    if key in sr.dataframe.columns:
+                        token_summary[key] += sr.dataframe[key].sum()
 
         total = successes + failures
         if total == 0:
             return "No tests run"
         summary = f"Result: {round(100 * successes / total)} % ({successes} / {total}) in {total_execution_time:.1f}s\n"
-        summary += f"Tokens: {tokens_used} ({tokens_cost:.4f} $)"
+        summary += build_summary_table(token_summary)
         return "\n".join(str(r) for r in self.results) + "\n" + summary
 
     def is_success(self) -> bool:
