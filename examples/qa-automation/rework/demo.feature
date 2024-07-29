@@ -1,14 +1,11 @@
-Feature: Add and remove a single product from cart
+Feature: Shipping cost calculator
 
-  Scenario: Add a product to cart
+  Scenario: Estimate shipping costs for a large package
     Given I am on the homepage
-    When I click "Accepter" to accept cookies
-    And I enter "Harry Potter et la Chambre des Secrets" into the search bar and press Enter
-    And I click on "Harry Potter et la Chambre des Secrets" in the search results
-    And I am on the product details page
-    And I click on the "Ajouter au panier" button
-    And I am taken to a confirmation page
-    And I click on "Aller au panier"
-    And I am taken to the cart page
-    And I remove the product from the cart by clicking on "Supprimer"
-    Then the cart should be empty
+    When I click on "J'accepte" to accept cookies
+    And I click on "Envoyer un colis"
+    And I click on the "Format du colis" dropdown under "Dimension"
+    And I click on "Volumineux & tube" from the dropdown results
+    And I enter 15 in the "Poids" field
+    And I wait for the cost to update
+    Then the cost should be "34,70 €"
