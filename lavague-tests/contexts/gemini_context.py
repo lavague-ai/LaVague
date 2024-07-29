@@ -7,4 +7,4 @@ from llama_index.multi_modal_llms.gemini import GeminiMultiModal
 token_counter = TokenCounter()
 
 # init context
-gemini_context = GeminiContext()
+context = GeminiContext()
