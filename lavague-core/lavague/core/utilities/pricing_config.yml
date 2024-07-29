@@ -40,3 +40,10 @@ models:
       token_ratio: 1000000.00
       input_tokens: 3.00
       output_tokens: 15.00
+    text-embedding-ada-002:
+      token_ratio: 1000000.00
+      input_tokens: 0.10
+    claude-3-haiku:
+      token_ratio: 1000000.00
+      input_tokens: 0.25
+      output_tokens: 1.25
