@@ -37,18 +37,18 @@ def accept_cookies(browser):
     except ElementClickInterceptedException:
         pytest.fail("Failed to accept cookies")
 
-@when(parsers.parse('I enter "{product}" into the search bar and press Enter'))
-def search_product(browser, product):
+@when(parsers.parse('I enter "{product_name}" into the search bar and press Enter'))
+def search_product(browser, product_name):
     search_bar = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((By.XPATH, "/html/body/div/header/div/div/div[2]/div/form/div[3]/div/input"))
     )
-    search_bar.send_keys(product)
+    search_bar.send_keys(product_name)
     search_bar.submit()
 
 @when('I click on the first product in the search results')
 def click_first_product(browser):
     first_product = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/div/span/div/div[3]/div/div/span/div/div/div[2]/div/h2/a"))
+        EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/div/span/div/div[2]/div/div/span/div/div/div[2]/div/h2/a"))
     )
     try:
         browser.execute_script("arguments[0].click();", first_product)
@@ -67,7 +67,7 @@ def add_to_cart(browser):
 
 @when('I the confirmation message has been displayed')
 def wait_for_confirmation(browser):
-    time.sleep(3)  # Wait for the confirmation message to be displayed
+    time.sleep(3)
 
 @when('I click on "Aller au panier" under "Passer la commande"')
 def go_to_cart(browser):
