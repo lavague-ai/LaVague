@@ -9,7 +9,7 @@ models:
       token_ratio: 1000000.00
       input_tokens: 0.15
       output_tokens: 0.60
-    models/gemini-1.5-flash-001:
+    models/gemini-1.5-flash-latest:
       token_ratio: 1000000.00
       input_tokens: 0.35
       output_tokens: 1.05
