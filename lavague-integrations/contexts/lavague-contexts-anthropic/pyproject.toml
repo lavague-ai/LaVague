@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-contexts-anthropic"
-version = "0.1.1"
+version = "0.1.2"
 description = "anthropic integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
