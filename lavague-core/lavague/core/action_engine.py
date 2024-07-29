@@ -12,6 +12,7 @@ from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.navigation import NAVIGATION_ENGINE_PROMPT_TEMPLATE
 from lavague.core.navigation import NavigationControl, NavigationEngine
 from lavague.core.python_engine import PythonEngine
+from lavague.core.utilities.model_utils import get_model_name
 
 
 class ActionEngine:
@@ -223,3 +224,9 @@ class ActionEngine:
 
         next_engine = self.engines[next_engine_name]
         return next_engine.execute_instruction(instruction)
+
+    def get_llm_name(self):
+        return get_model_name(self.python_engine.llm)
+
+    def get_embedding_name(self):
+        return get_model_name(self.python_engine.embedding)
