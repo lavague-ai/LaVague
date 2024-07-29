@@ -26,76 +26,75 @@ def browser():
 @given('I am on the homepage')
 def go_to_homepage(browser):
     browser.get(BASE_URL)
-    WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "body"))
-    )
 
 @when('I click "Accepter" to accept cookies')
-def click_accept_cookies(browser):
-    button = WebDriverWait(browser, 10).until(
+def accept_cookies(browser):
+    accept_button = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable((By.XPATH, "/html/body/div/span/form/div[2]/span/span/input"))
     )
     try:
-        browser.execute_script("arguments[0].click();", button)
+        browser.execute_script("arguments[0].click();", accept_button)
     except ElementClickInterceptedException:
-        pytest.fail("Failed to click the 'Accepter' button")
+        pytest.fail("Failed to accept cookies")
 
-@when(parsers.parse('I enter "{search_text}" into the search bar and press Enter'))
-def enter_search_text(browser, search_text):
+@when(parsers.parse('I enter "{product}" into the search bar and press Enter'))
+def search_product(browser, product):
     search_bar = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located((By.XPATH, "/html/body/div/header/div/div/div[2]/div/form/div[3]/div/input"))
     )
-    search_bar.clear()
-    search_bar.send_keys(search_text)
+    search_bar.send_keys(product)
     search_bar.submit()
 
-@when('I click on the first book in the search results')
-def click_first_book(browser):
-    first_book = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/div/span/div/div[4]/div/div/span/div/div/div/span/a/div"))
+@when('I click on the first product in the search results')
+def click_first_product(browser):
+    first_product = WebDriverWait(browser, 10).until(
+        EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/div/span/div/div[3]/div/div/span/div/div/div[2]/div/h2/a"))
     )
     try:
-        browser.execute_script("arguments[0].click();", first_book)
+        browser.execute_script("arguments[0].click();", first_product)
     except ElementClickInterceptedException:
-        pytest.fail("Failed to click the first book in the search results")
+        pytest.fail("Failed to click on the first product")
 
 @when('I click on the "Ajouter au panier" button')
-def click_add_to_cart(browser):
+def add_to_cart(browser):
     add_to_cart_button = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div[4]/div/div[5]/div[4]/div[4]/div/div/div/div/div/div/div/div/div/div/div/div/div[2]/div/form/div/div/div[23]/div/span/span/span/input"))
     )
     try:
         browser.execute_script("arguments[0].click();", add_to_cart_button)
     except ElementClickInterceptedException:
-        pytest.fail("Failed to click the 'Ajouter au panier' button")
+        pytest.fail("Failed to add product to cart")
+
+@when('I the confirmation message has been displayed')
+def wait_for_confirmation(browser):
+    time.sleep(3)  # Wait for the confirmation message to be displayed
 
 @when('I click on "Aller au panier" under "Passer la commande"')
-def click_go_to_cart(browser):
+def go_to_cart(browser):
     go_to_cart_button = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/div[2]/div/div[3]/div/div/span/span/a"))
     )
     try:
         browser.execute_script("arguments[0].click();", go_to_cart_button)
     except ElementClickInterceptedException:
-        pytest.fail("Failed to click the 'Aller au panier' button")
+        pytest.fail("Failed to go to cart")
 
 @when('I click on "Supprimer" from the cart page')
-def click_remove_from_cart(browser):
+def remove_from_cart(browser):
     remove_button = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div[3]/div[5]/div/div[2]/div/div/form/div[2]/div[3]/div[4]/div/div[2]/div/span[2]/span/input"))
     )
     try:
         browser.execute_script("arguments[0].click();", remove_button)
     except ElementClickInterceptedException:
-        pytest.fail("Failed to click the 'Supprimer' button")
+        pytest.fail("Failed to remove product from cart")
 
 @then('the cart should be empty')
-def verify_cart_is_empty(browser):
+def verify_cart_empty(browser):
     try:
-        time.sleep(3)
         empty_cart_message = WebDriverWait(browser, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Votre panier Amazon est vide.')]"))
+            EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'Votre panier Amazon est vide.')]"))
         )
-        assert empty_cart_message.is_displayed(), "The cart is not empty"
+        assert empty_cart_message.is_displayed(), "Cart is not empty"
     except Exception as e:
-        pytest.fail(f"Failed to verify that the cart is empty: {str(e)}")
+        pytest.fail(f"Failed to verify cart is empty: {str(e)}")
