@@ -9,7 +9,7 @@ models:
       token_ratio: 1000000.00
       input_tokens: 0.15
       output_tokens: 0.60
-    models/gemini-1.5-flash-001:
+    models/gemini-1.5-flash-latest:
       token_ratio: 1000000.00
       input_tokens: 0.35
       output_tokens: 1.05
@@ -25,7 +25,7 @@ models:
     text-embedding-3-small:
       token_ratio: 1000000.00
       input_tokens: 0.02
-    models/llama-v3p1-70b-instruct:
+    accounts/fireworks/models/llama-v3p1-70b-instruct:
       token_ratio: 1000000.00
       input_tokens: 3.00
       output_tokens: 3.00
