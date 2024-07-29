@@ -66,7 +66,7 @@ class ActionEngine:
         self.driver = driver
 
         if retriever is None:
-            retriever = get_default_retriever(driver)
+            retriever = get_default_retriever(driver, embedding=embedding)
 
         if navigation_engine is None:
             navigation_engine = NavigationEngine(
@@ -78,6 +78,7 @@ class ActionEngine:
                 time_between_actions=time_between_actions,
                 n_attempts=n_attempts,
                 logger=logger,
+                embedding=embedding,
             )
         if python_engine is None:
             python_engine = PythonEngine(driver, llm, embedding)
