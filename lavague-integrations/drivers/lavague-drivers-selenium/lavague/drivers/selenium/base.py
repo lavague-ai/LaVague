@@ -21,7 +21,10 @@ from lavague.core.base_driver import (
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
-from lavague.core.utilities.format_utils import extract_code_from_funct
+from lavague.core.utilities.format_utils import (
+    extract_code_from_funct,
+    quote_numeric_yaml_values,
+)
 from selenium.webdriver.common.action_chains import ActionChains
 import yaml
 
@@ -173,6 +176,9 @@ driver.set_window_size({width}, {height} + height_difference)
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
+        # Ensures that numeric values are quoted
+        generated_code = quote_numeric_yaml_values(generated_code)
+
         data = yaml.safe_load(generated_code)
         if not isinstance(data, List):
             data = [data]
@@ -251,6 +257,9 @@ driver.set_window_size({width}, {height} + height_difference)
         globals: dict[str, Any] = None,
         locals: Mapping[str, object] = None,
     ):
+        # Ensures that numeric values are quoted to avoid issues with YAML parsing
+        code = quote_numeric_yaml_values(code)
+
         data = yaml.safe_load(code)
         if not isinstance(data, List):
             data = [data]
@@ -267,6 +276,8 @@ driver.set_window_size({width}, {height} + height_difference)
                     self.set_value(args["xpath"], args["value"], True)
                 elif action_name == "dropdownSelect":
                     self.dropdown_select(args["xpath"], args["value"])
+                elif action_name == "fail":
+                    raise Exception("Action generation failed. Reason: ", args["value"])
                 else:
                     raise ValueError(f"Unknown action: {action_name}")
 
@@ -484,7 +495,8 @@ Arguments:
 Name: fail
 Description: Indicate that you are unable to complete the task and explain why.
 Arguments:
-  - value (string)
+  - xpath (string): Always set to an empty string
+  - value (string): Detailled explanation of why the task cannot be completed
 
 Here are examples of previous answers:
 HTML:
