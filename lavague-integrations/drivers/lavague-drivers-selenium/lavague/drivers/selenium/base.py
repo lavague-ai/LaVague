@@ -21,7 +21,10 @@ from lavague.core.base_driver import (
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
-from lavague.core.utilities.format_utils import extract_code_from_funct, quote_numeric_yaml_values
+from lavague.core.utilities.format_utils import (
+    extract_code_from_funct,
+    quote_numeric_yaml_values,
+)
 from selenium.webdriver.common.action_chains import ActionChains
 import yaml
 
@@ -175,7 +178,7 @@ driver.set_window_size({width}, {height} + height_difference)
 
         # Ensures that numeric values are quoted
         generated_code = quote_numeric_yaml_values(generated_code)
-        
+
         data = yaml.safe_load(generated_code)
         if not isinstance(data, List):
             data = [data]
@@ -256,7 +259,7 @@ driver.set_window_size({width}, {height} + height_difference)
     ):
         # Ensures that numeric values are quoted to avoid issues with YAML parsing
         code = quote_numeric_yaml_values(code)
-        
+
         data = yaml.safe_load(code)
         if not isinstance(data, List):
             data = [data]

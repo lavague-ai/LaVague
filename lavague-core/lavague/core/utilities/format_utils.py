@@ -24,13 +24,15 @@ class VariableVisitor(ast.NodeVisitor):
             if isinstance(target, ast.Name):  # Ensure it's a variable assignment
                 self.output.append(target.id)
 
+
 def quote_numeric_yaml_values(yaml_string):
     """Wrap numeric values in quotes in a YAML string.
-    
+
     This is helpful when the YAML might contain numeric values that are not wrapped in quotes which can cause issues when parsing the YAML.
     In Navigation Engine, we expect values to be always strings, so this avoids issues when the YAML does not wrap numeric values in quotes, such as outputting "value: 01" instead of "value: '01'".
-    
+
     """
+
     def replace_value(match):
         full_match, value = match.groups()
         try:
@@ -42,13 +44,14 @@ def quote_numeric_yaml_values(yaml_string):
             # If it's not a number, return the original match
             return full_match
 
-    # Regex to match 'value:' followed by a space and then any non-space characters
-    pattern = r'(value: (\S+))'
-    
+    # Regex to match 'value:' followed by a space and then any numeric
+    pattern = r"(value: ([\d.]+))"
+
     # Replace values that are numeric
     modified_yaml = re.sub(pattern, replace_value, yaml_string)
-    
+
     return modified_yaml
+
 
 def return_assigned_variables(code_snippet):
     """Returns the variables assigned in a code snippet."""
