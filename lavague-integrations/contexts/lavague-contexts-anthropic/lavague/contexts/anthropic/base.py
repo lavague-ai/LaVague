@@ -10,8 +10,8 @@ class AnthropicContext(Context):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        llm: str = "claude-3-opus-20240229",
-        mm_llm: str = "claude-3-opus-20240229",
+        llm: str = "claude-3-5-sonnet-20240620",
+        mm_llm: str = "claude-3-5-sonnet-20240620",
         embedding: str = "text-embedding-3-small",
     ) -> Context:
         if api_key is None:

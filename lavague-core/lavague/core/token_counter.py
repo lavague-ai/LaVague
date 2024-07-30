@@ -72,6 +72,9 @@ class TokenCounter:
             self.embedding_token_counter is not None
             and self.mm_llm_token_counter is not None
         ):
+            mm_llm_name = world_model.get_mm_llm_name()
+            llm_name = action_engine.get_llm_name()
+            embedding_name = action_engine.get_embedding_name()
             # deduplicate and split llm events into world model and action engine events
             deduplicated_events = deduplicate_events(
                 self.mm_llm_token_counter.llm_token_counts
@@ -82,10 +85,10 @@ class TokenCounter:
 
             # compute llm token counts for each models
             WM_input_tokens, WM_output_tokens, WM_total_tokens = self.count_tokens(
-                world_model_events, world_model.mm_llm.model
+                world_model_events, mm_llm_name
             )
             AE_input_tokens, AE_output_tokens, AE_total_tokens = self.count_tokens(
-                action_engine_events, action_engine.navigation_engine.llm.model
+                action_engine_events, llm_name
             )
 
             # compute embedding token counts
@@ -111,17 +114,17 @@ class TokenCounter:
 
             # compute llm and embedding token costs
             WM_input_cost, WM_output_cost, WM_total_cost = self.calculate_llm_pricing(
-                WM_input_tokens, WM_output_tokens, world_model.mm_llm.model
+                WM_input_tokens, WM_output_tokens, mm_llm_name
             )
             AE_input_cost, AE_output_cost, AE_total_cost = self.calculate_llm_pricing(
                 AE_input_tokens,
                 AE_output_tokens,
-                action_engine.navigation_engine.llm.model,
+                llm_name,
             )
 
             total_embedding_cost = self.calculate_embedding_pricing(
                 embedding_total_tokens,
-                action_engine.python_engine.embedding.model_name,
+                embedding_name,
             )
             total_step_cost = WM_total_cost + AE_total_cost + total_embedding_cost
 

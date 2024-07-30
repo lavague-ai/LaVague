@@ -21,6 +21,7 @@ from lavague.core.base_driver import BaseDriver
 from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
+from llama_index.core.embeddings import BaseEmbedding
 
 
 # JSON schema for the action shape 
@@ -143,6 +144,8 @@ class NavigationEngine(BaseEngine):
             Time between each action
         logger: (`AgentLogger`)
             Logger to log the actions taken by the agent
+        embedding: (`BaseEmbedding`)
+            Embedding to use for the retriever
     """
 
     def __init__(
@@ -158,13 +161,14 @@ class NavigationEngine(BaseEngine):
         logger: AgentLogger = None,
         display: bool = False,
         raise_on_error: bool = False,
+        embedding: BaseEmbedding = None,
     ):
         if llm is None:
             llm: BaseLLM = get_default_context().llm
         if rephraser is None:
             rephraser = Rephraser(llm)
         if retriever is None:
-            retriever = get_default_retriever(driver)
+            retriever = get_default_retriever(driver, embedding=embedding)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
         self.rephraser = rephraser
@@ -393,6 +397,7 @@ class NavigationEngine(BaseEngine):
                     raise e
 
             action_outcomes.append(action_outcome)
+            self.driver.wait_for_idle()
 
         navigation_log["action_outcomes"] = action_outcomes
         navigation_log["action_nb"] = action_nb
@@ -533,6 +538,7 @@ class NavigationEngine(BaseEngine):
                     raise e
 
             action_outcomes.append(action_outcome)
+            self.driver.wait_for_idle()
 
         navigation_log["action_outcomes"] = action_outcomes
         navigation_log["action_nb"] = action_nb
@@ -631,6 +637,8 @@ class NavigationControl(BaseEngine):
                 "code": code,
             }
             logger.add_log(log)
+
+        self.driver.wait_for_idle()
 
         return ActionResult(
             instruction=instruction, code=code, success=success, output=None

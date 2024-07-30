@@ -8,6 +8,7 @@ from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 from functools import lru_cache
 from PIL import Image
+from lavague.core.utilities.model_utils import get_model_name
 import time
 import yaml
 
@@ -425,3 +426,6 @@ class WorldModel(ABC, Loggable):
             logger.add_log(log)
 
         return mm_llm_output
+
+    def get_mm_llm_name(self):
+        return get_model_name(self.mm_llm)
