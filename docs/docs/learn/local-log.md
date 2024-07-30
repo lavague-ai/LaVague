@@ -105,16 +105,17 @@ Next let's look at the nodes, or HTML components, collected by our retriever for
 
 The nodes sent to our Navigation Engine's LLM for each attempt to generate code for an action are stored in the `engine_log` column of our log.
 
-In some cases, the Navigation Engine's work may be broken down into multiple sub-instructions by our `Rephraser`, so this is why we have an additional index before getting our `retrieved_html` information.
+> Note, due to an on-going migration from a legacy feature, when accessing the engine log, we still need to index into 0 to access data relating to the first instruction - as previously instructions could be split into multiple parts.
 
 ```python
 # Print the code generated for step 0 of our run
 attempt = 0
 from IPython.display import display, HTML, Code
 
-# An instruction can be split into sub-instructions by the rephraser, but in this case there is just one instruction
-sub_instruction = 0
 x = 0
+
+# sub instruction index - to be removed in the future 
+sub_instruction = 0
 for node in df_logs.at[attempt, 'engine_log'][sub_instruction]['retrieved_html']:
     print(f"node {x}")
     x = x + 1
