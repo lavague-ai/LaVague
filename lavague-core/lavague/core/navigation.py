@@ -312,6 +312,7 @@ class NavigationEngine(BaseEngine):
                     raise e
 
             action_outcomes.append(action_outcome)
+            self.driver.wait_for_idle()
 
         navigation_log["action_outcomes"] = action_outcomes
         navigation_log["action_nb"] = action_nb
@@ -445,6 +446,7 @@ class NavigationEngine(BaseEngine):
                     raise e
 
             action_outcomes.append(action_outcome)
+            self.driver.wait_for_idle()
 
         navigation_log["action_outcomes"] = action_outcomes
         navigation_log["action_nb"] = action_nb
@@ -543,6 +545,8 @@ class NavigationControl(BaseEngine):
                 "code": code,
             }
             logger.add_log(log)
+
+        self.driver.wait_for_idle()
 
         return ActionResult(
             instruction=instruction, code=code, success=success, output=None

@@ -277,6 +277,9 @@ class BaseDriver(ABC):
 
         time.sleep(duration)
 
+    def wait_for_idle(self):
+        pass
+
     def get_current_screenshot_folder(self) -> Path:
         url = self.get_url()
         screenshots_path = Path("./screenshots")
@@ -519,3 +522,35 @@ return Object.fromEntries(Object.entries("""
 }));
 """
 )
+
+JS_WAIT_DOM_IDLE = """
+return new Promise(resolve => {
+    const timeout = arguments[0] || 10000;
+    const stabilityThreshold = arguments[1] || 100;
+
+    let mutationObserver;
+    let timeoutId = null;
+
+    const waitForIdle = () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => resolve(true), stabilityThreshold);
+    };
+    mutationObserver = new MutationObserver(waitForIdle);
+    mutationObserver.observe(document.body, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+    });
+    waitForIdle();
+
+    setTimeout(() => {
+        resolve(false);
+        mutationObserver.disconnect();
+        mutationObserver = null;
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+        }
+    }, timeout);
+});
+"""

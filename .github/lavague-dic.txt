@@ -165,3 +165,6 @@ os
 HtmlRetriever
 df
 matplotlib
+anthropic
+pypi
+yml

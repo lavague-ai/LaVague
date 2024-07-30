@@ -58,6 +58,7 @@ For an end-to-end example of LaVague in a Google Colab, see our [quick-tour note
 
 - ✅ [Built-in Contexts](https://docs.lavague.ai/en/latest/docs/get-started/customization/) (aka. configurations)
 - ✅ [Customizable configuration](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
+- ✅ [A test runner](https://docs.lavague.ai/en/latest/docs/learn/testing/) for testing and benchmarking the performance of LaVague
 - ✅ A [Token Counter](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) for estimating token usage and costs
 - ✅ [Logging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
 - ✅ An optional, interactive [Gradio interface](https://docs.lavague.ai/en/latest/docs/get-started/gradio/)

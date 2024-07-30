@@ -121,11 +121,17 @@ agent.run("What is this week's top Space of the week?")
 
 For more information about our Contexts, see our [customization guide](./customization.md).
 
+### Lavague-tests
+
+We provide a test runner for benchmarking the performance of LaVague.
+
+For more information on how to use our test runner, see our [LaVague testing guide](https://docs.lavague.ai/en/latest/docs/learn/testing/).
+
 ### TokenCounter
 
 We provide tooling to get token usage and cost estimations about your usage of LaVague.
 
-For more information about our TokenCounter, see our [TokenCounter guide](./token-usage.md).
+For more information about our TokenCounter, see our [TokenCounter guide](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/).
 
 ### Logging
 
