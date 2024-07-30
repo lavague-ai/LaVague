@@ -63,13 +63,13 @@ lavague-test -s amazon.com -s youtube.com
 
 ### Testing LaVague with a built-in context
 
-We provide the following configuration files for running your tests with alternative built-in cofigurations:
+We provide the following configuration files for running your tests with alternative built-in configurations:
 
 - For testing with `Anthropic's Claude 3.5 Sonnet`: lavague-tests/contexts/anthropic_context.py
 - For testing with ` Llama3.1 405B via the Fireworks API`: lavague-tests/contexts/fireworks_context.py
 - For testing with `Gemini`: lavague-tests/contexts/gemini_context.py
 
-You can provide these config files as an argument to our `lavague-test` command to run tests with tese built-in configuration files:
+You can provide these config files as an argument to our `lavague-test` command to run tests with these built-in configuration files:
 
 ```bash
 lavague-test-c lavague-tests/contexts/anthropic_context.py
@@ -120,7 +120,7 @@ tasks:
   - name: Name                    # Optional display name
     max_steps: 5                  # to override global value
     n_attempts: 1                 # to override global value
-    url: https://example.com      # the intial task URL
+    url: https://example.com      # the initial task URL
     prompt: Prompt for the agent  # the agent prompt
     expect:                       # the list of tests to perform on task completion, see below for details
       - <property> <operator> <value>
