@@ -523,30 +523,34 @@ return Object.fromEntries(Object.entries("""
 """
 )
 
-JS_SETUP_ACTIVE_REQUESTS = """
-(function() {
-    window.pendingRequests = 0;
+JS_WAIT_DOM_IDLE = """
+return new Promise(resolve => {
+    const timeout = arguments[0] || 10000;
+    const stabilityThreshold = arguments[1] || 200;
 
-    const originalXHROpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function() {
-        pendingRequests++;
-        this.addEventListener('readystatechange', function() {
-            if (this.readyState === 4) {
-                pendingRequests--;
-            }
-        });
-        originalXHROpen.apply(this, arguments);
+    let mutationObserver;
+    let timeoutId = null;
+
+    const waitForIdle = () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => resolve(true), stabilityThreshold);
     };
+    mutationObserver = new MutationObserver(waitForIdle);
+    mutationObserver.observe(document.body, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+    });
+    waitForIdle();
 
-    const originalFetch = window.fetch;
-    window.fetch = function() {
-        pendingRequests++;
-        return originalFetch.apply(this, arguments).finally(() => pendingRequests--);
-    };
-
-})();
+    setTimeout(() => {
+        resolve(false);
+        mutationObserver.disconnect();
+        mutationObserver = null;
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+        }
+    }, timeout);
+});
 """
-
-JS_GET_ACTIVE_REQUESTS = (
-    "return document.readyState === 'complete' ? window.pendingRequests ?? 0 : 1;"
-)

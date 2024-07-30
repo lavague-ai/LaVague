@@ -83,6 +83,7 @@ class WebAgent:
 
     def get(self, url):
         self.driver.get(url)
+        self.driver.wait_for_idle()
         self.result.code += self.driver.code_for_get(url) + "\n"
 
     def demo(

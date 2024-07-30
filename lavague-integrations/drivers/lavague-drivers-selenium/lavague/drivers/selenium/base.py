@@ -8,12 +8,13 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException,
     StaleElementReferenceException,
 )
-from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     JS_GET_INTERACTIVES_IN_VIEWPORT,
+    JS_WAIT_DOM_IDLE,
     PossibleInteractionsByXpath,
     InteractionType,
     DOMNode,
@@ -26,7 +27,9 @@ from lavague.core.utilities.format_utils import (
     quote_numeric_yaml_values,
 )
 from selenium.webdriver.common.action_chains import ActionChains
+import time
 import yaml
+import json
 
 
 class SeleniumDriver(BaseDriver):
@@ -43,6 +46,7 @@ class SeleniumDriver(BaseDriver):
         no_load_strategy: bool = False,
         options: Optional[Options] = None,
         driver: Optional[WebDriver] = None,
+        log_waiting_time=False,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -51,6 +55,7 @@ class SeleniumDriver(BaseDriver):
         self.no_load_strategy = no_load_strategy
         self.options = options
         self.driver = driver
+        self.log_waiting_time = log_waiting_time
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -82,6 +87,7 @@ class SeleniumDriver(BaseDriver):
         chrome_options.add_argument("--disable-web-security")
         chrome_options.add_argument("--disable-site-isolation-trials")
         chrome_options.add_argument("--disable-notifications")
+        chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
 
         if self.driver is None:
             self.driver = webdriver.Chrome(options=chrome_options)
@@ -345,6 +351,47 @@ driver.set_window_size({width}, {height} + height_difference)
         import time
 
         time.sleep(duration)
+
+    def is_idle(self):
+        active = 0
+        logs = self.driver.get_log("performance")
+        active = 0
+        request_ids = set()
+        for log in logs:
+            log_json = json.loads(log["message"])["message"]
+            method = log_json["method"]
+            if method == "Network.requestWillBeSent":
+                request_ids.add(log_json["params"]["requestId"])
+            elif method in ("Network.loadingFinished", "Network.loadingFailed"):
+                request_ids.discard(log_json["params"]["requestId"])
+            elif method in ("Page.frameStartedLoading", "Browser.downloadWillBegin"):
+                active += 1
+            elif method == "Page.frameStoppedLoading":
+                active -= 1
+            elif method == "Browser.downloadProgress" and log_json["params"][
+                "state"
+            ] in (
+                "completed",
+                "canceled",
+            ):
+                active -= 1
+
+        return len(request_ids) == 0 and active <= 0
+
+    def wait_for_dom_stable(self, timeout=10):
+        self.driver.execute_script(JS_WAIT_DOM_IDLE, round(timeout * 1000))
+
+    def wait_for_idle(self, timeout=20):
+        t = time.time()
+        WebDriverWait(self.driver, timeout).until(lambda d: self.is_idle())
+        elapsed = time.time() - t
+        self.wait_for_dom_stable(timeout - elapsed)
+
+        total_elapsed = time.time() - t
+        if self.log_waiting_time or total_elapsed > 10:
+            print(
+                f"Waited {total_elapsed}s for browser being idle ({elapsed} for network + {total_elapsed - elapsed} for DOM)"
+            )
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
