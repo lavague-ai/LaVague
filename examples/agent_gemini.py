@@ -5,7 +5,7 @@ from lavague.contexts.openai import OpenaiContext
 from lavague.contexts.gemini import GeminiContext
 
 context = GeminiContext()
-selenium_driver = SeleniumDriver(headless=False)
+selenium_driver = SeleniumDriver(headless=True)
 world_model = WorldModel.from_context(context=context)
 action_engine = ActionEngine.from_context(context, selenium_driver)
 agent = WebAgent(world_model, action_engine)
