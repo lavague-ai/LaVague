@@ -277,6 +277,9 @@ class BaseDriver(ABC):
 
         time.sleep(duration)
 
+    def wait_for_idle(self, timeout: float = 20):
+        pass
+
     def get_current_screenshot_folder(self) -> Path:
         url = self.get_url()
         screenshots_path = Path("./screenshots")
@@ -518,4 +521,32 @@ return Object.fromEntries(Object.entries("""
     return false;
 }));
 """
+)
+
+JS_SETUP_ACTIVE_REQUESTS = """
+(function() {
+    window.pendingRequests = 0;
+
+    const originalXHROpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function() {
+        pendingRequests++;
+        this.addEventListener('readystatechange', function() {
+            if (this.readyState === 4) {
+                pendingRequests--;
+            }
+        });
+        originalXHROpen.apply(this, arguments);
+    };
+
+    const originalFetch = window.fetch;
+    window.fetch = function() {
+        pendingRequests++;
+        return originalFetch.apply(this, arguments).finally(() => pendingRequests--);
+    };
+
+})();
+"""
+
+JS_GET_ACTIVE_REQUESTS = (
+    "return document.readyState === 'complete' ? window.pendingRequests ?? 0 : 1;"
 )
