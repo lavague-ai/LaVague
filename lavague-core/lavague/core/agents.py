@@ -99,7 +99,7 @@ class WebAgent:
         except ImportError:
             raise ImportError(
                 "`lavague-gradio` package not found, "
-                "please run `pip install lavague-contexts-gradio`"
+                "please run `pip install lavague-gradio`"
             )
 
     def _run_demo(
