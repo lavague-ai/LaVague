@@ -440,9 +440,13 @@ return (function() {
           ) {
             evts.push('TYPE');
         }
-        if (tag === 'a' || tag === 'button' || role === 'button' || role === 'checkbox' || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup')
-          || hasEvent('dblclick') || style.cursor === 'pointer' || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')) )
-          || e.hasAttribute('aria-haspopup') || tag === 'select' || role === 'select') {
+        if (['a', 'button', 'select'].includes(tag) || ['button', 'checkbox', 'select'].includes(role)
+            || hasEvent('click') || hasEvent('mousedown') || hasEvent('mouseup') || hasEvent('dblclick')
+            || style.cursor === 'pointer'
+            || e.hasAttribute('aria-haspopup')
+            || (tag === 'input' && clickableInputs.includes(e.getAttribute('type')))
+            || (tag === 'label' && document.getElementById(e.getAttribute('for')))
+        ) {
             evts.push('CLICK');
         }
         return evts;
