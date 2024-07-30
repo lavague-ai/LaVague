@@ -43,7 +43,7 @@ wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/TheWaveM
 
 #### Running the evaluator
 
-In this section, we will will use the Evaulator to compare our default `OpsmSplitRetriever` against our legacy `BM25HTMLRetriever`.
+In this section, we will will use the Evaluator to compare our default `OpsmSplitRetriever` against our legacy `BM25HTMLRetriever`.
 
 We will first need to get a Panda's Dataframe containing our dataset:
 

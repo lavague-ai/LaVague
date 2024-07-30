@@ -236,7 +236,7 @@ class LLMEvaluator(Evaluator):
                 for retry in range(max_retry):
                     start_time = time()
                     generated_code = navigation_engine.get_action_from_context(
-                        decontaminated_context_str, row["llm_query"]
+                        decontaminated_context_str, row["query"]
                     )
                     duration = time() - start_time
                     try:
