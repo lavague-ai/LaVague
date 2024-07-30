@@ -4,8 +4,6 @@ from typing import List, Optional
 from lavague.core.agents import WebAgent
 import gradio as gr
 from PIL import Image
-from gradio import ChatMessage
-
 
 class GradioAgentDemo:
     """
@@ -103,7 +101,7 @@ class GradioAgentDemo:
         def process_instructions_impl(
             objective, url_input, image_display, instructions_history, history
         ):
-            msg = ChatMessage(role="assistant", content="⏳ Thinking of next steps...")
+            msg = gr.ChatMessage(role="assistant", content="⏳ Thinking of next steps...")
             history.append(msg)
             yield objective, url_input, image_display, instructions_history, history
             self.agent.action_engine.set_gradio_mode_all(
