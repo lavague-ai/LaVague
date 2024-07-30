@@ -9,9 +9,11 @@ from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     JS_GET_INTERACTIVES_IN_VIEWPORT,
+    JS_WAIT_DOM_IDLE,
     PossibleInteractionsByXpath,
     InteractionType,
 )
+import time
 
 
 class PlaywrightDriver(BaseDriver):
@@ -25,6 +27,8 @@ class PlaywrightDriver(BaseDriver):
         width: int = 1080,
         height: int = 1080,
         user_data_dir: Optional[str] = None,
+        log_waiting_time=False,
+        waiting_completion_timeout=10,
     ):
         os.environ["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = (
             "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
@@ -33,6 +37,8 @@ class PlaywrightDriver(BaseDriver):
         self.user_data_dir = user_data_dir
         self.width = width
         self.height = height
+        self.log_waiting_time = log_waiting_time
+        self.waiting_completion_timeout = waiting_completion_timeout
         super().__init__(url, get_sync_playwright_page)
 
     # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
@@ -257,6 +263,27 @@ class PlaywrightDriver(BaseDriver):
         import time
 
         time.sleep(duration)
+
+    def wait_for_dom_stable(self, timeout=10):
+        self.execute_script(JS_WAIT_DOM_IDLE, max(0, round(timeout * 1000)))
+
+    def wait_for_idle(self):
+        t = time.time()
+        try:
+            self.page.wait_for_load_state(
+                "networkidle", timeout=self.waiting_completion_timeout
+            )
+        except:
+            # timeout occurred
+            pass
+        elapsed = time.time() - t
+        self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
+
+        total_elapsed = time.time() - t
+        if self.log_waiting_time or total_elapsed > 10:
+            print(
+                f"Waited {total_elapsed}s for browser being idle ({elapsed} for network + {total_elapsed - elapsed} for DOM)"
+            )
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return f"page.evaluate(\"(arguments) => {{{js_code}}}\", [{', '.join(str(arg) for arg in args)}])"
