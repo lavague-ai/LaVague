@@ -277,7 +277,7 @@ class BaseDriver(ABC):
 
         time.sleep(duration)
 
-    def wait_for_idle(self, timeout: float = 20):
+    def wait_for_idle(self):
         pass
 
     def get_current_screenshot_folder(self) -> Path:
@@ -526,7 +526,7 @@ return Object.fromEntries(Object.entries("""
 JS_WAIT_DOM_IDLE = """
 return new Promise(resolve => {
     const timeout = arguments[0] || 10000;
-    const stabilityThreshold = arguments[1] || 200;
+    const stabilityThreshold = arguments[1] || 100;
 
     let mutationObserver;
     let timeoutId = null;

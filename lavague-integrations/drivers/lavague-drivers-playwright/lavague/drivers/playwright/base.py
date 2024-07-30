@@ -28,6 +28,7 @@ class PlaywrightDriver(BaseDriver):
         height: int = 1080,
         user_data_dir: Optional[str] = None,
         log_waiting_time=False,
+        waiting_completion_timeout=10,
     ):
         os.environ[
             "PW_TEST_SCREENSHOT_NO_FONTS_READY"
@@ -37,6 +38,7 @@ class PlaywrightDriver(BaseDriver):
         self.width = width
         self.height = height
         self.log_waiting_time = log_waiting_time
+        self.waiting_completion_timeout = waiting_completion_timeout
         super().__init__(url, get_sync_playwright_page)
 
     # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
@@ -263,17 +265,19 @@ class PlaywrightDriver(BaseDriver):
         time.sleep(duration)
 
     def wait_for_dom_stable(self, timeout=10):
-        self.execute_script(JS_WAIT_DOM_IDLE, round(timeout * 1000))
+        self.execute_script(JS_WAIT_DOM_IDLE, max(0, round(timeout * 1000)))
 
-    def wait_for_idle(self, timeout=20):
+    def wait_for_idle(self):
         t = time.time()
         try:
-            self.page.wait_for_load_state("networkidle", timeout=timeout)
+            self.page.wait_for_load_state(
+                "networkidle", timeout=self.waiting_completion_timeout
+            )
         except:
             # timeout occurred
             pass
         elapsed = time.time() - t
-        self.wait_for_dom_stable(timeout - elapsed)
+        self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
 
         total_elapsed = time.time() - t
         if self.log_waiting_time or total_elapsed > 10:
