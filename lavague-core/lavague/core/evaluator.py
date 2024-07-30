@@ -10,7 +10,6 @@ from time import time
 from typing import Dict, Literal
 from lavague.core.navigation import NavigationEngine
 from lavague.core.context import get_default_context
-from lavague.core.navigation import Rephraser
 from bs4 import BeautifulSoup
 import uuid
 from llama_index.core.llms import LLM
@@ -108,32 +107,17 @@ class RetrieverEvaluator(Evaluator):
     def __init__(self):
         self.driver = SeleniumDriverForEval(get_selenium_driver=init_driver)
 
-    def rephrase_dataset(
-        self, dataset: pd.DataFrame, csv_out_name: str, llm: LLM = None
-    ) -> pd.DataFrame:
-        if os.path.isfile(csv_out_name):
-            raise ValueError(f"{csv_out_name} already exists")
-        if llm is None:
-            llm = get_default_context().llm
-        rephraser = Rephraser(llm)
-        for i, row in tqdm(dataset.iterrows()):
-            rephrased = rephraser.rephrase_query(row["query"])
-            dataset.at[i, "retriever_query"] = rephrased
-            dataset.at[i, "llm_query"] = row["query"]
-        dataset.to_csv(csv_out_name)
-        return dataset
-
     def evaluate(
         self,
         retriever: BaseHtmlRetriever,
-        rephrased_dataset: pd.DataFrame,
+        dataset: pd.DataFrame,
         csv_out_name: str,
     ) -> pd.DataFrame:
         if os.path.isfile(csv_out_name):
             raise ValueError(f"{csv_out_name} already exists")
         retriever.driver = self.driver
-        retrieved_dataset = rephrased_dataset.copy()
-        retrieved_dataset["html_id"] = self._gen_html_ids(rephrased_dataset)
+        retrieved_dataset = dataset.copy()
+        retrieved_dataset["html_id"] = self._gen_html_ids(dataset)
         retrieved_dataset["recall_retriever"] = pd.Series(dtype="float")
         retrieved_dataset["precision_retriever"] = pd.Series(dtype="float")
         retrieved_dataset["source_nodes"] = pd.Series(dtype="str")

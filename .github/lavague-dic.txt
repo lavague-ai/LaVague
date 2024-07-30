@@ -158,7 +158,6 @@ debuggerAddress
 ret
 Opsm
 TheWaveMetaSmall
-TheWaveSmallRephrased
 bm
 csv
 opsm
