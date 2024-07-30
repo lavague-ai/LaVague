@@ -58,14 +58,14 @@ def click_format_dropdown(browser):
         pytest.fail("Failed to click on 'Format du colis' dropdown")
 
 @when('I click on "Volumineux & tube" from the dropdown results')
-def select_large_package(browser):
-    large_package_option = WebDriverWait(browser, 10).until(
+def select_voluminous_option(browser):
+    voluminous_option = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/main/div/div[2]/div[2]/div/div/div/div/div/div/div/div[3]/div[2]/fieldset/div[2]/div/label[2]"))
     )
     try:
-        browser.execute_script("arguments[0].click();", large_package_option)
+        browser.execute_script("arguments[0].click();", voluminous_option)
     except ElementClickInterceptedException:
-        pytest.fail("Failed to select 'Volumineux & tube'")
+        pytest.fail("Failed to select 'Volumineux & tube' option")
 
 @when(parsers.parse('I enter {weight} in the "Poids" field'))
 def enter_weight(browser, weight):
