@@ -131,7 +131,7 @@ class RetrieverEvaluator(Evaluator):
                 )
                 start_time = time()
                 source_nodes = retriever.retrieve(
-                    QueryBundle(row["retriever_query"]), [self.driver.get_html()]
+                    QueryBundle(row["query"]), [self.driver.get_html()]
                 )
                 duration = time() - start_time
                 context_str = "\n".join(source_nodes)

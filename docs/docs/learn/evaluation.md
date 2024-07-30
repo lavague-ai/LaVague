@@ -48,6 +48,7 @@ In this section, we will will use the Evaulator to compare our default `OpsmSpli
 We will first need to get a Panda's Dataframe containing our dataset:
 
 ```python
+import pandas as pd
 raw_dataset = pd.read_csv("TheWaveMetaSmall.csv")
 ```
 
@@ -76,7 +77,7 @@ retrieved_data_opsm = retriever_evaluator.evaluate(
     OpsmSplitRetriever(driver), raw_dataset, "retrieved_data_opsm.csv"
 )
 retrieved_data_bm25 = retriever_evaluator.evaluate(
-    BM25HtmlRetriever(driver), raw_dataset, "retrieved_data_bm25.csv"
+    BM25HtmlRetriever(), raw_dataset, "retrieved_data_bm25.csv"
 )
 ```
 
