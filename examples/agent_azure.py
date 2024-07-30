@@ -25,7 +25,7 @@ context = AzureOpenaiContext(
     mm_llm="gpt-4o",
     endpoint="<endpoint>",
     api_version="<api_version>",
-    embedding_deployment="<embedding_deployment_name>",
+    embedding="<embedding_deployment_name>",
 )
 
 # Initialize the Selenium driver
