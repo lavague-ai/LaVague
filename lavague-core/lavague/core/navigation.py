@@ -23,28 +23,6 @@ from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
 
-
-# JSON schema for the action shape 
-JSON_SCHEMA = {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string"},
-                                "args": {
-                                    "type": "object"
-                                }
-                            },
-                        "required": ["name",'args']
-                        }
-                    },
-                    "required": ["action"]
-                }
-            }
-
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
 {driver_capability}
@@ -87,6 +65,28 @@ Here is the next example to rephrase:
 Text instruction: ${instruction}
 Search query:"""
 )
+
+# JSON schema for the action shape 
+JSON_SCHEMA = {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "args": {
+                                    "type": "object"
+                                }
+                            },
+                        "required": ["name",'args']
+                        }
+                    },
+                    "required": ["action"]
+                }
+            }
+
 
 
 logging_print = logging.getLogger(__name__)
@@ -182,8 +182,8 @@ class NavigationEngine(BaseEngine):
         self.n_attempts = n_attempts
         self.display = display
         self.raise_on_error = raise_on_error
-        self.action_shape_validator = JSON_SCHEMA
         self.viewport_only = True
+        self.shape_validator = JSON_SCHEMA
 
     @classmethod
     def from_context(
@@ -261,22 +261,22 @@ class NavigationEngine(BaseEngine):
             `Any`: The output of navigation is always None
         """
 
+        from gradio import ChatMessage
         from selenium.webdriver.support.ui import WebDriverWait
 
         success = False
         action_full = ""
         output = None
 
-        action = self.rephraser.rephrase_query(instruction)
-        original_instruction = instruction
+        rephrased_query = self.rephraser.rephrase_query(instruction)
+
         action_nb = 0
         navigation_log_total = []
 
-        logging_print.debug("query for retriever: " + action["query"])
-        logging_print.debug("Rephrased instruction: " + action["action"])
-        instruction = action["action"]
+        logging_print.debug("Query for retriever: " + rephrased_query)
+
         start = time.time()
-        source_nodes = self.get_nodes(action["query"])
+        source_nodes = self.get_nodes(rephrased_query)
         end = time.time()
         retrieval_time = end - start
 
@@ -285,8 +285,8 @@ class NavigationEngine(BaseEngine):
         logger = self.logger
 
         navigation_log = {
-            "original_instruction": original_instruction,
             "navigation_engine_input": instruction,
+            "rephrased_query": rephrased_query,
             "retrieved_html": source_nodes,
             "retrieval_time": retrieval_time,
             "retrieval_name": self.retriever.__class__.__name__,
@@ -344,12 +344,14 @@ class NavigationEngine(BaseEngine):
                     )
 
                 self.driver.exec_code(action)
-                self.history[-1] = (
-                    self.history[-1][0],
-                    f"✅ Step {action_engine.curr_step}:\n{action_engine.curr_instruction}",
+                self.history[-1] = ChatMessage(
+                    role="assistant",
+                    content=f"{action_engine.curr_instruction}\n",
+                    metadata={"title": f"✅ Step {action_engine.curr_step}"},
                 )
-                self.history.append((None, None))
-                self.history[-1] = (self.history[-1][0], "⏳ Loading the page...")
+                self.history.append(
+                    ChatMessage(role="assistant", content="⏳ Loading the page...")
+                )
                 yield (
                     self.objective,
                     self.url_input,
@@ -405,12 +407,11 @@ class NavigationEngine(BaseEngine):
         navigation_log_total.append(navigation_log)
 
         if not success:
-            self.history[-1] = (
-                self.history[-1][0],
-                f"❌ Step {action_engine.curr_step + 1}:\n{action_engine.curr_instruction}",
+            self.history[-1] = ChatMessage(
+                role="assistant",
+                content=f"Instruction: {action_engine.curr_instruction}",
+                metadata={"title": f"❌ Step {action_engine.curr_step + 1}"},
             )
-            self.history.append((None, None))
-
         if logger:
             log = {
                 "engine": "Navigation Engine",
@@ -440,7 +441,6 @@ class NavigationEngine(BaseEngine):
             output.output,
         )
 
-
     def execute_instruction(self, instruction: str) -> ActionResult:
         """
         Generates code and executes it to answer the instruction
@@ -456,16 +456,15 @@ class NavigationEngine(BaseEngine):
         success = False
         action_full = ""
 
-        action = self.rephraser.rephrase_query(instruction)
-        original_instruction = instruction
+        rephrased_query = self.rephraser.rephrase_query(instruction)
+
         action_nb = 0
         navigation_log_total = []
 
-        instruction = action["action"]
-        logging_print.debug("query for retriever: " + action["query"])
-        logging_print.debug("Rephrased instruction: " + action["action"])
+        logging_print.debug("Query for retriever: " + rephrased_query)
+
         start = time.time()
-        source_nodes = self.get_nodes(instruction)
+        source_nodes = self.get_nodes(rephrased_query)
         end = time.time()
         retrieval_time = end - start
 
@@ -474,8 +473,8 @@ class NavigationEngine(BaseEngine):
         logger = self.logger
 
         navigation_log = {
-            "original_instruction": original_instruction,
             "navigation_engine_input": instruction,
+            "rephrased_query": rephrased_query,
             "retrieved_html": source_nodes,
             "retrieval_time": retrieval_time,
             "retrieval_name": self.retriever.__class__.__name__,
