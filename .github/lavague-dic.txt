@@ -166,5 +166,16 @@ HtmlRetriever
 df
 matplotlib
 anthropic
-pypi
+PyPi
 yml
+pypi
+Pypi
+README
+md
+nomic
+AnthropicContext
+claude
+UAE
+WhereIsAI
+gte
+thenlper

@@ -104,6 +104,13 @@ nav:
   - Troubleshooting: 'docs/get-started/troubleshoot.md'
   - FAQs: 'docs/get-started/FAQs.md'
 
+- 🤝 Integrations:
+  - Anthropic: 'docs/integrations/anthropic.md'
+  - Azure: 'docs/integrations/azure.md'
+  - Fireworks: 'docs/integrations/fireworks.md'
+  - Gemini: 'docs/integrations/gemini.md'
+  - Openai: 'docs/integrations/openai.md'
+  - Contribute: 'docs/integrations/contribute.md'
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'
