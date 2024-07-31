@@ -10,7 +10,7 @@ By default, LaVague uses the configuration defined in our `OpenAIContext` which 
 
 A `Context` object is an object that defines the LLM, multi-modal LLM and embedding models to be used by your LaVague agent. 
 
-We provide some built-in Contexts, so you can quickly get started with some popular models & AI provers.
+We provide some built-in Contexts, so you can quickly get started with some popular models & AI providers.
 
 You can pass a Context to the `ActionEngine` and `WorldModel` when building your agent, by initializing them using the the `from_context(my_context)` method and providing you context as the argument.
 
@@ -77,11 +77,11 @@ agent.run("Go on the quicktour of PEFT")
 
 ### Custom Contexts on-the-fly
 
-Another way to customize your agent on-the-fly is to create a custom Context on-the-fly by initializing a Context with the mdoels of your choice.
+Another way to customize your agent on-the-fly is to create a custom Context on-the-fly by initializing a Context with the models of your choice.
 
-In this case, there is no default values and you will need to provide a model instance for all three exepcted models (`mm_llm`, `llm` and `embedding`).
+In this case, there is no default values and you will need to provide a model instance for all three expected models (`mm_llm`, `llm` and `embedding`).
 
-Here's an example of how you can create a custom Context on-the-fly and build youar agent with it:
+Here's an example of how you can create a custom Context on-the-fly and build your agent with it:
 
 ```python
 from llama_index.llms.gemini import Gemini

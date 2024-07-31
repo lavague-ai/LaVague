@@ -104,6 +104,9 @@ nav:
   - Troubleshooting: 'docs/get-started/troubleshoot.md'
   - FAQs: 'docs/get-started/FAQs.md'
 
+- 🤝 Integrations:
+  - Fireworks: 'docs/integrations/fireworks.md'
+  - Contribute: 'docs/integrations/contribute.md'
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'

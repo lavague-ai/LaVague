@@ -86,7 +86,7 @@ You can generate your `lock.file` by running `poetry lock`. However, this step i
 
 #### README
 
-Your README file will be displayed when we publish the LaVague context package on PyPI on the package's page. 
+Your README file will be displayed when we publish the LaVague context package on PyPi on the package's page. 
 
 !!! tip "context package files examples"
 
