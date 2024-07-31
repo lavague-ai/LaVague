@@ -31,5 +31,5 @@ class AnthropicContext(Context):
                 temperature=DEFAULT_TEMPERATURE,
             ),
             AnthropicMultiModal(api_key=api_key, model=mm_llm),
-            OpenAIEmbedding(api_key=openai_api_key),
+            OpenAIEmbedding(api_key=openai_api_key, model=embedding),
         )
