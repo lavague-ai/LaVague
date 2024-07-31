@@ -28,8 +28,8 @@ class FireworksContext(Context):
                 model=llm,
                 max_tokens=DEFAULT_MAX_TOKENS,
                 temperature=DEFAULT_TEMPERATURE,
-                api_key=api_key
+                api_key=api_key,
             ),
             OpenAIMultiModal(api_key=openai_api_key, model=mm_llm),
-            FireworksEmbedding(api_key=api_key, model_name=embedding)
+            FireworksEmbedding(api_key=api_key, model_name=embedding),
         )
