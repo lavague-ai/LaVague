@@ -1,5 +1,6 @@
-EXAMPLE_PROMPT = """
-You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.
+from llama_index.core import PromptTemplate
+
+FULL_PROMPT_TEMPLATE = PromptTemplate("""You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.
 Your only goal is to generate pytest-bdd files based on the provided Gherkin feature, a collection of instructions and actions, and a specific assert statement to test.
 You will use the provided information to generate a valid assert statement. 
 - Name the scenario appropriately.
@@ -157,7 +158,7 @@ def verify_checkout_form(browser):
             EC.presence_of_element_located((By.ID, "checkout-form"))
         )
     except Exception as e:
-        pytest.fail(f"Checkout form not found: {str(e)}")
+        pytest.fail("Checkout form not found: " + str(e))
 
 @then('the cart total should be correct')
 def verify_cart_total(browser):
@@ -168,7 +169,7 @@ def verify_cart_total(browser):
         total_value = float(total_element.text.replace('$', ''))
         assert total_value > 0, "Cart total should be greater than zero"
     except Exception as e:
-        pytest.fail(f"Failed to verify cart total: {str(e)}")
+        pytest.fail("Failed to verify cart total" + str(e))
 
 @then('the product list should be visible')
 def verify_product_list(browser):
@@ -177,7 +178,7 @@ def verify_product_list(browser):
             EC.presence_of_element_located((By.CLASS_NAME, "product-list"))
         )
     except Exception as e:
-        pytest.fail(f"Product list not found: {str(e)}")
+        pytest.fail("Product list not found: " + str(e))
 
 @then('the category filter should be available')
 def verify_category_filter(browser):
@@ -187,7 +188,7 @@ def verify_category_filter(browser):
         )
         assert filter_element.is_enabled(), "Category filter should be enabled"
     except Exception as e:
-        pytest.fail(f"Category filter not found or not enabled: {str(e)}")
+        pytest.fail("Category filter not found or not enabled: " + str(e))
 
 @then('the "Add to Cart" button should be present for each product')
 def verify_add_to_cart_buttons(browser):
@@ -197,8 +198,45 @@ def verify_add_to_cart_buttons(browser):
         )
         assert len(add_to_cart_buttons) > 0, "No 'Add to Cart' buttons found"
     except Exception as e:
-        pytest.fail(f"Failed to verify 'Add to Cart' buttons: {str(e)}")
+        pytest.fail("Failed to verify 'Add to Cart' buttons: " + str(e))
 
 ----------
 Given this information, generate a valid pytest-bdd file with the following inputs:
-"""
+Feature file name: {feature_file_name}
+URL: {url}
+Gherkin of the feature to be tested:{feature_file_content}
+Assert statement: {expect}\n
+Potentially relevant nodes that you may use to help you generate the assert code: {nodes}\n
+List of already executed instructions and actions:\n
+{actions}\n
+""")
+
+ASSERT_ONLY_PROMPT_TEMPLATE = PromptTemplate("""You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.
+Your only goal is to use the provided Gherkin and HTML nodes to generate a valid pytest-bdd python assert statement. 
+- Include all necessary imports and fixtures.
+- If element selection is needed, prefer XPath based on class or text content to fetch it. 
+- You answer in python code only and nothing else.
+- You have access to a browser variable of type selenium.webdriver.chrome.webdriver.Chrome
+
+```python
+browser: WebDriver
+# assert code here
+```
+
+I will provide an example below:
+----------
+Gherkin: Then the cost should be "34,70 €"
+HTML: <div><span>Cost:</span><span class="calculator__cta__price">34,70 €</span></div>
+                
+Resulting pytest code: 
+cost_element = WebDriverWait(browser, 10).until(
+    EC.presence_of_element_located((By.XPATH, "//span[@class='calculator__cta__price']"))
+)
+actual_cost = cost_element.text.strip()
+assert actual_cost == expected_cost
+
+----------
+Given this information, generate a valid pytest-bdd assert instruction with the following inputs:
+Gherkin expect of the feature to be tested: Then {expect}\n
+Potentially relevant HTML that you may use to help you generate the assert code: {html}\n
+""")
