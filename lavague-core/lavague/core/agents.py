@@ -83,6 +83,7 @@ class WebAgent:
 
     def get(self, url):
         self.driver.get(url)
+        self.driver.wait_for_idle()
         self.result.code += self.driver.code_for_get(url) + "\n"
 
     def demo(
@@ -99,7 +100,7 @@ class WebAgent:
         except ImportError:
             raise ImportError(
                 "`lavague-gradio` package not found, "
-                "please run `pip install lavague-contexts-gradio`"
+                "please run `pip install lavague-gradio`"
             )
 
     def _run_demo(
@@ -117,6 +118,7 @@ class WebAgent:
         """Internal run method for the gradio demo. Do not use directly. Use run instead."""
 
         from selenium.webdriver.support.ui import WebDriverWait
+        from gradio import ChatMessage
 
         driver: BaseDriver = self.driver
         logger = self.logger
@@ -173,11 +175,11 @@ class WebAgent:
             self.action_engine.curr_instruction = instruction
 
             if instruction.find("[NONE]") == -1 and next_engine_name != "COMPLETE":
-                history[-1] = (
-                    history[-1][0],
-                    f"⏳ Step {curr_step + 1}:\n{instruction}",
+                history[-1] = ChatMessage(
+                    role="assistant",
+                    content=f"{instruction}",
+                    metadata={"title": f"⏳ Step {curr_step + 1}"},
                 )
-
             yield (
                 objective_obj,
                 url_input,
@@ -215,18 +217,27 @@ class WebAgent:
             obs = driver.get_obs()
             if next_engine_name != "Navigation Engine":
                 if success:
-                    history[-1] = (
-                        history[-1][0],
-                        f"✅ Step {curr_step + 1}:\n{instruction}",
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"{instruction}",
+                        metadata={"title": f"✅ Step {curr_step + 1}"},
                     )
                 else:
-                    history[-1] = (
-                        history[-1][0],
-                        f"❌ Step {curr_step + 1}:\n{instruction}",
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"{instruction}",
+                        metadata={"title": f"❌ Step {curr_step + 1}"},
                     )
-                history.append((None, None))
+                history.append(
+                    ChatMessage(
+                        role="assistant", content="⏳ Thinking of next steps..."
+                    )
+                )
+            else:
+                history[-1] = ChatMessage(
+                    role="assistant", content=f"⏳ Thinking of next steps..."
+                )
             url_input = self.action_engine.driver.get_url()
-            history[-1] = (history[-1][0], "⏳ Thinking of next steps...")
             img = self.driver.get_screenshot_as_png()
             img = BytesIO(img)
             img = Image.open(img)
@@ -250,17 +261,35 @@ class WebAgent:
         url_input = self.action_engine.driver.get_url()
         if output is not None:
             if len(output) > 0 and output.strip() != "[NONE]":
-                history[-1] = (history[-1][0], output)
+                history[-1] = ChatMessage(
+                    role="assistant", content=output, metadata={"title": f"🌊 Output"}
+                )
             elif len(output) == 0 or output.strip() == "[NONE]":
                 if success:
-                    history[-1] = (history[-1][0], "🌊 Objective reached")
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"🌊 Objective reached"},
+                    )
                 else:
-                    history[-1] = (history[-1][0], "❌ Failed to reach objective")
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was not successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"❌ Failed to reach objective"},
+                    )
             else:
                 if success:
-                    history[-1] = (history[-1][0], "🌊 Objective reached")
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"🌊 Objective reached"},
+                    )
                 else:
-                    history[-1] = (history[-1][0], "❌ Failed to reach objective")
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was not successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"❌ Failed to reach objective"},
+                    )
 
         yield (
             objective_obj,

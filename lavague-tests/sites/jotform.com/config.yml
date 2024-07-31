@@ -1,0 +1,8 @@
+tasks:
+  - name: Test form filling
+    url: https://form.jotform.com/241472287797370
+    prompt: "Fill in the form with the following details: Name: Testing McTest, email: testing@test.com, Phone number: 555-555-555, Cover Letter: :'Please hire me!'"
+    expect:
+      - Status is success
+      - url is https://eu-submit.jotform.com/241472287797370
+      - HTML contains Thank you!

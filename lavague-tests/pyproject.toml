@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-tests"
-version = "0.0.1"
+version = "0.0.3"
 description = "Test runner for Lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -21,7 +21,7 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.0"
+lavague-core = "^0.2.28"
 click = "^8.1.7"
 lavague-drivers-selenium = "^0.2.6"
 

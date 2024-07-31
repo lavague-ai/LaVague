@@ -2,11 +2,19 @@ from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    WebDriverException,
+    ElementClickInterceptedException,
+    StaleElementReferenceException,
+)
+from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
+    JS_GET_INTERACTIVES_IN_VIEWPORT,
+    JS_WAIT_DOM_IDLE,
     PossibleInteractionsByXpath,
     InteractionType,
     DOMNode,
@@ -14,9 +22,14 @@ from lavague.core.base_driver import (
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
-from lavague.core.utilities.format_utils import extract_code_from_funct
-import json
+from lavague.core.utilities.format_utils import (
+    extract_code_from_funct,
+    quote_numeric_yaml_values,
+)
+from selenium.webdriver.common.action_chains import ActionChains
+import time
 import yaml
+import json
 
 
 class SeleniumDriver(BaseDriver):
@@ -33,6 +46,8 @@ class SeleniumDriver(BaseDriver):
         no_load_strategy: bool = False,
         options: Optional[Options] = None,
         driver: Optional[WebDriver] = None,
+        log_waiting_time=False,
+        waiting_completion_timeout=10,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -41,6 +56,8 @@ class SeleniumDriver(BaseDriver):
         self.no_load_strategy = no_load_strategy
         self.options = options
         self.driver = driver
+        self.log_waiting_time = log_waiting_time
+        self.waiting_completion_timeout = waiting_completion_timeout
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -72,6 +89,7 @@ class SeleniumDriver(BaseDriver):
         chrome_options.add_argument("--disable-web-security")
         chrome_options.add_argument("--disable-site-isolation-trials")
         chrome_options.add_argument("--disable-notifications")
+        chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
 
         if self.driver is None:
             self.driver = webdriver.Chrome(options=chrome_options)
@@ -166,6 +184,9 @@ driver.set_window_size({width}, {height} + height_difference)
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
+        # Ensures that numeric values are quoted
+        generated_code = quote_numeric_yaml_values(generated_code)
+
         data = yaml.safe_load(generated_code)
         if not isinstance(data, List):
             data = [data]
@@ -181,7 +202,7 @@ driver.set_window_size({width}, {height} + height_difference)
                         pass
 
         if len(elements) == 0:
-            raise ValueError(f"No element found.")
+            raise ValueError("No element found.")
 
         outputs = []
         for element in elements:
@@ -244,6 +265,9 @@ driver.set_window_size({width}, {height} + height_difference)
         globals: dict[str, Any] = None,
         locals: Mapping[str, object] = None,
     ):
+        # Ensures that numeric values are quoted to avoid issues with YAML parsing
+        code = quote_numeric_yaml_values(code)
+
         data = yaml.safe_load(code)
         if not isinstance(data, List):
             data = [data]
@@ -258,8 +282,12 @@ driver.set_window_size({width}, {height} + height_difference)
                     self.set_value(args["xpath"], args["value"])
                 elif action_name == "setValueAndEnter":
                     self.set_value(args["xpath"], args["value"], True)
-                elif action_name == "wait":
-                    self.perform_wait(args["duration"])
+                elif action_name == "dropdownSelect":
+                    self.dropdown_select(args["xpath"], args["value"])
+                elif action_name == "fail":
+                    raise Exception("Action generation failed. Reason: ", args["value"])
+                else:
+                    raise ValueError(f"Unknown action: {action_name}")
 
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
@@ -276,23 +304,98 @@ driver.set_window_size({width}, {height} + height_difference)
         )
 
     def click(self, xpath: str):
-        elem = self.resolve_xpath(xpath)
-        elem.click()
+        element = self.resolve_xpath(xpath)
+        try:
+            element.click()
+        except ElementClickInterceptedException:
+            try:
+                # Move to the element and click at its position
+                ActionChains(self.driver).move_to_element(element).click().perform()
+            except WebDriverException as click_error:
+                raise Exception(
+                    f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
+                )
+        except Exception as e:
+            raise Exception(
+                f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
+            )
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
         elem = self.resolve_xpath(xpath)
-        elem.clear()
-        elem.click()
-        elem.send_keys(value)
+
+        if elem.tag_name == "select":
+            # use the dropdown_select to set the value of a select
+            return self.dropdown_select(xpath, value)
+
+        try:
+            elem = self.resolve_xpath(xpath)
+            elem.clear()
+        except:
+            # might not be a clearable element, but global click + send keys can still success
+            pass
+        self.click(xpath)
+        ActionChains(self.driver).send_keys(value).perform()
         if enter:
-            elem.send_keys(Keys.ENTER)
+            ActionChains(self.driver).send_keys(Keys.ENTER).perform()
+        self.driver.switch_to.default_content()
+
+    def dropdown_select(self, xpath: str, value: str):
+        element = self.resolve_xpath(xpath)
+        select = Select(element)
+        try:
+            select.select_by_value(value)
+        except NoSuchElementException:
+            select.select_by_visible_text(value)
         self.driver.switch_to.default_content()
 
     def perform_wait(self, duration: float):
         import time
 
         time.sleep(duration)
+
+    def is_idle(self):
+        active = 0
+        logs = self.driver.get_log("performance")
+        active = 0
+        request_ids = set()
+        for log in logs:
+            log_json = json.loads(log["message"])["message"]
+            method = log_json["method"]
+            if method == "Network.requestWillBeSent":
+                request_ids.add(log_json["params"]["requestId"])
+            elif method in ("Network.loadingFinished", "Network.loadingFailed"):
+                request_ids.discard(log_json["params"]["requestId"])
+            elif method in ("Page.frameStartedLoading", "Browser.downloadWillBegin"):
+                active += 1
+            elif method == "Page.frameStoppedLoading":
+                active -= 1
+            elif method == "Browser.downloadProgress" and log_json["params"][
+                "state"
+            ] in (
+                "completed",
+                "canceled",
+            ):
+                active -= 1
+
+        return len(request_ids) == 0 and active <= 0
+
+    def wait_for_dom_stable(self, timeout=10):
+        self.driver.execute_script(JS_WAIT_DOM_IDLE, max(0, round(timeout * 1000)))
+
+    def wait_for_idle(self):
+        t = time.time()
+        WebDriverWait(self.driver, self.waiting_completion_timeout).until(
+            lambda d: self.is_idle()
+        )
+        elapsed = time.time() - t
+        self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
+
+        total_elapsed = time.time() - t
+        if self.log_waiting_time or total_elapsed > 10:
+            print(
+                f"Waited {total_elapsed}s for browser being idle ({elapsed} for network + {total_elapsed - elapsed} for DOM)"
+            )
 
     def get_capability(self) -> str:
         return SELENIUM_PROMPT_TEMPLATE
@@ -354,8 +457,13 @@ driver.set_window_size({width}, {height} + height_difference)
         )
         return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
 
-    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
-        exe: Dict[str, List[str]] = self.driver.execute_script(JS_GET_INTERACTIVES)
+    def get_possible_interactions(
+        self, in_viewport=True, foreground_only=True
+    ) -> PossibleInteractionsByXpath:
+        exe: Dict[str, List[str]] = self.driver.execute_script(
+            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES,
+            foreground_only,
+        )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
@@ -377,10 +485,13 @@ class SeleniumNode(DOMNode):
         return self
 
     def clear(self):
-        self._driver.execute_script(
-            "arguments[0].style.removeProperty('outline')",
-            self.element,
-        )
+        try:
+            self._driver.execute_script(
+                "arguments[0].style.removeProperty('outline')",
+                self.element,
+            )
+        except StaleElementReferenceException:
+            pass
         return self
 
     def take_screenshot(self):
@@ -398,7 +509,7 @@ class SeleniumNode(DOMNode):
 SELENIUM_PROMPT_TEMPLATE = """
 You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to return a list of actions that should be done in order to execute the actions.
-Always target elements by XPATH.
+Always target elements by XPATH. You can only use one of the Xpaths included in the HTML. Do not derive new Xpaths.
 
 Your response must always be in the YAML format with the yaml markdown indicator and must include the main item "actions" , which will contains the objects "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool. 
 There must be only ONE args sub-object, such as args (if the tool has multiple arguments). 
@@ -419,6 +530,12 @@ Description: Focus on and set the value of an input element with a specific xpat
 Arguments:
   - xpath (string)
   - value (string)
+  
+Name: dropdownSelect
+Description: Select an option from a dropdown menu by its value
+Arguments:
+    - xpath (string)
+    - value (string)
 
 Name: setValueAndEnter
 Description: Like "setValue", except then it presses ENTER. Use this tool can submit the form when there's no "submit" button.
@@ -427,8 +544,10 @@ Arguments:
   - value (string)
 
 Name: fail
-Description: Indicate that you are unable to complete the task
-No arguments.
+Description: Indicate that you are unable to complete the task and explain why.
+Arguments:
+  - xpath (string): Always set to an empty string
+  - value (string): Detailled explanation of why the task cannot be completed
 
 Here are examples of previous answers:
 HTML:

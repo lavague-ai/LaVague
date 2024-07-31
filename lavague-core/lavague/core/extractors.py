@@ -1,10 +1,17 @@
 from abc import ABC, abstractmethod
 import re
+import yaml
+import json
+from typing import Any, Dict
 
 
 class BaseExtractor(ABC):
     @abstractmethod
     def extract(self, text: str) -> str:
+        pass
+
+    @abstractmethod
+    def extract_as_object(self, text: str) -> Any:
         pass
 
 
@@ -30,6 +37,9 @@ class YamlFromMarkdownExtractor(BaseExtractor):
             # Return None if no match is found
             return None
 
+    def extract_as_object(self, text: str):
+        return yaml.safe_load(self.extract(text))
+
 
 class JsonFromMarkdownExtractor(BaseExtractor):
     """
@@ -52,6 +62,9 @@ class JsonFromMarkdownExtractor(BaseExtractor):
         else:
             # Return None if no match is found
             return None
+
+    def extract_as_object(self, text: str):
+        return json.loads(self.extract(text))
 
 
 class PythonFromMarkdownExtractor(BaseExtractor):
@@ -76,6 +89,9 @@ class PythonFromMarkdownExtractor(BaseExtractor):
             # Return None if no match is found
             return None
 
+    def extract_as_object(self, text: str):
+        return eval(self.extract(text))
+
 
 class UntilEndOfMarkdownExtractor(BaseExtractor):
     """
@@ -91,6 +107,9 @@ class UntilEndOfMarkdownExtractor(BaseExtractor):
     def extract(self, text: str) -> str:
         return text.split("```")[0]
 
+    def extract_as_object(self, text: str) -> Any:
+        return self.extract(text)
+
 
 class DynamicExtractor(BaseExtractor):
     """
@@ -98,16 +117,25 @@ class DynamicExtractor(BaseExtractor):
     """
 
     def __init__(self):
-        self.extractors = {
+        self.extractors: Dict[str, BaseExtractor] = {
             "json": JsonFromMarkdownExtractor(),
             "yaml": YamlFromMarkdownExtractor(),
             "python": PythonFromMarkdownExtractor(),
         }
 
-    def extract(self, text: str) -> str:
+    def get_type(self, text: str) -> str:
         types_pattern = "|".join(self.extractors.keys())
         pattern = rf"```({types_pattern}).*?```"
         match = re.search(pattern, text, re.DOTALL)
         if match:
-            type = match.group(1).strip()
-            return self.extractors[type].extract(text)
+            return match.group(1).strip()
+        else:
+            raise ValueError(f"No extractor pattern can be found from {text}")
+
+    def extract(self, text: str) -> str:
+        type = self.get_type(text)
+        return self.extractors[type].extract(text)
+
+    def extract_as_object(self, text: str) -> Any:
+        type = self.get_type(text)
+        return self.extractors[type].extract_as_object(text)

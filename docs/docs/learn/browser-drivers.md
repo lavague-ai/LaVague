@@ -7,8 +7,26 @@ Our Driver modules are used to perform actions on web browsers and to get inform
 
 We have two Driver options:
 
-- ✅ SeleniumDriver: When the SeleniumDriver is used, our Action Engine will generate and execute code using Selenium
-- 🎭 PlaywrightDriver: When the PlaywrightDriver is used, our Action Engine will generate and execute code using Playwright
+- ✅ SeleniumDriver: the Action Engine will generate and execute code using Selenium. We use the SeleniumDriver by default and it has the most complete feature set. 
+- 🎭 PlaywrightDriver: the Action Engine will generate and execute code using Playwright
+- 🖥️ Chrome extension: when used along the DriverServer to generate code, the Chrome extension will execute JavaScript
+
+## Driver feature support
+
+Not all agent features are supported by all drivers. **Selenium is our preferred option** since it currently supports the widest range of features. We welcome community contributions to help us increase support coverage for different drivers.
+
+
+| Feature                  | Selenium  | Playwright       | Chrome Extension                     |
+|--------------------------|-----------|------------------|--------------------------------------|
+| Headless agents    | ✅ | ⏳ | N/A |
+| Handle iframes     | ✅ | ✅ | ❌ |
+| Open several tabs  | ✅ | ⏳ | ✅  |
+| Highlight elements | ✅ | ✅  | ✅ |
+
+
+✅ supported  
+⏳ coming soon  
+❌ not supported 
 
 ## Selenium Driver
 
@@ -16,7 +34,7 @@ The Selenium Driver is installed by default when you install `lavague`.
 
 You then need to initialize the Driver and pass it to your Action Engine with the following code:
 
-```python
+```py
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver()
 action_engine = ActionEngine(selenium_driver)
@@ -89,7 +107,7 @@ By default, the driver starts with a blank user session. But you can change thes
 By default, the drivers will start with a headless session. This means, it will not open a browser on your machine where you can watch in real-time the actions the driver is performing. This can be useful when running LaVague in an environment where you don't have access to the browser.
 
 You can change to non-headless mode by initializing your driver with the `headless=False` argument: 
-```python
+```py
 driver = SeleniumDriver(headless=False)
 ```
 
@@ -107,7 +125,7 @@ To use your existing Chrome profile, you need to locate the profile path on your
 
 You can then pass this path via the `user_data_dir` argument.
 
-```python
+```py
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver(headless=False, user_data_dir="C:/Users/YourUsername/AppData/Local/Google/Chrome/User Data")
 ```

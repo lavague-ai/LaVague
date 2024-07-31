@@ -1,0 +1,7 @@
+tasks:
+  - name: YouTube navigation
+    url: https://youtube.com
+    prompt: "Navigate to LaVagueAI YouTube channel"
+    expect:
+      - URL is https://www.youtube.com/@LaVagueAI
+      - Status is success

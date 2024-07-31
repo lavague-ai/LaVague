@@ -1,0 +1,7 @@
+tasks:
+  - name: Weather retrieval
+    url: https://www.accuweather.com
+    prompt: "What is the temperature now in Birmingham, UK?"
+    expect:
+      - URL contains birmingham/b5-5/weather-forecast/326966
+      - Status is success

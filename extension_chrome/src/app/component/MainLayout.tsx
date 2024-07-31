@@ -15,8 +15,6 @@ export default function MainLayout() {
     useEffect(() => {
         if (serverState === AgentServerState.CONNECTED) {
             setTabIndex(0);
-        } else if (serverState === AgentServerState.DISCONNECTED) {
-            setTabIndex(2);
         }
     }, [serverState]);
 

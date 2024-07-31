@@ -8,6 +8,7 @@ from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
 from functools import lru_cache
 from PIL import Image
+from lavague.core.utilities.model_utils import get_model_name
 import time
 import yaml
 
@@ -149,7 +150,7 @@ Thoughts:
 Next engine: Navigation Controls
 Instruction: SCAN
 -----
-Objective: Provide the company’s mission statement
+Objective: Provide the company's mission statement
 Previous instructions:
 - Extract the text of the mission statement
 Last engine: Python Engine
@@ -306,11 +307,12 @@ Only provide directly the desired output in the instruction in cases where there
 
 # Navigation guidlines
 - When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
-- If several steps have to be taken, provide instructions in bullet points.
+- Only provide instructions one at a time. Do not provide instructions with multiple steps.
 - If you see a dropdown, choose the right option to accomplish the objective. Do not take other actions until the dropdown is closed.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
 - If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.
-- If relevant information seems to be on another tab, use the Navigation Controls's command 'SWITCH_TAB' followed by the tab number to switch to the desired tab, such as 'SWITCH TAB 1'.
+- Switch tabs whenever a new one opens to check if it's relevant. Use the Navigation Controls's command 'SWITCH_TAB' followed by the tab number to switch to the desired tab, such as 'SWITCH TAB 1'.
+- Stick strictly to instructions on visible elements for the Navigation Engine. Do not make assumptions about the state of the page that are not visible in the screenshot.
 
 Here are previous examples:
 {examples}
@@ -424,3 +426,6 @@ class WorldModel(ABC, Loggable):
             logger.add_log(log)
 
         return mm_llm_output
+
+    def get_mm_llm_name(self):
+        return get_model_name(self.mm_llm)

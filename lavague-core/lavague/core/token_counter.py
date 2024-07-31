@@ -10,6 +10,9 @@ from lavague.core.action_engine import ActionEngine
 from lavague.core.base_engine import ActionResult
 from lavague.core.world_model import WORLD_MODEL_PROMPT_TEMPLATE
 
+# used by gpt-4* models
+DEFAULT_TOKENIZER = "o200k_base"
+
 
 class TokenCounter:
     """
@@ -20,18 +23,18 @@ class TokenCounter:
 
     def __init__(
         self,
-        mm_llm_name="gpt-4o",
-        embedding_model_name="text-embedding-3-small",
         log=False,
     ):
         self.pricing_data = get_pricing_data()
+        default_tokenizer = tiktoken.get_encoding(DEFAULT_TOKENIZER).encode
+
         mm_llm_token_counter = TokenCountingHandler(
-            tokenizer=tiktoken.encoding_for_model(mm_llm_name).encode,
+            tokenizer=default_tokenizer,
             event_starts_to_ignore=[CBEventType.EMBEDDING],
             event_ends_to_ignore=[CBEventType.EMBEDDING],
         )
         embedding_token_counter = TokenCountingHandler(
-            tokenizer=tiktoken.encoding_for_model(embedding_model_name).encode,
+            tokenizer=default_tokenizer,
             event_starts_to_ignore=[CBEventType.LLM],
             event_ends_to_ignore=[CBEventType.LLM],
         )
@@ -69,6 +72,9 @@ class TokenCounter:
             self.embedding_token_counter is not None
             and self.mm_llm_token_counter is not None
         ):
+            mm_llm_name = world_model.get_mm_llm_name()
+            llm_name = action_engine.get_llm_name()
+            embedding_name = action_engine.get_embedding_name()
             # deduplicate and split llm events into world model and action engine events
             deduplicated_events = deduplicate_events(
                 self.mm_llm_token_counter.llm_token_counts
@@ -77,12 +83,12 @@ class TokenCounter:
                 deduplicated_events
             )
 
-            # compute llm token counts
-            WM_input_tokens, WM_output_tokens, WM_total_tokens = sum_token_counts(
-                world_model_events
+            # compute llm token counts for each models
+            WM_input_tokens, WM_output_tokens, WM_total_tokens = self.count_tokens(
+                world_model_events, mm_llm_name
             )
-            AE_input_tokens, AE_output_tokens, AE_total_tokens = sum_token_counts(
-                action_engine_events
+            AE_input_tokens, AE_output_tokens, AE_total_tokens = self.count_tokens(
+                action_engine_events, llm_name
             )
 
             # compute embedding token counts
@@ -108,17 +114,17 @@ class TokenCounter:
 
             # compute llm and embedding token costs
             WM_input_cost, WM_output_cost, WM_total_cost = self.calculate_llm_pricing(
-                WM_input_tokens, WM_output_tokens, world_model.mm_llm.model
+                WM_input_tokens, WM_output_tokens, mm_llm_name
             )
             AE_input_cost, AE_output_cost, AE_total_cost = self.calculate_llm_pricing(
                 AE_input_tokens,
                 AE_output_tokens,
-                action_engine.navigation_engine.llm.model,
+                llm_name,
             )
 
             total_embedding_cost = self.calculate_embedding_pricing(
                 embedding_total_tokens,
-                action_engine.python_engine.embedding.model_name,
+                embedding_name,
             )
             total_step_cost = WM_total_cost + AE_total_cost + total_embedding_cost
 
@@ -208,6 +214,25 @@ class TokenCounter:
 
         return total_embedding_cost
 
+    def count_tokens(self, events: List[Any], model) -> Tuple[int, int, int]:
+        """Helper function to sum token counts for a list of events that belong together"""
+        # we use a multiplier to approximate tokens consumed by gemini models based on our default tokenizer
+
+        token_multiplier = self.pricing_data.get(
+            model, {model: {"token_multiplier": 1}}
+        ).get("token_multiplier", 1)
+
+        input_tokens = (
+            sum(event.prompt_token_count for event in events) * token_multiplier
+        )
+        output_tokens = (
+            sum(event.completion_token_count for event in events) * token_multiplier
+        )
+        total_tokens = (
+            sum(event.total_token_count for event in events) * token_multiplier
+        )
+        return input_tokens, output_tokens, total_tokens
+
 
 def deduplicate_events(events: List[Any]) -> List[Any]:
     """Helper function to deduplicate events if they are logged twice (temporary fix for #444)"""
@@ -251,11 +276,3 @@ def triage_events(events: List[Any]) -> Tuple[List[Any], List[Any]]:
             other_events.append(event)
 
     return world_model_events, other_events
-
-
-def sum_token_counts(events: List[Any]) -> Tuple[int, int, int]:
-    """Helper function to sum token counts for a list of events that belong together"""
-    input_tokens = sum(event.prompt_token_count for event in events)
-    output_tokens = sum(event.completion_token_count for event in events)
-    total_tokens = sum(event.total_token_count for event in events)
-    return input_tokens, output_tokens, total_tokens

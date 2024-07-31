@@ -10,7 +10,7 @@ When you run LaVague without a `user_data_dir`, a blank Chrome session is starte
 
 However, you can change this and plug in your usual browser session with the following code:
 
-```python
+```py
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver(headless=False, user_data_dir="/home/<YourUsername>/.config/google-chrome")
 ```
@@ -30,12 +30,11 @@ This will avoid you needing to log in again or re-submit cookies preferences etc
 
 When using a driver in non-headless mode, you can manually take actions on that webpage. Where you know you will need to login to a site or accept cookies for example, you can manually add a pause in your code to allow you time to manually accept cookies or log in:
 
-```python
+```py
 agent.get("https://www.bbc.co.uk")
 
 import time
-time.sleep(5)
-time.sleep(5)
+time.sleep(30)
 
 agent.run("What is the weather in Birmingham")
 ```
@@ -58,13 +57,13 @@ The error above was caused by running LaVague in non-headless mode in an environ
 
 If you are using an environment without GUI support, you will need to ensure your driver is set to `headless` mode with the following code:
 
-```python
+```py
 driver = SeleniumDriver(headless=True)
 ```
 
 When using `headless` mode, you can activate a `display` mode to display real-time updated screenshots of the agent's progress. This works well in Google Colab.
 
-```python
+```py
 agent.run("Print out the name of this week's top trending model", display=True)
 ```
 
@@ -93,7 +92,7 @@ agent.run("Print out the name of this week's top trending model", display=True)
 
     Then you can use LaVague with the Selenium Driver set to headless mode.
 
-    ```python
+    ```py
     from lavague.core import  WorldModel, ActionEngine
     from lavague.core.agents import WebAgent
     from lavague.drivers.selenium import SeleniumDriver

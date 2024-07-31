@@ -53,7 +53,7 @@ agent.run("Go on the quicktour of PEFT")
 
 You can also use LaVague to launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
 
-```python
+```py
 # We should set no_load_strategy to True when using the demo() method
 driver = SeleniumDriver(headless=True, no_load_strategy=True)
 action_engine = ActionEngine(driver)
@@ -69,13 +69,6 @@ agent.get("https://huggingface.co/docs")
 agent.demo("Go on the quicktour of PEFT")
 ```
 
-!!! note "Gradio Agent Demo no_load_strategy"
-    For faster performance when using the `agent.demo()` method, you should set the `no_load_strategy` Driver option to True.
-
-    This turns off Selenium's default load strategy that waits for the page to be fully loaded before giving you back control which was causing a significant slowdown with our `Gradio Agent Demo`. Instead, LaVague will detect when the page is loaded.
-
-    This option is not recommended with the `agent.run()` method however.
-
 You can take a quick look at the `demo` feature in the video below:
 
 <figure class="video_container">
@@ -84,13 +77,85 @@ You can take a quick look at the `demo` feature in the video below:
   </video>
 </figure>
 
+## Key features
+
+### Contexts
+
+By default, we use the OpenAI models defined in our `OpenaiContext` module, found in our `lavague-contexts-openai` package.
+
+We have several other built-in contexts that can be used to set your models to default models from other major AI Providers:
+
+- GeminiContext
+- AzureOpenaiContext (part of the lavague-contexts-openai package)
+- FireworksContext
+
+To use these, you first need to install the relevant context package:
+
+```bash
+pip install lavague-contexts-fireworks
+```
+
+> The packages are always named lavague-contexts-[name of context]
+
+Then you can initialize your context and pass it to your ActionEngine and WorldModel using the `from_context()` initialization methods:
+
+```python
+from lavague.core import WorldModel, ActionEngine
+from lavague.core.agents import WebAgent
+from lavague.drivers.selenium import SeleniumDriver
+from lavague.contexts.fireworks import FireworksContext
+
+# Initialize Context
+context = FireworksContext()
+
+selenium_driver = SeleniumDriver()
+
+# Build AE and WM from Context
+action_engine = ActionEngine.from_context(context, selenium_driver)
+world_model = WorldModel.from_context(context)
+
+agent = WebAgent(world_model, action_engine)
+agent.get("https://huggingface.co/")
+agent.run("What is this week's top Space of the week?")
+```
+
+For more information about our Contexts, see our [customization guide](./customization.md).
+
+### Lavague-tests
+
+We provide a test runner for benchmarking the performance of LaVague.
+
+For more information on how to use our test runner, see our [LaVague testing guide](https://docs.lavague.ai/en/latest/docs/learn/testing/).
+
+### TokenCounter
+
+We provide tooling to get token usage and cost estimations about your usage of LaVague.
+
+For more information about our TokenCounter, see our [TokenCounter guide](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/).
+
+### Logging
+
+We provide various loggers, allowing you to log information about your LaVague usage to a local file, a local database or to memory.
+
+To log to a local database, you can use the `log_to_db` option when calling the `agent.run` method:
+
+```py
+agent.run("Go to the first Model in the Models section", log_to_db=True)
+```
+
+For more information about our loggers, see our [logging guide](../learn/local-log.md)
+
+### Debugging Tools
+
+We also provide debugging tools, allowing you to enable step-by-step agent execution, run individual agent steps or view the web elements LaVague has sent to the LLM as context for generating the action. You can learn more about these [here](../learn/debug-tools.md)
+
 ## Key components explained
 
 ### Driver
 
 The Driver component is used to perform actions on web browsers and get information about our current web page.
 
-We currently provide a Selenium Driver component by default, as well as a Playwright Driver option.
+We currently provide a Selenium Driver component by default, as well as a Playwright Driver option. Feature support varies based on the driver used, learn more in our [Driver documentation](../learn/browser-drivers.md).
 
 !!! tip "Avoiding issues around pop ups, CAPTCHA, logins, etc."
     You may experience difficulties using LaVague for logins due to bot protections.
@@ -145,7 +210,7 @@ The World Model uses a multi-modal model to do this conversion. We use GPT-4o by
 ```python
 from llama_index.multi_modal_llms.gemini import GeminiMultiModal
 
-mm_llm = GeminiMultiModal(model_name="models/gemini-1.5-pro-latest"),
+mm_llm = GeminiMultiModal(model_name="models/gemini-1.5-pro-latest")
 
 world_model = WorldModel(mm_llm=mm_llm)
 ```

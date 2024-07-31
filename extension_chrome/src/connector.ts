@@ -12,7 +12,7 @@ export enum RunningAgentState {
     RUNNING,
 }
 
-export type EventType = 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage';
+export type EventType = 'init' | 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage';
 
 export class AgentServerConnector {
     private webSocket: WebSocket | null = null;
@@ -23,6 +23,7 @@ export class AgentServerConnector {
 
     constructor() {
         this.driver = new ChromeExtensionDriver();
+        this.emit('init', null);
     }
 
     async connect(host: string) {
@@ -61,7 +62,10 @@ export class AgentServerConnector {
                 webSocket.onerror = reject;
             });
             webSocket.onerror = (error) => this.emit('error', error);
-            webSocket.onclose = () => this.updateState(AgentServerState.DISCONNECTED);
+            webSocket.onclose = () => {
+                this.updateState(AgentServerState.DISCONNECTED);
+                this.updateRunningState(RunningAgentState.IDLE);
+            };
             this.webSocket = webSocket;
             this.keepAlive();
             await this.driver.start();
@@ -107,6 +111,10 @@ export class AgentServerConnector {
 
     onError(fn: (message: string) => void) {
         return this.on('error', fn);
+    }
+
+    onInit(fn: (ret: any) => void) {
+        return this.on('init', fn);
     }
 
     onInputMessage(fn: (ret: any) => void) {

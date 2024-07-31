@@ -2,15 +2,16 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { AppContext } from '../context/AppContext';
 import { Badge, Stack, Text } from '@chakra-ui/react';
 import { RunningAgentState } from '../../connector';
+import { extractNextEngine, extractWorldModelInstruction } from '../../tools';
 
-type LogType = 'network' | 'cmd' | 'userprompt' | 'agent_log';
+export type LogType = 'network' | 'cmd' | 'userprompt' | 'agent_log';
 
-interface Log {
+export interface Log {
     type: LogType;
     log: string;
 }
 
-interface RepeatableLog extends Log {
+export interface RepeatableLog extends Log {
     count: number;
 }
 
@@ -23,11 +24,18 @@ const COMMAND_LABELS: { [key: string]: string } = {
     execute_script: 'Execute script',
     exec_code: 'Execute code',
     is_visible: 'Check visibility',
+    get_possible_interactions: 'Get possible interactions'
 };
+
+const welcome_msg = `Welcome to Lavague Chrome Extension!
+
+In order to get started easily, please run the command "lavague-serve" on your terminal.
+Then, please write in the connect tab the IP you would like to reach (for example, 127.0.0.1).
+You can find more details about the usage and the project: https://docs.lavague.ai`;
 
 export default function Logs({ logTypes }: { logTypes: LogType[] }) {
     let { connector, serverState, runningAgentState, setRunningAgentState } = useContext(AppContext);
-    const [logs, setLogs] = useState<RepeatableLog[]>([]);
+    const [logs, setLogs] = useState<RepeatableLog[]>([{ type: "agent_log", log: welcome_msg, count: 1 }]);
     const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
     const addLog = useCallback(
@@ -55,17 +63,23 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                     console.error(err);
                 }
             }),
+            connector.onInit(() => addLog({ log: "test", type: 'agent_log' })),
             connector.onInputMessage((message) => {
                 let log: string | null = null;
                 let type: LogType = 'cmd';
                 if (message.command) {
                     log = COMMAND_LABELS[message.command];
                 } else if (message.type === 'agent_log') {
-                    log = message.agent_log.world_model_output;
+                    const log_tmp = message.agent_log.world_model_output
+                    const engine = extractNextEngine(log_tmp)
+                    log = engine + "\n" + extractWorldModelInstruction(log_tmp);
                     type = 'agent_log';
                 } else if (message.type === 'start') {
                     setRunningAgentState(RunningAgentState.RUNNING)
                     console.log("START")
+                } else if (message.type === 'stop') {
+                    setRunningAgentState(RunningAgentState.IDLE)
+                    console.log("STOP")
                 }
                 if (log) {
                     addLog({ log, type });
@@ -87,4 +101,4 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
             <div ref={bottomElementRef}></div>
         </div>
     );
-}
+} 

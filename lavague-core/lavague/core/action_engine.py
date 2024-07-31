@@ -4,7 +4,7 @@ from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from lavague.core.extractors import BaseExtractor, DynamicExtractor
-from lavague.core.retrievers import BaseHtmlRetriever, OpsmSplitRetriever
+from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
 from lavague.core.base_driver import BaseDriver
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger
@@ -12,6 +12,7 @@ from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.navigation import NAVIGATION_ENGINE_PROMPT_TEMPLATE
 from lavague.core.navigation import NavigationControl, NavigationEngine
 from lavague.core.python_engine import PythonEngine
+from lavague.core.utilities.model_utils import get_model_name
 
 
 class ActionEngine:
@@ -65,7 +66,7 @@ class ActionEngine:
         self.driver = driver
 
         if retriever is None:
-            retriever = OpsmSplitRetriever(driver)
+            retriever = get_default_retriever(driver, embedding=embedding)
 
         if navigation_engine is None:
             navigation_engine = NavigationEngine(
@@ -77,12 +78,15 @@ class ActionEngine:
                 time_between_actions=time_between_actions,
                 n_attempts=n_attempts,
                 logger=logger,
+                embedding=embedding,
             )
         if python_engine is None:
             python_engine = PythonEngine(driver, llm, embedding)
         if navigation_control is None:
             navigation_control = NavigationControl(
-                driver, time_between_actions=time_between_actions
+                driver,
+                time_between_actions=time_between_actions,
+                navigation_engine=navigation_engine,
             )
         self.navigation_engine = navigation_engine
         self.python_engine = python_engine
@@ -221,3 +225,9 @@ class ActionEngine:
 
         next_engine = self.engines[next_engine_name]
         return next_engine.execute_instruction(instruction)
+
+    def get_llm_name(self):
+        return get_model_name(self.python_engine.llm)
+
+    def get_embedding_name(self):
+        return get_model_name(self.python_engine.embedding)

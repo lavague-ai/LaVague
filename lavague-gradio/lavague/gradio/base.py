@@ -102,7 +102,10 @@ class GradioAgentDemo:
         def process_instructions_impl(
             objective, url_input, image_display, instructions_history, history
         ):
-            history[-1][1] = "⏳ Thinking of next steps..."
+            msg = gr.ChatMessage(
+                role="assistant", content="⏳ Thinking of next steps..."
+            )
+            history.append(msg)
             yield objective, url_input, image_display, instructions_history, history
             self.agent.action_engine.set_gradio_mode_all(
                 True, objective, url_input, image_display, instructions_history, history
@@ -136,7 +139,6 @@ class GradioAgentDemo:
         def add_message(history, message, instructions_history):
             instructions_history = clear_instructions("", instructions_history)
             history.clear()
-            history.append((None, None))
             return history, instructions_history
 
         return add_message
@@ -213,6 +215,7 @@ class GradioAgentDemo:
                             [],
                             label="Agent output",
                             elem_id="history",
+                            type="messages",
                             bubble_full_width=False,
                             height="70%",
                             placeholder="Agent output will be shown here\n",

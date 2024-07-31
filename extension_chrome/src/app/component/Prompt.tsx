@@ -33,8 +33,9 @@ export default function Prompt({ requestConnection }: { requestConnection: () =>
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Can I do something for you?"
+                placeholder={runningAgentState == RunningAgentState.IDLE ?  "Can I do something for you?" : "Thinking..."}
                 resize={'none'}
+                isDisabled={runningAgentState == RunningAgentState.RUNNING}
                 required
             ></Textarea>
             <IconButton

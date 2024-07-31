@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "lavague-contexts-anthropic"
+version = "0.1.2"
+description = "anthropic integration for lavague"
+authors = ["lavague-ai"]
+readme = "README.md"
+license = "Apache-2.0"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries :: Application Frameworks",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "License :: OSI Approved :: Apache Software License",
+]
+keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
+homepage = "https://lavague.ai"
+repository = "https://github.com/lavague-ai/LaVague/"
+documentation = "https://docs.lavague.ai/en/latest/"
+packages = [{include = "lavague/"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10.0,<3.12"
+lavague-core = "^0.2.26"
+llama-index-llms-anthropic = "0.1.15"
+llama-index-multi-modal-llms-anthropic = "^0.1.6"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

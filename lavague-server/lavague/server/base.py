@@ -9,9 +9,10 @@ class AgentServer:
         self,
         agent_factory: Callable[[], WebAgent],
         communication_channel: CommunicationChannel = None,
+        port: int = 8000,
     ):
         if communication_channel is None:
-            communication_channel = WebSocketHandler()
+            communication_channel = WebSocketHandler(port)
         self.communication_channel = communication_channel
         self.communication_channel.agent_factory = agent_factory
 

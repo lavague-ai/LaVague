@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import { AgentServerState } from '../../connector';
 import { Button, FormControl, FormHelperText, FormLabel, Input, Text } from '@chakra-ui/react';
+import { RepeatableLog, Log, LogType } from './Logs';
 
 const LABELS: { [state in AgentServerState]: string } = {
     [AgentServerState.CONNECTED]: 'Connected',

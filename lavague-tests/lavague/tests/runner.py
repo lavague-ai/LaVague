@@ -1,10 +1,14 @@
 from typing import List, Dict
+from lavague.core.context import Context
 from lavague.core.agents import WebAgent
 from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.drivers.selenium.base import SeleniumDriver
-from .config import Task, TestConfig, TaskTest
+from lavague.core.token_counter import TokenCounter
+from lavague.core.utilities.pricing_util import build_summary_table
+from lavague.tests.config import Task, TestConfig, TaskTest
 from pandas import DataFrame
+import time
 
 
 class TestFailure:
@@ -17,11 +21,12 @@ class TestFailure:
 
 
 class SingleRunResult:
-    def __init__(self, task: Task, dataframe: DataFrame):
+    def __init__(self, task: Task, dataframe: DataFrame, execution_time: float):
         self.successes: List[TaskTest] = []
         self.failures: List[TestFailure] = []
         self.task = task
         self.dataframe = dataframe
+        self.execution_time = execution_time
 
     def get_test_count(self) -> int:
         return len(self.successes) + len(self.failures)
@@ -58,15 +63,38 @@ class RunnerResult:
     def __str__(self) -> str:
         successes = 0
         failures = 0
+        total_execution_time = 0.0
+
+        token_summary = {
+            "world_model_input_tokens": 0,
+            "world_model_output_tokens": 0,
+            "action_engine_input_tokens": 0,
+            "action_engine_output_tokens": 0,
+            "total_world_model_tokens": 0,
+            "total_action_engine_tokens": 0,
+            "total_embedding_tokens": 0,
+            "total_world_model_cost": 0.0,
+            "total_action_engine_cost": 0.0,
+            "total_embedding_cost": 0.0,
+            "total_step_tokens": 0,
+            "total_step_cost": 0.0,
+        }
+
         for r in self.results:
             for sr in r.results:
                 successes += len(sr.successes)
                 failures += len(sr.failures)
+                total_execution_time += sr.execution_time
+
+                for key in token_summary.keys():
+                    if key in sr.dataframe.columns:
+                        token_summary[key] += sr.dataframe[key].sum()
 
         total = successes + failures
         if total == 0:
             return "No tests run"
-        summary = f"Result: {round(100 * successes / total)} % ({successes} / {total})"
+        summary = f"Result: {round(100 * successes / total)} % ({successes} / {total}) in {total_execution_time:.1f}s\n"
+        summary += build_summary_table(token_summary)
         return "\n".join(str(r) for r in self.results) + "\n" + summary
 
     def is_success(self) -> bool:
@@ -74,9 +102,19 @@ class RunnerResult:
 
 
 class TestRunner:
-    def __init__(self, sites: List[TestConfig], headless=True):
+    def __init__(
+        self,
+        context: Context,
+        sites: List[TestConfig],
+        token_counter: TokenCounter,
+        headless=True,
+        log_to_db=False,
+    ):
+        self.context = context
         self.sites = sites
+        self.token_counter = token_counter
         self.headless = headless
+        self.log_to_db = log_to_db
 
     def run(self) -> RunnerResult:
         results: List[RunResults] = []
@@ -103,16 +141,29 @@ class TestRunner:
 
     def _run_single_task(self, task: Task) -> SingleRunResult:
         driver = SeleniumDriver(headless=self.headless)
-        action_engine = ActionEngine(driver=driver, n_attempts=task.n_attempts)
-        world_model = WorldModel()
-        agent = WebAgent(world_model, action_engine, n_steps=task.max_steps)
+        action_engine = ActionEngine.from_context(
+            context=self.context, driver=driver, n_attempts=task.n_attempts
+        )
+        world_model = WorldModel.from_context(context=self.context)
+        agent = WebAgent(
+            world_model,
+            action_engine,
+            token_counter=self.token_counter,
+            n_steps=task.max_steps,
+        )
         agent.get(task.url)
-        agent.run(task.prompt, user_data=task.user_data)
+
+        # run agent and measure execution time
+        start_time = time.time()
+        agent.run(task.prompt, user_data=task.user_data, log_to_db=self.log_to_db)
+        end_time = time.time()
+        execution_time = end_time - start_time
+
         dataframe = agent.logger.return_pandas()
         context = self._get_context(agent)
         driver.destroy()
 
-        result = SingleRunResult(task, dataframe)
+        result = SingleRunResult(task, dataframe, execution_time)
         for test in task.tests:
             error = test.get_error(context)
             if error is None:

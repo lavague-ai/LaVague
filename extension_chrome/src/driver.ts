@@ -30,22 +30,30 @@ export class ChromeExtensionDriver {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
             if (tabs[0].url != undefined && !tabs[0].url.startsWith('chrome://')) {
                 const newTabId = activeInfo.tabId;
-                if (this.currentTabId != null && this.currentTabId !== newTabId) {
-                    this.detachDebuggerFromTab(this.currentTabId);
+                if (this.currentTabId !== newTabId) {
+                    console.log(this.currentTabId);
+                    console.log(newTabId);
+                    if (this.currentTabId != null) {
+                        this.detachDebuggerFromTab(this.currentTabId);
+                    }
+                    this.currentTabId = newTabId;
+                    this.attachDebuggerToTab(this.currentTabId);
                 }
-                this.currentTabId = newTabId;
-                this.attachDebuggerToTab(this.currentTabId);
             }
         });
     };
 
     tabUpdatedListener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
         if (tab.active && changeInfo.status === 'complete' && !tab.url!.startsWith('chrome://')) {
-            if (this.currentTabId && this.currentTabId !== tabId) {
-                this.detachDebuggerFromTab(this.currentTabId);
+            if (this.currentTabId !== tabId) {
+                console.log(this.currentTabId);
+                console.log(tabId);
+                if (this.currentTabId != null) {
+                    this.detachDebuggerFromTab(this.currentTabId);
+                }
+                this.currentTabId = tabId;
+                this.attachDebuggerToTab(tabId);
             }
-            this.currentTabId = tabId;
-            this.attachDebuggerToTab(tabId);
         }
     };
 
