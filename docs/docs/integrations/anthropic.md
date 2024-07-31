@@ -27,10 +27,10 @@ We can then import the AnthropicContext from the `lavagues.contexts.anthropic` p
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
 from lavague.drivers.selenium import SeleniumDriver
-from lavague.contexts.fireworks import FireworksContext
+from lavague.contexts.anthropic import AnthropicContext
 
 # Initialize Context
-context = FireworksContext()
+context = AnthropicContext()
 
 selenium_driver = SeleniumDriver()
 
@@ -44,17 +44,17 @@ agent.get("https://huggingface.co/")
 agent.run("What is this week's top Space of the week?")
 ```
 
-## Customizing the Fireworks Context
+## Customizing the Anthropic Context
 
 You can change the Anthropic models used by the context by passing the name of the model you wish to use to the `llm` and `mm_llm` parameters respectively.
 
 You can find a list of Anthropic models currently available and their names [here](https://docs.anthropic.com/en/docs/about-claude/models).
 
 ```py
-from lavague.contexts.fireworks import FireworksContext
+from lavague.contexts.anthropic import AnthropicContext
 
 # Initialize Context
-context = FireworksContext(llm="claude-3-opus-20240229", mm_llm="claude-3-sonnet-20240229")
+context = AnthropicContext(llm="claude-3-opus-20240229", mm_llm="claude-3-sonnet-20240229")
 ```
 
 > You can also change the embedding model used by passing the name of the model as the `embedding` argument. However, this will need to be a `OpenAI` emebdding model.
