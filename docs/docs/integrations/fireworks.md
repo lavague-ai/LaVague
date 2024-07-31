@@ -4,7 +4,7 @@ The Fireworks Context uses the Fireworks API for the Action Engine's LLM and emb
 
 By default, it will use the open-source `llama-v3p1-70b-instruct` as the LLM & `nomic-embed-text-v1.5` as the embedding model. You can change these models for other models provided by Fireworks.
 
-Since there are no multi-modal LLMs available through the Fireworks API with LlamaIndex, we still use the default `gpt-4o` with OpenAI as the World Model.
+Since there are no multi-modal LLMs available through the Fireworks API with LlamaIndex, we still use the default `gpt-4o` with OpenAI as the World Model `mm_llm`.
 
 ## Pre-requisites
 
@@ -15,7 +15,7 @@ pip install lavague-contexts-fireworks
 ```
 
 !!! note "API keys"
-    You will need to either set your Fireworks API  & OpenAI API keys as the `FIREWORKS_API_KEY` and `OPENAI_API_KEY` environment variables respecitively. You can alternatively pass your `FireworksContext` with the `api_key` parameter and your `OPENAI_API_KEY` as the `openai_api_key` parameter.
+    You will need to either set your Fireworks API & OpenAI API keys as `FIREWORKS_API_KEY` and `OPENAI_API_KEY` environment variables respecitively. You can alternatively  pass your API keys to the `FireworksContext` with the `api_key` and`openai_api_key` parameters respectively.
 
     For guidance on setting environment variables in your environment, see [our FAQ](../get-started/FAQs.md#how-can-i-set-environment-variables).
 
@@ -54,7 +54,7 @@ You should use the full name for your model as listed by Fireworks [here](https:
 
 ??? hint "Fireworks embedding models"
 
-    Here is a list of current available embedding models via the Fireworks API.
+    Here is a list of currently available embedding models via the Fireworks API.
 
     Model name | Model size |
     | --- | --- |
@@ -71,4 +71,4 @@ from lavague.contexts.fireworks import FireworksContext
 context = FireworksContext(llm="accounts/fireworks/models/code-llama-34b", embedding="nomic-ai/nomic-embed-text-v1")
 ```
 
-> While you can also change the multi-modal used by passing the name of the model as the `mm_llm` argument. However, this will need to be a `OpenAI` model since LlamaIndex does not yet support multi-modal models with Fireworks.
+> While you can also change the multi-modal used by passing the name of the model as the `mm_llm` argument, this will need to be a `OpenAI` model since LlamaIndex does not yet support multi-modal models with Fireworks.

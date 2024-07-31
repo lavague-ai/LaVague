@@ -21,8 +21,8 @@ class FireworksContext(Context):
                 raise ValueError("FIREWORKS_API_KEY is not set")
         if openai_api_key is None:
             openai_api_key = os.getenv("OPENAI_API_KEY")
-        if openai_api_key == None:
-            raise ValueError("OPENAI_API_KEY is not set")
+            if openai_api_key == None:
+                raise ValueError("OPENAI_API_KEY is not set")
         return super().__init__(
             Fireworks(
                 model=llm,
