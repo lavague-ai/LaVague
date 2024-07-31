@@ -6,12 +6,12 @@ import { extractNextEngine, extractWorldModelInstruction } from '../../tools';
 
 export type LogType = 'network' | 'cmd' | 'userprompt' | 'agent_log';
 
-export interface Log {
+interface Log {
     type: LogType;
     log: string;
 }
 
-export interface RepeatableLog extends Log {
+interface RepeatableLog extends Log {
     count: number;
 }
 
