@@ -66,6 +66,28 @@ Text instruction: ${instruction}
 Search query:"""
 )
 
+# JSON schema for the action shape 
+JSON_SCHEMA = {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "object",
+                            "properties": {
+                                "name": {"type": "string"},
+                                "args": {
+                                    "type": "object"
+                                }
+                            },
+                        "required": ["name",'args']
+                        }
+                    },
+                    "required": ["action"]
+                }
+            }
+
+
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -161,6 +183,7 @@ class NavigationEngine(BaseEngine):
         self.display = display
         self.raise_on_error = raise_on_error
         self.viewport_only = True
+        self.shape_validator = JSON_SCHEMA
 
     @classmethod
     def from_context(
