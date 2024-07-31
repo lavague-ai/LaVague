@@ -164,5 +164,10 @@ csv
 opsm
 os
 anthropic
-pypi
+PyPi
 yml
+pypi
+Pypi
+README
+md
+nomic
