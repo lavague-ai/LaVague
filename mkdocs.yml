@@ -104,8 +104,8 @@ nav:
   - Troubleshooting: 'docs/get-started/troubleshoot.md'
   - FAQs: 'docs/get-started/FAQs.md'
 
-- ✅ Use cases:
-  - QA Automation: 'docs/use-cases/qa-automation.md'
+- LaVague QA:
+  - Quick tour: 'docs/lavague-qa/quicktour.md'
 
 
 - 📚 Learn:
