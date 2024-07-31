@@ -1,6 +1,6 @@
 # Gemini Context
 
-The Gemini Context uses Google's Gemini models for LaVague's World Model multi-modal LLM, Action Engine LLM and embedding model.
+The GeminiContext uses Google's Gemini models for LaVague's World Model multi-modal LLM, Action Engine LLM and embedding model.
 
 By default, we use `gemini-1.5-flash-latest` as the Action Engine LLM model, `gemini-1.5-pro-latest` as the multi-modal `mm_llm` and `text-embedding-004` as the embedding model. You can swap these models to other gemini models as we explain below.
 
@@ -33,7 +33,7 @@ context = GeminiContext()
 selenium_driver = SeleniumDriver()
 
 # Build Action Engine and World Model from Context
-action_engine = ActionEngine.from_context(context, selenium_driver)
+action_engine = ActionEngine.from_context(context=context, driver=selenium_driver)
 world_model = WorldModel.from_context(context)
 
 # Build agent & run query

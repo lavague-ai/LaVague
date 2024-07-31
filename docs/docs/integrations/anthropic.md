@@ -35,7 +35,7 @@ context = AnthropicContext()
 selenium_driver = SeleniumDriver()
 
 # Build Action Engine and World Model from Context
-action_engine = ActionEngine.from_context(context, selenium_driver)
+action_engine = ActionEngine.from_context(context=context, driver=selenium_driver)
 world_model = WorldModel.from_context(context)
 
 # Build agent & run query
