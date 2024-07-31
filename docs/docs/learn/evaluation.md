@@ -41,27 +41,20 @@ Next, we will download the dataset we will use for this example, `TheWaveMetaSma
 wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/TheWaveMetaSmall.csv
 ```
 
-We need to transform this CSV file into a Panda's dataset and pass it through a necessary pre-processing function `rephrase_dataset` in order to be able to use it with our evaluator module. 
-
-The `rephrase_dataset` function splits the original query into two rephrased queries, aimed either specifically at the retriever or the LLM, and adds them as the following columns in the dataset: `retriever_query` & `llm_query`.
-
-```py
-import pandas as pd
-import os
-
-raw_dataset = pd.read_csv("TheWaveMetaSmall.csv")
-rephrased = retriever_evaluator.rephrase_dataset(raw_dataset, "TheWaveSmallRephrased.csv")
-```
-
 #### Running the evaluator
 
-Now that we have a correctly formatted `rephrased` Pandas DataFrame, we can run the `evaluate` method on the retrievers of our choice. 
+In this section, we will will use the Evaluator to compare our default `OpsmSplitRetriever` against our legacy `BM25HTMLRetriever`.
 
-In this case we compare our default `OpsmSplitRetriever` against our legacy `BM25HTMLRetriever`.
+We will first need to get a Panda's Dataframe containing our dataset:
 
-We pass the `evaluate` method the retriever we wish to evaluate, along with the `rephrased` Panda's DataFrame and the file name we wish to give to the CSV file which will be output by the method.
+```python
+import pandas as pd
+raw_dataset = pd.read_csv("TheWaveMetaSmall.csv")
+```
 
-This method will return a new DataFrame which is made up of the original `rephrased` dataset, plus the following columns:
+We can then the `evaluate` method the retriever we wish to evaluate, along with our Panda's DataFrame and the file name we wish to give to the CSV file which will be output by the method.
+
+This method will return a new DataFrame which is made up of the original dataset, plus the following columns:
 
 Column	Description
 recall_retriever	Retriever's recall.
@@ -81,10 +74,10 @@ from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver()
 
 retrieved_data_opsm = retriever_evaluator.evaluate(
-    OpsmSplitRetriever(driver), rephrased, "retrieved_data_opsm.csv"
+    OpsmSplitRetriever(driver), raw_dataset, "retrieved_data_opsm.csv"
 )
 retrieved_data_bm25 = retriever_evaluator.evaluate(
-    BM25HtmlRetriever(driver), rephrased, "retrieved_data_bm25.csv"
+    BM25HtmlRetriever(), raw_dataset, "retrieved_data_bm25.csv"
 )
 ```
 

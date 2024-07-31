@@ -2,7 +2,6 @@ from io import BytesIO
 import logging
 import time
 from typing import Any, List, Optional
-from string import Template
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
 from lavague.core.extractors import (
@@ -38,34 +37,6 @@ Completion:
     YamlFromMarkdownExtractor(),
 )
 
-REPHRASE_PROMPT = Template(
-    """You are an AI system designed to convert text-based instruction for web actions into standardized instruction for another AI to execute.
-For the other AI to execute actions, it first searches through the DOM of the current page to find the code of the element to interact with.
-It will then generate the code to interact with the element based on the previsouly retrieved code.
-
-Therefore your goal is to convert the text-based instruction into a search query optimized to allow a retriever to find the right element using the current DOM. 
-
-The search query should not contain information about the action but optimized to not confuse the retriever but rewrite the query to highlight as much as possible HTML information to make it easier for the retriever to find the element.
-As the other AI has only access to the DOM and no visual input, remove all visual information cues. You can use cues by mentioning nearby elements to the element to interact with.
-Only use plausible names for the elements (button, input, etc.), attribute names and values (values have to be in '')
-
-Here are previous examples:
-Text instruction: Type 'Command R plus' on the search bar with placeholder 'Search ...'
-Search query: input 'Search ...'
----
-Text instruction: Click on the search bar with placeholder 'Rechercher sur Wikipédia', type 'Yann LeCun,' and press Enter.
-Search query: input 'Rechercher sur Wikipédia'
----
-Text instruction: Click on 'Installation', next to 'Effective and efficient diffusion'
-Search query: button 'Installation' text 'Effective and efficient diffusion'
----
-
-Here is the next example to rephrase:
-
-Text instruction: ${instruction}
-Search query:"""
-)
-
 # JSON schema for the action shape
 JSON_SCHEMA = {
     "type": "array",
@@ -91,32 +62,6 @@ ch.setLevel(logging.INFO)
 ch.setFormatter(format)
 logging_print.addHandler(ch)
 logging_print.propagate = False
-
-
-class Rephraser:
-    def __init__(
-        self,
-        llm: BaseLLM = None,
-        prompt: PromptTemplate = REPHRASE_PROMPT,
-    ):
-        self.llm = llm
-        self.prompt: Template = prompt
-        if self.llm is None:
-            self.llm = get_default_context().llm
-
-    def rephrase_query(self, instruction: str) -> str:
-        """
-        Rephrase the query
-        Args:
-            instruction (`str`): The instruction to rephrase for the retriever
-        Return:
-            `str`: The rephrased query
-        """
-        rephrase_prompt = self.prompt.safe_substitute(instruction=instruction)
-        rephrased_query = self.llm.complete(rephrase_prompt).text
-        if "Search query:" in rephrased_query:
-            rephrased_query = rephrased_query.replace("Search query:", "")
-        return rephrased_query
 
 
 class NavigationEngine(BaseEngine):
@@ -146,7 +91,6 @@ class NavigationEngine(BaseEngine):
         self,
         driver: BaseDriver,
         llm: BaseLLM = None,
-        rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = DynamicExtractor(),
@@ -159,13 +103,10 @@ class NavigationEngine(BaseEngine):
     ):
         if llm is None:
             llm: BaseLLM = get_default_context().llm
-        if rephraser is None:
-            rephraser = Rephraser(llm)
         if retriever is None:
             retriever = get_default_retriever(driver, embedding=embedding)
         self.driver: BaseDriver = driver
         self.llm: BaseLLM = llm
-        self.rephraser = rephraser
         self.retriever: BaseHtmlRetriever = retriever
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
             driver_capability=driver.get_capability()
@@ -184,7 +125,6 @@ class NavigationEngine(BaseEngine):
         cls,
         context: Context,
         driver: BaseDriver,
-        rephraser: Rephraser = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
         extractor: BaseExtractor = DynamicExtractor(),
@@ -195,7 +135,6 @@ class NavigationEngine(BaseEngine):
         return cls(
             driver,
             context.llm,
-            rephraser,
             retriever,
             prompt_template,
             extractor,
@@ -262,15 +201,13 @@ class NavigationEngine(BaseEngine):
         action_full = ""
         output = None
 
-        rephrased_query = self.rephraser.rephrase_query(instruction)
-
         action_nb = 0
         navigation_log_total = []
 
-        logging_print.debug("Query for retriever: " + rephrased_query)
+        logging_print.debug("Query for retriever: " + instruction)
 
         start = time.time()
-        source_nodes = self.get_nodes(rephrased_query)
+        source_nodes = self.get_nodes(instruction)
         end = time.time()
         retrieval_time = end - start
 
@@ -280,7 +217,6 @@ class NavigationEngine(BaseEngine):
 
         navigation_log = {
             "navigation_engine_input": instruction,
-            "rephrased_query": rephrased_query,
             "retrieved_html": source_nodes,
             "retrieval_time": retrieval_time,
             "retrieval_name": self.retriever.__class__.__name__,
@@ -449,16 +385,13 @@ class NavigationEngine(BaseEngine):
 
         success = False
         action_full = ""
-
-        rephrased_query = self.rephraser.rephrase_query(instruction)
-
         action_nb = 0
         navigation_log_total = []
 
-        logging_print.debug("Query for retriever: " + rephrased_query)
+        logging_print.debug("Query for retriever: " + instruction)
 
         start = time.time()
-        source_nodes = self.get_nodes(rephrased_query)
+        source_nodes = self.get_nodes(instruction)
         end = time.time()
         retrieval_time = end - start
 
@@ -468,7 +401,6 @@ class NavigationEngine(BaseEngine):
 
         navigation_log = {
             "navigation_engine_input": instruction,
-            "rephrased_query": rephrased_query,
             "retrieved_html": source_nodes,
             "retrieval_time": retrieval_time,
             "retrieval_name": self.retriever.__class__.__name__,
