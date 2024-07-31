@@ -18,6 +18,7 @@ from lavague.core.utilities.telemetry import send_telemetry
 from PIL import Image
 from IPython.display import display, HTML, Code
 from lavague.core.token_counter import TokenCounter
+from lavague.core.utilities.config import is_flag_true
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -349,6 +350,7 @@ class WebAgent:
         objective: str,
         user_data=None,
         display: bool = False,
+        log_to_db: bool = is_flag_true("LAVAGUE_LOG_TO_DB"),
         step_by_step=False,
     ) -> ActionResult:
         self.prepare_run(display=display, user_data=user_data)
@@ -371,8 +373,7 @@ class WebAgent:
             raise e
         finally:
             send_telemetry(self.logger.return_pandas())
-            log_to_db = os.getenv("LAVAGUE_LOG_TO_DB")
-            if log_to_db and log_to_db.lower() in ("true", "1", "y", "yes"):
+            if log_to_db:
                 local_db_logger = LocalDBLogger()
                 local_db_logger.insert_logs(self)
         return self.result
