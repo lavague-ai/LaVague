@@ -158,11 +158,13 @@ debuggerAddress
 ret
 Opsm
 TheWaveMetaSmall
-TheWaveSmallRephrased
 bm
 csv
 opsm
 os
+HtmlRetriever
+df
+matplotlib
 anthropic
 pypi
 yml
