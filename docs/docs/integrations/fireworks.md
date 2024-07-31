@@ -1,6 +1,6 @@
 # Fireworks Context
 
-The Fireworks Context uses the Fireworks API for the Action Engine's LLM and embedding models.
+The Fireworks Context uses models provided by the Fireworks API for the Action Engine's LLM and embedding models.
 
 By default, it will use the open-source `llama-v3p1-70b-instruct` as the LLM & `nomic-embed-text-v1.5` as the embedding model. You can change these models for other models provided by Fireworks.
 
