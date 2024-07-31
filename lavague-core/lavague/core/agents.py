@@ -349,7 +349,6 @@ class WebAgent:
         objective: str,
         user_data=None,
         display: bool = False,
-        log_to_db: bool = False,
         step_by_step=False,
     ) -> ActionResult:
         self.prepare_run(display=display, user_data=user_data)
@@ -372,7 +371,8 @@ class WebAgent:
             raise e
         finally:
             send_telemetry(self.logger.return_pandas())
-            if log_to_db:
+            log_to_db = os.getenv("LAVAGUE_LOG_TO_DB")
+            if log_to_db and log_to_db.lower() in ("true", "1", "y", "yes"):
                 local_db_logger = LocalDBLogger()
                 local_db_logger.insert_logs(self)
         return self.result
