@@ -6,6 +6,8 @@ from lavague.drivers.selenium import SeleniumDriver
 # from selenium.webdriver.chrome.options import Options
 # from llama_index.llms.openai import OpenAI
 from llama_index.llms.openai import OpenAI
+
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.legacy.readers.file.base import SimpleDirectoryReader
 import yaml
 from llama_index.embeddings.openai import OpenAIEmbedding
@@ -60,7 +62,7 @@ class TestGenerator:
         self.final_pytest_path = f"{self.generated_dir}/{self.code_file_name}"
         self.final_feature_path = f"{self.generated_dir}/{self.feature_file_name}"
 
-        # self.llm = OpenAIMultiModal("gpt-4o", max_new_tokens=1000)
+        self.mm_llm = OpenAIMultiModal("gpt-4o", max_new_tokens=1000)
         self.llm = OpenAI(model="gpt-4o")
 
         self.embedding = OpenAIEmbedding(model="text-embedding-3-small")
@@ -284,7 +286,7 @@ Potentially relevant HTML that you may use to help you generate the assert code:
         color="green",
     )
     def generate_pytest(self, prompt, screenshot):
-        code = self.llm.complete(prompt, image_documents=screenshot).text
+        code = self.mm_llm.complete(prompt, image_documents=screenshot).text
         return clean_llm_output(code)
 
     @yaspin(Spinners.arc, text="Writing files...", color="green")
@@ -350,3 +352,8 @@ def read_scenarios(feature_file_path: str) -> List[Scenario]:
                     print("Parser missing", step)
 
     return scenarios, feature_file_content
+
+if __name__ == "__main__":
+    pytest_generator = TestGenerator("https://amazon.fr/", "./features/demo_amazon.feature", full_llm=True, headless=False, log_to_db=True)
+    pytest_generator.generate()
+
