@@ -66,6 +66,22 @@ Text instruction: ${instruction}
 Search query:"""
 )
 
+# JSON schema for the action shape
+JSON_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "object",
+                "properties": {"name": {"type": "string"}, "args": {"type": "object"}},
+                "required": ["name", "args"],
+            }
+        },
+        "required": ["action"],
+    },
+}
+
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -161,6 +177,7 @@ class NavigationEngine(BaseEngine):
         self.display = display
         self.raise_on_error = raise_on_error
         self.viewport_only = True
+        self.shape_validator = JSON_SCHEMA
 
     @classmethod
     def from_context(
@@ -376,6 +393,7 @@ class NavigationEngine(BaseEngine):
                     raise e
 
             action_outcomes.append(action_outcome)
+            self.driver.wait_for_idle()
 
         navigation_log["action_outcomes"] = action_outcomes
         navigation_log["action_nb"] = action_nb
@@ -513,6 +531,7 @@ class NavigationEngine(BaseEngine):
                     raise e
 
             action_outcomes.append(action_outcome)
+            self.driver.wait_for_idle()
 
         navigation_log["action_outcomes"] = action_outcomes
         navigation_log["action_nb"] = action_nb
@@ -611,6 +630,8 @@ class NavigationControl(BaseEngine):
                 "code": code,
             }
             logger.add_log(log)
+
+        self.driver.wait_for_idle()
 
         return ActionResult(
             instruction=instruction, code=code, success=success, output=None

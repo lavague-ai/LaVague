@@ -1,8 +1,17 @@
 from abc import ABC, abstractmethod
 import re
+from jsonschema import validate, ValidationError
 import yaml
 import json
 from typing import Any, Dict
+
+
+class ExtractionError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+    def __str__(self) -> str:
+        return f"Error extracting the object: {self.args[0]}"
 
 
 class BaseExtractor(ABC):
@@ -50,18 +59,30 @@ class JsonFromMarkdownExtractor(BaseExtractor):
     --------------------------------------------
     """
 
-    def extract(self, markdown_text: str) -> str:
+    def extract(self, markdown_text: str, shape_validator=None) -> str:
         # Pattern to match the first ```json ``` code block
         pattern = r"```json(.*?)```"
 
         # Using re.DOTALL to make '.' match also newlines
         match = re.search(pattern, markdown_text, re.DOTALL)
-        if match:
-            # Return the first matched group, which is the code inside the ```python ```
-            return match.group(1).strip()
+
+        if shape_validator:
+            try:
+                # checks if the json returned from the llm matchs the schema
+                validate(
+                    instance=json.loads(match.group(1).strip()), schema=shape_validator
+                )
+            except json.JSONDecodeError:
+                raise ExtractionError("Invalid JSON format")
+            except ValidationError:
+                raise ExtractionError("JSON does not match schema")
         else:
-            # Return None if no match is found
-            return None
+            if match:
+                # Return the first matched group, which is the code inside the ```python ```
+                return match.group(1).strip()
+            else:
+                # Return None if no match is found
+                return None
 
     def extract_as_object(self, text: str):
         return json.loads(self.extract(text))
