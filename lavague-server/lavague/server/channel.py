@@ -48,6 +48,7 @@ class AgentSession(ABC):
 
     def handle_agent_message(self, json_message):
         if "type" in json_message:
+
             def exe_task(id):
                 self.handle_prompt_agent_action(
                     json_message["type"], json_message["args"], id
@@ -61,7 +62,6 @@ class AgentSession(ABC):
             else:
                 stop_thread = threading.Thread(target=self.stop_task)
                 stop_thread.start()
-
 
     def stop_task(self):
         if self._task and self._task.is_alive():

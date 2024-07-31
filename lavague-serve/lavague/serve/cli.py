@@ -1,6 +1,7 @@
 import click
 from lavague.server import AgentSession
 
+
 def create_agent(session: AgentSession):
     from lavague.core import WorldModel, ActionEngine
     from lavague.core.agents import WebAgent
@@ -10,6 +11,7 @@ def create_agent(session: AgentSession):
     driver = DriverServer(session)
     action_engine = ActionEngine(driver)
     return WebAgent(world_model, action_engine)
+
 
 @click.command()
 @click.option(
@@ -22,8 +24,10 @@ def create_agent(session: AgentSession):
 )
 def cli(port: int) -> None:
     from lavague.server import AgentServer
+
     server = AgentServer(create_agent, port=port)
     server.serve()
+
 
 if __name__ == "__main__":
     cli()
