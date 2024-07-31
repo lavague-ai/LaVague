@@ -38,7 +38,7 @@ class TestGenerator:
         self.prompt = EXAMPLE_PROMPT
 
         print(
-            f"Generating tests on {self.url} for {self.feature} {self.feature_contents}"
+            f"Ready to generate tests on {self.url} for {self.feature} {self.feature_contents}"
         )
 
     def generate(self):
