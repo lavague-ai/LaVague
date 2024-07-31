@@ -238,5 +238,5 @@ assert actual_cost == expected_cost
 ----------
 Given this information, generate a valid pytest-bdd assert instruction with the following inputs:
 Gherkin expect of the feature to be tested: Then {expect}\n
-Potentially relevant HTML that you may use to help you generate the assert code: {html}\n
+Potentially relevant HTML that you may use to help you generate the assert code: {html_chunks}\n
 """)
