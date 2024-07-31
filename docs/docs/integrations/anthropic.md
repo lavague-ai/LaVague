@@ -4,7 +4,7 @@ The Anthropic Context uses Anthropic models for the Action Engine's LLM and Worl
 
 By default, it will use Claude 3.5 Sonnet for both these models. You can change these models for other models provided by Anthropic available via LlamaIndex.
 
-Since Anthropic don't currently provide their own embedding models, we still use the default `text-embedding-3-small` with OpenAI for emebedding.
+Since Anthropic don't currently provide their own embedding models, we still use the default `text-embedding-3-small` with OpenAI for embedding.
 
 ## Pre-requisites
 
@@ -15,7 +15,7 @@ pip install lavague-contexts-anthropic
 ```
 
 !!! note "API keys"
-    You will need to either set your Anthropic API & OpenAI API keys as `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` environment variables respecitively. You can alternatively pass your API keys to the `AnthropicContext` using the `api_key` and `openai_api_key` parameters respectively.
+    You will need to either set your Anthropic API & OpenAI API keys as `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` environment variables respectively. You can alternatively pass your API keys to the `AnthropicContext` using the `api_key` and `openai_api_key` parameters respectively.
 
     For guidance on setting environment variables in your environment, see [our FAQ](../get-started/FAQs.md#how-can-i-set-environment-variables).
 

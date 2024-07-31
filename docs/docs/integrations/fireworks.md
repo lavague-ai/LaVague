@@ -15,7 +15,7 @@ pip install lavague-contexts-fireworks
 ```
 
 !!! note "API keys"
-    You will need to either set your Fireworks API & OpenAI API keys as `FIREWORKS_API_KEY` and `OPENAI_API_KEY` environment variables respecitively. You can alternatively  pass your API keys to the `FireworksContext` with the `api_key` and`openai_api_key` parameters respectively.
+    You will need to either set your Fireworks API & OpenAI API keys as `FIREWORKS_API_KEY` and `OPENAI_API_KEY` environment variables respectively. You can alternatively  pass your API keys to the `FireworksContext` with the `api_key` and`openai_api_key` parameters respectively.
 
     For guidance on setting environment variables in your environment, see [our FAQ](../get-started/FAQs.md#how-can-i-set-environment-variables).
 
