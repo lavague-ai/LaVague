@@ -335,10 +335,16 @@ driver.set_window_size({width}, {height} + height_difference)
             # might not be a clearable element, but global click + send keys can still success
             pass
         self.click(xpath)
-        
-        (ActionChains(self.driver).key_down(Keys.CONTROL).send_keys('a').key_up(Keys.CONTROL)
-         .send_keys(Keys.DELETE) # clear the input field
-         .send_keys(value).perform())
+
+        (
+            ActionChains(self.driver)
+            .key_down(Keys.CONTROL)
+            .send_keys("a")
+            .key_up(Keys.CONTROL)
+            .send_keys(Keys.DELETE)  # clear the input field
+            .send_keys(value)
+            .perform()
+        )
         if enter:
             ActionChains(self.driver).send_keys(Keys.ENTER).perform()
         self.driver.switch_to.default_content()
