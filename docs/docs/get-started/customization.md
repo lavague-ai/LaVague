@@ -64,7 +64,7 @@ mm_llm =  AnthropicModal(model="claude-3-sonnet-20240229", max_tokens=3000)
 # Initialize the Selenium driver
 selenium_driver = SeleniumDriver()
 
-# Initialize a WorldModel and ActionEnginem passing them the custom context
+# Initialize a WorldModel and ActionEngine passing them the custom context
 world_model = WorldModel(mm_llm=mm_llm)
 action_engine = ActionEngine.from_context(driver=selenium_driver, llm=llm)
 
