@@ -11,6 +11,7 @@ Your folder should be named with the Pypi package name, which should follow this
 
 Within this folder, you will need to use the following file structure:
 
+```bash
 ├── lavague
 │   └── contexts
 │       └── [context_name]
@@ -19,6 +20,7 @@ Within this folder, you will need to use the following file structure:
 ├── poetry.lock
 ├── pyproject.toml
 └── README.md
+```
 
 #### init.py file
 

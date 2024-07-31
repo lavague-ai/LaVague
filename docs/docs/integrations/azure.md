@@ -74,7 +74,7 @@ agent.run("What is this week's top Space of the week?")
 
 It may be that the AzureOpenaiContext does not fit your needs because you want to use Azure for only one or two of the models. In this case you can initialize and pass your azure models individually when creating your agent.
 
-To do this you can use `llama-index` to initalize your models like in the example below:
+To do this you can use `llama-index` to initialize your models like in the example below:
 
 ```python
 from llama_index.llms.azure_openai import AzureOpenAI
