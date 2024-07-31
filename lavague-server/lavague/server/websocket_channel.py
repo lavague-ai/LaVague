@@ -10,6 +10,7 @@ class WebSocketSession(AgentSession):
 
     def __init__(self, websocket):
         self.websocket = websocket
+        super().__init__()
 
     async def start(self):
         await self.read_messages()

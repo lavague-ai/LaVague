@@ -9,11 +9,16 @@ export default function Prompt({ requestConnection }: { requestConnection: () =>
     const [prompt, setPrompt] = useState('');
 
     const handleStart = () => {
-        if (!prompt) {
+        if (!prompt && runningAgentState != RunningAgentState.RUNNING) {
             return false;
         }
         if (serverState === AgentServerState.CONNECTED) {
-            connector.sendPrompt('run', prompt);
+            if (runningAgentState === RunningAgentState.IDLE) {
+                connector.sendPrompt('run', prompt);
+             }
+            else {
+                connector.sendStop()
+            }
             setPrompt('');
         } else {
             requestConnection();

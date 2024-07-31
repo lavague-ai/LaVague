@@ -12,7 +12,7 @@ export enum RunningAgentState {
     RUNNING,
 }
 
-export type EventType = 'init' | 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage';
+export type EventType = 'init' | 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage' | 'systemMessage';
 
 export class AgentServerConnector {
     private webSocket: WebSocket | null = null;
@@ -76,7 +76,7 @@ export class AgentServerConnector {
         }
     }
 
-    sendMessage(message: any, emit = true) {
+    sendMessage(message: any, emit: boolean = true) {
         if (this.currentState !== AgentServerState.CONNECTED) {
             return false;
         }
@@ -97,7 +97,14 @@ export class AgentServerConnector {
         await this.driver.stop();
     }
 
-    sendPrompt(type: 'run' | 'get' | 'stop', args: string) {
+    sendStop() {
+        this.sendMessage({ type: 'stop', args: '' }, false);
+        this.emit('systemMessage', {
+            args: 'Interruption of the agent... (if an instruction is currently executed, the agent will stop once this instruction is executed)',
+        });
+    }
+
+    sendPrompt(type: 'run' | 'get', args: string) {
         this.sendMessage({ type, args });
     }
 
@@ -119,6 +126,10 @@ export class AgentServerConnector {
 
     onInputMessage(fn: (ret: any) => void) {
         return this.on('inputMessage', fn);
+    }
+
+    onSystemMessage(fn: (message: any) => void) {
+        return this.on('systemMessage', fn);
     }
 
     onOutputMessage(fn: (message: any) => void) {

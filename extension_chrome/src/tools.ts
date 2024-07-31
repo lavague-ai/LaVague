@@ -17,15 +17,19 @@ export function extractNextEngine(text: string, nextEngines: string[] = DEFAULT_
     const nextEnginePatterns: RegExp[] = [/Next engine:\s*(.*)/, /### Next Engine:\s*(.*)/];
 
     for (const pattern of nextEnginePatterns) {
-        const nextEngineMatch = text.match(pattern);
-        if (nextEngineMatch) {
-            const extractedText = nextEngineMatch[1].trim();
-            // Check if the extracted text matches any of the provided engines
-            for (const engine of nextEngines) {
-                if (extractedText.toLowerCase().includes(engine.toLowerCase())) {
-                    return engine;
+        try {
+            const nextEngineMatch = text.match(pattern);
+            if (nextEngineMatch) {
+                const extractedText = nextEngineMatch[1].trim();
+                // Check if the extracted text matches any of the provided engines
+                for (const engine of nextEngines) {
+                    if (extractedText.toLowerCase().includes(engine.toLowerCase())) {
+                        return engine;
+                    }
                 }
             }
+        } catch (e) {
+            console.log(e);
         }
     }
 
@@ -39,8 +43,8 @@ export function extractWorldModelInstruction(text: string): string {
         /### Instruction:\s*((?:- .*\n?)+)/, // For multi-line hyphenated instructions with ### prefix
         /Instruction:\s*((?:\d+\.\s.*\n?)+)/, // For multi-line numbered instructions
         /### Instruction:\s*((?:\d+\.\s.*\n?)+)/, // For multi-line numbered instructions with ### prefix
-        /Instruction:\s*```(.*?)```/, // For block of text within triple backticks
-        /### Instruction:\s*```(.*?)```/, // For block of text within triple backticks with ### prefix
+        /Instruction:\s*```([\s\S]*?)```/, // For block of text within triple backticks
+        /### Instruction:\s*```([\s\S]*?)```/, // For block of text within triple backticks with ### prefix
         /Instruction:\s*(.*)/, // For single-line instructions
         /### Instruction:\s*(.*)/, // For single-line instructions with ### prefix
     ];
@@ -49,18 +53,16 @@ export function extractWorldModelInstruction(text: string): string {
 
     for (const pattern of instructionPatterns) {
         const matches = text.match(pattern);
-        if (matches) {
-            for (const match of matches) {
-                let instructionText = match;
-                // Check if the instruction is multi-line or single-line
-                if (instructionText.includes('\n')) {
-                    // Remove newlines and extra spaces for multi-line instructions
-                    instructionText = instructionText.split('\n').join(' ');
-                }
-                // Update longestInstruction if the current one is longer
-                if (instructionText.length > longestInstruction.length) {
-                    longestInstruction = instructionText;
-                }
+        if (matches && matches[1]) {
+            let instructionText = matches[1];
+            // Check if the instruction is multi-line or single-line
+            if (instructionText.includes('\n')) {
+                // Remove newlines and extra spaces for multi-line instructions
+                instructionText = instructionText.split('\n').join(' ').trim();
+            }
+            // Update longestInstruction if the current one is longer
+            if (instructionText.length > longestInstruction.length) {
+                longestInstruction = instructionText;
             }
         }
     }

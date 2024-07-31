@@ -94,7 +94,7 @@ class DriverServer(BaseDriver):
     def resolve_xpath(self, xpath: str):
         pass
 
-    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+    def get_possible_interactions(self, in_viewport=True, foreground_only=True) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = {}
         try:
             exe_json = self.send_command_and_get_response_sync(

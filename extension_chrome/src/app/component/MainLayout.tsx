@@ -4,17 +4,25 @@ import Prompt from './Prompt';
 import Logs from './Logs';
 import Connection from './Connection';
 import { AppContext } from '../context/AppContext';
-import { AgentServerState } from '../../connector';
+import { AgentServerState, RunningAgentState } from '../../connector';
 
 export default function MainLayout() {
-    const { serverState } = useContext(AppContext);
+    const { serverState, setRunningAgentState } = useContext(AppContext);
     const [tabIndex, setTabIndex] = useState(0);
+    const [firstConnection, setFirstConnection] = useState<boolean>(false);
 
     const requestConnection = () => setTabIndex(2);
 
     useEffect(() => {
         if (serverState === AgentServerState.CONNECTED) {
             setTabIndex(0);
+            setFirstConnection(true);
+        }
+        if (serverState === AgentServerState.DISCONNECTED) {
+            if (firstConnection) {
+                setTabIndex(2);
+            }
+            setRunningAgentState(RunningAgentState.IDLE)
         }
     }, [serverState]);
 
