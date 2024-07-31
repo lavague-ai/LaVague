@@ -104,6 +104,9 @@ nav:
   - Troubleshooting: 'docs/get-started/troubleshoot.md'
   - FAQs: 'docs/get-started/FAQs.md'
 
+- ✅ Use cases:
+  - QA Automation: 'docs/use-cases/qa-automation.md'
+
 
 - 📚 Learn:
   - Architecture: 'docs/learn/architecture.md'

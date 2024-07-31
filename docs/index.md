@@ -64,6 +64,20 @@ For an end-to-end example of LaVague in a Google Colab, see our [quick-tour note
 - ✅ An optional, interactive [Gradio interface](https://docs.lavague.ai/en/latest/docs/get-started/gradio/)
 - ✅ [Debugging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
 
+## Use cases
+### QA Automation
+A significant portion of LaVague's users are interesting in using LaVague to add automated test coverage to their websites. 
+To showcase how LaVague can solve this use case, we have created a CLI tool: `lavague-qa`.
+
+Install this tool with `pip install lavague-qa` or by running `pip install .` from the `lavague-qa` directory. 
+
+Run `lavague-qa` with a URL and a path to a Gherkin file to generate reusable `pytest` code.
+```bash
+lavague-qa --url https://google.fr/ --feature features/demo_dev.feature
+```
+
+Learn more in our step by step walkthrough of how we built this test generator.
+
 ## 🙋 Contributing
 
 We would love your help and support on our quest to build a robust and reliable Large Action Model for web automation.
