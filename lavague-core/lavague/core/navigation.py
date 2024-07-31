@@ -66,27 +66,21 @@ Text instruction: ${instruction}
 Search query:"""
 )
 
-# JSON schema for the action shape 
+# JSON schema for the action shape
 JSON_SCHEMA = {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string"},
-                                "args": {
-                                    "type": "object"
-                                }
-                            },
-                        "required": ["name",'args']
-                        }
-                    },
-                    "required": ["action"]
-                }
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "object",
+                "properties": {"name": {"type": "string"}, "args": {"type": "object"}},
+                "required": ["name", "args"],
             }
-
+        },
+        "required": ["action"],
+    },
+}
 
 
 logging_print = logging.getLogger(__name__)
