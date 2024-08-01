@@ -282,6 +282,10 @@ class BaseDriver(ABC):
 
     def get_current_screenshot_folder(self) -> Path:
         url = self.get_url()
+
+        if url is None:
+            url = "blank"
+
         screenshots_path = Path("./screenshots")
         screenshots_path.mkdir(exist_ok=True)
 
