@@ -7,7 +7,7 @@ The OpenaiContext is our default configuration for LaVague. It uses OpenAI's `gp
 The OpenaiContext is installed by default with `LaVague`.
 
 !!! note "API keys"
-    You will need to set your OpenAI API keys as a `OPENAI_API_KEY` environment variable. 
+    You will need to set your OpenAI API keys as an `OPENAI_API_KEY` environment variable. 
     
     You can also pass your API keys to the `OpenaiContext` using the `api_key` parameters if initializing an `OpenaiContext` object directly.
 
@@ -29,7 +29,7 @@ from lavague.contexts.openai import OpenaiContext
 # Initialize Context
 context = OpenaiContext(llm="GPT-4o mini", mm_llm="GPT-4o mini")
 ```
-Once we have defined out OpenaiContext, we can use it by passing it to our ActionEngine and WorldModel when initializing them with the `from_context()` method.
+Once we have defined our OpenaiContext, we can use it by passing it to our ActionEngine and WorldModel when initializing them with the `from_context()` method.
 
 ```python
 selenium_driver = SeleniumDriver()

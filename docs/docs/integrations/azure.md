@@ -38,7 +38,7 @@ For guidance on setting environment variables in your environment, see [our FAQ]
 
 ### End-to-end example
 
-To use the AzureOpenaiContext, you should import the `lavagues.contexts.openai` package, initialize you `AzureOpenaiContext` and then pass it to our `Action Engine` using the `from_context()` initialization method.
+To use the AzureOpenaiContext, you should import the `lavague.contexts.openai` package, initialize you `AzureOpenaiContext` and then pass it to our `Action Engine` using the `from_context()` initialization method.
 
 ```python
 from lavague.core import WorldModel, ActionEngine
@@ -72,7 +72,7 @@ agent.run("What is this week's top Space of the week?")
 
 ### Passing Azure models
 
-It may be that the AzureOpenaiContext does not fit your needs because you want to use Azure for only one or two of the models. In this case you can initialize and pass your azure models individually when creating your agent.
+It may be that the AzureOpenaiContext does not fit your needs because you want to use Azure for only one or two of the models. In this case, you can initialize and pass your azure models individually when creating your agent.
 
 To do this you can use `llama-index` to initialize your models like in the example below:
 
