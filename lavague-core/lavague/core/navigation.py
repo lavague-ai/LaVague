@@ -308,11 +308,6 @@ class NavigationEngine(BaseEngine):
                     output,
                 )
 
-                WebDriverWait(self.driver.get_driver(), 30).until(
-                    lambda d: d.execute_script("return document.readyState")
-                    == "complete"
-                )
-
                 time.sleep(self.time_between_actions)
 
                 success = True

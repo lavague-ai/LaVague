@@ -66,13 +66,8 @@ class GradioAgentDemo:
 
     def _init_driver(self):
         def init_driver_impl(url, img):
-            from selenium.webdriver.support.ui import WebDriverWait
-
             self.agent.action_engine.driver.get(url)
 
-            WebDriverWait(self.agent.driver.get_driver(), 30).until(
-                lambda d: d.execute_script("return document.readyState") == "complete"
-            )
             ret = self.agent.action_engine.driver.get_screenshot_as_png()
             ret = BytesIO(ret)
             ret = Image.open(ret)
