@@ -75,7 +75,7 @@ class TestGenerator:
         logs, html = self._run_lavague_agent()
         html_chunks = self.retriever.retrieve(self.scenario.expect[0], [html])
         
-        spinner = yaspin(Spinners.arc, text="Generating tests...")
+        spinner = yaspin(Spinners.arc, text="Generating pytest...")
         spinner.start()
         if self.full_llm:
             actions, screenshot = self._process_logs(logs)
@@ -270,9 +270,24 @@ if __name__ == "__main__":
     pytest_generator.generate()
     
 # TODO:
-# - add token counter
-# - add contexts
+# code:
+# - add contexts + tokencounter ?
+# - add a little bit of telemetry to understand if people are using the CLI ?
+
+# limitations:
+# - can only handle one scenario
+# - can't handle `switch_to` when running without full_llm
+# - saves the feature file to ./generated_tests/ along with the code so that a user can easily run `pytest` on the generated test
 
 
-# - limitation: can only handle one scenario
-# - limitation: can't handle switch_to when running without full_llm
+
+
+# examples:
+# make sure all are in english with EN urls ? 
+# - issues: amazon.com has a captcha, .fr doesn't
+
+# docs:
+# add new section in side bar
+# - get started, installation, usage, walkthrouhg ? 
+# - index of docs
+# - main readme.md
