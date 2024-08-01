@@ -81,7 +81,7 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 } else if (message.type === 'stop') {
                     setRunningAgentState(RunningAgentState.IDLE)
                     if (message.args == true) {
-                        addLog({ log: "Agent successfully interrupted.", type: 'agent_log' });
+                        addLog({ log: "The agent was interrupted.", type: 'agent_log' });
                     }
                 }
                 if (log) {

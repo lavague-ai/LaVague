@@ -36,7 +36,6 @@ class AgentSession(ABC):
                 self.agent.set_stop_signal(self._stop_event)
                 self.agent.run(args)
             except Exception as e:
-                print(e)
                 pass
             finally:
                 stop = {"type": "stop", "args": self.agent.interrupted}

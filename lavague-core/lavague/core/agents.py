@@ -391,6 +391,7 @@ class WebAgent:
             pass
         except Exception as e:
             logging_print.error(f"Error while running the agent: {e}")
+            self.interrupted = True
             raise e
         finally:
             send_telemetry(self.logger.return_pandas())
