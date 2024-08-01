@@ -41,7 +41,7 @@ def build_run_summary(logs, final_feature_path, final_pytest_path, execution_tim
     # turn off TokenCounter output as it counts only the LaVague run and not the pytest generation
     # summary += build_summary_table(token_summary, verbose=False)
     
-    summary += f"\nRun the following command to execute your tests:\n\n    pytest {final_pytest_path}\n"
+    summary += f"\nRun the following command to execute your tests:\n\n   pytest {final_pytest_path}\n"
     
     return summary
 

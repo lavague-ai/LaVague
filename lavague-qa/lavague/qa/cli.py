@@ -2,7 +2,6 @@ import click
 import os
 from lavague.qa.generator import TestGenerator
 from lavague.tests.cli import _load_context
-from features.demo_wikipedia
 
 
 @click.command()
@@ -17,7 +16,7 @@ from features.demo_wikipedia
 @click.option(
     "--feature",
     "-f",
-    default=os.getcwd() + "/lavague-qa/features/demo_wikipedia.feature",
+    default=os.getcwd() + "/demo_wikipedia.feature",
     type=str,
     required=False,
     help="Path to the .feature file containing Gherkin",
