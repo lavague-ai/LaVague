@@ -454,7 +454,6 @@ class NavigationEngine(BaseEngine):
                     raise e
 
             action_outcomes.append(action_outcome)
-            self.driver.wait_for_idle()
 
         navigation_log["action_outcomes"] = action_outcomes
         navigation_log["action_nb"] = action_nb

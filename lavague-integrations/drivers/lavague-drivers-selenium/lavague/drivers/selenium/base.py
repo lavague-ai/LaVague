@@ -289,6 +289,8 @@ driver.set_window_size({width}, {height} + height_difference)
                 else:
                     raise ValueError(f"Unknown action: {action_name}")
 
+                self.wait_for_idle()
+
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
 
@@ -351,6 +353,13 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def dropdown_select(self, xpath: str, value: str):
         element = self.resolve_xpath(xpath)
+
+        if element.tag_name != "select":
+            print(
+                f"Cannot use dropdown_select on {element.tag_name}, falling back to simple click on {xpath}"
+            )
+            return self.click(xpath)
+
         select = Select(element)
         try:
             select.select_by_value(value)

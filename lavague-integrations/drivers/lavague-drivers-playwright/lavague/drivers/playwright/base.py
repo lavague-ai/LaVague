@@ -239,6 +239,8 @@ class PlaywrightDriver(BaseDriver):
             elif action_name == "wait":
                 self.perform_wait(item["action"]["args"]["duration"])
 
+            self.wait_for_idle()
+
     def execute_script(self, js_code: str, *args) -> Any:
         args = list(arg for arg in args)
         for i, arg in enumerate(args):
