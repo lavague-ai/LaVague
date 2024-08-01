@@ -27,7 +27,7 @@ from lavague.qa.utils import (
     INDENT,
     INDENT_PASS,
 )
-from lavague.qa.prompts import FULL_PROMPT_TEMPLATE, ASSERT_ONLY_PROMPT_TEMPLATE
+from lavague.qa.prompts import FULL_PROMPT_TEMPLATE, ASSERT_ONLY_PROMPT_TEMPLATE, PYTEST_HEADER_TEMPLATE, PYTEST_GIVEN_TEMPLATE, PYTEST_WHEN_TEMPLATE, PYTEST_THEN_TEMPLATE
 
 
 class Scenario:
@@ -63,7 +63,6 @@ class TestGenerator:
         self.headless = headless
         self.log_to_db = log_to_db
         
-        print(context)
         # parse feature
         self.scenarios, self.feature_file_content = self._read_scenarios(
             feature_file_path
@@ -73,11 +72,6 @@ class TestGenerator:
         # setup target directory and file paths
         self.generated_dir = "./generated_tests"
         self._setup_file_paths()
-
-        # instantiate LLMs
-        # self.mm_llm = OpenAIMultiModal("gpt-4-vision-preview", max_new_tokens=1000)
-        # self.llm = OpenAI(model="gpt-4")
-        # self.embedding = OpenAIEmbedding(model="text-embedding-3-small")
         
         # instantiate LLMs for Pytest generation from context
         self.llm = self.context.llm
@@ -179,37 +173,11 @@ class TestGenerator:
         return "\n".join([INDENT + l for l in code.splitlines()])
 
     def _build_pytest_file(self, logs, assert_code):
-        pytest_code = self._generate_pytest_header()
+        pytest_code = PYTEST_HEADER_TEMPLATE.format(url=self.url, feature_file_name=self.feature_file_name)
         pytest_code += self._generate_given_steps()
         pytest_code += self._generate_when_steps(logs)
         pytest_code += self._generate_then_step(assert_code)
         return pytest_code
-
-    def _generate_pytest_header(self):
-        return f"""
-import pytest
-from pytest_bdd import scenarios, given, when, then
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait, Select
-from selenium.webdriver.support import expected_conditions as EC
-
-# Constants
-BASE_URL = '{self.url}'
-
-# Scenarios
-scenarios('{self.feature_file_name}')
-
-# Fixtures
-@pytest.fixture
-def browser():
-    driver = WebDriver()
-    driver.implicitly_wait(10)
-    yield driver
-    driver.quit()
-
-# Steps
-"""
 
     def _generate_given_steps(self):
         given_steps = ""
@@ -217,11 +185,7 @@ def browser():
             step = setup.replace("'", "\\'")
             method_name = to_snake_case(setup)
             code = "browser.get(BASE_URL)" if index == 0 else "pass"
-            given_steps += f"""
-@given('{step}')
-def {method_name}(browser: WebDriver):
-    {code}
-"""
+            given_steps += PYTEST_GIVEN_TEMPLATE.format(step=step, method_name=method_name, code=code)
         return given_steps
 
     def _generate_when_steps(self, logs):
@@ -249,20 +213,12 @@ def {method_name}(browser: WebDriver):
             actions_code = INDENT + get_nav_control_code(instruction)
         else:
             actions_code = INDENT_PASS
-        return f"""
-@when('{step}')
-def {method_name}(browser: WebDriver):
-{actions_code}
-    """
+        return PYTEST_WHEN_TEMPLATE.format(step=step, method_name=method_name, actions_code=actions_code)
 
     def _generate_then_step(self, assert_code):
         step = self.scenario.expect[0].replace("'", "\\'")
         method_name = to_snake_case(self.scenario.expect[0])
-        return f"""
-@then('{step}')
-def {method_name}(browser: WebDriver):
-{assert_code}
-"""
+        return PYTEST_THEN_TEMPLATE.format(step=step, method_name=method_name, assert_code=assert_code)
 
     def _write_files(self, code):
         os.makedirs(self.generated_dir, exist_ok=True)
