@@ -1,224 +1,172 @@
-# QA Automation with LaVague and Pytest
+# QA Automation with LaVague
 
-- TODO: 
-- Split into several files under the LaVague QA section
-- Change gherkin and associated code to our best example (amazon?)
-- Write the walkthrough based on lavague-qa/generator.py
-- Update index.md
-- Update README.md
+## Introduction
 
-## Use case
+LaVague QA is a command-line tool that turns Gherkin test specifications into ready-to-use Pytest code for web applications. Built on the LaVague open-source framework, it automates the creation and maintenance of automated tests.
 
-LaVague is a great tool to help you write and maintain automated tests more efficiently. Writing test scripts manually is time consuming, using recorders can help but scripts can break if the page structure changes. 
+### Key Benefits
+- **Faster test creation:** generate Pytest code directly from test scenarios by leveraging LaVague Agents.
+- **Reduced maintenance:** AI element selection adapts to UI changes, lowering the upkeeping needed when the site changes.
 
-LaVague can generate reusable `pytest-bdd` code from a test case description written in `Gherkin`. If the page changes, simply re-run LaVague to update your test scripts.
+### How it works
 
-## CLI quickstart
+1. Write test scenarios in plain English using Gherkin.
+2. Run LaVague QA to automatically generate corresponding Pytest code.
+3. Execute tests or regenerate them as your website evolves.
 
+## Example
 
-### Generate pytest files
-We have built a CLI tool `lavague-qa` to help you run tests fast. 
-Install it with `pip install lavague-qa`. Then run this example command to generate tests for
-```sh
-lavague-qa --url https://example.com --feature path/to/your_feature.feature
+### Install LaVague QA
+
+```bash
+pip install lavague-qa
 ```
 
-### Run the generated tests
-
-```sh
-pytest your_feature.py
-```
-
-## Features
-
-LaVague is able to handle complex scenarios such as: 
-```gherkin
-Feature: Wikipedia Login
-
-  Scenario: User logs in successfully
-    Given the user is on the Wikipedia homepage
-    When the user navigates to the login page
-    And the user enters Lavague-test in the username field
-    And the user enters lavaguetest123 in the password field
-    And the user submits the login form
-    Then the login should be successful and the user is redirected to the main page
-```
-
-Which results in this code:
-??? note "Example code generated"
-    `demo_wikipedia.py` 
-    ```python
-        import pytest
-        from pytest_bdd import scenarios, given, when, then, parsers
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.common.exceptions import ElementClickInterceptedException
-        import time
-
-        # Constants
-        BASE_URL = 'https://en.wikipedia.org/'
-
-        # Scenarios
-        scenarios('demo_wikipedia.feature')
-
-        # Fixtures
-        @pytest.fixture
-        def browser():
-            driver = webdriver.Chrome()
-            driver.implicitly_wait(10)
-            yield driver
-            driver.quit()
-
-        # Steps
-        @given('the user is on the Wikipedia homepage')
-        def go_to_homepage(browser):
-            browser.get(BASE_URL)
-
-        @when('the user navigates to the login page')
-        def navigate_to_login(browser):
-            login_link = WebDriverWait(browser, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "/html/body/div/header/div[2]/nav/div/div[4]/div/ul/li[2]/a"))
-            )
-            try:
-                browser.execute_script("arguments[0].click();", login_link)
-            except ElementClickInterceptedException:
-                pytest.fail("Failed to navigate to the login page")
-
-        @when(parsers.parse('the user enters {username} in the username field'))
-        def enter_username(browser, username):
-            username_field = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[2]/div/form/div/div[2]/div/input"))
-            )
-            username_field.send_keys(username)
-
-        @when(parsers.parse('the user enters {password} in the password field'))
-        def enter_password(browser, password):
-            password_field = WebDriverWait(browser, 10).until(
-                EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[2]/div/form/div[2]/div[2]/div/input"))
-            )
-            password_field.send_keys(password)
-
-        @when('the user clicks on the login button under the username and password fields')
-        def click_login_button(browser):
-            login_button = WebDriverWait(browser, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div[3]/main/div[3]/div[3]/div[2]/div/form/div[4]/div/button"))
-            )
-            try:
-                browser.execute_script("arguments[0].click();", login_button)
-            except ElementClickInterceptedException:
-                pytest.fail("Failed to click the login button")
-
-        @when('the user is redirected to the home page')
-        def wait_for_homepage(browser):
-            time.sleep(3)  # Wait for redirection
-
-        @when('the user click on the username at the top of the page')
-        def click_username(browser):
-            username_link = WebDriverWait(browser, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "/html/body/div/header/div[2]/nav/div/div[2]/div/ul/li/a"))
-            )
-            try:
-                browser.execute_script("arguments[0].click();", username_link)
-            except ElementClickInterceptedException:
-                pytest.fail("Failed to click on the username link")
-
-        @then(parsers.parse('the URL should be "{expected_url}"'))
-        def verify_url(browser, expected_url):
-            current_url = browser.current_url
-            assert current_url == expected_url, f"Expected URL to be {expected_url}, but got {current_url}"
-    ```
-
-## Demo
-
-TODO
-
-
-## CLI Usage
-
-Run `lavague-qa --help` to show available arguments
-
-```
-Usage: lavague-qa [OPTIONS]
-
-Options:
-  -u, --url TEXT      URL of the site to test
-  -f, --feature TEXT  Path to the .feature file containing Gherkin
-  -h, --headless      Enable headless mode for the browser
-  -db, --log-to-db    Enables logging to a SQLite database
-  --help              Show this message and exit.
-```
-
-!!! tips "Pre-requisites"
-
-    We use OpenAI's models, for the embedding, LLM and Vision model. You will need to set the **OPENAI_API_KEY** variable in your local environment with a valid API key for this example to work.
-
-### Run it with your feature file
-1. Create a `.feature` file containing valid Gherkin test steps
-2. Run `lavague-qa --url https://example.com --feature path/to/gherkin/feature`
-
-### Default example
-Run `lavague-qa` to run the default wikipedia.org example [available here](https://github.com/lavague-ai/LaVague/blob/main/lavague-qa/features/demo_wikipedia.feature)
-
-
-## Walkthrough
-
-We will walkthrough the [TestGenerator](https://github.com/lavague-ai/LaVague/blob/main/lavague-qa/lavague/qa/generator.py) class logic. It leverages LaVague agents to run tests on a website, records selector data and rebuilds the pytest file. 
-
-
-## Script walk through
-
-Let's walk through some of the core components of our script to give you a better understanding of how we use LaVague to make you more efficient at testing your web apps. 
-
-
-### Main logic
-
-To generate the test, we go through the following steps:
-- load and parse the Gherkin file
-- run the LaVague agent with the objective to run the test scenario
-- use recorded data to build a prompt
-- use an LLM to build the pytest
-
-
-### Starting from Gherkin scenarios and an URL
-
-Gherkin is a language used in behavior-driven development (BDD) to describe feature behavior. 
-
-Several example `.feature` files are [available here](https://github.com/lavague-ai/LaVague/blob/main/lavague-qa/features/).
-
+### Feature file
+In this example, we will use an example feature file that adds test coverage for Cart item removal, a critical component of the Amazon Cart feature
 
 ```gherkin
 Feature: Cart
 
-  TODO: add example feature
+  Scenario: Add and remove a single product from cart
+    Given the user is on the homepage
+    When the user clicks on "Accepter" to accept cookies
+    And the user enter "Zero to One" into the search bar and press Enter
+    And the user click on the first product in the search results
+    And the user click on the "Ajouter au panier" button
+    And the user the confirmation message has been displayed
+    And the user click on "Aller au panier" under "Passer la commande"
+    And the user click on "Supprimer" from the cart page
+    Then the cart should be empty
+```
+
+### Use the CLI
+
+Use `lavague-qa` with a `URL` and a `.feature` file. 
+
+```bash
+lavague-qa --url https://www.amazon.com --feature ./amazon_cart.feature
+```
+
+This will generate `amazon_cart.py`, a Pytest file implementing all steps in your Gherkin scenario.
+
+??? note "Example `amazon_cart.py`"
+    `amazon_cart.py` 
+    ```python
+    import pytest
+    from pytest_bdd import scenarios, given, when, then, parsers
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import ElementClickInterceptedException
+    import time
+
+    # Constants
+    BASE_URL = 'https://www.amazon.fr/'
+
+    # Scenarios
+    scenarios('amazon_cart.feature')
+
+    # Fixtures
+    @pytest.fixture
+    def browser():
+        driver = webdriver.Chrome()
+        driver.implicitly_wait(10)
+        yield driver
+        driver.quit()
+
+    # Steps
+    @given('the user is on the homepage')
+    def user_on_homepage(browser):
+        browser.get(BASE_URL)
+
+    @when('the user clicks on "Accepter" to accept cookies')
+    def accept_cookies(browser):
+        accept_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "/html/body/div/span/form/div[2]/span/span/input"))
+        )
+        accept_button.click()
+
+    @when(parsers.parse('the user enter "{search_term}" into the search bar and press Enter'))
+    def enter_search_term(browser, search_term):
+        search_input = WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located((By.XPATH, "/html/body/div/header/div/div/div[2]/div/form/div[3]/div/input"))
+        )
+        search_input.send_keys(search_term)
+        search_input.submit()
+
+    @when('the user click on the first product in the search results')
+    def click_first_product(browser):
+        first_product_link = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/div/span/div/div[2]/div/div/span/div/div/div[2]/div/h2/a"))
+        )
+        first_product_link.click()
+
+    @when('the user click on the "Ajouter au panier" button')
+    def add_to_cart(browser):
+        add_to_cart_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div[4]/div/div[5]/div[4]/div[4]/div/div/div/div/div/div/div/div/div[2]/div/form/div/div/div[23]/div/span/span/span/input"))
+        )
+        add_to_cart_button.click()
+
+    @when('the user the confirmation message has been displayed')
+    def confirm_message_displayed(browser):
+        time.sleep(3)  # Wait for the confirmation message to be displayed
+
+    @when('the user click on "Aller au panier" under "Passer la commande"')
+    def go_to_cart(browser):
+        go_to_cart_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div/div/div[2]/div/div[3]/div/div/span/span/a"))
+        )
+        go_to_cart_button.click()
+
+    @when('the user click on "Supprimer" from the cart page')
+    def remove_from_cart(browser):
+        remove_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div[3]/div[5]/div/div[2]/div/div/form/div[2]/div[3]/div[4]/div/div[2]/div/span[2]/span/input"))
+        )
+        remove_button.click()
+
+    @then('the cart should be empty')
+    def cart_should_be_empty(browser):
+        time.sleep(3)  # Wait for the cart update after removal
+        empty_cart_message = WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'Votre panier Amazon est vide.')]"))
+        )
+        assert 'Votre panier Amazon est vide.' in empty_cart_message.text, "Cart is not empty"
+
+    ```
+
+### Run the generated tests
+
+Use `pytest amazon_cart.py` to run the test. 
+
+```bash
+pytest amazon_cart.py
+================================================================================================================== test session starts ===================================================================================================================
+platform darwin -- Python 3.10.14, pytest-8.2.1, pluggy-1.5.0
+rootdir: /Users/
+configfile: pyproject.toml
+plugins: anyio-4.3.0, bdd-7.1.2
+collected 1 item                                                                                                                                                                                                                                         
+
+generated_tests/amazon_cart.py .                                                                                                                                                                                                               [100%]
+
+=================================================================================================================== 1 passed in 16.03s ===================================================================================================================
+
 ```
 
 
+LaVague QA eliminates the need for manual selector identification and simplifies test updates when your site changes. 
 
-### Running a test case with a LaVague agent
+Whether you're adding coverage to a new site or maintaining existing tests, LaVague QA helps you create reliable, comprehensive test suites with minimal technical knowledge.
 
-In order to record all information needed to generate a robust test case, we run each scenario with LaVague.
+## Interested in LaVague QA ?
 
+More documentation is available!
 
+- Learn about advanced usage and options in our Usage guide
+- Learn more about how we built this tool in our Walkthrough
 
-## Running our tests
-
-Assuming you are still in the same directory, you can simply use `pytest name_of_the_generated_file.py}` to run the generated tests.
-
-## Limitations and next steps
-
-!!! warning "Verify the code"
-
-    100% accuracy is not guaranteed and we advise you review the generated final code file
-
-**Main limitation**: LaVague sometimes struggle on complex JavaScript heavy websites because of the difficulty of identifying the right selector. Try to rerun the agent if it fails. 
-
-**Going further**:
-
-- Add support for other testing frameworks
-- Generate Gherkin file from higher level instructions
-- Integrate LaVague in the life cycle of your tests
-
-## Need help ? Found a bug ?
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to reach our core team and get support!
