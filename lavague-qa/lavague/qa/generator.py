@@ -1,21 +1,26 @@
 import os
 from typing import List, Tuple
 import yaml
+import time
 from yaspin import yaspin
 from yaspin.spinners import Spinners
 from gherkin.parser import Parser
 from selenium.webdriver.chrome.webdriver import WebDriver
+
 from llama_index.llms.openai import OpenAI
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.legacy.readers.file.base import SimpleDirectoryReader
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
+from lavague.core.context import Context
+from lavague.core.token_counter import TokenCounter
 from lavague.core.retrievers import SemanticRetriever
 from lavague.drivers.selenium import SeleniumDriver
 from lavague.qa.utils import (
     remove_comments,
     clean_llm_output,
+    build_run_summary,
     to_snake_case,
     get_nav_action_code,
     get_nav_control_code,
@@ -38,64 +43,96 @@ class Scenario:
     def __repr__(self) -> str:
         return f"Scenario({str(self)})"
 
+
 class TestGenerator:
     def __init__(
         self,
+        context: Context, 
         url: str,
         feature_file_path: str,
         full_llm: bool,
+        token_counter: TokenCounter,
         headless: bool,
         log_to_db: bool,
     ):
+        self.context = context
         self.url = url
         self.feature_file_path = feature_file_path
-        self.scenarios, self.feature_file_content = self._read_scenarios(feature_file_path)
-        self.scenario = self.scenarios[0]
         self.full_llm = full_llm
+        self.token_counter = token_counter
         self.headless = headless
         self.log_to_db = log_to_db
+        
+        print(context)
+        # parse feature
+        self.scenarios, self.feature_file_content = self._read_scenarios(
+            feature_file_path
+        )
+        self.scenario = self.scenarios[0]
 
+        # setup target directory and file paths
         self.generated_dir = "./generated_tests"
         self._setup_file_paths()
 
-        self.mm_llm = OpenAIMultiModal("gpt-4-vision-preview", max_new_tokens=1000)
-        self.llm = OpenAI(model="gpt-4")
-        self.embedding = OpenAIEmbedding(model="text-embedding-3-small")
-        self.retriever = SemanticRetriever(embedding=self.embedding, xpathed_only=False)
-
-        print(f"Ready to generate tests on {self.url} for {self.feature_file_path}")
+        # instantiate LLMs
+        # self.mm_llm = OpenAIMultiModal("gpt-4-vision-preview", max_new_tokens=1000)
+        # self.llm = OpenAI(model="gpt-4")
+        # self.embedding = OpenAIEmbedding(model="text-embedding-3-small")
+        
+        # instantiate LLMs for Pytest generation from context
+        self.llm = self.context.llm
+        self.mm_llm = self.context.mm_llm
+        self.retriever = SemanticRetriever(embedding=self.context.embedding, xpathed_only=False)
+        print(f"Ready to generate tests on {self.url} for {self.feature_file_content}")
 
     def _setup_file_paths(self):
         self.feature_file_name = os.path.basename(self.feature_file_path)
         self.code_file_name = f"{self.feature_file_name.replace('.feature', '')}{'_llm' if self.full_llm else '_no_llm'}.py"
         self.final_pytest_path = os.path.join(self.generated_dir, self.code_file_name)
-        self.final_feature_path = os.path.join(self.generated_dir, self.feature_file_name)
+        self.final_feature_path = os.path.join(
+            self.generated_dir, self.feature_file_name
+        )
 
     def generate(self):
         logs, html = self._run_lavague_agent()
         html_chunks = self.retriever.retrieve(self.scenario.expect[0], [html])
-        
+
+        # start timer and spinner
         spinner = yaspin(Spinners.arc, text="Generating pytest...")
         spinner.start()
+        start_time = time.time()
+        
         if self.full_llm:
             actions, screenshot = self._process_logs(logs)
             prompt = self._build_prompt(html_chunks, actions)
             code = self._generate_pytest(prompt, screenshot)
         else:
-            assert_code = self._generate_assert_code(self.scenario.expect[0], html_chunks)
+            assert_code = self._generate_assert_code(
+                self.scenario.expect[0], html_chunks
+            )
             code = self._build_pytest_file(logs, assert_code)
+            
+        # end timer and spinner
         spinner.stop()
+        end_time = time.time()
+        execution_time = end_time - start_time
 
         self._write_files(code)
-        print(f"\nTests successfully generated\n - Run `pytest {self.final_pytest_path}` to run the generated test.")
+        
+        print(build_run_summary(logs, self.final_pytest_path, self.final_feature_path, execution_time))
+
+        print(
+            f"\nTests successfully generated\n - Run `pytest {self.final_pytest_path}` to run the generated test."
+        )
 
     def _run_lavague_agent(self):
         selenium_driver = SeleniumDriver(headless=self.headless)
-        world_model = WorldModel()
-        action_engine = ActionEngine(selenium_driver)
-        agent = WebAgent(world_model, action_engine)
+        action_engine = ActionEngine.from_context(context=self.context, driver=selenium_driver)
+        world_model = WorldModel.from_context(context=self.context)
+        agent = WebAgent(world_model, action_engine, token_counter=self.token_counter)
 
         agent.get(self.url)
+        time.sleep(1)
 
         if self.full_llm:
             objective = f"Run these scenarios step by step. Make sure you complete each step: {self.feature_file_content}"
@@ -115,7 +152,9 @@ class TestGenerator:
     def _process_logs(self, logs):
         logs["action"] = logs["code"].dropna().apply(remove_comments)
         cleaned_logs = logs[["instruction", "action"]].fillna("")
-        actions = "\n\n".join(cleaned_logs["instruction"] + " " + cleaned_logs["action"])
+        actions = "\n\n".join(
+            cleaned_logs["instruction"] + " " + cleaned_logs["action"]
+        )
         last_screenshot = SimpleDirectoryReader(
             logs.iloc[-1]["screenshots_path"]
         ).load_data()
@@ -196,15 +235,22 @@ def {method_name}(browser: WebDriver):
         for index, row in logs.iterrows():
             if index < len(self.scenario.steps):
                 gherkin_step = self.scenario.steps[index]
-                when_steps += self._get_pytest_when(gherkin_step, row["engine"], row["code"], row["instruction"])
+                when_steps += self._get_pytest_when(
+                    gherkin_step, row["engine"], row["code"], row["instruction"]
+                )
         return when_steps
 
-    def _get_pytest_when(self, gherkin_step: str, engine: str, engine_log: str, instruction: str) -> str:
+    def _get_pytest_when(
+        self, gherkin_step: str, engine: str, engine_log: str, instruction: str
+    ) -> str:
         step = gherkin_step.replace("'", "\\'")
         method_name = to_snake_case(gherkin_step)
         if engine == "Navigation Engine":
             actions = yaml.safe_load(engine_log)[0]["actions"]
-            actions_code = "\n".join([INDENT + get_nav_action_code(a["action"]) for a in actions]) or INDENT_PASS
+            actions_code = (
+                "\n".join([INDENT + get_nav_action_code(a["action"]) for a in actions])
+                or INDENT_PASS
+            )
         elif engine == "Navigation Controls":
             actions_code = INDENT + get_nav_control_code(instruction)
         else:
@@ -230,8 +276,6 @@ def {method_name}(browser: WebDriver):
             file.write(self.feature_file_content)
         with open(self.final_pytest_path, "w") as file:
             file.write(code)
-        print(f"\n- Feature file: {self.final_feature_path}")
-        print(f"- Pytest file: {self.final_pytest_path}")
 
     @staticmethod
     def _read_scenarios(feature_file_path: str) -> Tuple[List[Scenario], str]:
@@ -265,14 +309,22 @@ def {method_name}(browser: WebDriver):
 
         return scenarios, feature_file_content
 
+
 if __name__ == "__main__":
-    pytest_generator = TestGenerator("https://google.fr/", "./features/demo_dev.feature", full_llm=False, headless=False, log_to_db=True)
+    pytest_generator = TestGenerator(
+        "https://google.fr/",
+        "./features/demo_dev.feature",
+        full_llm=False,
+        headless=False,
+        log_to_db=True,
+    )
     pytest_generator.generate()
-    
+
 # TODO:
 # code:
 # - add contexts + tokencounter ?
 # - add a little bit of telemetry to understand if people are using the CLI ?
+# what about the function in utils ? what's the risk of drifting away from the core lavague code if we add actions, change the ways we handle actions, etc ?
 
 # limitations:
 # - can only handle one scenario
@@ -280,14 +332,12 @@ if __name__ == "__main__":
 # - saves the feature file to ./generated_tests/ along with the code so that a user can easily run `pytest` on the generated test
 
 
-
-
 # examples:
-# make sure all are in english with EN urls ? 
+# make sure all are in english with EN urls ?
 # - issues: amazon.com has a captcha, .fr doesn't
 
 # docs:
 # add new section in side bar
-# - get started, installation, usage, walkthrouhg ? 
+# - get started, installation, usage, walkthrouhg ?
 # - index of docs
 # - main readme.md

@@ -1,6 +1,7 @@
 import click
 import os
 from lavague.qa.generator import TestGenerator
+from lavague.tests.cli import _load_context
 
 
 @click.command()
@@ -15,7 +16,7 @@ from lavague.qa.generator import TestGenerator
 @click.option(
     "--feature",
     "-f",
-    default="./features/demo_wikipedia.feature",
+    default=os.getcwd() + "/lavague-qa/features/demo_wikipedia.feature",
     type=str,
     required=False,
     help="Path to the .feature file containing Gherkin",
@@ -26,6 +27,14 @@ from lavague.qa.generator import TestGenerator
     is_flag=True,
     required=False,
     help="Enable full LLM pytest generation",
+)
+@click.option(
+    "--context",
+    "-c",
+    type=str,
+    default=os.getcwd() +  "/lavague-tests/contexts/default_context.py",
+    required=False,
+    help="Path of python file containing an initialized context and token_counter. Default is lavague-tests/contexts/default_context.py",
 )
 @click.option(
     "--headless",
@@ -42,7 +51,8 @@ from lavague.qa.generator import TestGenerator
     help="Enables logging to a SQLite database",
 )
 def cli(
-    url: str, feature: str, full_llm: bool, headless: bool, log_to_db: bool
+    url: str, feature: str, full_llm: bool, context: str, headless: bool, log_to_db: bool
 ) -> None:
-    pytest_generator = TestGenerator(url, feature, full_llm, headless, log_to_db)
+    context, token_counter = _load_context(context)
+    pytest_generator = TestGenerator(context, url, feature, full_llm, token_counter, headless, log_to_db)
     pytest_generator.generate()
