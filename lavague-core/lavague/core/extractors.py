@@ -35,7 +35,7 @@ class YamlFromMarkdownExtractor(BaseExtractor):
 
     def extract(self, markdown_text: str) -> str:
         # Pattern to match the first ```yaml ``` code block
-        pattern = r"```yaml(.*?)```"
+        pattern = r"```(?:yaml|yml)(.*?)```"
 
         # Using re.DOTALL to make '.' match also newlines
         match = re.search(pattern, markdown_text, re.DOTALL)
@@ -141,6 +141,7 @@ class DynamicExtractor(BaseExtractor):
         self.extractors: Dict[str, BaseExtractor] = {
             "json": JsonFromMarkdownExtractor(),
             "yaml": YamlFromMarkdownExtractor(),
+            "yml": YamlFromMarkdownExtractor(),
             "python": PythonFromMarkdownExtractor(),
         }
 
