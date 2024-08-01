@@ -80,7 +80,6 @@ def _load_sites(directory, site):
 
 
 def _load_context(context):
-    print(context)
     if(context):
         # read context file and execute it
         with open(context, "r") as file:

@@ -76,6 +76,7 @@ class TestGenerator:
         # instantiate LLMs for Pytest generation from context
         self.llm = self.context.llm
         self.mm_llm = self.context.mm_llm
+        self.mm_llm.max_new_tokens = 2000
         self.retriever = SemanticRetriever(embedding=self.context.embedding, xpathed_only=False)
         print(f"Ready to generate tests on {self.url} for {self.feature_file_content}")
 
@@ -111,7 +112,7 @@ class TestGenerator:
         spinner.stop()
         end_time = time.time()
         execution_time = end_time - start_time
-        print(build_run_summary(logs, self.final_pytest_path, self.final_feature_path, execution_time))
+        print(build_run_summary(logs, self.final_feature_path, self.final_pytest_path, execution_time))
 
     def _run_lavague_agent(self):
         selenium_driver = SeleniumDriver(headless=self.headless)

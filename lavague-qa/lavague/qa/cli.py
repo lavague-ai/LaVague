@@ -34,7 +34,7 @@ from lavague.tests.cli import _load_context
     type=str,
     default=None,
     required=False,
-    help="Path of python file containing an initialized context and token_counter. Default is lavague-tests/contexts/default_context.py",
+    help="Path of python file containing an initialized context and token_counter. Defaults to OpenAI GPT4o",
 )
 @click.option(
     "--headless",
