@@ -116,7 +116,7 @@ class WebAgent:
         screenshot_ratio: float = 1,
     ):
         """Internal run method for the gradio demo. Do not use directly. Use run instead."""
-        
+
         from gradio import ChatMessage
 
         driver: BaseDriver = self.driver
