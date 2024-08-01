@@ -47,6 +47,8 @@ Options:
   -u, --url TEXT      URL of the site to test
   -f, --feature TEXT  Path to the .feature file containing Gherkin
   -llm, --full-llm    Enable full LLM pytest generation
+  -c, --context TEXT  Path of python file containing an initialized context
+                      and token_counter. Defaults to OpenAI GPT4o
   -h, --headless      Enable headless mode for the browser
   -db, --log-to-db    Enables logging to a SQLite database
   --help              Show this message and exit.
@@ -91,10 +93,26 @@ generated_tests/example.py .                                                    
 
 ## Advanced usage
 
-### Pytest generation strategies
+By default, LaVague attempts to minimize reliance on LLMs in order to optimize costs.
 
-- By default, LaVague attempts to minimize reliance on LLMs in order to optimize costs. 
-- It rebuilds 90% of the pytest file deterministically and only relies on LLMs for the assert generation. 
+### Flag `--context` or `-c`
+
+Contexts are used to run LaVague QA with different LLMs.
+
+Contexts are `.py` files, they instantiate the required `Context` object and the `TokenCounter` object.
+
+- By default we use OpenAI `gpt-4o` as it is the best performing model so far
+- You can find [other contexts in our repository](https://github.com/lavague-ai/LaVague/tree/main/lavague-tests/contexts)
+
+To run with a custom context, use the `--context` flag along with the path to the `.py` file creating the objects.
+
+```bash
+lavague-qa --context ./my_contexts/custom_context_gemini.py
+```
+
+### Flag `--full-llm` or `-llm`
+
+- By default, we build 90% of the pytest file deterministically and only rely on LLMs for the assert generation. It will create `example_no_llm.py` in our case. 
 - This default option may result in reduced reliability, especially if the LaVague agent doesn't conduct steps exactly as they are defined in the feature file. 
 
 **In this case, you can attempt to generate the files entirely with an LLM by adding the `-llm` flag**
@@ -102,6 +120,9 @@ generated_tests/example.py .                                                    
 ```bash
 lavague-qa -llm --url https://example.com --feature example.feature
 ```
+
+This will create `example_llm.py` that you can run with Pytest
+
 
 ## Learn more
 
