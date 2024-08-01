@@ -31,8 +31,6 @@ export class ChromeExtensionDriver {
             if (tabs[0].url != undefined && !tabs[0].url.startsWith('chrome://')) {
                 const newTabId = activeInfo.tabId;
                 if (this.currentTabId !== newTabId) {
-                    console.log(this.currentTabId);
-                    console.log(newTabId);
                     if (this.currentTabId != null) {
                         this.detachDebuggerFromTab(this.currentTabId);
                     }
