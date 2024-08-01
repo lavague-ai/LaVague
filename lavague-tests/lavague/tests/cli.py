@@ -80,7 +80,7 @@ def _load_sites(directory, site):
 
 
 def _load_context(context):
-    if(context):
+    if context:
         # read context file and execute it
         with open(context, "r") as file:
             file_content = file.read()
@@ -96,6 +96,7 @@ def _load_context(context):
             )
     else:
         from contexts.default_context import context, token_counter
+
         return context, token_counter
 
 
