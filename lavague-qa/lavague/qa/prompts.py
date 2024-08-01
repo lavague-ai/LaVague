@@ -35,7 +35,7 @@ def {method_name}(browser: WebDriver):
 PYTEST_WHEN_TEMPLATE = PromptTemplate("""@when('{step}')
 def {method_name}(browser: WebDriver):
 {actions_code}
-    """)
+""")
 
 PYTEST_THEN_TEMPLATE = PromptTemplate("""@then('{step}')
 def {method_name}(browser: WebDriver):
