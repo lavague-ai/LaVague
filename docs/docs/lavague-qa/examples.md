@@ -9,16 +9,16 @@ We will periodically add [examples in our repository](https://github.com/lavague
 | URL                              | Link to file                                                  | Purpose                                                  |
 |:---------------------------------|:--------------------------------------------------------------|:---------------------------------------------------------|
 | https://amazon.fr/               | [demo_amazon.feature](https://github.com/lavague-ai/LaVague/blob/main/lavague/features/demo_amazon.feature)       | Tests the Amazon search, cart and cart deletion to ensure expected behavior |
-| https://laposte.fr/              | [demo_laposte.feature](https://github.com/lavague-ai/LaVague/blob/main/lavague/features/demo_laposte.feature)     | Tests an interative shipping cost calculator to ensure expected output |
+| https://laposte.fr/              | [demo_laposte.feature](https://github.com/lavague-ai/LaVague/blob/main/lavague/features/demo_laposte.feature)     | Tests an interactive shipping cost calculator to ensure expected output |
 | https://en.wikipedia.org/        | [demo_wikipedia.feature](https://github.com/lavague-ai/LaVague/blob/main/lavague/features/demo_wikipedia.feature) | Tests the login feature of Wikipedia  |
-| https://hsbc.fr/                 | [demo_hsbc.feature](https://github.com/lavague-ai/LaVague/blob/main/lavague/features/demo_hsbc.feature)           | Tests proper multitab navigation and cookie banners |
+| https://hsbc.fr/                 | [demo_hsbc.feature](https://github.com/lavague-ai/LaVague/blob/main/lavague/features/demo_hsbc.feature)           | Tests proper multi-tab navigation and cookie banners |
 
 
 In each of these examples, we'll showcase how LaVague QA can be used to generate tests for critical parts of your websites. 
 
 ## Amazon Cart testing
 
-The cart is a core feature in e-commerce and companies need to ensure it always stays functionnal. 
+The cart is a core feature in e-commerce and companies need to ensure it always stays functional. 
 
 ### Feature file
 
@@ -272,7 +272,7 @@ Feature: Shipping cost calculator
 
 ### Feature file
 
-Login is a core part of most websites, we test basic login functionnality by providing credentials. 
+Login is a core part of most websites, we test basic login functionality by providing credentials. 
 
 ```gherkin
 Feature: Wikipedia Login

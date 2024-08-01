@@ -178,3 +178,5 @@ deterministically
 cd
 qa
 walkthrough
+lavaguetest
+multi-tab
