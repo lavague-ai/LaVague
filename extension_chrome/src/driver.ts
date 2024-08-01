@@ -46,8 +46,6 @@ export class ChromeExtensionDriver {
     tabUpdatedListener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
         if (tab.active && changeInfo.status === 'complete' && !tab.url!.startsWith('chrome://')) {
             if (this.currentTabId !== tabId) {
-                console.log(this.currentTabId);
-                console.log(tabId);
                 if (this.currentTabId != null) {
                     this.detachDebuggerFromTab(this.currentTabId);
                 }
