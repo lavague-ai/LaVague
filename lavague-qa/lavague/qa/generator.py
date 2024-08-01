@@ -94,14 +94,13 @@ class TestGenerator:
         )
 
     def generate(self):
+        start_time = time.time()
         logs, html = self._run_lavague_agent()
         html_chunks = self.retriever.retrieve(self.scenario.expect[0], [html])
 
-        # start timer and spinner
+        # start timer and spinner for pytest generation
         spinner = yaspin(Spinners.arc, text="Generating pytest...")
         spinner.start()
-        start_time = time.time()
-        
         if self.full_llm:
             actions, screenshot = self._process_logs(logs)
             prompt = self._build_prompt(html_chunks, actions)
@@ -112,18 +111,13 @@ class TestGenerator:
             )
             code = self._build_pytest_file(logs, assert_code)
             
+        self._write_files(code)
+        
         # end timer and spinner
         spinner.stop()
         end_time = time.time()
         execution_time = end_time - start_time
-
-        self._write_files(code)
-        
         print(build_run_summary(logs, self.final_pytest_path, self.final_feature_path, execution_time))
-
-        print(
-            f"\nTests successfully generated\n - Run `pytest {self.final_pytest_path}` to run the generated test."
-        )
 
     def _run_lavague_agent(self):
         selenium_driver = SeleniumDriver(headless=self.headless)
