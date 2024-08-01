@@ -1,5 +1,8 @@
 # QA Automation with LaVague
 
+!!! warning "Early release"
+    LaVague QA is still a work in progress and may contain bugs. Join our [community of amazing contributors](https://discord.gg/invite/SDxn9KpqX9) to help make this tool more reliable!
+    
 ## Introduction
 
 LaVague QA is a command-line tool that turns Gherkin test specifications into ready-to-use Pytest code for web applications. Built on the LaVague open-source framework, it automates the creation and maintenance of automated tests.
@@ -166,8 +169,7 @@ Whether you're adding coverage to a new site or maintaining existing tests, LaVa
 
 More documentation is available!
 
-- Learn about usage and options in our [Usage guide](./usage.md)
-- Learn about advanced usage and customization in our [Customization guide](./customization.md)
-- Learn more about how we built this tool in our [Walkthrough](./walkthrough.md)
+- Learn about usage and options in our [sage guide](./usage.md)
+- See it in action in our [examples section](./examples.md)
 
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to reach our core team and get support!

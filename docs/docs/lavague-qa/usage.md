@@ -126,7 +126,6 @@ This will create `example_llm.py` that you can run with Pytest
 
 ## Learn more
 
-- Learn about advanced usage and customization in our [Customization guide](./customization.md)
-- Learn more about how we built this tool in our [Walkthrough](./walkthrough.md)
+- Learn about advanced usage and customization in our [Example section](./examples.md)
 
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to reach our core team and get support!

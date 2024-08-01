@@ -108,8 +108,6 @@ nav:
   - Quick tour: 'docs/lavague-qa/quicktour.md'
   - Installation and usage: 'docs/lavague-qa/usage.md'
   - Examples: 'docs/lavague-qa/examples.md'
-  - Customization: 'docs/lavague-qa/customization.md'
-  - Walkthrough: 'docs/lavague-qa/walkthrough.md'
 
 
 - 📚 Learn:
@@ -153,8 +151,6 @@ nav:
     - HF papers retrieval: "docs/examples/hf-papers-retrieval.md"
   - Data Entry:
     - Automated job application: "docs/examples/job-application.md"
-  - QA Automation: 
-    - Generate automated tests: "docs/examples/qa-automation.md"
 
 - 🤗 Contributing:
   - Home: "docs/contributing/contributing.md"
