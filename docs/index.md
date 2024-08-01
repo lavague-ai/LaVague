@@ -66,17 +66,24 @@ For an end-to-end example of LaVague in a Google Colab, see our [quick-tour note
 
 ## Use cases
 ### QA Automation
-A significant portion of LaVague's users are interesting in using LaVague to add automated test coverage to their websites. 
-To showcase how LaVague can solve this use case, we have created a CLI tool: `lavague-qa`.
 
-Install this tool with `pip install lavague-qa` or by running `pip install .` from the `lavague-qa` directory. 
+LaVague agents make testing complex websites easy. 
+Our CLI tool turns your Gherkin test specs into Pytest code, simplifying QA automation for web applications and ensuring reliable testing with less effort.
 
-Run `lavague-qa` with a URL and a path to a Gherkin file to generate reusable `pytest` code.
-```bash
-lavague-qa --url https://google.fr/ --feature features/demo_dev.feature
-```
+How it works:
 
-Learn more in our step by step walkthrough of how we built this test generator.
+1. Write Gherkin test scenarios.
+2. Run LaVague QA to generate Pytest code.
+3. Execute or regenerate tests as your website evolves.
+
+Example:
+
+1. Install LaVague QA: pip install lavague-qa
+2. Define a feature file.
+3. Generate Pytest code: `lavague-qa --url https://www.amazon.com --feature ./amazon_cart.feature`
+4. Run tests: `pytest amazon_cart.py`
+
+Read our [dedicated documentation](https://docs.lavague.ai/en/latest/docs/lavague-qa/quicktour/) to learn more
 
 ## 🙋 Contributing
 
