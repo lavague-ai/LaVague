@@ -106,7 +106,9 @@ nav:
 
 - LaVague QA:
   - Quick tour: 'docs/lavague-qa/quicktour.md'
-  - Installation and usage: 'docs/lavague-qa/installation.md'
+  - Installation and usage: 'docs/lavague-qa/usage.md'
+  - Customization: 'docs/lavague-qa/customization.md'
+  - Walkthrough: 'docs/lavague-qa/walkthrough.md'
 
 
 - 📚 Learn:

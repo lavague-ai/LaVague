@@ -22,7 +22,7 @@ LaVague QA is a command-line tool that turns Gherkin test specifications into re
 pip install lavague-qa
 ```
 
-### Feature file
+### Define feature file
 In this example, we will use an example feature file that adds test coverage for Cart item removal, a critical component of the Amazon Cart feature
 
 ```gherkin
@@ -166,7 +166,8 @@ Whether you're adding coverage to a new site or maintaining existing tests, LaVa
 
 More documentation is available!
 
-- Learn about advanced usage and options in our Usage guide
-- Learn more about how we built this tool in our Walkthrough
+- Learn about usage and options in our [Usage guide](./usage.md)
+- Learn about advanced usage and customization in our [Customization guide](./customization.md)
+- Learn more about how we built this tool in our [Walkthrough](./walkthrough.md)
 
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to reach our core team and get support!
