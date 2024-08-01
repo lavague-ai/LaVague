@@ -426,6 +426,10 @@ return (function() {
           || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
             return [];
         }
+        const rect = e.getBoundingClientRect();
+        if (rect.width + rect.height < 5) {
+            return [];
+        }
         const style = getComputedStyle(e) || {};
         if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
             return [];
