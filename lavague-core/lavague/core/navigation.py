@@ -268,7 +268,6 @@ class NavigationEngine(BaseEngine):
                         self.objective,
                         self.url_input,
                         screenshot,
-                        self.instructions_history,
                         self.history,
                         output,
                     )
@@ -286,7 +285,6 @@ class NavigationEngine(BaseEngine):
                     self.objective,
                     self.url_input,
                     self.image_display,
-                    self.instructions_history,
                     self.history,
                     output,
                 )
@@ -306,7 +304,6 @@ class NavigationEngine(BaseEngine):
                     self.objective,
                     self.url_input,
                     self.image_display,
-                    self.instructions_history,
                     self.history,
                     output,
                 )
@@ -366,7 +363,6 @@ class NavigationEngine(BaseEngine):
             self.objective,
             self.url_input,
             self.image_display,
-            self.instructions_history,
             self.history,
             output.output,
         )

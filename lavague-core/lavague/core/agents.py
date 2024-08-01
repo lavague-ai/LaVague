@@ -112,7 +112,6 @@ class WebAgent:
         objective_obj: Any = None,
         url_input: Any = None,
         image_display: Any = None,
-        instructions_history: Any = None,
         history: Any = None,
         screenshot_ratio: float = 1,
     ):
@@ -185,7 +184,6 @@ class WebAgent:
                 objective_obj,
                 url_input,
                 image_display,
-                instructions_history,
                 history,
                 output,
             )
@@ -254,7 +252,6 @@ class WebAgent:
                 objective_obj,
                 url_input,
                 image_display,
-                instructions_history,
                 history,
                 output,
             )
@@ -296,7 +293,6 @@ class WebAgent:
             objective_obj,
             url_input,
             image_display,
-            instructions_history,
             history,
             output,
         )
