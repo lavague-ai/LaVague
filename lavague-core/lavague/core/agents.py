@@ -112,13 +112,11 @@ class WebAgent:
         objective_obj: Any = None,
         url_input: Any = None,
         image_display: Any = None,
-        instructions_history: Any = None,
         history: Any = None,
         screenshot_ratio: float = 1,
     ):
         """Internal run method for the gradio demo. Do not use directly. Use run instead."""
 
-        from selenium.webdriver.support.ui import WebDriverWait
         from gradio import ChatMessage
 
         driver: BaseDriver = self.driver
@@ -145,10 +143,6 @@ class WebAgent:
         obs = driver.get_obs()
 
         logger.clear_logs()
-
-        WebDriverWait(self.driver.get_driver(), 30).until(
-            lambda d: d.execute_script("return document.readyState") == "complete"
-        )
         for curr_step in range(n_steps):
             current_state, past = st_memory.get_state()
 
@@ -185,7 +179,6 @@ class WebAgent:
                 objective_obj,
                 url_input,
                 image_display,
-                instructions_history,
                 history,
                 output,
             )
@@ -254,7 +247,6 @@ class WebAgent:
                 objective_obj,
                 url_input,
                 image_display,
-                instructions_history,
                 history,
                 output,
             )
@@ -296,7 +288,6 @@ class WebAgent:
             objective_obj,
             url_input,
             image_display,
-            instructions_history,
             history,
             output,
         )
