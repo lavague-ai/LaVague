@@ -20,6 +20,8 @@ export class AgentServerConnector {
     readonly driver: ChromeExtensionDriver;
     currentState: AgentServerState = AgentServerState.DISCONNECTED;
     runningAgentState: RunningAgentState = RunningAgentState.IDLE;
+    public host: string = '';
+    public forced_disconnection: boolean = false;
 
     constructor() {
         this.driver = new ChromeExtensionDriver();
@@ -31,6 +33,8 @@ export class AgentServerConnector {
         this.updateState(AgentServerState.CONNECTING);
         try {
             const webSocket = new WebSocket('ws://' + host);
+            this.host = host;
+            this.forced_disconnection = false;
 
             webSocket.onmessage = async (event: { data: string }) => {
                 if (event.data === 'PONG') {
@@ -97,10 +101,9 @@ export class AgentServerConnector {
         await this.driver.stop();
     }
 
-    sendStop() {
-        this.sendMessage({ type: 'stop', args: '' }, false);
+    sendSystemMessage(msg: string) {
         this.emit('systemMessage', {
-            args: 'Interruption of the agent... (if an instruction is currently executed, the agent will stop once this instruction is executed)',
+            args: msg,
         });
     }
 

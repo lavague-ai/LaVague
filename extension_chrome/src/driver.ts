@@ -19,7 +19,7 @@ export class ChromeExtensionDriver {
         exec_code: (msg) => this.executeCode(msg.args),
         highlight_elem: (msg) => this.highlight_elem(msg.args),
         is_visible: (msg) => this.isVisible(msg.args),
-        get_possible_interactions: (msg) => this.get_possible_interactions(),
+        get_possible_interactions: (msg) => this.get_possible_interactions(msg.args),
         get_tabs: (msg) => this.get_tabs(),
         switch_tab: (msg) => this.switch_tab(msg.args),
     };
@@ -216,13 +216,13 @@ export class ChromeExtensionDriver {
         return true;
     }
 
-    async get_possible_interactions() {
+    async get_possible_interactions(args: string) {
         const tabId = await this.getTabId();
         if (tabId == null) {
             return false;
         }
         const dom = new DomActions(tabId);
-        const res = await dom.get_possible_interactions();
+        const res = await dom.get_possible_interactions(args);
         return res;
     }
 

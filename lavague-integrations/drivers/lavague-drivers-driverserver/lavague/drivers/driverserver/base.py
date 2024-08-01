@@ -99,8 +99,12 @@ class DriverServer(BaseDriver):
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = {}
         try:
+            args: Dict[str, bool] = {
+                "in_viewport": in_viewport,
+                "foreground_only": foreground_only,
+            }
             exe_json = self.send_command_and_get_response_sync(
-                "get_possible_interactions"
+                "get_possible_interactions", json.dumps(args)
             )
             exe = json.loads(exe_json)
         except Exception as e:
@@ -252,8 +256,11 @@ Arguments:
   - xpath (string)
 
 Name: fail
-Description: Indicate that you are unable to complete the task
-No arguments.
+Description: Indicate that you are unable to complete the task and explain why.
+Arguments:
+  - xpath (string): Always set to an empty string
+  - value (string): Detailled explanation of why the task cannot be completed
+
 
 Here are examples of previous answers:
 HTML:

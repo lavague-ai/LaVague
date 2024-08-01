@@ -13,6 +13,10 @@ function getInteractions(e: any, xpath: string, eventDict: any) {
     ) {
         return [];
     }
+    const rect = e.getBoundingClientRect();
+    if (rect.width + rect.height < 5) {
+        return [];
+    }
     const style = getComputedStyle(e);
     if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
         return [];
@@ -56,6 +60,42 @@ function getInteractions(e: any, xpath: string, eventDict: any) {
     return evts;
 }
 
+function getInteractives(elements: any, foreground_only: boolean = false): Record<string, any> {
+    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+    const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+    return Object.fromEntries(
+        Object.entries(elements).filter(([xpath, evts]) => {
+            const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement;
+            if (!element) return false;
+
+            const rect = element.getBoundingClientRect();
+
+            const elemCenter = {
+                x: rect.left + element.offsetWidth / 2,
+                y: rect.top + element.offsetHeight / 2,
+            };
+
+            if (elemCenter.x < 0 || elemCenter.x > windowWidth || elemCenter.y < 0 || elemCenter.y > windowHeight) {
+                return false;
+            }
+
+            if (!foreground_only) {
+                return true;
+            }
+
+            let pointContainer = document.elementFromPoint(elemCenter.x, elemCenter.y);
+            while (pointContainer) {
+                if (pointContainer === element) return true;
+                if (pointContainer == null) return true;
+                pointContainer = pointContainer.parentNode as HTMLElement | null;
+            }
+
+            return false;
+        })
+    );
+}
+
 async function getEventListenersAll(xpath: string[]) {
     const res = await chrome.runtime.sendMessage({ action: 'getEventListeners_all', xpath_list: xpath });
     return res.response;
@@ -67,7 +107,12 @@ export async function traverse(node: any, xpath: string, results: any) {
     }
     const countByTag: { [key: string]: number } = {};
     for (let child = node.firstChild; child; child = child.nextSibling) {
-        const tag = child.nodeName.toLowerCase();
+        let tag = child.nodeName.toLowerCase();
+        if (tag.includes(':')) continue; //namespace
+        let isLocal = ['svg'].includes(tag);
+        if (isLocal) {
+            tag = `*[local-name() = '${tag}']`;
+        }
         countByTag[tag] = (countByTag[tag] || 0) + 1;
         let childXpath = xpath + '/' + tag;
         if (countByTag[tag] > 1) {
@@ -90,9 +135,10 @@ function getElementByXpath(xpath: string) {
     return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
 
-export async function get_possible_interactions() {
+export async function get_possible_interactions(args: string) {
     let final_results: { [key: string]: string[] } = {};
     let xpath_list: string[] = [];
+    var args_parsed = JSON.parse(args);
     xpath_list = await traverse(document.body, '/html/body', xpath_list);
     let results_events = await getEventListenersAll(xpath_list);
     for (const xpath of xpath_list) {
@@ -101,6 +147,9 @@ export async function get_possible_interactions() {
         if (interactions.length > 0) {
             final_results[xpath] = interactions;
         }
+    }
+    if (args_parsed['in_viewport'] == true) {
+        final_results = getInteractives(final_results, args_parsed['foreground_only']);
     }
     const ret_json = JSON.stringify(final_results);
     return ret_json;

@@ -7,7 +7,7 @@ export const initializeRPC = () => {
         if (request.method == 'get_possible_interactions') {
             try {
                 (async () => {
-                    const res = await get_possible_interactions();
+                    const res = await get_possible_interactions(request.message);
                     sendResponse({ response: res });
                 })();
             } catch (error) {

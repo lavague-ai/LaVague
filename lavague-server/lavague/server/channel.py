@@ -16,7 +16,6 @@ class AgentSession(ABC):
 
     def __init__(self):
         self.uid = str(uuid.uuid4())
-        self._stop_event: threading.Event = threading.Event()
         self._task: threading.Thread = None
 
     @abstractmethod
@@ -33,7 +32,6 @@ class AgentSession(ABC):
             interrupted = False
             asyncio.run(self.send_message(json.dumps(start)))
             try:
-                self.agent.set_stop_signal(self._stop_event)
                 self.agent.run(args)
             except Exception as e:
                 pass
@@ -52,18 +50,8 @@ class AgentSession(ABC):
                 )
 
             task_id = self.uid
-            if json_message["type"] != "stop":
-                self._stop_event.clear()
-                self._task = threading.Thread(target=exe_task, args=(task_id,))
-                self._task.start()
-            else:
-                stop_thread = threading.Thread(target=self.stop_task)
-                stop_thread.start()
-
-    def stop_task(self):
-        if self._task and self._task.is_alive():
-            self._stop_event.set()
-            self._task.join(timeout=15)
+            self._task = threading.Thread(target=exe_task, args=(task_id,))
+            self._task.start()
 
     def send_command_and_get_response_sync(self, command, args=""):
         id = str(uuid.uuid4())

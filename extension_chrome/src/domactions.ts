@@ -297,9 +297,9 @@ export class DomActions {
         return true;
     }
 
-    private async get_possible_interactions_dispatch() {
+    private async get_possible_interactions_dispatch(args: string) {
         return new Promise((resolve, reject) => {
-            chrome.tabs.sendMessage(this.tabId, { method: 'get_possible_interactions' }, (res) => {
+            chrome.tabs.sendMessage(this.tabId, { method: 'get_possible_interactions', message: args }, (res) => {
                 if (chrome.runtime.lastError) {
                     console.error('Error: ' + chrome.runtime.lastError.message);
                     reject(chrome.runtime.lastError.message);
@@ -311,9 +311,9 @@ export class DomActions {
         });
     }
 
-    public async get_possible_interactions() {
+    public async get_possible_interactions(args: string) {
         let results = {};
-        const res: any = await this.get_possible_interactions_dispatch();
+        const res: any = await this.get_possible_interactions_dispatch(args);
         console.log('res: ' + res.response);
         results = res.response;
         return results;

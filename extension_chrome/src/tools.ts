@@ -28,12 +28,11 @@ export function extractNextEngine(text: string, nextEngines: string[] = DEFAULT_
                     }
                 }
             }
-        } catch (e) {
-            console.log(e);
-        }
+        } catch (e) {}
     }
 
-    throw new Error(`No next engine found in the text: ${text}`);
+    console.log(`No next engine found in the text: ${text}`);
+    return '';
 }
 
 export function extractWorldModelInstruction(text: string): string {

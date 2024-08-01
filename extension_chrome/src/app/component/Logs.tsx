@@ -30,7 +30,6 @@ const COMMAND_LABELS: { [key: string]: string } = {
 export default function Logs({ logTypes }: { logTypes: LogType[] }) {
     let { connector, serverState, runningAgentState, setRunningAgentState } = useContext(AppContext);
     const [logs, setLogs] = useState<RepeatableLog[]>([]);
-    const [stopSent, setStopSent] = useState<boolean>(false);
     const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
     const addLog = useCallback(
@@ -58,18 +57,18 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                     console.error(err);
                 }
             }),
-            connector.onInit(() => addLog({ log: "test", type: 'agent_log' })),
             connector.onInputMessage((message) => {
                 let log: string | null = null;
                 let type: LogType = 'cmd';
                 if (message.command) {
                     log = COMMAND_LABELS[message.command];
-                } else if (message.type === 'agent_log') {
+                } else if (message.type === 'agent_log' && message.agent_log.world_model_output) {
+                    console.log(message)
                     const log_tmp = message.agent_log.world_model_output
                     const engine = extractNextEngine(log_tmp)
-                    if (engine == "COMPLETE") {
+                    if (engine === "COMPLETE") {
                         const instruction = extractWorldModelInstruction(log_tmp)
-                        log = instruction.indexOf("[NONE]") != -1 ? "Objective reached" : "Output:" + "\n" + extractWorldModelInstruction(log_tmp);
+                        log = instruction.indexOf("[NONE]") != -1 ? "Objective reached" : "Output:" + "\n" + instruction;
                     }
                     else {
                         log = "Instruction: " + extractWorldModelInstruction(log_tmp);
@@ -77,7 +76,6 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                     type = 'agent_log';
                 } else if (message.type === 'start') {
                     setRunningAgentState(RunningAgentState.RUNNING)
-                    setStopSent(false);
                 } else if (message.type === 'stop') {
                     setRunningAgentState(RunningAgentState.IDLE)
                     if (message.args == true) {
@@ -90,33 +88,14 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
             }),
             connector.onOutputMessage((message) => addLog({ log: message.args, type: 'userprompt' })),
             connector.onSystemMessage((message) => { 
-                if (!stopSent) { 
-                    addLog({ log: message.args, type: 'agent_log' });
-                    setStopSent(true)
-                }
+                addLog({ log: message.args, type: 'agent_log' });
             }),
         ];
         return () => destructors.forEach((d) => d());
     }, [connector, addLog, setLogs]);
-    
+
     return (
         <div className="logs">
-            <Stack className={'log agent_log'} direction="row">
-                <Text>
-                    Welcome to Lavague Chrome Extension!
-                    <br />
-                    <br />
-                    In order to get started easily, please run the command "lavague-serve" on your terminal.
-                    <br />
-                    Then, please write in the connect tab the IP you would like to reach (for example, 127.0.0.1).
-                    <br />
-                    <br />
-                    You can find more details about the usage and the project:{' '}
-                    <a href="https://docs.lavague.ai" target="_blank">
-                        https://docs.lavague.ai
-                    </a>
-                </Text>
-            </Stack>
             {logs.map((log, index) => (
                 <Stack key={index} className={'log ' + log.type} direction="row">
                     <Text>{log.log}</Text>

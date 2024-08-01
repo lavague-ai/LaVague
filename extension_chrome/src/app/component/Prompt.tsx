@@ -17,7 +17,9 @@ export default function Prompt({ requestConnection }: { requestConnection: () =>
                 connector.sendPrompt('run', prompt);
              }
             else {
-                connector.sendStop()
+                connector.disconnect()
+                connector.sendSystemMessage('The agent is now interrupted.')
+                connector.connect(connector.host)
             }
             setPrompt('');
         } else {
