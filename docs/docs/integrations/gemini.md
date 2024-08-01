@@ -2,7 +2,7 @@
 
 The GeminiContext uses Google's Gemini models for LaVague's World Model multi-modal LLM, Action Engine LLM and embedding model.
 
-By default, we use `gemini-1.5-flash-latest` as the Action Engine LLM model, `gemini-1.5-pro-latest` as the multi-modal `mm_llm` and `text-embedding-004` as the embedding model. You can swap these models to other gemini models as we explain below.
+By default, we use `gemini-1.5-flash-latest` as the Action Engine LLM model, `gemini-1.5-pro-latest` as the multi-modal `mm_llm` and `text-embedding-004` as the embedding model. You can swap these models to other Gemini models as we explain below.
 
 ## Pre-requisites
 
@@ -19,7 +19,7 @@ pip install lavague-contexts-gemini
 
 ### End-to-end example
 
-We can then import the GeminiContext from the `lavagues.contexts.gemini` package, initialize it and pass it to our `ActionEngine` and `WorldModel` using their `from_context()` initialization method.
+We can then import the GeminiContext from the `lavague.contexts.gemini` package, initialize it and pass it to our `ActionEngine` and `WorldModel` using their `from_context()` initialization method.
 
 ```python
 from lavague.core import WorldModel, ActionEngine

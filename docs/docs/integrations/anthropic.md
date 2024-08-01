@@ -4,7 +4,7 @@ The Anthropic Context uses Anthropic models for the Action Engine's LLM and Worl
 
 By default, it will use Claude 3.5 Sonnet for both these models. You can change these models for other models provided by Anthropic available via LlamaIndex.
 
-Since Anthropic don't currently provide their own embedding models, we still use the default `text-embedding-3-small` with OpenAI for embedding.
+Since Anthropic doesn't currently provide its own embedding models, we still use the default `text-embedding-3-small` with OpenAI for embedding.
 
 ## Pre-requisites
 
@@ -21,7 +21,7 @@ pip install lavague-contexts-anthropic
 
 ### End-to-end example
 
-We can then import the AnthropicContext from the `lavagues.contexts.anthropic` package, initialize it and pass it to our `Action Engine` and `WorldModel` using their `from_context()` initialization method.
+We can then import the AnthropicContext from the `lavague.contexts.anthropic` package, initialize it and pass it to our `Action Engine` and `WorldModel` using their `from_context()` initialization method.
 
 ```python
 from lavague.core import WorldModel, ActionEngine
@@ -57,4 +57,4 @@ from lavague.contexts.anthropic import AnthropicContext
 context = AnthropicContext(llm="claude-3-opus-20240229", mm_llm="claude-3-sonnet-20240229")
 ```
 
-> You can also change the embedding model used by passing the name of the model as the `embedding` argument. However, this will need to be a `OpenAI` emebdding model.
+> You can also change the embedding model used by passing the name of the model as the `embedding` argument. However, this will need to be a `OpenAI` embedding model.

@@ -44,7 +44,7 @@ This is the key file where you define your context in full.
 
 You will need to import the `lavague.core.context` module, as well as any additional modules needed for your context.
 
-You then define your context as a class which inherits from our base Context module.
+You then define your context as a class that inherits from our base Context module.
 
 This class should initialize the base class with the models of your choice.
 
@@ -78,13 +78,13 @@ The pyproject.toml file defines the LaVague context package and any necessary de
 
 You can find out more on how to create a pyproject.toml file [here](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/).
 
-Feel free to use [one or our other Context's pyproject.toml files](https://github.com/lavague-ai/LaVague/blob/main/lavague-integrations/contexts/lavague-contexts-anthropic/pyproject.toml) as a template and change any necessary values.
+Feel free to use [one of our other Context's pyproject.toml files](https://github.com/lavague-ai/LaVague/blob/main/lavague-integrations/contexts/lavague-contexts-anthropic/pyproject.toml) as a template and change any necessary values.
 
-#### lock file
+#### Lock file
 
 The `poetry.lock` file locks the specific versions of all dependencies of your project. This ensures that anyone who installs the dependencies for your project will get the exact same versions, which helps to maintain consistency across different environments.
 
-You can generate your `lock.file` by running `poetry lock`. However, this step is optional, as we can add the `poetry.lock` file in at a later stage when we publishing the package. 
+You can generate your `lock.file` by running `poetry lock`. However, this step is optional, as we can add the `poetry.lock` file in at a later stage when we publish the package. 
 
 #### README
 
