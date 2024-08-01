@@ -2,6 +2,7 @@ import click
 import os
 from lavague.qa.generator import TestGenerator
 from lavague.tests.cli import _load_context
+from features.demo_wikipedia
 
 
 @click.command()
@@ -32,7 +33,7 @@ from lavague.tests.cli import _load_context
     "--context",
     "-c",
     type=str,
-    default=os.getcwd() +  "/lavague-tests/contexts/default_context.py",
+    default=None,
     required=False,
     help="Path of python file containing an initialized context and token_counter. Default is lavague-tests/contexts/default_context.py",
 )
