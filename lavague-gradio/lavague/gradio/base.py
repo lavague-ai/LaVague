@@ -82,9 +82,7 @@ class GradioAgentDemo:
         return init_driver_impl
 
     def _process_instructions(self):
-        def process_instructions_impl(
-            objective, url_input, image_display, history
-        ):
+        def process_instructions_impl(objective, url_input, image_display, history):
             msg = gr.ChatMessage(
                 role="assistant", content="⏳ Thinking of next steps..."
             )
