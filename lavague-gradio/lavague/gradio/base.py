@@ -152,6 +152,7 @@ class GradioAgentDemo:
                                         type="text",
                                         label="Enter URL and press 'Enter' to load the page.",
                                         visible=True,
+                                        max_lines=1,
                                     )
                                 with gr.Tab("Objective", id=1) as tab:
                                     objective_input = gr.Textbox(
