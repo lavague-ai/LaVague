@@ -5,7 +5,7 @@
 
 ## Installation
 
-LaVague QA uses `gpt-4o` models by default, as such, you will need to define `OPENAI_API_KEY` as an environement variable before running LaVague. 
+LaVague QA uses `gpt-4o` models by default, as such, you will need to define `OPENAI_API_KEY` as an environment variable before running LaVague. 
 
 ### Install with pip
 
@@ -75,7 +75,7 @@ Run the tests with `pytest` to validate their behavior
 
 ```bash
 pytest ./generated_tests/example.py
-======================= test session starts =======================
+=========================== test session starts ===========================
 platform darwin -- Python 3.10.14, pytest-8.2.1, pluggy-1.5.0
 rootdir: /Users/
 configfile: pyproject.toml
@@ -84,7 +84,7 @@ collected 1 item
 
 generated_tests/example.py .                                                                                                                                                                                                               [100%]
 
-======================= 1 passed in 16.03s =======================
+=========================== 1 passed in 16.03s ===========================
 
 ```
 
@@ -93,11 +93,9 @@ generated_tests/example.py .                                                    
 
 ### Pytest generation strategies
 
-By default, LaVague attempts to mimize reliance on LLMs in order to optimize costs. 
-
-It rebuilds 90% of the pytest file deterministically and only relies on LLMs for the assert generation. 
-
-This default option may result in reduced reliability, especially if the LaVague agent doesn't conduct steps exactly as they are defined in the feature file. 
+- By default, LaVague attempts to minimize reliance on LLMs in order to optimize costs. 
+- It rebuilds 90% of the pytest file deterministically and only relies on LLMs for the assert generation. 
+- This default option may result in reduced reliability, especially if the LaVague agent doesn't conduct steps exactly as they are defined in the feature file. 
 
 **In this case, you can attempt to generate the files entirely with an LLM by adding the `-llm` flag**
 

@@ -166,3 +166,15 @@ os
 anthropic
 pypi
 yml
+Accepter
+Ajouter
+Aller
+Supprimer
+au
+commande
+panier
+upkeeping
+deterministically
+cd
+qa
+walkthrough
