@@ -1,128 +1,72 @@
-# Customizing your Agent
+# Customization
 
-When using our Web Agents, you can customize the LLM (`llm`), multi-modal LLM (`mm_llm`) and embedding model (`embedding`).
+By default, LaVague uses the configuration defined in our `OpenAIContext` which uses `gpt-4o` and `text-embedding-3-small` for the LLMs and embedding models respectively. However, you can replace these models with the models of your choice.
 
-These are attributes of a `Context` object, which can be optionally passed to the `Action Engine` and `World Model` using their `from_context()` initializing methods. The `Action Engine` and `World Model` are then in turn are passed to the `Web Agent`.
+🦙 LaVague is compatible with all LlamaIndex `llms`, `multi-modal-llms` and `embeddings` models.
 
-!!! info "Modifiable elements"
+> Note that performance will vary with models and LaVague will not perform adequately with all supported models. With that said, we would welcome you to try out LaVague with different models and share your findings with us on Discord!
 
-    - **llm**: The `LLM` used by the `Action Engine` to translate text instructions into automation code. You can set the `llm` to any `LlamaIndex LLM object`.
+## Built-in Contexts
 
-    - **mm_llm**: The `multi-modal LLM` used by the `World Model` to generate the next instruction to be enacted by the Action Engine based on the current state of the web page. You can set the `mm_llm` argument to any `LlamaIndex multi-modal LLM object`.
+A `Context` object is an object that defines the LLM, multi-modal LLM and embedding models to be used by your LaVague agent. 
 
-    - **embedding**: The `embedding model` is used by the `retriever` to convert segments of the HTML page of the target website into vectors, capturing semantic meaning. You can set this to any `LlamaIndex Embedding object`. 
+We provide some built-in Contexts, so you can quickly get started with some popular models & AI providers.
 
-These elements are initialized in a `Context` object, which can optionally passed to both the `Action Engine` and `World Model` used by an Agent. If you don't pass them your own Context object, the default OpenaiContext will be used.
+You can pass a Context to the `ActionEngine` and `WorldModel` when building your agent, by initializing them using the the `from_context(my_context)` method and providing you context as the argument.
 
-## Using a built-in an Context
+Here are the current list of built-in Contexts we provide:
 
-There are currently four built-in Contexts provided as part of LaVague:
+| Context | Pypi package name | Default multi-modal LLM (World Model) | Default LLM (Action Engine) | Default embedding model (Action Engine) |
+|----------------------|:-----------:|:-----------:|:------------:|------------:|
+|  [Anthropic](../integrations/anthropic.md)   |  lavague-contexts-anthropic |  Claude 3.5 Sonnet    |    Claude 3.5 Sonnet      |    text-embedding-3-small (OpenAI)       |
+|  [Azure](../integrations/azure.md)  | lavague-contexts-openai |  No default      |    No default      |   No defaults        |
+|  [Fireworks](../integrations/fireworks.md)   | lavague-contexts-fireworks |   gpt-4o  (OpenAI)      |    llama-v3p1-70b-instruct      |   nomic-embed-text-v1.5        |
+|  [Gemini](../integrations/gemini.md)   |  lavague-contexts-gemini |   gemini-1.5-pro-latest    |    gemini-1.5-flash-latest      |     text-embedding-004       |
+|  [OpenAI](../integrations/openai.md) (default context)   | lavague-contexts-openai |    gpt-4o     |   gpt-4o       |     text-embedding-3-small      |
 
-- **OpenaiContext**: The **default configuration**. Uses `gpt-4o` as the llm and mm_llm, plus `text-embedding-3-small` as the embedding model
-- **GeminiContext**: uses `gemini-1.5-flash-latest` as the llm, `gemini-1.5-pro-latest` as the mm_llm & `text-embedding-004` as the embedding model.
-- **FireworksContext**: uses `llama-v3p1-70b-instruct` as the llm, OpenAI's `gpt-4o` as the mm_llm & `nomic-ai/nomic-embed-text-v1.5` as the embedding model
-- **AzureOpenaiContext**: uses the llm and mm_llm names you specify, plus `text-embedding-ada-002` as the embedding model
+!!! tip "Examples"
 
-To use one of these contexts, you will first need to download the associated package (except for the OpenaiContext and AzureOpenaiContexts which are included in our `lavague-core`package):
+    Click on the Context names to see end-to-end examples of how to use our Contexts with our defaults or custom models.
 
-```bash
-pip install lavague-contexts-gemini
-pip install lavague-contexts-fireworks
-```
+🤗 We welcome contributions of new integrations to our repo. See our guide on how to create and contribute a custom Context [here](../integrations/contribute.md)
 
-Then to use these contexts, you will need to import and initialize the relevant context and then pass it to your Action Engine and World Model instances using the `from_context` initialization methods:
+## Customization on-the-fly
 
-```py
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.drivers.selenium import SeleniumDriver
-from lavague.contexts.gemini import GeminiContext
+While Contexts are a great way to `save` a certain configuration that can then easily be re-used, it may be that you want to use models outside of our built-in Contexts and may want to quickly customize you agents on-the-fly.
 
-#initialize Gemini Context
-context = GeminiContext()
+There are two ways you can do this.
 
-selenium_driver = SeleniumDriver(headless=False)
+### Passing models to your agent
 
-# initialize Action Engine and World Model models from context
-world_model = WorldModel.from_context(context)
-action_engine = ActionEngine.from_context(context, selenium_driver)
+One fast way to customize your agent on-the-fly is to overwrite the default models by passing your own `mm_llm` when initializing your `WorldModel` or passing an `llm` and/or `embedding` when initializing your `ActionEngine`.
 
-agent = WebAgent(world_model, action_engine)
-```
+One of the advantages of this method is that you can quickly change one or two models while using the default configuration for the other model(s).
 
-## Modifying a built-in context
+You can pass: 
+- an instance of a `llama-index.llms` model with the `llm` argument when initializing your `ActionEngine`
+- an instance of a `llama-index.embeddings` model with the `embedding` argument when initializing your `ActionEngine`
+- an instance of a `llama--ndex.multi-modal.llms` model with the `mm_llm` argument when initializing your `WorldModel`
 
-Let's now take a look at how we can modify specific elements of an existing built-in Context.
-
-#### Example: Modifying a built in context
+Here you can see an end-to-end example where we replace the default `llm` and `mm_llm`:
 
 ```python
-from llama_index.embeddings.gemini import GeminiEmbedding
 from llama_index.llms.gemini import Gemini
-from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from llama_index.multi_modal_llms.anthropic import AnthropicMultiModal
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
-from lavague.contexts.openai import OpenaiContext
-from lavague.drivers.selenium import SeleniumDriver
-
-# Initialize the default context
-context = OpenaiContext()
-
-# Customizing the LLM, multi-modal LLM and embedding models
-context.llm = Gemini(model_name="models/gemini-1.5-flash-latest")
-context.mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
-context.embedding = GeminiEmbedding(model_name="models/text-embedding-004")
-
-# Initialize the Selenium driver
-selenium_driver = SeleniumDriver()
-
-# Initialize the WorldModel and ActionEngine, passing it the custom context
-world_model = WorldModel.from_context(context)
-action_engine = ActionEngine.from_context(context, selenium_driver)
-
-# Create your agent
-agent = WebAgent(world_model, action_engine)
-
-agent.get("https://huggingface.co/docs")
-agent.run("Go on the quicktour of PEFT")
-```
-
-Here, we modify the default `OpenaiContext` by replacing its LLM, multi-modal LLM & embedding models. We can then pass this to our `Action Engine`.
-
-## Creating a Context object from scratch
-
-Alternative, you can create a `Context` from scratch by initializing a `lavague.core.Context` object and providing all the Context arguments: 
-
-- `llm`
-- `mm_llm`
-- `embedding`
-
-#### Example: Creating a fully custom context
-
-```python
-from llama_index.embeddings.gemini import GeminiEmbedding
-from llama_index.llms.gemini import Gemini
-from llama_index.multi_modal_llms.openai import OpenAIMultiModal
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.core.context import Context
 from lavague.drivers.selenium import SeleniumDriver
 
 
 # Customize the LLM, multi-modal LLM and embedding models
 llm = Gemini(model_name="models/gemini-1.5-flash-latest")
-mm_llm =  OpenAIMultiModal(model="gpt-4o", temperature=0.0)
-embedding = GeminiEmbedding(model_name="models/text-embedding-004")
-
-# Initialize context with our custom elements
-context = Context(llm, mm_llm, embedding)
+mm_llm =  AnthropicModal(model="claude-3-sonnet-20240229", max_tokens=3000)
 
 # Initialize the Selenium driver
 selenium_driver = SeleniumDriver()
 
-# Initialize a WorldModel and ActionEnginem passing them the custom context
-world_model = WorldModel.from_context(context)
-action_engine = ActionEngine.from_context(context, selenium_driver)
+# Initialize a WorldModel and ActionEngine passing them the custom context
+world_model = WorldModel(mm_llm=mm_llm)
+action_engine = ActionEngine.from_context(driver=selenium_driver, llm=llm)
 
 # Create your agent
 agent = WebAgent(world_model, action_engine)
@@ -131,10 +75,31 @@ agent.get("https://huggingface.co/docs")
 agent.run("Go on the quicktour of PEFT")
 ```
 
-## Summary
+### Custom Contexts on-the-fly
 
-By leveraging the Context module, you can customize the components used by the `Action Engine` and `World Model`, two of the key elements leveraged by a `Web Agent`.
+Another way to customize your agent on-the-fly is to create a custom Context on-the-fly by initializing a Context with the models of your choice.
 
-You can do this by updating specific elements in one of our built-in contexts like `OpenaiContext`, or by create a new Context from scratch.
+In this case, there is no default values and you will need to provide a model instance for all three expected models (`mm_llm`, `llm` and `embedding`).
 
-You can then pass the customized context to the `Action Engine` and `World Model` during their initialization.
+Here's an example of how you can create a custom Context on-the-fly and build your agent with it:
+
+```python
+from llama_index.llms.gemini import Gemini
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from llama_index.embeddings.openai import OpenAIEmbedding
+from lavague.core.context import Context
+
+llm_name = "gemini-1.5-flash-001"
+mm_llm_name = "gpt-4o-mini"
+embedding_name = "text-embedding-3-small"
+
+# init models
+llm = Gemini(
+    model="models/" + llm_name
+)  # gemini models are prefixed with "models/" in LlamaIndex
+mm_llm = OpenAIMultiModal(model=mm_llm_name)
+embedding = OpenAIEmbedding(model=embedding_name)
+
+# init context
+context = Context(llm, mm_llm, embedding)
+```

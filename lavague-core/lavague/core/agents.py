@@ -18,6 +18,7 @@ from lavague.core.utilities.telemetry import send_telemetry
 from PIL import Image
 from IPython.display import display, HTML, Code
 from lavague.core.token_counter import TokenCounter
+from lavague.core.utilities.config import is_flag_true
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -111,13 +112,11 @@ class WebAgent:
         objective_obj: Any = None,
         url_input: Any = None,
         image_display: Any = None,
-        instructions_history: Any = None,
         history: Any = None,
         screenshot_ratio: float = 1,
     ):
         """Internal run method for the gradio demo. Do not use directly. Use run instead."""
 
-        from selenium.webdriver.support.ui import WebDriverWait
         from gradio import ChatMessage
 
         driver: BaseDriver = self.driver
@@ -144,10 +143,6 @@ class WebAgent:
         obs = driver.get_obs()
 
         logger.clear_logs()
-
-        WebDriverWait(self.driver.get_driver(), 30).until(
-            lambda d: d.execute_script("return document.readyState") == "complete"
-        )
         for curr_step in range(n_steps):
             current_state, past = st_memory.get_state()
 
@@ -184,7 +179,6 @@ class WebAgent:
                 objective_obj,
                 url_input,
                 image_display,
-                instructions_history,
                 history,
                 output,
             )
@@ -253,7 +247,6 @@ class WebAgent:
                 objective_obj,
                 url_input,
                 image_display,
-                instructions_history,
                 history,
                 output,
             )
@@ -295,7 +288,6 @@ class WebAgent:
             objective_obj,
             url_input,
             image_display,
-            instructions_history,
             history,
             output,
         )
@@ -349,7 +341,7 @@ class WebAgent:
         objective: str,
         user_data=None,
         display: bool = False,
-        log_to_db: bool = False,
+        log_to_db: bool = is_flag_true("LAVAGUE_LOG_TO_DB"),
         step_by_step=False,
     ) -> ActionResult:
         self.prepare_run(display=display, user_data=user_data)

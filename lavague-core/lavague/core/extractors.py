@@ -34,16 +34,19 @@ class YamlFromMarkdownExtractor(BaseExtractor):
     """
 
     def extract(self, markdown_text: str) -> str:
+        yml_str = markdown_text.strip()
         # Pattern to match the first ```yaml ``` code block
-        pattern = r"```yaml(.*?)```"
+        pattern = r"```(?:yaml|yml|\n)(.*?)```"
 
         # Using re.DOTALL to make '.' match also newlines
         match = re.search(pattern, markdown_text, re.DOTALL)
         if match:
             # Return the first matched group, which is the code inside the ```python ```
-            return match.group(1).strip()
-        else:
-            # Return None if no match is found
+            yml_str = match.group(1).strip()
+        try:
+            yaml.safe_load(yml_str)
+            return yml_str
+        except yaml.YAMLError:
             return None
 
     def extract_as_object(self, text: str):
@@ -141,6 +144,7 @@ class DynamicExtractor(BaseExtractor):
         self.extractors: Dict[str, BaseExtractor] = {
             "json": JsonFromMarkdownExtractor(),
             "yaml": YamlFromMarkdownExtractor(),
+            "yml": YamlFromMarkdownExtractor(),
             "python": PythonFromMarkdownExtractor(),
         }
 
@@ -151,6 +155,14 @@ class DynamicExtractor(BaseExtractor):
         if match:
             return match.group(1).strip()
         else:
+            # Try to auto-detect first matching extractor
+            for type, extractor in self.extractors.items():
+                try:
+                    value = extractor.extract(text)
+                    if value:
+                        return type
+                except:
+                    pass
             raise ValueError(f"No extractor pattern can be found from {text}")
 
     def extract(self, text: str) -> str:

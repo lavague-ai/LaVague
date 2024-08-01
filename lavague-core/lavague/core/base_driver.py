@@ -282,6 +282,10 @@ class BaseDriver(ABC):
 
     def get_current_screenshot_folder(self) -> Path:
         url = self.get_url()
+
+        if url is None:
+            url = "blank"
+
         screenshots_path = Path("./screenshots")
         screenshots_path.mkdir(exist_ok=True)
 
@@ -420,6 +424,10 @@ return (function() {
         const tag = e.tagName.toLowerCase();
         if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
           || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
+            return [];
+        }
+        const rect = e.getBoundingClientRect();
+        if (rect.width + rect.height < 5) {
             return [];
         }
         const style = getComputedStyle(e) || {};

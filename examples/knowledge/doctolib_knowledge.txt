@@ -1,0 +1,32 @@
+Objective:
+Find pediatricians in Lyon Part-Dieu.
+When filling input fields, wait for the results to update before clicking on the most relevant result.
+When on the search page, scan the results to find the first pediatrician available in October 2024.
+If you find a relevant pediatrician, try to book an appointment as a new patient.
+Don't use the Python Engine.
+Previous instructions:
+- Click on the "Name, specialty, practice" input field and type "pediatrician".
+- Click on "Pediatrician" in the dropdown list of suggestions.
+- Click on the "Where?" input field and type "Lyon Part-Dieu".
+- Click on "Lyon Part-Dieu" in the dropdown list of location suggestions.
+- Click on the "Search" button to find pediatricians in Lyon Part-Dieu.
+- SCAN
+Last engine: Navigation Controls
+Current state:
+external_observations:
+    vision: '[SCREENSHOT]'
+internal_state:
+    agent_outputs: []
+    user_inputs: []
+
+Tabs opened:
+0 - [CURRENT] Pediatrician near Part-Dieu | Book an appointment online | Doctolib
+Thoughts:
+
+- The current screenshot shows search results for pediatricians in Lyon Part-Dieu.
+- The objective is to find the first pediatrician available in October 2024 and try to book an appointment as a new patient.
+- The page has been scanned, so we have a full view of the available pediatricians.
+- We see that in one of the screenshots there is a pediatrician available on October 10th.
+- We should therefore learn more about her schedule to see if she is available for taking appointments with new patients.
+Next engine: Navigation Engine
+Instruction: Click on the "BOOK APPOINTMENT" button for Dr. Sophie MARTIN.
