@@ -241,16 +241,21 @@ class NavigationEngine(BaseEngine):
                 context_str=llm_context, query_str=instruction
             )
             response = self.llm.complete(prompt).text
-            action = self.extractor.extract(response)
             end = time.time()
             action_generation_time = end - start
             action_outcome = {
-                "action": action,
+                "llm_raw_response": response,
                 "action_generation_time": action_generation_time,
                 "navigation_engine_full_prompt": prompt,
                 "navigation_engine_llm": get_model_name(self.llm),
             }
+
             try:
+                # We extract the action
+                action = self.extractor.extract(response)
+                action_outcome["action"] = action
+                action_full += action
+
                 # Get information to see which elements are selected
                 vision_data = self.driver.get_highlighted_element(action)
                 action_full += action
@@ -416,17 +421,21 @@ class NavigationEngine(BaseEngine):
                 context_str=llm_context, query_str=instruction
             )
             response = self.llm.complete(prompt).text
-            action = self.extractor.extract(response)
             end = time.time()
             action_generation_time = end - start
             action_outcome = {
-                "action": action,
+                "llm_raw_response": response,
                 "action_generation_time": action_generation_time,
                 "navigation_engine_full_prompt": prompt,
                 "navigation_engine_llm": get_model_name(self.llm),
             }
-            action_full += action
+
             try:
+                # We extract the action
+                action = self.extractor.extract(response)
+                action_outcome["action"] = action
+                action_full += action
+
                 # Get information to see which elements are selected
                 vision_data = self.driver.get_highlighted_element(action)
                 if self.display:
