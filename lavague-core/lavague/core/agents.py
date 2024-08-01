@@ -48,6 +48,8 @@ class WebAgent:
         self.world_model: WorldModel = world_model
         self.st_memory = ShortTermMemory()
         self.token_counter = token_counter
+        self.stop_signal = None
+        self.interrupted = False
 
         self.n_steps = n_steps
 
@@ -80,6 +82,18 @@ class WebAgent:
             total_estimated_tokens=0,
             total_estimated_cost=0.0,
         )
+
+    def check_interruption(func):
+        def wrapper_interruption(self, *args, **kwargs):
+            if self.stop_signal is not None and self.stop_signal.is_set():
+                raise KeyboardInterrupt
+            else:
+                return func(self, *args, **kwargs)
+        return wrapper_interruption
+
+
+    def set_stop_signal(self, stop_signal):
+        self.stop_signal = stop_signal
 
     def get(self, url):
         self.driver.get(url)
@@ -157,6 +171,9 @@ class WebAgent:
             logging_print.info(world_model_output)
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
+
+            if self.stop_signal is not None and self.stop_signal.is_set():
+                raise KeyboardInterrupt
 
             self.action_engine.screenshot_ratio = screenshot_ratio
             img = self.driver.get_screenshot_as_png()
@@ -300,6 +317,7 @@ class WebAgent:
             output,
         )
 
+    @check_interruption
     def run_step(self, objective: str) -> Optional[ActionResult]:
         obs = self.driver.get_obs()
         current_state, past = self.st_memory.get_state()
@@ -338,12 +356,14 @@ class WebAgent:
         self.process_token_usage()
         self.logger.end_step()
 
+    @check_interruption
     def prepare_run(self, display: bool = False, user_data=None):
         self.action_engine.set_display_all(display)
         if user_data:
             self.st_memory.set_user_data(user_data)
         self.logger.new_run()
 
+    @check_interruption
     def run(
         self,
         objective: str,
@@ -352,6 +372,7 @@ class WebAgent:
         log_to_db: bool = False,
         step_by_step=False,
     ) -> ActionResult:
+        self.interrupted = False
         self.prepare_run(display=display, user_data=user_data)
 
         try:
@@ -366,6 +387,7 @@ class WebAgent:
 
         except KeyboardInterrupt:
             logging_print.warning("The agent was interrupted.")
+            self.interrupted = True
             pass
         except Exception as e:
             logging_print.error(f"Error while running the agent: {e}")

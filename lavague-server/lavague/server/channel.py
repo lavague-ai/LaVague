@@ -12,10 +12,7 @@ import copy
 
 
 class AgentSession(ABC):
-    uid = ""
     agent: WebAgent
-    _stop_event: threading.Event = threading.Event()
-    _task: threading.Thread = None
 
     def __init__(self):
         self.uid = str(uuid.uuid4())
@@ -39,6 +36,7 @@ class AgentSession(ABC):
                 self.agent.set_stop_signal(self._stop_event)
                 self.agent.run(args)
             except Exception as e:
+                print(e)
                 pass
             finally:
                 stop = {"type": "stop", "args": self.agent.interrupted}
