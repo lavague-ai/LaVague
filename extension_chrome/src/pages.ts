@@ -76,9 +76,10 @@ function getInteractives(elements: any, foreground_only: boolean = false): Recor
                 y: rect.top + element.offsetHeight / 2,
             };
 
-            if (elemCenter.x < 0 || elemCenter.x > windowWidth || elemCenter.y < 0 || elemCenter.y > windowHeight) {
-                return false;
-            }
+            if (elemCenter.x < 0) return false;
+            if (elemCenter.x > windowWidth) return false;
+            if (elemCenter.y < 0) return false;
+            if (elemCenter.y > windowHeight) return false;
 
             if (!foreground_only) {
                 return true;
