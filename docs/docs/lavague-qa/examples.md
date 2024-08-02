@@ -18,7 +18,7 @@ In each of these examples, we'll showcase how LaVague QA can be used to generate
 
 ## Amazon Cart testing
 
-The cart is a core feature in e-commerce and companies need to ensure it always stays functional. 
+In this example, we test the Amazon 'add to cart' button is functioning as expected.
 
 ### Feature file
 
@@ -168,7 +168,7 @@ Feature: Cart
 
 ## Interactive shipping calculator testing
 
-Interactive components need to be tested to ensure they maintain valid output over time.
+In this example, we test the interactive elements of a shipping cost calculator to ensure they return the expected output.
 
 ### Feature file
 
@@ -272,7 +272,7 @@ Feature: Shipping cost calculator
 
 ### Feature file
 
-Login is a core part of most websites, we test basic login functionality by providing credentials. 
+Here, we test the login functionality on Wilkipedia by providing credentials. 
 
 ```gherkin
 Feature: Wikipedia Login
@@ -367,7 +367,7 @@ Feature: Wikipedia Login
 
 ## Test cookies and redirections work as expected
 
-Certain websites have several cookie banners and redirect users often, use LaVague QA to validate linking on your sites. 
+Here we test the cookie banners and some basic navigation on the HSBC website. 
 
 ### Feature file
 
