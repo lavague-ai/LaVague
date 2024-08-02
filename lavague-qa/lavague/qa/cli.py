@@ -3,22 +3,35 @@ import os
 from lavague.qa.generator import TestGenerator
 from lavague.tests.cli import _load_context
 
+default_feature = None
+default_url = None
+
+cwd = os.getcwd()
+for path in (
+    "/lavague-qa/features/demo_wikipedia.feature",
+    "/features/demo_wikipedia.feature",
+):
+    if os.path.exists(cwd + path):
+        default_feature = cwd + path
+        default_url = "https://en.wikipedia.org/"
+        break
+
 
 @click.command()
 @click.option(
     "--url",
     "-u",
     type=str,
-    default="https://en.wikipedia.org/",
-    required=False,
+    default=default_url,
+    required=True,
     help="URL of the site to test",
 )
 @click.option(
     "--feature",
     "-f",
-    default=os.getcwd() + "/demo_wikipedia.feature",
+    default=default_feature,
     type=str,
-    required=False,
+    required=True,
     help="Path to the .feature file containing Gherkin",
 )
 @click.option(
