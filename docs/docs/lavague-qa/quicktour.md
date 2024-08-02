@@ -56,7 +56,14 @@ wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/lavague-qa/featur
 
 ### Use the CLI
 
-Use `lavague-qa` with a `URL` and a `.feature` file. You can use `-h` to run in headless mode (won't show the browser), or `-c` to use custom LLMs instead of our default: GPT4o.
+Use `lavague-qa` with a `URL` and a `.feature` file.
+
+By default, LaVague QA uses: 
+- Graphical UI for the browser, use `--headless` or `-h` to **run in headless mode**. 
+- GPT4 models, use the `--context` or `-c` flag with your custom set of LLMs. 
+
+
+You can use `-h` to run in headless mode (won't show the browser), or `-c` to use custom LLMs instead of our default: GPT4o.
 
 ```bash
 lavague-qa --url https://www.amazon.com --feature ./demo_amazon.feature
