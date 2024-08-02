@@ -13,8 +13,8 @@ LaVague QA is a command-line tool that turns Gherkin test specifications into re
 
 ### How it works
 
-1. Write test scenarios in plain English using Gherkin.
-2. Run LaVague QA to automatically generate corresponding Pytest code.
+1. Write test scenarios in natural lanaguage using Gherkin.
+2. Run LaVague QA to automatically generate the corresponding Pytest code.
 3. Execute tests or regenerate them as your website evolves.
 
 ## Example
