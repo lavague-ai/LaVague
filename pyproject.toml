@@ -4,7 +4,7 @@ requires = ["poetry-core"]
 
 [tool.poetry]
 name = "lavague"
-version = "1.1.16"
+version = "1.1.17"
 description = "automation code generation from text instructions"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -25,7 +25,7 @@ packages = [{from = "_lavague", include = "lavague"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.29"
+lavague-core = "^0.2.30"
 lavague-drivers-selenium = "^0.2.12"
 lavague-contexts-openai = "^0.2.0"
 lavague-gradio = "^0.2.8"
