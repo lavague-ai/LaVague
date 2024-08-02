@@ -16,6 +16,7 @@ from lavague.core.navigation import Rephraser
 import base64
 import ast
 
+
 class Evaluator(ABC):
     @abstractmethod
     def evaluate(self) -> pd.DataFrame:
@@ -31,10 +32,7 @@ class Evaluator(ABC):
         df = pd.DataFrame()
         for metric in metrics:
             if metric in metrics:
-                df[metric] = [
-                    dfr[metric].mean()
-                    for dfr in results.values()
-                ]
+                df[metric] = [dfr[metric].mean() for dfr in results.values()]
         df["name"] = list(results.keys())
 
         count = 0
@@ -58,7 +56,7 @@ def parse_action(action: str) -> dict:
         return action
     except:
         return None
-    
+
 
 def parse_yaml(action):
     try:
@@ -76,6 +74,7 @@ def parse_viewport_size(vsize):
         }  # sometime viewport size is logged like this. idkw
     return vsize
 
+
 def validate_action(action):
     try:
         _ = action["args"]["xpath"]
@@ -84,19 +83,24 @@ def validate_action(action):
     except:
         return False
 
+
 FAIL_ACTION = {"args": {"xpath": "(string)"}, "name": "fail"}
 
 
 class RetrieverEvalutor(Evaluator):
-
     def evaluate(
         self,
         retriever: BaseHtmlRetriever,
         dataset: pd.DataFrame,
-        driver: SeleniumDriver = None, # Optional, the driver passed to the retriever
+        driver: SeleniumDriver = None,  # Optional, the driver passed to the retriever
         retriever_name: str = "",
     ) -> pd.DataFrame:
-        result_filename = (retriever_name if retriever_name else type(retriever).__name__) + "_evaluation_" + datetime.now().strftime("%Y-%m-%d_%H-%M") + ".csv"
+        result_filename = (
+            (retriever_name if retriever_name else type(retriever).__name__)
+            + "_evaluation_"
+            + datetime.now().strftime("%Y-%m-%d_%H-%M")
+            + ".csv"
+        )
         results = dataset.loc[dataset["is_verified"]].copy()
         results.insert(len(results.columns), "recall", None)
         results.insert(len(results.columns), "output_size", None)
@@ -107,15 +111,21 @@ class RetrieverEvalutor(Evaluator):
         try:
             for i, row in tqdm(results.iterrows()):
                 action = parse_action(row["action"])
-                if driver:# artificially get the page if the retriever needs a driver
-                    html_bs64 = base64.b64encode(row["preaction_html_source"].encode()).decode()
+                if driver:  # artificially get the page if the retriever needs a driver
+                    html_bs64 = base64.b64encode(
+                        row["preaction_html_source"].encode()
+                    ).decode()
                     driver.get("data:text/html;base64," + html_bs64)
                     viewport_size = parse_viewport_size(row["viewport_size"])
-                    driver.resize_driver(width=viewport_size["width"], height=viewport_size["height"])
+                    driver.resize_driver(
+                        width=viewport_size["width"], height=viewport_size["height"]
+                    )
                 instruction = row["instruction"]
                 try:
                     t_begin = datetime.now()
-                    nodes = retriever.retrieve(QueryBundle(query_str=instruction), [driver.get_html()])
+                    nodes = retriever.retrieve(
+                        QueryBundle(query_str=instruction), [driver.get_html()]
+                    )
                     t_end = datetime.now()
                 except:
                     print("ERROR: ", i)
@@ -141,15 +151,24 @@ class RetrieverEvalutor(Evaluator):
     ) -> Figure:
         return super().compare(results, metrics)
 
-class NavigationEngineEvaluator(Evaluator):
 
+class NavigationEngineEvaluator(Evaluator):
     def evaluate(
         self,
         navigation_engine: NavigationEngine,
         dataset: pd.DataFrame,
-        navigation_engine_name = ""
+        navigation_engine_name="",
     ) -> pd.DataFrame:
-        result_filename = (navigation_engine_name if navigation_engine_name else type(navigation_engine).__name__) + "_evaluation_" + datetime.now().strftime("%Y-%m-%d_%H-%M") + ".csv"
+        result_filename = (
+            (
+                navigation_engine_name
+                if navigation_engine_name
+                else type(navigation_engine).__name__
+            )
+            + "_evaluation_"
+            + datetime.now().strftime("%Y-%m-%d_%H-%M")
+            + ".csv"
+        )
         results = dataset.loc[dataset["is_verified"]].copy()
         results.insert(len(results.columns), "recall", None)
         results.insert(len(results.columns), "correct_action", None)
@@ -161,14 +180,20 @@ class NavigationEngineEvaluator(Evaluator):
         try:
             for i, row in tqdm(results.iterrows()):
                 action = parse_action(row["action"])
-                html_bs64 = base64.b64encode(row["preaction_html_source"].encode()).decode()
+                html_bs64 = base64.b64encode(
+                    row["preaction_html_source"].encode()
+                ).decode()
                 navigation_engine.driver.get("data:text/html;base64," + html_bs64)
                 viewport_size = parse_viewport_size(row["viewport_size"])
-                navigation_engine.driver.resize_driver(width=viewport_size["width"], height=viewport_size["height"])
+                navigation_engine.driver.resize_driver(
+                    width=viewport_size["width"], height=viewport_size["height"]
+                )
                 instruction = row["instruction"]
                 try:
                     t_begin = datetime.now()
-                    test_action = navigation_engine.execute_instruction(instruction).code
+                    test_action = navigation_engine.execute_instruction(
+                        instruction
+                    ).code
                     test_action = parse_yaml(test_action)
                     if not validate_action(test_action):
                         test_action = FAIL_ACTION
@@ -177,9 +202,13 @@ class NavigationEngineEvaluator(Evaluator):
                     print("ERROR: ", i)
                     traceback.print_exc()
                     test_action = FAIL_ACTION
-                results.at[i, "correct_action"] = (action["name"] == test_action["name"])
-                results.at[i, "correct_xpath"] = (action["args"]["xpath"] == test_action["args"]["xpath"])
-                results.at[i, "recall"] = results.at[i, "correct_action"] and results.at[i, "correct_xpath"]
+                results.at[i, "correct_action"] = action["name"] == test_action["name"]
+                results.at[i, "correct_xpath"] = (
+                    action["args"]["xpath"] == test_action["args"]["xpath"]
+                )
+                results.at[i, "recall"] = (
+                    results.at[i, "correct_action"] and results.at[i, "correct_xpath"]
+                )
                 results.at[i, "time"] = pd.Timedelta(t_end - t_begin).total_seconds()
             print("Evaluation terminated succesfully.")
         except:
@@ -189,7 +218,6 @@ class NavigationEngineEvaluator(Evaluator):
             results.to_csv(result_filename, index=False)
             print(f"Results are saved to {result_filename}")
             return results
-
 
     def compare(
         self,
