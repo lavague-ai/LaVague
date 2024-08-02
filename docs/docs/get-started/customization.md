@@ -42,7 +42,8 @@ One fast way to customize your agent on-the-fly is to overwrite the default mode
 
 One of the advantages of this method is that you can quickly change one or two models while using the default configuration for the other model(s).
 
-You can pass: 
+You can pass:
+
 - an instance of a `llama-index.llms` model with the `llm` argument when initializing your `ActionEngine`
 - an instance of a `llama-index.embeddings` model with the `embedding` argument when initializing your `ActionEngine`
 - an instance of a `llama--ndex.multi-modal.llms` model with the `mm_llm` argument when initializing your `WorldModel`

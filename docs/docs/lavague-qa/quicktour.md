@@ -13,7 +13,7 @@ LaVague QA is a command-line tool that turns Gherkin test specifications into re
 
 ### How it works
 
-1. Write test scenarios in natural lanaguage using Gherkin.
+1. Write test scenarios in natural language using Gherkin.
 2. Run LaVague QA to automatically generate the corresponding Pytest code.
 3. Execute tests or regenerate them as your website evolves.
 
@@ -63,7 +63,8 @@ Use `lavague-qa` with a `URL` and a `.feature` file.
 lavague-qa --url https://www.amazon.com --feature ./demo_amazon.feature
 ```
 
-By default, LaVague QA uses: 
+By default, LaVague QA uses:
+
 - Graphical UI for the browser, use `--headless` or `-h` to **run in headless mode**. 
 - GPT4 models, use the `--context` or `-c` flag with your custom set of LLMs. 
 
