@@ -24,8 +24,8 @@ function getInteractions(e: any, xpath: string, eventDict: any) {
     const role = e.getAttribute('role');
     const clickableInputs = ['submit', 'checkbox', 'radio', 'color', 'file', 'image', 'reset'];
     function hasEvent(n: any) {
-        let eventExistsInArray = eventDict.hasOwnProperty(xpath) && eventDict[xpath].includes(n);
-        let elementHasAttribute = e.hasAttribute('on' + n);
+        const eventExistsInArray = xpath in eventDict && eventDict[xpath].includes(n);
+        const elementHasAttribute = e.hasAttribute('on' + n);
         return eventExistsInArray || elementHasAttribute;
     }
     const evts = [];
@@ -60,12 +60,12 @@ function getInteractions(e: any, xpath: string, eventDict: any) {
     return evts;
 }
 
-function getInteractives(elements: any, foreground_only: boolean = false): Record<string, any> {
+function getInteractives(elements: any, foreground_only = false): Record<string, any> {
     const windowHeight = window.innerHeight || document.documentElement.clientHeight;
     const windowWidth = window.innerWidth || document.documentElement.clientWidth;
 
     return Object.fromEntries(
-        Object.entries(elements).filter(([xpath, evts]) => {
+        Object.entries(elements).filter(([xpath]) => {
             const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement;
             if (!element) return false;
 
@@ -93,7 +93,7 @@ function getInteractives(elements: any, foreground_only: boolean = false): Recor
                     pointContainer = pointContainer.parentNode as HTMLElement | null;
                 }
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
 
             return false;
@@ -114,7 +114,7 @@ export async function traverse(node: any, xpath: string, results: any) {
     for (let child = node.firstChild; child; child = child.nextSibling) {
         let tag = child.nodeName.toLowerCase();
         if (tag.includes(':')) continue; //namespace
-        let isLocal = ['svg'].includes(tag);
+        const isLocal = ['svg'].includes(tag);
         if (isLocal) {
             tag = `*[local-name() = '${tag}']`;
         }
@@ -143,9 +143,9 @@ function getElementByXpath(xpath: string) {
 export async function get_possible_interactions(args: string) {
     let final_results: { [key: string]: string[] } = {};
     let xpath_list: string[] = [];
-    var args_parsed = JSON.parse(args);
+    const args_parsed = JSON.parse(args);
     xpath_list = await traverse(document.body, '/html/body', xpath_list);
-    let results_events = await getEventListenersAll(xpath_list);
+    const results_events = await getEventListenersAll(xpath_list);
     for (const xpath of xpath_list) {
         const elem = getElementByXpath(xpath);
         const interactions = getInteractions(elem, xpath, results_events);

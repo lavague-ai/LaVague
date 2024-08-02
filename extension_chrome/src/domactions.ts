@@ -10,7 +10,7 @@ function getNodeFromXPATH(xpath: string): Node | null {
 }
 
 function clickElementByXPath(xpath: string): boolean {
-    var element = getNodeFromXPATH(xpath);
+    const element = getNodeFromXPATH(xpath);
     if (element && element instanceof HTMLElement) {
         if (element.tagName.toLowerCase() === 'a') {
             const anchorElement = element as HTMLAnchorElement;
@@ -21,7 +21,7 @@ function clickElementByXPath(xpath: string): boolean {
             }
         } else {
             // Simulate a user-initiated click
-            var event = new MouseEvent('click', {
+            const event = new MouseEvent('click', {
                 view: window,
                 bubbles: true,
                 cancelable: true,
@@ -61,7 +61,7 @@ export class DomActions {
         return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
     }
 
-    public async execCode(code: string, returnByValue: boolean = false) {
+    public async execCode(code: string, returnByValue = false) {
         return await this.sendCommand('Runtime.evaluate', {
             expression: code,
             returnByValue: returnByValue,
@@ -327,7 +327,7 @@ export class DomActions {
             res = getNodeFromXPATH(xpath);
             clickElementByXPath(xpath);
           })(${JSON.stringify(xpath)});`;
-        const ret = await this.execCode(code);
+        await this.execCode(code);
         return true;
     }
 }

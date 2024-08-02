@@ -20,8 +20,8 @@ export class AgentServerConnector {
     readonly driver: ChromeExtensionDriver;
     currentState: AgentServerState = AgentServerState.DISCONNECTED;
     runningAgentState: RunningAgentState = RunningAgentState.IDLE;
-    public host: string = '';
-    public forced_disconnection: boolean = false;
+    public host = '';
+    public forced_disconnection = false;
 
     constructor() {
         this.driver = new ChromeExtensionDriver();
@@ -80,7 +80,7 @@ export class AgentServerConnector {
         }
     }
 
-    sendMessage(message: any, emit: boolean = true) {
+    sendMessage(message: any, emit = true) {
         if (this.currentState !== AgentServerState.CONNECTED) {
             return false;
         }

@@ -232,7 +232,7 @@ export class ChromeExtensionDriver {
             return false;
         }
         const dom = new DomActions(tabId);
-        let res = await dom.highlight_elem(xpath);
+        const res = await dom.highlight_elem(xpath);
         const json_ret = JSON.stringify(res.result.value);
         return json_ret;
     }

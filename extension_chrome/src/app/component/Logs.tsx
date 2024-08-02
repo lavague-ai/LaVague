@@ -24,11 +24,11 @@ const COMMAND_LABELS: { [key: string]: string } = {
     execute_script: 'Execute script',
     exec_code: 'Execute code',
     is_visible: 'Check visibility',
-    get_possible_interactions: 'Get possible interactions'
+    get_possible_interactions: 'Get possible interactions',
 };
 
 export default function Logs({ logTypes }: { logTypes: LogType[] }) {
-    let { connector, serverState, runningAgentState, setRunningAgentState } = useContext(AppContext);
+    const { connector, setRunningAgentState } = useContext(AppContext);
     const [logs, setLogs] = useState<RepeatableLog[]>([]);
     const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
@@ -63,23 +63,22 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 if (message.command) {
                     log = COMMAND_LABELS[message.command];
                 } else if (message.type === 'agent_log' && message.agent_log.world_model_output) {
-                    console.log(message)
-                    const log_tmp = message.agent_log.world_model_output
-                    const engine = extractNextEngine(log_tmp)
-                    if (engine === "COMPLETE") {
-                        const instruction = extractWorldModelInstruction(log_tmp)
-                        log = instruction.indexOf("[NONE]") != -1 ? "Objective reached" : "Output:" + "\n" + instruction;
-                    }
-                    else {
-                        log = "Instruction: " + extractWorldModelInstruction(log_tmp);
+                    console.log(message);
+                    const log_tmp = message.agent_log.world_model_output;
+                    const engine = extractNextEngine(log_tmp);
+                    if (engine === 'COMPLETE') {
+                        const instruction = extractWorldModelInstruction(log_tmp);
+                        log = instruction.indexOf('[NONE]') != -1 ? 'Objective reached' : 'Output:' + '\n' + instruction;
+                    } else {
+                        log = 'Instruction: ' + extractWorldModelInstruction(log_tmp);
                     }
                     type = 'agent_log';
                 } else if (message.type === 'start') {
-                    setRunningAgentState(RunningAgentState.RUNNING)
+                    setRunningAgentState(RunningAgentState.RUNNING);
                 } else if (message.type === 'stop') {
-                    setRunningAgentState(RunningAgentState.IDLE)
+                    setRunningAgentState(RunningAgentState.IDLE);
                     if (message.args == true) {
-                        addLog({ log: "The agent was interrupted.", type: 'agent_log' });
+                        addLog({ log: 'The agent was interrupted.', type: 'agent_log' });
                     }
                 }
                 if (log) {
@@ -87,12 +86,12 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 }
             }),
             connector.onOutputMessage((message) => addLog({ log: message.args, type: 'userprompt' })),
-            connector.onSystemMessage((message) => { 
+            connector.onSystemMessage((message) => {
                 addLog({ log: message.args, type: 'agent_log' });
             }),
         ];
         return () => destructors.forEach((d) => d());
-    }, [connector, addLog, setLogs]);
+    }, [connector, addLog, setLogs, setRunningAgentState]);
 
     return (
         <div className="logs">
@@ -105,4 +104,4 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
             <div ref={bottomElementRef}></div>
         </div>
     );
-} 
+}

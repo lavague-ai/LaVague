@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { List, ListItem, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import Prompt from './Prompt';
 import Logs from './Logs';
 import Connection from './Connection';
@@ -22,9 +21,9 @@ export default function MainLayout() {
             if (firstConnection && !connector.forced_disconnection) {
                 setTabIndex(2);
             }
-            setRunningAgentState(RunningAgentState.IDLE)
+            setRunningAgentState(RunningAgentState.IDLE);
         }
-    }, [serverState]);
+    }, [serverState, setTabIndex, setFirstConnection, setRunningAgentState, firstConnection, connector]);
 
     return (
         <Tabs index={tabIndex} onChange={setTabIndex}>
@@ -38,23 +37,29 @@ export default function MainLayout() {
                     <div className="chatbox">
                         <div className="wmlogs">
                             <div className="logs">
-                            <Stack className={'log agent_log'} direction="row">
-                            <Text>
-                                    Welcome to Lavague Chrome Extension!
-                                    <br />
-                                    <br />
-                                    In order to get started easily, please run the command "lavague-serve" on your terminal.
-                                    <br />
-                                    Then, please write in the connect tab the IP you would like to reach (for example, 127.0.0.1).
-                                    <br />
-                                    <br />
-                                    You can find more details about the usage and the project:{' '}
-                                    <a href="https://docs.lavague.ai" target="_blank">
-                                        https://docs.lavague.ai
-                                    </a>
-                                </Text>
-                            </Stack>
-                            <Logs logTypes={['userprompt', 'agent_log']} />
+                                <Stack className={'log agent_log'} direction="column">
+                                    <Text>Welcome to the Lavague Chrome Extension!</Text>
+                                    <Text mt={3}>To get started:</Text>
+                                    <List mt={1}>
+                                        <ListItem>
+                                            - Open your terminal and type <code>lavague-serve</code> to run the command ;
+                                        </ListItem>
+                                        <ListItem mt={1}>
+                                            - Go to the{' '}
+                                            <span style={{ cursor: 'pointer' }} onClick={() => setTabIndex(2)}>
+                                                &quot;Connection&quot;
+                                            </span>{' '}
+                                            tab and enter the host you want to reach (e.g., 127.0.0.1:8000).
+                                        </ListItem>
+                                    </List>
+                                    <Text mt={3}>
+                                        For more information and details, visit{' '}
+                                        <a href="https://docs.lavague.ai" target="_blank" rel="noreferrer">
+                                            https://docs.lavague.ai
+                                        </a>
+                                    </Text>
+                                </Stack>
+                                <Logs logTypes={['userprompt', 'agent_log']} />
                             </div>
                         </div>
                         <Prompt requestConnection={requestConnection} />
