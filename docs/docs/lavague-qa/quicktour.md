@@ -26,7 +26,7 @@ pip install lavague-qa
 ```
 
 ### Define feature file
-In this example, we will use an example feature file that adds test coverage for Cart item removal, a critical component of the Amazon Cart feature
+In this example, we will use an example feature file that adds test coverage for Cart item removal, a critical component of the Amazon Cart feature.
 
 ```gherkin
 Feature: Cart
@@ -43,18 +43,26 @@ Feature: Cart
     Then the cart should be empty
 ```
 
+You can view the example file [here](https://raw.githubusercontent.com/lavague-ai/LaVague/main/lavague-qa/features/demo_amazon.feature) or download it with following command:
+
+```bash
+wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/lavague-qa/features/demo_amazon.feature
+```
+
+> For guidelines on how to create a Gherkin feature file, see [this guide](https://cucumber.io/docs/gherkin/reference/).
+
 ### Use the CLI
 
 Use `lavague-qa` with a `URL` and a `.feature` file. 
 
 ```bash
-lavague-qa --url https://www.amazon.com --feature ./amazon_cart.feature
+lavague-qa --url https://www.amazon.com --feature ./demo_amazon.feature
 ```
 
-This will generate `amazon_cart.py`, a Pytest file implementing all steps in your Gherkin scenario.
+This will generate `demo_amazon.py`, a Pytest file implementing all steps in your Gherkin scenario.
 
-??? note "Example `amazon_cart.py`"
-    `amazon_cart.py` 
+??? note "Example `demo_amazon.py`"
+    `demo_amazon.py` 
     ```python
     import pytest
     from pytest_bdd import scenarios, given, when, then, parsers
@@ -69,7 +77,7 @@ This will generate `amazon_cart.py`, a Pytest file implementing all steps in you
     BASE_URL = 'https://www.amazon.fr/'
 
     # Scenarios
-    scenarios('amazon_cart.feature')
+    scenarios('demo_amazon.feature')
 
     # Fixtures
     @pytest.fixture
@@ -143,10 +151,10 @@ This will generate `amazon_cart.py`, a Pytest file implementing all steps in you
 
 ### Run the generated tests
 
-Use `pytest amazon_cart.py` to run the test. 
+Use `pytest demo_amazon.py` to run the test. 
 
 ```bash
-pytest amazon_cart.py
+pytest demo_amazon.py
 =========================== test session starts ===========================
 platform darwin -- Python 3.10.14, pytest-8.2.1, pluggy-1.5.0
 rootdir: /Users/
@@ -154,7 +162,7 @@ configfile: pyproject.toml
 plugins: anyio-4.3.0, bdd-7.1.2
 collected 1 item                                                                                                                                                                                                                                         
 
-generated_tests/amazon_cart.py .                                                                                                                                                                                                               [100%]
+generated_tests/demo_amazon.py .                                                                                                                                                                                                               [100%]
 
 =========================== 1 passed in 16.03s ===========================
 
@@ -169,7 +177,7 @@ Whether you're adding coverage to a new site or maintaining existing tests, LaVa
 
 More documentation is available!
 
-- Learn about usage and options in our [sage guide](./usage.md)
+- Learn about usage and options in our [usage guide](./usage.md)
 - See it in action in our [examples section](./examples.md)
 
 Join our [Discord](https://discord.gg/invite/SDxn9KpqX9) to reach our core team and get support!
