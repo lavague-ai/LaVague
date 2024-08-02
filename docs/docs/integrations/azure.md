@@ -2,7 +2,7 @@
 
 The AzureOpenaiContext enabled you to use LaVague with your models deployed with Azure.
 
-There are no default names for this context since the names of models can vary per region.
+By default, we set the `llm` and `mm_llm` models to `gpt-4o` and the embedding model to `text-embedding-3-small`. You will need to have these models deployed if you want to use these defaults.
 
 ## Pre-requisites
 
@@ -47,13 +47,13 @@ from lavague.contexts.openai import AzureOpenaiContext
 
 # Initialize context with our custom elements
 context = AzureOpenaiContext(
-    api_key="<YOUR_API_KEY>",
-    deployment="<YOUR_DEPLOYMENT_nAME>",
-    llm="gpt-4o",
-    mm_llm="gpt-4o",
-    endpoint="<YOUR_ENDPOINT>",
-    embedding="text-embedding-3-small",
-    embedding_deployment="<YOUR_EMBEDDING_DEPLOYMENT_NAME>"
+    api_key="your_api_key",
+    deployment="deployment_name",
+    llm="<model_name>",
+    mm_llm="<model_name>",
+    endpoint="<your_endpoint>",
+    embedding="embedding_model_name",
+    embedding_deployment="embedding_deployment_name"
 )
 
 selenium_driver = SeleniumDriver()
@@ -79,17 +79,17 @@ from llama_index.llms.azure_openai import AzureOpenAI
 
 llm = AzureOpenAI(
     api_key="<your_api_key>",
-    model="gpt-4o",
+    model="<model_name>",
     azure_endpoint="<your_endpoint>",
-    deployment_name="<deployment_name>"
+    deployment_name="<your_deployment_name>"
 )
 
 from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
 mm_llm = AzureOpenAIMultiModal(
     api_key="<api_key>",
-    model="gpt-4o",
+    model="<model_name>",
     azure_endpoint="<your_endpoint>",
-    deployment_name="<deployment_name>"
+    deployment_name="<your_deployment_name>"
 )
 
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
@@ -97,7 +97,7 @@ embedding = AzureOpenAIEmbedding(
     api_key="<api_key>",
     model="<embedding_model_name>",
     azure_endpoint="<your_endpoint>",
-    azure_deployment="<deployment_name>",
+    azure_deployment="<your_deployment_name>",
 ),
 ```
 

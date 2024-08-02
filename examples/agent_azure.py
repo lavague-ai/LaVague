@@ -20,11 +20,11 @@ from lavague.contexts.openai import AzureOpenaiContext
 # Initialize context with our custom elements
 context = AzureOpenaiContext(
     api_key="<YOUR_API_KEY>",
-    deployment="<YOUR_DEPLOYMENT_nAME>",
-    llm="gpt-4o",
-    mm_llm="gpt-4o",
+    deployment="<YOUR_DEPLOYMENT_NAME>",
+    llm="MODEL_NAME",
+    mm_llm="M0DEL_NAME",
     endpoint="<YOUR_ENDPOINT>",
-    embedding="text-embedding-3-small",
+    embedding="<EMBEDDING_MODEL_NAME>",
     embedding_deployment="<YOUR_EMBEDDING_DEPLOYMENT_NAME>",
 )
 
