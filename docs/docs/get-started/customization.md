@@ -19,7 +19,7 @@ Here are the current list of built-in Contexts we provide:
 | Context | Pypi package name | Default multi-modal LLM (World Model) | Default LLM (Action Engine) | Default embedding model (Action Engine) |
 |----------------------|:-----------:|:-----------:|:------------:|------------:|
 |  [Anthropic](../integrations/anthropic.md)   |  lavague-contexts-anthropic |  Claude 3.5 Sonnet    |    Claude 3.5 Sonnet      |    text-embedding-3-small (OpenAI)       |
-|  [Azure](../integrations/azure.md)  | lavague-contexts-openai |  No default      |    No default      |   No defaults        |
+|  [Azure](../integrations/azure.md)  | lavague-contexts-openai |   gpt-4o      |    No default      |    gpt-4o        | text-embedding-3-small |
 |  [Fireworks](../integrations/fireworks.md)   | lavague-contexts-fireworks |   gpt-4o  (OpenAI)      |    llama-v3p1-70b-instruct      |   nomic-embed-text-v1.5        |
 |  [Gemini](../integrations/gemini.md)   |  lavague-contexts-gemini |   gemini-1.5-pro-latest    |    gemini-1.5-flash-latest      |     text-embedding-004       |
 |  [OpenAI](../integrations/openai.md) (default context)   | lavague-contexts-openai |    gpt-4o     |   gpt-4o       |     text-embedding-3-small      |
