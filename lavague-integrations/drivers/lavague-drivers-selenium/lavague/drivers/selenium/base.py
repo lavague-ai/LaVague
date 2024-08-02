@@ -19,6 +19,7 @@ from lavague.core.base_driver import (
     InteractionType,
     DOMNode,
 )
+from lavague.core.exceptions import CannotBackException
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
@@ -155,6 +156,8 @@ driver.set_window_size({width}, {height} + height_difference)
         self.driver.get(url)
 
     def back(self) -> None:
+        if self.driver.execute_script("return !document.referrer"):
+            raise CannotBackException()
         self.driver.back()
 
     def code_for_back(self) -> None:
