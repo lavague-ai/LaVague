@@ -4,6 +4,7 @@ import time
 from typing import Any, List, Optional
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
+from lavague.core.exceptions import NavigationException
 from lavague.core.extractors import (
     BaseExtractor,
     YamlFromMarkdownExtractor,
@@ -518,46 +519,54 @@ class NavigationControl(BaseEngine):
         import inspect
 
         code = ""
+        output = None
+        success = True
         logger = self.logger
 
-        if "SCROLL_DOWN" in instruction:
-            self.driver.scroll_down()
-            code = inspect.getsource(self.driver.scroll_down)
-        elif "SCROLL_UP" in instruction:
-            self.driver.scroll_up()
-            code = inspect.getsource(self.driver.scroll_up)
-        elif "WAIT" in instruction:
-            self.driver.wait(self.time_between_actions)
-            code = inspect.getsource(self.driver.wait)
-        elif "BACK" in instruction:
-            self.driver.back()
-            code = inspect.getsource(self.driver.back)
-            self.set_is_full_page(False)
-        elif "SCAN" in instruction:
-            self.driver.get_screenshots_whole_page()
-            code = inspect.getsource(self.driver.get_screenshots_whole_page)
-            self.set_is_full_page(True)
-        elif "MAXIMIZE_WINDOW" in instruction:
-            self.driver.maximize_window()
-            code = inspect.getsource(self.driver.maximize_window)
-        elif "SWITCH_TAB" in instruction:
-            tab_id = int(instruction.split(" ")[1])
-            try:
-                self.driver.switch_tab(tab_id=tab_id)
-            except Exception as e:
-                raise ValueError(f"Error while switching tab: {e}")
-            code = inspect.getsource(self.driver.switch_tab)
-            self.set_is_full_page(False)
-        else:
-            raise ValueError(f"Unknown instruction: {instruction}")
-        success = True
+        try:
+            if "SCROLL_DOWN" in instruction:
+                self.driver.scroll_down()
+                code = inspect.getsource(self.driver.scroll_down)
+            elif "SCROLL_UP" in instruction:
+                self.driver.scroll_up()
+                code = inspect.getsource(self.driver.scroll_up)
+            elif "WAIT" in instruction:
+                self.driver.wait(self.time_between_actions)
+                code = inspect.getsource(self.driver.wait)
+            elif "BACK" in instruction:
+                self.driver.back()
+                code = inspect.getsource(self.driver.back)
+                self.set_is_full_page(False)
+            elif "SCAN" in instruction:
+                self.driver.get_screenshots_whole_page()
+                code = inspect.getsource(self.driver.get_screenshots_whole_page)
+                self.set_is_full_page(True)
+            elif "MAXIMIZE_WINDOW" in instruction:
+                self.driver.maximize_window()
+                code = inspect.getsource(self.driver.maximize_window)
+            elif "SWITCH_TAB" in instruction:
+                tab_id = int(instruction.split(" ")[1])
+                try:
+                    self.driver.switch_tab(tab_id=tab_id)
+                except Exception as e:
+                    raise ValueError(f"Error while switching tab: {e}")
+                code = inspect.getsource(self.driver.switch_tab)
+                self.set_is_full_page(False)
+            else:
+                raise ValueError(f"Unknown instruction: {instruction}")
+
+        except NavigationException as e:
+            success = False
+            output = str(e)
+            logging_print.error(f"Navigation error: {e}")
+
         if logger:
             log = {
                 "engine": "Navigation Controls",
                 "instruction": instruction,
                 "engine_log": None,
                 "success": success,
-                "output": None,
+                "output": output,
                 "code": code,
             }
             logger.add_log(log)
@@ -565,7 +574,7 @@ class NavigationControl(BaseEngine):
         self.driver.wait_for_idle()
 
         return ActionResult(
-            instruction=instruction, code=code, success=success, output=None
+            instruction=instruction, code=code, success=success, output=output
         )
 
 
