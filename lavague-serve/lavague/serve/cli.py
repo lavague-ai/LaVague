@@ -5,6 +5,7 @@ from lavague.core.agents import WebAgent
 from lavague.drivers.driverserver import DriverServer
 from lavague.server import AgentServer
 
+
 @click.command()
 @click.option(
     "--port",
@@ -20,9 +21,10 @@ def cli(port: int) -> None:
         driver = DriverServer(session)
         action_engine = ActionEngine(driver)
         return WebAgent(world_model, action_engine)
-    
+
     server = AgentServer(create_agent, port=port)
     server.serve()
+
 
 if __name__ == "__main__":
     cli()
