@@ -91,18 +91,18 @@ generated_tests/example.py .                                                    
 ```
 
 
-## Advanced usage
+## Customization
 
 By default, LaVague attempts to minimize reliance on LLMs in order to optimize costs.
 
 ### Flag `--context` or `-c`
 
-Contexts are used to run LaVague QA with different LLMs.
+Contexts are used to define the set of LLMs that will be used by LaVague QA to generate tests.
 
-Contexts are `.py` files, they instantiate the required `Context` object and the `TokenCounter` object.
+Contexts are defined in `.py` configuration files which instantiate the required `Context` object and a `TokenCounter` object.
 
-- By default we use OpenAI `gpt-4o` as it is the best performing model so far
-- You can find [other contexts in our repository](https://github.com/lavague-ai/LaVague/tree/main/lavague-tests/contexts)
+- By default we use our OpenaiContext which leverages OpenAI's `gpt-4o` and `text-embedding-3-small`
+- You can learn how to define a custom context with models of your choice [in this guide](https://docs.lavague.ai/en/latest/docs/learn/testing/#providing-a-custom-configuration-files)
 
 To run with a custom context, use the `--context` flag along with the path to the `.py` file creating the objects.
 
@@ -110,21 +110,19 @@ To run with a custom context, use the `--context` flag along with the path to th
 lavague-qa --context ./my_contexts/custom_context_gemini.py
 ```
 
-### Flag `-llm`
+### Flag `--full-llm` or `-llm`
 
-- By default, we attempt to build the pytest file manually by mapping each actions taken by the LaVague agent to each statement defined in the Gherkin.
-- We only use LLMs to generate the assert statement. This works well if the LaVague agent ran steps exactly as described. 
+By default, when this flag is not set, we build 90% of the pytest file deterministically and only rely on LLMs for the assert generation. 
 
-However, sometimes LaVague takes extra steps that are not defined in the Gherkin. In this case, Pytest building will fail as the number of instructions ran by the agent is different from the number of actions defined in the Gherkin. 
+However, sometimes this can lead to LaVague taking extra steps that are not defined in the Gherkin. In this case, Pytest building will fail as the number of instructions ran by the agent is different from the number of actions defined in the Gherkin. 
 
-In this case, you can use the `-llm` flag to generate the entire Pytest file with an LLM (and not the just the assert statement).
+In this case, you can use the `-llm` or `--full-llm` flag to generate the entire Pytest file with an LLM (and not the just the assert statement).
 
 ```bash
 lavague-qa -llm --url https://example.com --feature example.feature
 ```
 
-This will create `example_llm.py` that you can run with Pytest
-
+This will create `example_llm.py` that you can run with Pytest.
 
 ## Learn more
 
