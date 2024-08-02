@@ -18,7 +18,7 @@ In each of these examples, we'll showcase how LaVague QA can be used to generate
 
 ## Amazon Cart testing
 
-In this example, we test the Amazon 'add to cart' button is functioning as expected.
+In this example, we test that the feature to remove items from our cart on Amazon.
 
 ### Feature file
 
