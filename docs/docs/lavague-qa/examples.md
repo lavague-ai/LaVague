@@ -3,7 +3,9 @@
 !!! warning "Beta release"
     LaVague QA is still a work in progress and may contain bugs. Join our [community of amazing contributors](https://discord.gg/invite/SDxn9KpqX9) to help make this tool more reliable!
 
-We will periodically add [examples in our repository](https://github.com/lavague-ai/LaVague/blob/main/lavague-qa/features/). In this section, we will go over each of the Gherkin files and showcase the generated code. 
+We will periodically add [examples in our repository](https://github.com/lavague-ai/LaVague/blob/main/lavague-qa/features/). In this section, we will go over each of the Gherkin files and showcase the generated code.
+
+All commands shown in this documentation assume you're running them from the LaVague repository in order to use the provided examples. 
 
 
 | URL                              | Link to file                                                  | Purpose                                                  |
@@ -37,7 +39,11 @@ Feature: Cart
     Then the cart should be empty
 ```
 
-## Generated pytest
+## Generate pytest
+
+```sh
+lavague-qa --url https://amazon.fr/ --feature lavague-qa/features/demo_amazon.feature
+```
 
 ??? note "Generated code"
     ```python
@@ -186,7 +192,11 @@ Feature: Shipping cost calculator
     Then the cost should be "34,70 €"
 ```
 
-### Generated pytest
+## Generate pytest
+
+```sh
+lavague-qa --url https://laposte.fr/ --feature lavague-qa/features/demo_laposte.feature
+```
 
 ??? note "Generated code"  
     ```python
@@ -286,7 +296,11 @@ Feature: Wikipedia Login
     Then the login is successful and the user is redirected to the main page
 ```
 
-### Generated pytest
+## Generate pytest
+
+```sh
+lavague-qa --url https://en.wikipedia.org/ --feature lavague-qa/features/demo_wikipedia.feature
+```
 
 ??? note "Generated code"
         ```python
@@ -385,7 +399,13 @@ Feature: HSBC navigation
     Then the user should be on the "About us" page of the "Global Banking and Markets" services of HSBC
 ```
 
-### Generated pytest
+## Generate pytest
+
+```sh
+lavague-qa -llm --url https://hsbc.fr/ --feature lavague-qa/features/demo_hsbc.feature 
+```
+
+For this example, we run with the `-llm` flag to generate the pytest since multitab doesn't work with our step by step pytest builder yet. 
 
 ??? note "Generated code"
     ```python
