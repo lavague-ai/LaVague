@@ -23,8 +23,8 @@ check_file() {
 
     # Skip the check if within a code block
     if [[ $in_code_block == false ]]; then
-      if [[ $prev_line =~ ^.*:\ *$ ]] && [[ $line == -* ]]; then
-        if [[ $empty_line == false ]]; then
+      if [[ $prev_line =~ ^.*:[[:space:]]*$ ]] && [[ $line =~ ^-[[:space:]] ]]; then
+              if [[ $empty_line == false ]]; then
           echo "Error in file $file: Line $line_number - A line ending with ':' (line $prev_line_number) is immediately followed by a line starting with '-' without an empty line in between."
           exit 1
         fi
