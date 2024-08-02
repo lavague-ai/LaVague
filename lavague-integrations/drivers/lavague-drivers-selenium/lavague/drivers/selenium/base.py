@@ -19,6 +19,7 @@ from lavague.core.base_driver import (
     InteractionType,
     DOMNode,
 )
+from lavague.core.exceptions import CannotBackException
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
@@ -155,6 +156,8 @@ driver.set_window_size({width}, {height} + height_difference)
         self.driver.get(url)
 
     def back(self) -> None:
+        if self.driver.execute_script("return !document.referrer"):
+            raise CannotBackException()
         self.driver.back()
 
     def code_for_back(self) -> None:
@@ -289,6 +292,8 @@ driver.set_window_size({width}, {height} + height_difference)
                 else:
                     raise ValueError(f"Unknown action: {action_name}")
 
+                self.wait_for_idle()
+
     def execute_script(self, js_code: str, *args) -> Any:
         return self.driver.execute_script(js_code, *args)
 
@@ -335,13 +340,29 @@ driver.set_window_size({width}, {height} + height_difference)
             # might not be a clearable element, but global click + send keys can still success
             pass
         self.click(xpath)
-        ActionChains(self.driver).send_keys(value).perform()
+
+        (
+            ActionChains(self.driver)
+            .key_down(Keys.CONTROL)
+            .send_keys("a")
+            .key_up(Keys.CONTROL)
+            .send_keys(Keys.DELETE)  # clear the input field
+            .send_keys(value)
+            .perform()
+        )
         if enter:
             ActionChains(self.driver).send_keys(Keys.ENTER).perform()
         self.driver.switch_to.default_content()
 
     def dropdown_select(self, xpath: str, value: str):
         element = self.resolve_xpath(xpath)
+
+        if element.tag_name != "select":
+            print(
+                f"Cannot use dropdown_select on {element.tag_name}, falling back to simple click on {xpath}"
+            )
+            return self.click(xpath)
+
         select = Select(element)
         try:
             select.select_by_value(value)

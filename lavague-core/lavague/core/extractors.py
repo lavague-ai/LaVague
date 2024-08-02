@@ -1,8 +1,17 @@
 from abc import ABC, abstractmethod
 import re
+from jsonschema import validate, ValidationError
 import yaml
 import json
 from typing import Any, Dict
+
+
+class ExtractionError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+    def __str__(self) -> str:
+        return f"Error extracting the object: {self.args[0]}"
 
 
 class BaseExtractor(ABC):
@@ -25,16 +34,19 @@ class YamlFromMarkdownExtractor(BaseExtractor):
     """
 
     def extract(self, markdown_text: str) -> str:
+        yml_str = markdown_text.strip()
         # Pattern to match the first ```yaml ``` code block
-        pattern = r"```yaml(.*?)```"
+        pattern = r"```(?:yaml|yml|\n)(.*?)```"
 
         # Using re.DOTALL to make '.' match also newlines
         match = re.search(pattern, markdown_text, re.DOTALL)
         if match:
             # Return the first matched group, which is the code inside the ```python ```
-            return match.group(1).strip()
-        else:
-            # Return None if no match is found
+            yml_str = match.group(1).strip()
+        try:
+            yaml.safe_load(yml_str)
+            return yml_str
+        except yaml.YAMLError:
             return None
 
     def extract_as_object(self, text: str):
@@ -50,18 +62,30 @@ class JsonFromMarkdownExtractor(BaseExtractor):
     --------------------------------------------
     """
 
-    def extract(self, markdown_text: str) -> str:
+    def extract(self, markdown_text: str, shape_validator=None) -> str:
         # Pattern to match the first ```json ``` code block
         pattern = r"```json(.*?)```"
 
         # Using re.DOTALL to make '.' match also newlines
         match = re.search(pattern, markdown_text, re.DOTALL)
-        if match:
-            # Return the first matched group, which is the code inside the ```python ```
-            return match.group(1).strip()
+
+        if shape_validator:
+            try:
+                # checks if the json returned from the llm matchs the schema
+                validate(
+                    instance=json.loads(match.group(1).strip()), schema=shape_validator
+                )
+            except json.JSONDecodeError:
+                raise ExtractionError("Invalid JSON format")
+            except ValidationError:
+                raise ExtractionError("JSON does not match schema")
         else:
-            # Return None if no match is found
-            return None
+            if match:
+                # Return the first matched group, which is the code inside the ```python ```
+                return match.group(1).strip()
+            else:
+                # Return None if no match is found
+                return None
 
     def extract_as_object(self, text: str):
         return json.loads(self.extract(text))
@@ -120,6 +144,7 @@ class DynamicExtractor(BaseExtractor):
         self.extractors: Dict[str, BaseExtractor] = {
             "json": JsonFromMarkdownExtractor(),
             "yaml": YamlFromMarkdownExtractor(),
+            "yml": YamlFromMarkdownExtractor(),
             "python": PythonFromMarkdownExtractor(),
         }
 
@@ -130,6 +155,14 @@ class DynamicExtractor(BaseExtractor):
         if match:
             return match.group(1).strip()
         else:
+            # Try to auto-detect first matching extractor
+            for type, extractor in self.extractors.items():
+                try:
+                    value = extractor.extract(text)
+                    if value:
+                        return type
+                except:
+                    pass
             raise ValueError(f"No extractor pattern can be found from {text}")
 
     def extract(self, text: str) -> str:

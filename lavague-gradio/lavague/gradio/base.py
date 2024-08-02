@@ -66,13 +66,8 @@ class GradioAgentDemo:
 
     def _init_driver(self):
         def init_driver_impl(url, img):
-            from selenium.webdriver.support.ui import WebDriverWait
-
             self.agent.action_engine.driver.get(url)
 
-            WebDriverWait(self.agent.driver.get_driver(), 30).until(
-                lambda d: d.execute_script("return document.readyState") == "complete"
-            )
             ret = self.agent.action_engine.driver.get_screenshot_as_png()
             ret = BytesIO(ret)
             ret = Image.open(ret)
@@ -82,33 +77,14 @@ class GradioAgentDemo:
         return init_driver_impl
 
     def _process_instructions(self):
-        def add_instruction(instruction, instructions_history):
-            from bs4 import BeautifulSoup
-
-            soup = BeautifulSoup(instructions_history, "html.parser")
-            new_item = soup.new_tag("li")
-            new_item.string = instruction
-            soup.find("ul").append(new_item)
-
-            items = soup.find_all("li")
-            for item in items:
-                item.attrs.pop("style", None)
-
-            items[-1]["style"] = "background-color: #555;"
-
-            output = soup.prettify()
-            return output
-
-        def process_instructions_impl(
-            objective, url_input, image_display, instructions_history, history
-        ):
+        def process_instructions_impl(objective, url_input, image_display, history):
             msg = gr.ChatMessage(
                 role="assistant", content="⏳ Thinking of next steps..."
             )
             history.append(msg)
-            yield objective, url_input, image_display, instructions_history, history
+            yield objective, url_input, image_display, history
             self.agent.action_engine.set_gradio_mode_all(
-                True, objective, url_input, image_display, instructions_history, history
+                True, objective, url_input, image_display, history
             )
             self.agent.clean_screenshot_folder = False
             yield from self.agent._run_demo(
@@ -118,28 +94,17 @@ class GradioAgentDemo:
                 objective,
                 url_input,
                 image_display,
-                instructions_history,
                 history,
                 self.screenshot_ratio,
             )
-            return objective, url_input, image_display, instructions_history, history
+            return objective, url_input, image_display, history
 
         return process_instructions_impl
 
     def __add_message(self):
-        def clear_instructions(instruction, instructions_history):
-            from bs4 import BeautifulSoup
-
-            soup = BeautifulSoup(instructions_history, "html.parser")
-            soup.find("ul").clear()
-
-            output = soup.prettify()
-            return output
-
-        def add_message(history, message, instructions_history):
-            instructions_history = clear_instructions("", instructions_history)
+        def add_message(history, message):
             history.clear()
-            return history, instructions_history
+            return history
 
         return add_message
 
@@ -158,22 +123,6 @@ class GradioAgentDemo:
         return url, image_display
 
     def launch(self, server_port=7860, share=True, debug=True):
-        def toggle_to_url():
-            return (
-                gr.update(visible=True),
-                gr.update(visible=False),
-                gr.update(elem_classes=["selected", "my-button"]),
-                gr.update(elem_classes=["unselected", "my-button"]),
-            )
-
-        def toggle_to_objective():
-            return (
-                gr.update(visible=False),
-                gr.update(visible=True),
-                gr.update(elem_classes=["unselected", "my-button"]),
-                gr.update(elem_classes=["selected", "my-button"]),
-            )
-
         with gr.Blocks(
             gr.themes.Default(primary_hue="blue", secondary_hue="neutral"), css=self.css
         ) as demo:
@@ -196,6 +145,7 @@ class GradioAgentDemo:
                                         type="text",
                                         label="Enter URL and press 'Enter' to load the page.",
                                         visible=True,
+                                        max_lines=1,
                                     )
                                 with gr.Tab("Objective", id=1) as tab:
                                     objective_input = gr.Textbox(
@@ -204,45 +154,41 @@ class GradioAgentDemo:
                                         type="text",
                                         label="Enter the objective and press 'Enter' to start processing it.",
                                         visible=True,
+                                        max_lines=1,
                                     )
                 with gr.Row(variant="panel", equal_height=True):
-                    with gr.Column(scale=7):
+                    with gr.Column(scale=8):
                         image_display = gr.Image(
-                            label="Browser", interactive=False, height="70%"
+                            label="Browser", interactive=False, height="100%"
                         )
-                    with gr.Column(scale=3):
+                    with gr.Column(scale=2):
                         chatbot = gr.Chatbot(
                             [],
                             label="Agent output",
                             elem_id="history",
                             type="messages",
                             bubble_full_width=False,
-                            height="70%",
+                            height="100%",
                             placeholder="Agent output will be shown here\n",
                             layout="bubble",
-                        )
-                        instructions_history = gr.HTML(
-                            "<div class='list-container'><ul></ul></div>"
                         )
                 # objective submission handling
                 objective_input.submit(
                     self.__add_message(),
-                    inputs=[chatbot, objective_input, instructions_history],
-                    outputs=[chatbot, instructions_history],
+                    inputs=[chatbot, objective_input],
+                    outputs=[chatbot],
                 ).then(
                     self._process_instructions(),
                     inputs=[
                         objective_input,
                         url_input,
                         image_display,
-                        instructions_history,
                         chatbot,
                     ],
                     outputs=[
                         objective_input,
                         url_input,
                         image_display,
-                        instructions_history,
                         chatbot,
                     ],
                 )

@@ -141,7 +141,6 @@ class ActionEngine:
         objective,
         url_input,
         image_display,
-        instructions_history,
         history,
     ):
         self.navigation_engine.set_gradio_mode(
@@ -149,7 +148,6 @@ class ActionEngine:
             objective,
             url_input,
             image_display,
-            instructions_history,
             history,
         )
         self.python_engine.set_gradio_mode(
@@ -157,7 +155,6 @@ class ActionEngine:
             objective,
             url_input,
             image_display,
-            instructions_history,
             history,
         )
         self.navigation_control.set_gradio_mode(
@@ -165,7 +162,6 @@ class ActionEngine:
             objective,
             url_input,
             image_display,
-            instructions_history,
             history,
         )
 
@@ -203,7 +199,6 @@ class ActionEngine:
                 self.navigation_engine.objective,
                 self.navigation_engine.url_input,
                 self.navigation_engine.image_display,
-                self.navigation_engine.instructions_history,
                 self.navigation_engine.history,
                 ret.output,
             )
