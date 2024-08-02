@@ -270,25 +270,3 @@ if __name__ == "__main__":
         log_to_db=True,
     )
     pytest_generator.generate()
-
-# TODO:
-# code:
-# - add contexts + tokencounter ?
-# - add a little bit of telemetry to understand if people are using the CLI ?
-# what about the function in utils ? what's the risk of drifting away from the core lavague code if we add actions, change the ways we handle actions, etc ?
-
-# limitations:
-# - can only handle one scenario
-# - can't handle `switch_to` when running without full_llm
-# - saves the feature file to ./generated_tests/ along with the code so that a user can easily run `pytest` on the generated test
-
-
-# examples:
-# make sure all are in english with EN urls ?
-# - issues: amazon.com has a captcha, .fr doesn't
-
-# docs:
-# add new section in side bar
-# - get started, installation, usage, walkthrouhg ?
-# - index of docs
-# - main readme.md
