@@ -91,7 +91,7 @@ class TestGenerator:
 
     def _setup_file_paths(self):
         self.feature_file_name = os.path.basename(self.feature_file_path)
-        self.code_file_name = f"{self.feature_file_name.replace('.feature', '')}{'_llm' if self.full_llm else '_no_llm'}.py"
+        self.code_file_name = f"{self.feature_file_name.replace('.feature', '')}{'_llm' if self.full_llm else ''}.py"
         self.final_pytest_path = os.path.join(self.generated_dir, self.code_file_name)
         self.final_feature_path = os.path.join(
             self.generated_dir, self.feature_file_name
