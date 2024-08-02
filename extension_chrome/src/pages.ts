@@ -84,11 +84,15 @@ function getInteractives(elements: any, foreground_only: boolean = false): Recor
                 return true;
             }
 
-            let pointContainer = document.elementFromPoint(elemCenter.x, elemCenter.y);
-            while (pointContainer) {
-                if (pointContainer === element) return true;
-                if (pointContainer == null) return true;
-                pointContainer = pointContainer.parentNode as HTMLElement | null;
+            try {
+                let pointContainer = document.elementFromPoint(elemCenter.x, elemCenter.y);
+                while (pointContainer) {
+                    if (pointContainer === element) return true;
+                    if (pointContainer == null) return true;
+                    pointContainer = pointContainer.parentNode as HTMLElement | null;
+                }
+            } catch (e) {
+                console.log(e);
             }
 
             return false;
