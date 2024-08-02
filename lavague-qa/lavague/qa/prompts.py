@@ -29,8 +29,7 @@ def browser():
 PYTEST_GIVEN_TEMPLATE = PromptTemplate("""@given('{step}')
 def {method_name}(browser: WebDriver):
     {code}
-"""
-)
+""")
 
 PYTEST_WHEN_TEMPLATE = PromptTemplate("""@when('{step}')
 def {method_name}(browser: WebDriver):
@@ -41,16 +40,6 @@ PYTEST_THEN_TEMPLATE = PromptTemplate("""@then('{step}')
 def {method_name}(browser: WebDriver):
 {assert_code}
 """)
-
-
-
-
-
-
-
-
-
-
 
 
 FULL_PROMPT_TEMPLATE = PromptTemplate("""You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.

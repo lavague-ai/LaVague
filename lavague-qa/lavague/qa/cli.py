@@ -51,8 +51,15 @@ from lavague.tests.cli import _load_context
     help="Enables logging to a SQLite database",
 )
 def cli(
-    url: str, feature: str, full_llm: bool, context: str, headless: bool, log_to_db: bool
+    url: str,
+    feature: str,
+    full_llm: bool,
+    context: str,
+    headless: bool,
+    log_to_db: bool,
 ) -> None:
     context, token_counter = _load_context(context)
-    pytest_generator = TestGenerator(context, url, feature, full_llm, token_counter, headless, log_to_db)
+    pytest_generator = TestGenerator(
+        context, url, feature, full_llm, token_counter, headless, log_to_db
+    )
     pytest_generator.generate()

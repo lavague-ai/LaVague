@@ -15,34 +15,35 @@ def remove_comments(code):
 def clean_llm_output(code: str) -> str:
     return code.replace("```python", "").replace("```", "").replace("```\n", "")
 
+
 def build_run_summary(logs, final_feature_path, final_pytest_path, execution_time):
     token_summary = {
-            "world_model_input_tokens": 0,
-            "world_model_output_tokens": 0,
-            "action_engine_input_tokens": 0,
-            "action_engine_output_tokens": 0,
-            "total_world_model_tokens": 0,
-            "total_action_engine_tokens": 0,
-            "total_embedding_tokens": 0,
-            "total_world_model_cost": 0.0,
-            "total_action_engine_cost": 0.0,
-            "total_embedding_cost": 0.0,
-            "total_step_tokens": 0,
-            "total_step_cost": 0.0,
-        }
+        "world_model_input_tokens": 0,
+        "world_model_output_tokens": 0,
+        "action_engine_input_tokens": 0,
+        "action_engine_output_tokens": 0,
+        "total_world_model_tokens": 0,
+        "total_action_engine_tokens": 0,
+        "total_embedding_tokens": 0,
+        "total_world_model_cost": 0.0,
+        "total_action_engine_cost": 0.0,
+        "total_embedding_cost": 0.0,
+        "total_step_tokens": 0,
+        "total_step_cost": 0.0,
+    }
     for key in token_summary.keys():
         if key in logs.columns:
-                token_summary[key] += logs[key].sum()
-                
+            token_summary[key] += logs[key].sum()
+
     summary = ""
     summary += f"\nFinished generating tests in {execution_time:.1f}s\n\n"
     summary += f"   Feature file: {final_feature_path}\n"
     summary += f"   Pytest file:  {final_pytest_path}\n"
     # turn off TokenCounter output as it counts only the LaVague run and not the pytest generation
     # summary += build_summary_table(token_summary, verbose=False)
-    
+
     summary += f"\nRun the following command to execute your tests:\n\n   pytest {final_pytest_path}\n"
-    
+
     return summary
 
 

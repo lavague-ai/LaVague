@@ -27,7 +27,14 @@ from lavague.qa.utils import (
     INDENT,
     INDENT_PASS,
 )
-from lavague.qa.prompts import FULL_PROMPT_TEMPLATE, ASSERT_ONLY_PROMPT_TEMPLATE, PYTEST_HEADER_TEMPLATE, PYTEST_GIVEN_TEMPLATE, PYTEST_WHEN_TEMPLATE, PYTEST_THEN_TEMPLATE
+from lavague.qa.prompts import (
+    FULL_PROMPT_TEMPLATE,
+    ASSERT_ONLY_PROMPT_TEMPLATE,
+    PYTEST_HEADER_TEMPLATE,
+    PYTEST_GIVEN_TEMPLATE,
+    PYTEST_WHEN_TEMPLATE,
+    PYTEST_THEN_TEMPLATE,
+)
 
 
 class Scenario:
@@ -47,7 +54,7 @@ class Scenario:
 class TestGenerator:
     def __init__(
         self,
-        context: Context, 
+        context: Context,
         url: str,
         feature_file_path: str,
         full_llm: bool,
@@ -62,7 +69,7 @@ class TestGenerator:
         self.token_counter = token_counter
         self.headless = headless
         self.log_to_db = log_to_db
-        
+
         # parse feature
         self.scenarios, self.feature_file_content = self._read_scenarios(
             feature_file_path
@@ -72,12 +79,14 @@ class TestGenerator:
         # setup target directory and file paths
         self.generated_dir = "./generated_tests"
         self._setup_file_paths()
-        
+
         # instantiate LLMs for Pytest generation from context
         self.llm = self.context.llm
         self.mm_llm = self.context.mm_llm
         self.mm_llm.max_new_tokens = 2000
-        self.retriever = SemanticRetriever(embedding=self.context.embedding, xpathed_only=False)
+        self.retriever = SemanticRetriever(
+            embedding=self.context.embedding, xpathed_only=False
+        )
         print(f"Ready to generate tests on {self.url} for {self.feature_file_content}")
 
     def _setup_file_paths(self):
@@ -105,18 +114,24 @@ class TestGenerator:
                 self.scenario.expect[0], html_chunks
             )
             code = self._build_pytest_file(logs, assert_code)
-            
+
         self._write_files(code)
-        
+
         # end timer and spinner
         spinner.stop()
         end_time = time.time()
         execution_time = end_time - start_time
-        print(build_run_summary(logs, self.final_feature_path, self.final_pytest_path, execution_time))
+        print(
+            build_run_summary(
+                logs, self.final_feature_path, self.final_pytest_path, execution_time
+            )
+        )
 
     def _run_lavague_agent(self):
         selenium_driver = SeleniumDriver(headless=self.headless)
-        action_engine = ActionEngine.from_context(context=self.context, driver=selenium_driver)
+        action_engine = ActionEngine.from_context(
+            context=self.context, driver=selenium_driver
+        )
         world_model = WorldModel.from_context(context=self.context)
         agent = WebAgent(world_model, action_engine, token_counter=self.token_counter)
 
@@ -174,7 +189,9 @@ class TestGenerator:
         return "\n".join([INDENT + l for l in code.splitlines()])
 
     def _build_pytest_file(self, logs, assert_code):
-        pytest_code = PYTEST_HEADER_TEMPLATE.format(url=self.url, feature_file_name=self.feature_file_name)
+        pytest_code = PYTEST_HEADER_TEMPLATE.format(
+            url=self.url, feature_file_name=self.feature_file_name
+        )
         pytest_code += self._generate_given_steps()
         pytest_code += self._generate_when_steps(logs)
         pytest_code += self._generate_then_step(assert_code)
@@ -186,7 +203,9 @@ class TestGenerator:
             step = setup.replace("'", "\\'")
             method_name = to_snake_case(setup)
             code = "browser.get(BASE_URL)" if index == 0 else "pass"
-            given_steps += PYTEST_GIVEN_TEMPLATE.format(step=step, method_name=method_name, code=code)
+            given_steps += PYTEST_GIVEN_TEMPLATE.format(
+                step=step, method_name=method_name, code=code
+            )
         return given_steps
 
     def _generate_when_steps(self, logs):
@@ -214,12 +233,16 @@ class TestGenerator:
             actions_code = INDENT + get_nav_control_code(instruction)
         else:
             actions_code = INDENT_PASS
-        return PYTEST_WHEN_TEMPLATE.format(step=step, method_name=method_name, actions_code=actions_code)
+        return PYTEST_WHEN_TEMPLATE.format(
+            step=step, method_name=method_name, actions_code=actions_code
+        )
 
     def _generate_then_step(self, assert_code):
         step = self.scenario.expect[0].replace("'", "\\'")
         method_name = to_snake_case(self.scenario.expect[0])
-        return PYTEST_THEN_TEMPLATE.format(step=step, method_name=method_name, assert_code=assert_code)
+        return PYTEST_THEN_TEMPLATE.format(
+            step=step, method_name=method_name, assert_code=assert_code
+        )
 
     def _write_files(self, code):
         os.makedirs(self.generated_dir, exist_ok=True)
@@ -259,4 +282,3 @@ class TestGenerator:
                         print("Parser missing", step)
 
         return scenarios, feature_file_content
-    
