@@ -122,7 +122,7 @@ In this case, you can use the `-llm` or `--full-llm` flag to generate the entire
 lavague-qa -llm --url https://example.com --feature example.feature
 ```
 
-This will create `example_llm.py` that you can run with Pytest
+This will create `example_llm.py` that you can run with Pytest.
 
 ## Learn more
 
