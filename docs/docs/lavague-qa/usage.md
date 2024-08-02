@@ -46,7 +46,7 @@ Usage: lavague-qa [OPTIONS]
 Options:
   -u, --url TEXT      URL of the site to test
   -f, --feature TEXT  Path to the .feature file containing Gherkin
-  -llm, --full-llm    Enable full LLM pytest generation
+  -l, --full-llm      Enable full LLM pytest generation
   -c, --context TEXT  Path of python file containing an initialized context
                       and token_counter. Defaults to OpenAI GPT4o
   -h, --headless      Enable headless mode for the browser
@@ -110,16 +110,16 @@ To run with a custom context, use the `--context` flag along with the path to th
 lavague-qa --context ./my_contexts/custom_context_gemini.py
 ```
 
-### Flag `--full-llm` or `-llm`
+### Flag `--full-llm` or `-l`
 
 By default, when this flag is not set, we build 90% of the pytest file deterministically and only rely on LLMs for the assert generation. 
 
 However, sometimes this can lead to LaVague taking extra steps that are not defined in the Gherkin. In this case, Pytest building will fail as the number of instructions ran by the agent is different from the number of actions defined in the Gherkin. 
 
-In this case, you can use the `-llm` or `--full-llm` flag to generate the entire Pytest file with an LLM (and not the just the assert statement).
+In this case, you can use the `-l` or `--full-llm` flag to generate the entire Pytest file with an LLM (and not the just the assert statement).
 
 ```bash
-lavague-qa -llm --url https://example.com --feature example.feature
+lavague-qa --full-llm --url https://example.com --feature example.feature
 ```
 
 This will create `example_llm.py` that you can run with Pytest.

@@ -402,10 +402,10 @@ Feature: HSBC navigation
 ## Generate pytest
 
 ```sh
-lavague-qa -llm --url https://hsbc.fr/ --feature lavague-qa/features/demo_hsbc.feature 
+lavague-qa --full-llm --url https://hsbc.fr/ --feature lavague-qa/features/demo_hsbc.feature 
 ```
 
-For this example, we run with the `-llm` flag to generate the pytest since multitab doesn't work with our step by step pytest builder yet. 
+For this example, we run with the `-full-llm` flag to generate the pytest since multitab doesn't work with our step by step pytest builder yet. 
 
 ??? note "Generated code"
     ```python

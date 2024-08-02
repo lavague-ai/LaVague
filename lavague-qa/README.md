@@ -10,7 +10,7 @@ Usage: lavague-qa [OPTIONS]
 Options:
   -u, --url TEXT      URL of the site to test
   -f, --feature TEXT  Path to the .feature file containing Gherkin
-  -llm, --full-llm    Enable full LLM pytest generation
+  -l, --full-llm      Enable full LLM pytest generation
   -c, --context TEXT  Path of python file containing an initialized context
                       and token_counter. Defaults to OpenAI GPT4o
   -h, --headless      Enable headless mode for the browser
@@ -22,7 +22,7 @@ Options:
 Some examples are provided in `./features/`:
 
 ```bash
-lavague-qa --url https://amazon.com/ --feature features/demo_amazon.feature
+lavague-qa --url https://amazon.fr/ --feature features/demo_amazon.feature
 ```
 Run `lavague-qa` to run a default example: Wikipedia login test
 

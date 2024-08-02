@@ -80,8 +80,8 @@ Example:
 
 1. Install LaVague QA: pip install lavague-qa
 2. Define a feature file.
-3. Generate Pytest code: `lavague-qa --url https://www.amazon.com --feature ./amazon_cart.feature`
-4. Run tests: `pytest amazon_cart.py`
+3. Generate Pytest code: `lavague-qa --url https://www.amazon.fr --feature ./demo_amazon.feature`
+4. Run tests: `pytest demo_amazon.py`
 
 Read our [dedicated documentation](https://docs.lavague.ai/en/latest/docs/lavague-qa/quicktour/) to learn more
 

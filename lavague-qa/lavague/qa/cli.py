@@ -23,7 +23,7 @@ from lavague.tests.cli import _load_context
 )
 @click.option(
     "--full-llm",
-    "-llm",
+    "-l",
     is_flag=True,
     required=False,
     help="Enable full LLM pytest generation",
