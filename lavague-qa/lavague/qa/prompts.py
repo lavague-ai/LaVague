@@ -5,7 +5,7 @@ PYTEST_HEADER_TEMPLATE = PromptTemplate(
     """
 import pytest
 from pytest_bdd import scenarios, given, when, then
-from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,7 +19,7 @@ scenarios('{feature_file_name}')
 # Fixtures
 @pytest.fixture
 def browser():
-    driver = WebDriver()
+    driver = webdriver.Chrome()
     driver.implicitly_wait(10)
     yield driver
     driver.quit()
@@ -30,21 +30,21 @@ def browser():
 
 PYTEST_GIVEN_TEMPLATE = PromptTemplate(
     """@given('{step}')
-def {method_name}(browser: WebDriver):
+def {method_name}(browser: webdriver.Chrome):
     {code}
 """
 )
 
 PYTEST_WHEN_TEMPLATE = PromptTemplate(
     """@when('{step}')
-def {method_name}(browser: WebDriver):
+def {method_name}(browser: webdriver.Chrome):
 {actions_code}
 """
 )
 
 PYTEST_THEN_TEMPLATE = PromptTemplate(
     """@then('{step}')
-def {method_name}(browser: WebDriver):
+def {method_name}(browser: webdriver.Chrome):
 {assert_code}
 """
 )
