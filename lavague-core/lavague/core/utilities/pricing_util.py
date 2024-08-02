@@ -40,7 +40,6 @@ def build_summary_table(token_summary: dict, verbose: bool = True):
     header = f"{'Component':<16} | {'Input':<10} | {'Output':<10} | {'Total':<10} | {'Cost (USD)':<10} |\n"
     line = "-" * 70 + "\n"
 
-
     world_model_row, action_engine_row, embeddings_row = "", "", ""
     if verbose:
         # build table (rows)
