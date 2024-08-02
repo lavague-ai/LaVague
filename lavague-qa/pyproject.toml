@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-qa"
-version = "0.0.1"
+version = "0.0.2"
 description = "QA Automation with LaVague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -22,8 +22,8 @@ packages = [{include = "lavague/"}]
 [tool.poetry.dependencies]
 python = "^3.10.0"
 lavague-core = "^0.2.28"
+lavague-tests = "^0.0.4"
 lavague-drivers-selenium = "^0.2.6"
-lavague-tests = "^0.0.3"
 gherkin-official = "^28.0.0"
 click = "^8.1.7"
 yaspin = "^3.0.2"
