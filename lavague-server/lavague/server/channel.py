@@ -36,8 +36,11 @@ class AgentSession(ABC):
             except Exception as e:
                 pass
             finally:
-                stop = {"type": "stop", "args": self.agent.interrupted}
-                asyncio.run(self.send_message(json.dumps(stop)))
+                try:
+                    stop = {"type": "stop", "args": self.agent.interrupted}
+                    asyncio.run(self.send_message(json.dumps(stop)))
+                except:
+                    print("The stop signal could not be sent")
         elif type == "get":
             self.agent.get(args)
 
