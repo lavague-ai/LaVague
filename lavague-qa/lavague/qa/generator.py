@@ -259,14 +259,4 @@ class TestGenerator:
                         print("Parser missing", step)
 
         return scenarios, feature_file_content
-
-
-if __name__ == "__main__":
-    pytest_generator = TestGenerator(
-        "https://google.fr/",
-        "./features/demo_dev.feature",
-        full_llm=False,
-        headless=False,
-        log_to_db=True,
-    )
-    pytest_generator.generate()
+    
