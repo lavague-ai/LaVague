@@ -25,6 +25,9 @@ LaVague QA is a command-line tool that turns Gherkin test specifications into re
 pip install lavague-qa
 ```
 
+!!! warning "API keys"
+    LaVague QA uses `gpt-4o` models by default, as such, you will need to define `OPENAI_API_KEY` as an environment variable before running LaVague. 
+
 ### Define feature file
 In this example, we will use an example feature file that adds test coverage for Cart item removal, a critical component of the Amazon Cart feature.
 
