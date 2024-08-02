@@ -31,8 +31,7 @@ export function extractNextEngine(text: string, nextEngines: string[] = DEFAULT_
         } catch (e) {}
     }
 
-    console.log(`No next engine found in the text: ${text}`);
-    return '';
+    throw new Error(`No next engine found in the text: ${text}`);
 }
 
 export function extractWorldModelInstruction(text: string): string {
