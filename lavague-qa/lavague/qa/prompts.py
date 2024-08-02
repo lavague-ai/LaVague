@@ -1,7 +1,8 @@
 from llama_index.core import PromptTemplate
 
 
-PYTEST_HEADER_TEMPLATE = PromptTemplate("""
+PYTEST_HEADER_TEMPLATE = PromptTemplate(
+    """
 import pytest
 from pytest_bdd import scenarios, given, when, then
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -24,25 +25,33 @@ def browser():
     driver.quit()
 
 # Steps
-""")
+"""
+)
 
-PYTEST_GIVEN_TEMPLATE = PromptTemplate("""@given('{step}')
+PYTEST_GIVEN_TEMPLATE = PromptTemplate(
+    """@given('{step}')
 def {method_name}(browser: WebDriver):
     {code}
-""")
+"""
+)
 
-PYTEST_WHEN_TEMPLATE = PromptTemplate("""@when('{step}')
+PYTEST_WHEN_TEMPLATE = PromptTemplate(
+    """@when('{step}')
 def {method_name}(browser: WebDriver):
 {actions_code}
-""")
+"""
+)
 
-PYTEST_THEN_TEMPLATE = PromptTemplate("""@then('{step}')
+PYTEST_THEN_TEMPLATE = PromptTemplate(
+    """@then('{step}')
 def {method_name}(browser: WebDriver):
 {assert_code}
-""")
+"""
+)
 
 
-FULL_PROMPT_TEMPLATE = PromptTemplate("""You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.
+FULL_PROMPT_TEMPLATE = PromptTemplate(
+    """You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.
 Your only goal is to generate pytest-bdd files based on the provided Gherkin feature, a collection of instructions and actions, and a specific assert statement to test.
 You will use the provided information to generate a valid assert statement. 
 - Name the scenario appropriately.
@@ -251,9 +260,11 @@ Assert statement: {expect}\n
 Potentially relevant nodes that you may use to help you generate the assert code: {nodes}\n
 List of already executed instructions and actions:\n
 {actions}\n
-""")
+"""
+)
 
-ASSERT_ONLY_PROMPT_TEMPLATE = PromptTemplate("""You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.
+ASSERT_ONLY_PROMPT_TEMPLATE = PromptTemplate(
+    """You are an expert in software testing frameworks and Python code generation. You answer in python markdown only and nothing else.
 Your only goal is to use the provided Gherkin and HTML nodes to generate a valid pytest-bdd python assert statement. 
 - Include all necessary imports and fixtures.
 - If element selection is needed, prefer XPath based on class or text content to fetch it. 
@@ -281,4 +292,5 @@ assert actual_cost == expected_cost
 Given this information, generate a valid pytest-bdd assert instruction with the following inputs:
 Gherkin expect of the feature to be tested: Then {expect}\n
 Potentially relevant HTML that you may use to help you generate the assert code: {html_chunks}\n
-""")
+"""
+)
