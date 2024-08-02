@@ -2,7 +2,7 @@
 
 !!! warning "Early release"
     LaVague QA is still a work in progress and may contain bugs. Join our [community of amazing contributors](https://discord.gg/invite/SDxn9KpqX9) to help make this tool more reliable!
-    
+
 ## Introduction
 
 LaVague QA is a command-line tool that turns Gherkin test specifications into ready-to-use Pytest code for web applications. Built on the LaVague open-source framework, it automates the creation and maintenance of automated tests.
@@ -56,7 +56,7 @@ wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/lavague-qa/featur
 
 ### Use the CLI
 
-Use `lavague-qa` with a `URL` and a `.feature` file. 
+Use `lavague-qa` with a `URL` and a `.feature` file. You can use `-h` to run in headless mode (won't show the browser), or `-c` to use custom LLMs instead of our default: GPT4o.
 
 ```bash
 lavague-qa --url https://www.amazon.com --feature ./demo_amazon.feature
@@ -170,7 +170,6 @@ generated_tests/demo_amazon.py .                                                
 =========================== 1 passed in 16.03s ===========================
 
 ```
-
 
 LaVague QA eliminates the need for manual selector identification and simplifies test updates when your site changes. 
 
