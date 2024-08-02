@@ -5,13 +5,13 @@
 Uses WebSockets to provide LaVague features to Agents.
 
 ```shell
-pip install lavague-core lavague-server lavague-drivers-remote
+pip install lavague-core lavague-server
 ```
 
 ```python
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
-from lavague.drivers.driverserver import DriverServer
+from lavague.server.driver import DriverServer
 from lavague.server import AgentServer, AgentSession
 
 def create_agent(session: AgentSession):

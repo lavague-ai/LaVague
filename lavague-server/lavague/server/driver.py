@@ -1,5 +1,4 @@
 import base64
-from io import BytesIO
 import json
 import logging
 from lavague.core.base_driver import (
@@ -11,7 +10,6 @@ from typing import Any, Dict, List, Optional, Mapping
 
 import yaml
 from lavague.server.channel import AgentSession
-from PIL import Image
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)

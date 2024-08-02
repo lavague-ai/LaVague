@@ -2,11 +2,10 @@ from abc import ABC, abstractmethod
 import asyncio
 import json
 import threading
-from typing import Callable, Dict
+from typing import Callable
 import uuid
 from lavague.core.agents import WebAgent
 from lavague.core.extractors import YamlFromMarkdownExtractor
-from lavague.core.logger import AgentLogger
 import types
 import copy
 
@@ -29,11 +28,10 @@ class AgentSession(ABC):
     def handle_prompt_agent_action(self, type: str, args: str, id: str):
         if type == "run":
             start = {"type": "start"}
-            interrupted = False
             asyncio.run(self.send_message(json.dumps(start)))
             try:
                 self.agent.run(args)
-            except Exception as e:
+            except Exception:
                 pass
             finally:
                 try:

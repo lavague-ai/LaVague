@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 from websockets.exceptions import ConnectionClosed
-from .channel import AgentSession, CommunicationChannel
+from lavague.server.channel import AgentSession, CommunicationChannel
 import json
 
 
