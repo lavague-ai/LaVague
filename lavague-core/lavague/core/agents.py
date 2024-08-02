@@ -159,9 +159,6 @@ class WebAgent:
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
 
-            if self.stop_signal is not None and self.stop_signal.is_set():
-                raise KeyboardInterrupt
-
             self.action_engine.screenshot_ratio = screenshot_ratio
             img = self.driver.get_screenshot_as_png()
             img = BytesIO(img)
