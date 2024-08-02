@@ -12,7 +12,6 @@ from datetime import datetime
 import yaml
 from llama_index.core import QueryBundle
 import traceback
-from lavague.core.navigation import Rephraser
 import base64
 import ast
 
@@ -87,7 +86,7 @@ def validate_action(action):
 FAIL_ACTION = {"args": {"xpath": "(string)"}, "name": "fail"}
 
 
-class RetrieverEvalutor(Evaluator):
+class RetrieverEvaluator(Evaluator):
     def evaluate(
         self,
         retriever: BaseHtmlRetriever,
