@@ -19,13 +19,13 @@ from lavague.contexts.openai import AzureOpenaiContext
 
 # Initialize context with our custom elements
 context = AzureOpenaiContext(
-    api_key="<api_key>",
-    deployment="<deployment_Name>",
+    api_key="<YOUR_API_KEY>",
+    deployment="<YOUR_DEPLOYMENT_nAME>",
     llm="gpt-4o",
     mm_llm="gpt-4o",
-    endpoint="<endpoint>",
-    api_version="<api_version>",
-    embedding="<embedding_deployment_name>",
+    endpoint="<YOUR_ENDPOINT>",
+    embedding="text-embedding-3-small",
+    embedding_deployment="<YOUR_EMBEDDING_DEPLOYMENT_NAME>"
 )
 
 # Initialize the Selenium driver

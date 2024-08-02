@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-contexts-openai"
-version = "0.2.3"
+version = "0.2.4"
 description = "Openai integration for lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -24,10 +24,10 @@ python = "^3.10.0"
 lavague-core = "^0.2.0"
 llama-index-llms-openai = "^0.1.9"
 llama-index-embeddings-openai = "^0.1.9"
-llama-index-llms-azure-openai = "^0.1.8"
+llama-index-llms-azure-openai = "0.1.10"
 llama-index-multi-modal-llms-openai = "^0.1.6"
-llama-index-multi-modal-llms-azure-openai = "^0.1.4"
-llama-index-embeddings-azure-openai = "^0.1.10"
+llama-index-multi-modal-llms-azure-openai = "0.1.4"
+llama-index-embeddings-azure-openai = "0.1.11"
 
 [build-system]
 requires = ["poetry-core"]

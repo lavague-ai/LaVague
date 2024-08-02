@@ -15,17 +15,16 @@ The AzureOpenaiContext accepts the following optional arguments. These may or ma
 | Option                 | Description                                          |
 |------------------------|------------------------------------------------------|
 | `api_key`              | Your API key for Azure OpenAI. |
-| `llm`                  | The name of your LLM. |
+| `api_version`          | The API version - `2023-07-01-preview` by default |
+| `llm`                  | The name of your LLM - `gpt-4o` by default |
+| `mm_llm`               | The name of your multi-modal LLM - - `gpt-4o` by default |
+| `embedding`            | The name of your embedding model - by default `text-embedding-3-small` by default |
 | `endpoint`             | The endpoint URL for your Azure OpenAI deployment. |
 | `deployment`           | The deployment name for your llm and mm_llm model. |
-| `mm_llm`               | The name of your multi-modal LLM. |
-| `mm_llm_endpoint`      | Only required if different to `endpoint`, the endpoint URL for your multi-modal LLM deployment. |
-| `mm_llm_deployment`    | Only required if different to `deployment`, the deployment name for your llm and mm_llm model. |
-| `embedding`            | The name of your embedding model - by default `text-embedding-ada-002` |
-| `embedding_endpoint`   | Only required if different to `endpoint`, the endpoint URL for your embedding model. |
 | `embedding_deployment` | The deployment name for your embedding model. |
-| `embedding_api_base`   | The base URL for Azure embedding deployment. |
-| `api_version`          | The API version to use for requests to the Azure OpenAI service. |
+| `embedding_endpoint`   | **Only required if different to `endpoint`**, the endpoint URL for your embedding model. |
+| `mm_llm_deployment`    | **Only required if different to `deployment`**, the deployment name for your llm and mm_llm model. |
+| `mm_llm_endpoint`      | **Only required if different to `endpoint`**, the endpoint URL for your multi-modal LLM deployment. |
 
 You can alternatively provide the following arguments by setting them as environment variables:
 
@@ -46,16 +45,15 @@ from lavague.core.agents import WebAgent
 from lavague.drivers.selenium import SeleniumDriver
 from lavague.contexts.openai import AzureOpenaiContext
 
-# Initialize context
+# Initialize context with our custom elements
 context = AzureOpenaiContext(
-    api_key="<api_key>",
+    api_key="<YOUR_API_KEY>",
+    deployment="<YOUR_DEPLOYMENT_nAME>",
     llm="gpt-4o",
     mm_llm="gpt-4o",
-    deployment="<deployment_Name>",
-    endpoint="<endpoint>",
-    api_version="2023-03-15-preview",
-    embedding="<embedding model name>",
-    embedding_deployment="<embedding_deployment_name>",
+    endpoint="<YOUR_ENDPOINT>",
+    embedding="text-embedding-3-small",
+    embedding_deployment="<YOUR_EMBEDDING_DEPLOYMENT_NAME>"
 )
 
 selenium_driver = SeleniumDriver()
@@ -72,7 +70,7 @@ agent.run("What is this week's top Space of the week?")
 
 ### Passing Azure models
 
-It may be that the AzureOpenaiContext does not fit your needs because you want to use Azure for only one or two of the models. In this case, you can initialize and pass your azure models individually when creating your agent.
+It may be that the AzureOpenaiContext does not fit your needs because you only want to use Azure for only one or two of the models. In this case, you can initialize and pass your azure models individually when creating your agent.
 
 To do this you can use `llama-index` to initialize your models like in the example below:
 
@@ -80,20 +78,18 @@ To do this you can use `llama-index` to initialize your models like in the examp
 from llama_index.llms.azure_openai import AzureOpenAI
 
 llm = AzureOpenAI(
-    api_key="<api_key>",
-    azure_endpoint="<your_endpoint>",
-    engine="<deployment_name>",
+    api_key="<your_api_key>",
     model="gpt-4o",
-    api_version="2023-03-15-preview",
+    azure_endpoint="<your_endpoint>",
+    deployment_name="<deployment_name>"
 )
 
 from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
 mm_llm = AzureOpenAIMultiModal(
     api_key="<api_key>",
-    azure_endpoint="<your_endpoint>",
-    engine="<deployment_name>",
     model="gpt-4o",
-    api_version="2023-03-15-preview",
+    azure_endpoint="<your_endpoint>",
+    deployment_name="<deployment_name>"
 )
 
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
@@ -102,8 +98,6 @@ embedding = AzureOpenAIEmbedding(
     model="<embedding_model_name>",
     azure_endpoint="<your_endpoint>",
     azure_deployment="<deployment_name>",
-    api_version="2023-03-15-preview",
-    api_base="<api base URL>"
 ),
 ```
 
