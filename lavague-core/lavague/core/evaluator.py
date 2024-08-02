@@ -112,7 +112,7 @@ class RetrieverEvaluator(Evaluator):
                 action = parse_action(row["action"])
                 if driver:  # artificially get the page if the retriever needs a driver
                     html_bs64 = base64.b64encode(
-                        row["preaction_html_source"].encode()
+                        row["preaction_html_bundle"].encode()
                     ).decode()
                     driver.get("data:text/html;base64," + html_bs64)
                     viewport_size = parse_viewport_size(row["viewport_size"])
@@ -180,7 +180,7 @@ class NavigationEngineEvaluator(Evaluator):
             for i, row in tqdm(results.iterrows()):
                 action = parse_action(row["action"])
                 html_bs64 = base64.b64encode(
-                    row["preaction_html_source"].encode()
+                    row["preaction_html_bundle"].encode()
                 ).decode()
                 navigation_engine.driver.get("data:text/html;base64," + html_bs64)
                 viewport_size = parse_viewport_size(row["viewport_size"])
