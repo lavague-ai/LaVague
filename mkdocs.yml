@@ -106,7 +106,6 @@ nav:
     - FAQs: 'docs/get-started/FAQs.md'
 
 - 🤝 Integrations:
-  - Integrations:
     - Anthropic: 'docs/integrations/anthropic.md'
     - Azure: 'docs/integrations/azure.md'
     - Fireworks: 'docs/integrations/fireworks.md'
@@ -133,14 +132,8 @@ nav:
     - Automated job application: "docs/examples/job-application.md"
   - QA Automation: 
     - Generate automated tests: "docs/examples/qa-automation.md"
-  
-- 🤗 Contributing:
-  - Home: "docs/contributing/contributing.md"
-  - General guidelines: "docs/contributing/general.md"
-  - Documentation: "docs/contributing/documentation.md"
 
 - 🧩 Module Guides:
-  - Module guides:
     - Web Agents: 'docs/learn/agents.md'
     - World Model: 'docs/learn/world-model.md'
     - Action Engine: 
@@ -149,6 +142,11 @@ nav:
     - Evaluator: 'docs/learn/evaluation.md'
     - Drivers: 'docs/learn/browser-drivers.md'
     - Logger: 'docs/learn/local-log.md'
+  
+- 🤗 Contributing:
+  - Home: "docs/contributing/contributing.md"
+  - General guidelines: "docs/contributing/general.md"
+  - Documentation: "docs/contributing/documentation.md"
   
 - 🛠️ API reference:
   - API reference home: 'docs/core/index.html'
