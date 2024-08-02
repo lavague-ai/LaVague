@@ -110,15 +110,13 @@ To run with a custom context, use the `--context` flag along with the path to th
 lavague-qa --context ./my_contexts/custom_context_gemini.py
 ```
 
-### Flag `-llm`
-
-#### --full-llm
+### Flag `--full-llm` or `-llm`
 
 By default, when this flag is not set, we build 90% of the pytest file deterministically and only rely on LLMs for the assert generation. 
 
 However, sometimes this can lead to LaVague taking extra steps that are not defined in the Gherkin. In this case, Pytest building will fail as the number of instructions ran by the agent is different from the number of actions defined in the Gherkin. 
 
-In this case, you can use the `-llm` flag to generate the entire Pytest file with an LLM (and not the just the assert statement).
+In this case, you can use the `-llm` or `--full-llm` flag to generate the entire Pytest file with an LLM (and not the just the assert statement).
 
 ```bash
 lavague-qa -llm --url https://example.com --feature example.feature
