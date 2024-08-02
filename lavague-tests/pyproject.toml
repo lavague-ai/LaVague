@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-tests"
-version = "0.0.3"
+version = "0.0.4"
 description = "Test runner for Lavague"
 authors = ["lavague-ai"]
 readme = "README.md"
