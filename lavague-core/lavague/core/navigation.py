@@ -196,7 +196,6 @@ class NavigationEngine(BaseEngine):
         """
 
         from gradio import ChatMessage
-        from selenium.webdriver.support.ui import WebDriverWait
 
         success = False
         action_full = ""
@@ -281,8 +280,10 @@ class NavigationEngine(BaseEngine):
                 self.driver.exec_code(action)
                 self.history[-1] = ChatMessage(
                     role="assistant",
-                    content=f"{action_engine.curr_instruction}\n",
-                    metadata={"title": f"✅ Step {action_engine.curr_step}"},
+                    content=f"{action_engine.world_model_output}\n",
+                    metadata={
+                        "title": f"✅ Step {action_engine.curr_step} - {action_engine.curr_instruction}"
+                    },
                 )
                 self.history.append(
                     ChatMessage(role="assistant", content="⏳ Loading the page...")
@@ -337,8 +338,10 @@ class NavigationEngine(BaseEngine):
         if not success:
             self.history[-1] = ChatMessage(
                 role="assistant",
-                content=f"Instruction: {action_engine.curr_instruction}",
-                metadata={"title": f"❌ Step {action_engine.curr_step + 1}"},
+                content=f"{action_engine.world_model_output}",
+                metadata={
+                    "title": f"❌ Step {action_engine.curr_step + 1} - {action_engine.curr_instruction}"
+                },
             )
         if logger:
             log = {
