@@ -180,7 +180,7 @@ class DriverServer(BaseDriver):
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
-    
+
     def get_screenshots_whole_page(self) -> list[str]:
         """Take screenshots of the whole page"""
         screenshot_paths = []
@@ -201,7 +201,6 @@ class DriverServer(BaseDriver):
 
         self.previously_scanned = True
         return screenshot_paths
-
 
     def wait(self, time_between_actions):
         json_str = f"""- actions:
