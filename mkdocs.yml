@@ -106,11 +106,11 @@ nav:
           - FAQs: "docs/get-started/FAQs.md"
 
   - LaVague QA:
-  - Quick tour: 'docs/lavague-qa/quicktour.md'
-  - Installation and usage: 'docs/lavague-qa/usage.md'
-  - Examples: 'docs/lavague-qa/examples.md'
+      - Quick tour: 'docs/lavague-qa/quicktour.md'
+      - Installation and usage: 'docs/lavague-qa/usage.md'
+      - Examples: 'docs/lavague-qa/examples.md'
 
-- 🤝 Integrations:
+  - 🤝 Integrations:
       - Anthropic: "docs/integrations/anthropic.md"
       - Azure: "docs/integrations/azure.md"
       - Fireworks: "docs/integrations/fireworks.md"
