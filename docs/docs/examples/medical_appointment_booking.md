@@ -55,7 +55,7 @@ We start here by pulling extra knowledge about Doctolib to ensure the `WorldMode
 You can learn more about building Agents with LaVague in our [webinar](https://www.youtube.com/watch?v=bNE4s8h3CIc).
 
 ```bash
-!wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
+wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
 ```
 
 We prepare our different integrations then create the Agent:
@@ -172,7 +172,7 @@ Note that this will not work on Colab, you will have to do it on your own machin
 
 #### Running the Agent
 
-Now we can run the Agent to try booking an appointment for us! We provide the objective below and run it:
+Now we can run the Agent to try booking an appointment for us. We provide the objective below and run it:
 
 ```py
 objective = """Accept cookies if they are shown.
