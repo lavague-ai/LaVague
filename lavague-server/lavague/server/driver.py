@@ -194,7 +194,7 @@ class DriverServer(BaseDriver):
             self.execute_script("window.scrollBy(0, (window.innerHeight / 1.5));")
             self.wait_for_idle()
             # Necessary as doing screenshot too fast might hit Chrome internal limits
-            time.sleep(1)
+            time.sleep(0.5)
 
             if self.is_bottom_of_page():
                 break
