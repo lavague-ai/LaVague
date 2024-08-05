@@ -124,7 +124,7 @@ If you are blocked and on Google Colab, just delete the instance and get a new o
 
 If ever you encounter some error showing your browser is being blocked, try using Browser Base with the following code from their [Quick tour](https://docs.browserbase.com/quickstart/selenium) to setup a managed Selenium Driver:
 
-```python
+```py
 from selenium import webdriver
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
