@@ -2,14 +2,27 @@
 description: "The open-source Large Action Model framework for AI Web Agents"
 ---
 
-## 🏄‍♀️  What is LaVague?
+## LaVague: Web Agent framework for builders
 
-LaVague is an **open-source Large Action Model framework** to develop AI Web Agents.
+LaVague is an open-source framework designed for developers who want to create AI Web Agents to automate processes for their end users.
 
-Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library" and performs the required actions to achieve this goal by leveraging our two core components:
+Our Web Agents can take an objective, such as "Print installation steps for Hugging Face's Diffusers library," and generate and perform the actions required to achieve the objective.
 
-- A **World Model** that takes an objective and the current state (aka the current web page) and turns that into instructions
-- An **Action Engine** which “compiles” these instructions into action code, e.g. **Selenium** or **Playwright** & executes them
+LaVague Agents are made up of:
+
+- A World Model that takes an objective and the current state (aka the current web page) and outputs an appropriate set of instructions.
+- An Action Engine which “compiles” these instructions into action code, e.g., Selenium or Playwright & executes them
+
+
+### LaVague QA: Dedicated tooling for QA Engineers
+**🌊 Built on LaVague**
+
+LaVague QA is a tool tailored for QA engineers leveraging our framework. 
+
+It allows you to automate test writing by turning Gherkin specs into easy-to-integrate tests. LaVague QA is a project leveraging the LaVague framework behind the scenes to make web testing 10x more efficient.
+
+!!! tip "LaVague QA"
+    For detailed information and setup instructions, visit the [LaVague QA documentation](https://docs.lavague.ai/en/latest/docs/lavague-qa/quick-tour/).
 
 ## 🚀 Getting Started
 
@@ -63,27 +76,6 @@ For an end-to-end example of LaVague in a Google Colab, see our [quick-tour note
 - ✅ [Logging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
 - ✅ An optional, interactive [Gradio interface](https://docs.lavague.ai/en/latest/docs/get-started/gradio/)
 - ✅ [Debugging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
-
-## Use cases
-### QA Automation
-
-LaVague agents make testing complex websites easy. 
-Our CLI tool turns your Gherkin test specs into Pytest code, simplifying QA automation for web applications and ensuring reliable testing with less effort.
-
-How it works:
-
-1. Write Gherkin test scenarios.
-2. Run LaVague QA to generate Pytest code.
-3. Execute or regenerate tests as your website evolves.
-
-Example:
-
-1. Install LaVague QA: pip install lavague-qa
-2. Define a feature file.
-3. Generate Pytest code: `lavague-qa --url https://www.amazon.fr --feature ./demo_amazon.feature`
-4. Run tests: `pytest demo_amazon.py`
-
-Read our [dedicated documentation](https://docs.lavague.ai/en/latest/docs/lavague-qa/quicktour/) to learn more
 
 ## 🙋 Contributing
 
