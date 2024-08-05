@@ -15,6 +15,7 @@ from lavague.core.utilities.web_utils import (
     display_screenshot,
     sort_files_by_creation,
 )
+from lavague.core.exceptions import HallucinatedException
 from lavague.core.logger import AgentLogger
 from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.base_driver import BaseDriver
@@ -254,6 +255,7 @@ class NavigationEngine(BaseEngine):
             try:
                 # We extract the action
                 action = self.extractor.extract(response)
+                self._verify_llm_reponse(response, llm_context)
                 action_outcome["action"] = action
                 action_full += action
 
@@ -368,6 +370,18 @@ class NavigationEngine(BaseEngine):
             output.output,
         )
 
+    def _verify_llm_reponse(self, llm_response: str, llm_context: str):
+        """Make sure the action is performed on a given context to avoid hallucination"""
+        actions_obj = self.extractor.extract_as_object(llm_response)
+        if not isinstance(actions_obj, list):
+            actions_obj = [actions_obj]
+
+        for action_list in actions_obj:
+            for action in action_list.get("actions", []):
+                xpath = action.get("action", {}).get("args", {}).get("xpath", "")
+                if xpath and xpath not in llm_context:
+                    raise HallucinatedException(xpath)
+
     def execute_instruction(self, instruction: str) -> ActionResult:
         """
         Generates code and executes it to answer the instruction
@@ -434,6 +448,8 @@ class NavigationEngine(BaseEngine):
             try:
                 # We extract the action
                 action = self.extractor.extract(response)
+                self._verify_llm_reponse(response, llm_context)
+
                 action_outcome["action"] = action
                 action_full += action
 
