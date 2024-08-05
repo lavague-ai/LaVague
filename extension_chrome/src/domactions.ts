@@ -10,7 +10,7 @@ function getNodeFromXPATH(xpath: string): Node | null {
 }
 
 function clickElementByXPath(xpath: string): boolean {
-    var element = getNodeFromXPATH(xpath);
+    const element = getNodeFromXPATH(xpath);
     if (element && element instanceof HTMLElement) {
         if (element.tagName.toLowerCase() === 'a') {
             const anchorElement = element as HTMLAnchorElement;
@@ -21,7 +21,7 @@ function clickElementByXPath(xpath: string): boolean {
             }
         } else {
             // Simulate a user-initiated click
-            var event = new MouseEvent('click', {
+            const event = new MouseEvent('click', {
                 view: window,
                 bubbles: true,
                 cancelable: true,
@@ -61,7 +61,7 @@ export class DomActions {
         return chrome.debugger.sendCommand({ tabId: this.tabId }, method, params);
     }
 
-    public async execCode(code: string, returnByValue: boolean = false) {
+    public async execCode(code: string, returnByValue = false) {
         return await this.sendCommand('Runtime.evaluate', {
             expression: code,
             returnByValue: returnByValue,
@@ -297,9 +297,9 @@ export class DomActions {
         return true;
     }
 
-    private async get_possible_interactions_dispatch() {
+    private async get_possible_interactions_dispatch(args: string) {
         return new Promise((resolve, reject) => {
-            chrome.tabs.sendMessage(this.tabId, { method: 'get_possible_interactions' }, (res) => {
+            chrome.tabs.sendMessage(this.tabId, { method: 'get_possible_interactions', message: args }, (res) => {
                 if (chrome.runtime.lastError) {
                     console.error('Error: ' + chrome.runtime.lastError.message);
                     reject(chrome.runtime.lastError.message);
@@ -311,9 +311,9 @@ export class DomActions {
         });
     }
 
-    public async get_possible_interactions() {
+    public async get_possible_interactions(args: string) {
         let results = {};
-        const res: any = await this.get_possible_interactions_dispatch();
+        const res: any = await this.get_possible_interactions_dispatch(args);
         console.log('res: ' + res.response);
         results = res.response;
         return results;
@@ -327,7 +327,7 @@ export class DomActions {
             res = getNodeFromXPATH(xpath);
             clickElementByXPath(xpath);
           })(${JSON.stringify(xpath)});`;
-        const ret = await this.execCode(code);
+        await this.execCode(code);
         return true;
     }
 }

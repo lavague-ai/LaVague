@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-server"
-version = "0.0.3"
+version = "0.0.4"
 description = "Server for Lavague agents"
 authors = ["lavague-ai"]
 readme = "README.md"
@@ -23,6 +23,10 @@ packages = [{include = "lavague/"}]
 python = "^3.10.0"
 lavague-core = "^0.2.0"
 websockets = "^11.0"
+click = "^8.1.7"
+
+[tool.poetry.scripts]
+lavague-serve = "lavague.server.cli:cli"
 
 [build-system]
 requires = ["poetry-core"]

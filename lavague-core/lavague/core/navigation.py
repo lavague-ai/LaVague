@@ -118,7 +118,6 @@ class NavigationEngine(BaseEngine):
         self.n_attempts = n_attempts
         self.display = display
         self.raise_on_error = raise_on_error
-        self.viewport_only = True
         self.shape_validator = JSON_SCHEMA
 
     @classmethod
@@ -151,8 +150,9 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[str]`: The nodes
         """
+        viewport_only = not self.driver.previously_scanned
         source_nodes = self.retriever.retrieve(
-            QueryBundle(query_str=query), [self.driver.get_html()], self.viewport_only
+            QueryBundle(query_str=query), [self.driver.get_html()], viewport_only
         )
         return source_nodes
 
@@ -514,10 +514,6 @@ class NavigationControl(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
-    def set_is_full_page(self, is_fullpage: bool):
-        if self.navigation_engine is not None:
-            self.navigation_engine.viewport_only = not is_fullpage
-
     def execute_instruction(self, instruction: str) -> ActionResult:
         import inspect
 
@@ -539,11 +535,9 @@ class NavigationControl(BaseEngine):
             elif "BACK" in instruction:
                 self.driver.back()
                 code = inspect.getsource(self.driver.back)
-                self.set_is_full_page(False)
             elif "SCAN" in instruction:
                 self.driver.get_screenshots_whole_page()
                 code = inspect.getsource(self.driver.get_screenshots_whole_page)
-                self.set_is_full_page(True)
             elif "MAXIMIZE_WINDOW" in instruction:
                 self.driver.maximize_window()
                 code = inspect.getsource(self.driver.maximize_window)
@@ -554,7 +548,6 @@ class NavigationControl(BaseEngine):
                 except Exception as e:
                     raise ValueError(f"Error while switching tab: {e}")
                 code = inspect.getsource(self.driver.switch_tab)
-                self.set_is_full_page(False)
             else:
                 raise ValueError(f"Unknown instruction: {instruction}")
 

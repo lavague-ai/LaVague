@@ -24,7 +24,9 @@ export default function Connection({ initialHost }: { initialHost: string }) {
             await connector.connect(host);
         } catch (err: any) {
             if (err instanceof Event && err.target instanceof WebSocket) {
-                setError('Unable to connect. Please ensure that the host is valid and points to an active driver server.');
+                setError(
+                    'Unable to connect. Please ensure that the host is valid and points to an active driver server / an instance of lavague-serve running. More instructions on https://docs.lavague.ai/.'
+                );
             } else {
                 setError((err.message ?? err) + '');
             }

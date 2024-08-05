@@ -164,7 +164,7 @@ class BaseDriver(ABC):
 
     def is_bottom_of_page(self) -> bool:
         return self.execute_script(
-            "return (window.innerHeight + window.scrollY) >= document.body.scrollHeight;"
+            "return (window.innerHeight + window.scrollY + 1) >= document.body.scrollHeight;"
         )
 
     def get_screenshots_whole_page(self) -> list[str]:
@@ -178,7 +178,7 @@ class BaseDriver(ABC):
             screenshot_path = self.save_screenshot(current_screenshot_folder)
             screenshot_paths.append(screenshot_path)
             self.execute_script("window.scrollBy(0, (window.innerHeight / 1.5));")
-            time.sleep(0.5)
+            self.wait_for_idle()
 
             if self.is_bottom_of_page():
                 break

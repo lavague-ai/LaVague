@@ -7,7 +7,7 @@
 You will need to install the following lavague packages:
 
 ```shell
-pip install lavague-core lavague-server lavague-drivers-remote
+pip install lavague-core lavague-server
 ```
 
 You will also need to make sure your `OPENAI_API_KEY` is set in your current environment.
@@ -19,7 +19,7 @@ Next, you will need to use LaVague to serve an instance of `AgentServer`. This a
 ```python
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
-from lavague.drivers.driverserver import DriverServer
+from lavague.server.driver import DriverServer
 from lavague.server import AgentServer, AgentSession
 
 def create_agent(session: AgentSession):
@@ -84,13 +84,13 @@ Ta-da! The extension has been successfully installed. Every time you update the 
 Finally you will need to serve an instance of `AgentServer` by running the following code:
 
 ```shell
-pip install lavague-core lavague-server lavague-drivers-remote
+pip install lavague-core lavague-server
 ```
 
 ```python
 from lavague.core import WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
-from lavague.drivers.driverserver import DriverServer
+from lavague.server.driver import DriverServer
 from lavague.server import AgentServer, AgentSession
 
 def create_agent(session: AgentSession):

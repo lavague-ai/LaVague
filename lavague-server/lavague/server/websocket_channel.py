@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 from websockets.exceptions import ConnectionClosed
-from .channel import AgentSession, CommunicationChannel
+from lavague.server.channel import AgentSession, CommunicationChannel
 import json
 
 
@@ -10,6 +10,7 @@ class WebSocketSession(AgentSession):
 
     def __init__(self, websocket):
         self.websocket = websocket
+        super().__init__()
 
     async def start(self):
         await self.read_messages()
