@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - '*'
-    paths:
-      - 'README.md'
-      - '.github/extract-python-code.py'
-      - 'docs/**'
-      - '.github/workflows/docs-checker.yaml'
   schedule:
     - cron: '0 9 * * 1'
   workflow_dispatch:
