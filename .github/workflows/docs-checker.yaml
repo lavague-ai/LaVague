@@ -90,6 +90,7 @@ jobs:
             pip install lavague
             pip install llama-index-multi-modal-llms-anthropic
             pip install lavague-contexts-fireworks
+            wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
 
         - name: Extract Python code
           run: |
