@@ -5,9 +5,9 @@
 <a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/docs/docs/examples/notebooks/doctolib_medical_appointment_booking.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
-This notebook shows how one can use LaVague to create an AI Web Agent that can navigate the web to find out if a doctor is available to book an appointment!
+This notebook shows how you can use LaVague to create an AI Web Agent that can navigate the web to find out if a doctor is available to book an appointment!
 
-We will automate booking on [Doctolib](https://www.doctolib.fr/), a French leader in medical appointment as an example, but this should work on other websites.
+We will automate booking on [Doctolib](https://www.doctolib.fr/), a French leader in medical appointments, as an example, but this should work on other websites.
 
 If not, do not hesitate to reach out to us on [Discord](https://discord.com/invite/SDxn9KpqX9) to share your issues.
 
@@ -21,7 +21,7 @@ We will use the following solutions to build this AI Web Agent:
 
 - [Claude Sonnet 3.5](https://docs.anthropic.com/en/docs/quickstart) for the [World Model](https://docs.lavague.ai/en/latest/docs/get-started/customization/) to do web planning. You will need to provide an `ANTHROPIC_API_KEY` after getting it. You can look at how to use other models
 - [Llama 3.1 70b](https://huggingface.co/meta-llama/Meta-Llama-3.1-70B-Instruct) for the [Action Engine](https://docs.lavague.ai/en/latest/docs/learn/action-engine/) to do action generation to pilot the browser. Here we will use [Fireworks](https://docs.fireworks.ai/getting-started/quickstart) API to consume a managed Llama 3.1 70b. You will therefore need to provide a `FIREWORKS_API_KEY`.
-- [OpenAI text-embedding-3-small](https://platform.openai.com/docs/guides/embeddings/embedding-models) to do semantic search on the DOM to find the right element to interact with. This will require an `OPENAI_API_KEY` that you can get following their [quickstart](https://platform.openai.com/docs/quickstart).
+- [OpenAI text-embedding-3-small](https://platform.openai.com/docs/guides/embeddings/embedding-models) to do semantic search on the DOM to find the right element to interact with. This will require an `OPENAI_API_KEY` that you can get following their [quickstart guide](https://platform.openai.com/docs/quickstart).
 
 If you want to know more about LaVague, you can have a look at our [architecture](https://docs.lavague.ai/en/latest/docs/learn/architecture/), or our [webinars](https://www.youtube.com/watch?v=vBV6s9-_cDs&list=PLzPkw6m0RrnW2SadaswvCAHmyWABOSp8X).
 
@@ -58,7 +58,7 @@ You can learn more about building Agents with LaVague in our [webinar](https://w
 wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
 ```
 
-We prepare our different integrations then create the Agent:
+We prepare our different integrations and then create the Agent:
 
 ```python
 from lavague.drivers.selenium import SeleniumDriver
@@ -94,7 +94,7 @@ agent.get("https://www.doctolib.fr/")
 
 It can happen that the driver is blocked.
 
-To check if it is the case, we need to see what is the state of the current page.
+To check if this is the case, we need to check the state of the current page.
 
 Let's display the current screenshot.
 
@@ -118,11 +118,11 @@ If you see the following screenshot, we will show you ways to avoid unblock the 
 
 #### Unblocking with another Colab Instance
 
-If you are blocked and on Google Colab, just delete the instance and get a new one and see if this one is not blocked.
+If you are blocked while using Google Colab, delete the instance, get a new one and repeat the previous steps to verify that this one is not blocked.
 
 #### Unblocking with Browser Base
 
-If ever you encounter some error showing your browser is being blocked, try using Browser Base with the following code from their [Quick tour](https://docs.browserbase.com/quickstart/selenium) to setup a managed Selenium Driver:
+If ever you encounter some error showing your browser is being blocked, try using Browser Base with the following code from their [Quick tour](https://docs.browserbase.com/quickstart/selenium) to set up a managed Selenium Driver:
 
 ```py
 from selenium import webdriver
