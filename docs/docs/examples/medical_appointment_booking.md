@@ -174,7 +174,7 @@ Note that this will not work on Colab, you will have to do it on your own machin
 
 Now we can run the Agent to try booking an appointment for us! We provide the objective below and run it:
 
-```python
+```py
 objective = """Accept cookies if they are shown.
 Find dermatologists in Paris.
 When filling input fields, wait for the results to update before clicking on the most relevant result.
