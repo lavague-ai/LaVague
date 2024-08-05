@@ -163,7 +163,7 @@ This will generate `demo_amazon.py`, a Pytest file implementing all steps in you
     def cart_should_be_empty(browser):
         time.sleep(3)  # Wait for the cart update after removal
         empty_cart_message = WebDriverWait(browser, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'Votre panier Amazon est vide.')]"))
+            EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'Your amazon Basket is empty.')]"))
         )
         assert 'Votre panier Amazon est vide.' in empty_cart_message.text, "Cart is not empty"
 
