@@ -75,7 +75,7 @@ This will generate `demo_amazon.py`, a Pytest file implementing all steps in you
 
 ??? note "Example `demo_amazon.py`"
     `demo_amazon.py` 
-    ```python
+    ```py
     import pytest
     from pytest_bdd import scenarios, given, when, then, parsers
     from selenium import webdriver

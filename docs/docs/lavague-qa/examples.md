@@ -49,7 +49,7 @@ lavague-qa --url https://amazon.fr/ --feature lavague-qa/features/demo_amazon.fe
 ```
 
 ??? note "Generated code"
-    ```python
+    ```py
     import pytest
     from pytest_bdd import scenarios, given, when, then, parsers
     from selenium import webdriver
@@ -202,7 +202,7 @@ lavague-qa --url https://laposte.fr/ --feature lavague-qa/features/demo_laposte.
 ```
 
 ??? note "Generated code"  
-    ```python
+    ```py
     import pytest
     from pytest_bdd import scenarios, given, when, then, parsers
     from selenium import webdriver
@@ -306,7 +306,7 @@ lavague-qa --url https://en.wikipedia.org/ --feature lavague-qa/features/demo_wi
 ```
 
 ??? note "Generated code"
-        ```python
+        ```py
         import pytest
         from pytest_bdd import scenarios, given, when, then
         from selenium.webdriver.chrome.webdriver import WebDriver
@@ -411,7 +411,7 @@ lavague-qa --full-llm --url https://hsbc.fr/ --feature lavague-qa/features/demo_
 For this example, we run with the `-full-llm` flag to generate the pytest since multitab doesn't work with our step by step pytest builder yet. 
 
 ??? note "Generated code"
-    ```python
+    ```py
 
     import pytest
     from pytest_bdd import scenarios, given, when, then, parsers
