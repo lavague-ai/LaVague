@@ -54,7 +54,7 @@ We start here by pulling extra knowledge about Doctolib to ensure the `WorldMode
 
 You can learn more about building Agents with LaVague in our [webinar](https://www.youtube.com/watch?v=bNE4s8h3CIc).
 
-```python
+```bash
 !wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
 ```
 
