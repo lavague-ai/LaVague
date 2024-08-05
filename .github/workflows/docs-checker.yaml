@@ -74,42 +74,6 @@ jobs:
           chmod +x .github/bullet-points.sh
           .github/bullet-points.sh
 
-  quick-test:
-      runs-on: ubuntu-latest
-      if: github.event_name == 'push'
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
-        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
-
-        - name: Install dependencies
-          run: |
-            pip install lavague
-            pip install llama-index-multi-modal-llms-anthropic
-            pip install lavague-contexts-fireworks
-            wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
-
-        - name: Extract Python code
-          run: |
-            rm ./docs/docs/examples/qa-automation.md
-            python .github/extract-python-code.py ./docs/docs/examples/medical_appointment_booking.md
-
-        - name: Run extracted Python scripts
-          run: |
-            if [ -f generated_scripts.txt ]; then
-              while IFS= read -r script_file
-              do
-                echo "Running $script_file"
-                cat $script_file
-                python "$script_file"
-              done < generated_scripts.txt
-            else
-              echo "No generated scripts found."
-            fi
-
   check-docs-examples:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -134,7 +98,7 @@ jobs:
           pip install llama-index-llms-groq
           pip install ipython>=7.34.0
           pip install text_generation
-          pip install llama-index-llms-fireworks
+          wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
           wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/hf_knowledge.txt
 
       - name: Extract Python code
