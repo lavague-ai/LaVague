@@ -29,33 +29,22 @@ If you want to know more about LaVague, you can have a look at our [architecture
 
 We start by downloading LaVague and the other integrations:
 
-```python
-!pip install lavague
-!pip install llama-index-multi-modal-llms-anthropic
-!pip install llama-index-llms-fireworks
+```bash
+pip install lavague
+pip install llama-index-multi-modal-llms-anthropic
+pip install llama-index-llms-fireworks
 ```
 
-We will need to set our secrets with Colab secrets (see the key icon on the left-hand side of the Colab notebook) if on Colab, or simply load them regularly with environment variables.
+!!! warning "API KEYS"
+    To run this code example, you will need to have the following API keys set in your current environment:
+        
+    - OPENAI_API_KEY
+    - ANTHROPIC_API_KEY
+    - FIREWORKS_API_KEY
 
-```python
-import os
+    To learn how to change the models used in this code to leverage different AI providers, see our [customization guide](../get-started/customization.md)
 
-# Check if running in Google Colab
-try:
-    from google.colab import userdata
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
-
-if IN_COLAB:
-    os.environ["FIREWORKS_API_KEY"] = userdata.get('FIREWORKS_API_KEY')
-    os.environ["ANTHROPIC_API_KEY"] = userdata.get('ANTHROPIC_API_KEY')
-    os.environ["OPENAI_API_KEY"] = userdata.get('OPENAI_API_KEY')
-else:
-    os.environ["FIREWORKS_API_KEY"] = os.getenv('FIREWORKS_API_KEY')
-    os.environ["ANTHROPIC_API_KEY"] = os.getenv('ANTHROPIC_API_KEY')
-    os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
-```
+    For instructions on how to set environment variable in your environment, see our [FAQ guide](../get-started/FAQs.md#how-can-i-set-environment-variables)
 
 ## Demo
 
@@ -175,7 +164,7 @@ driver.driver = webdriver.Remote(custom_conn, options=options)
 
 Another option is to simply run a driver in non-headless mode with:
 
-```python
+```py
 driver = SeleniumDriver(headless=True, no_load_strategy=True)
 ```
 
