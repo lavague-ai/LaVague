@@ -33,12 +33,12 @@ Feature: Cart
   Scenario: Add and remove a single product from cart
     Given the user is on the homepage
     When the user clicks on "Accepter" to accept cookies
-    And the user enter "Zero to One" into the search bar and press Enter
-    And the user click on the first product in the search results
-    And the user click on the "Ajouter au panier" button
-    And the user the confirmation message has been displayed
-    And the user click on "Aller au panier" under "Passer la commande"
-    And the user click on "Supprimer" from the cart page
+    And the user enters "Zero to One" into the search bar and press Enter
+    And the user clicks on the first product in the search results
+    And the user clicks on the "Ajouter au panier" button
+    And the confirmation message is displayed
+    And the user clicks on "Aller au panier" under "Passer la commande"
+    And the user clicks on "Supprimer" from the cart page
     Then the cart should be empty
 ```
 
@@ -92,7 +92,7 @@ lavague-qa --url https://amazon.fr/ --feature lavague-qa/features/demo_amazon.fe
 
 
     @when(
-        parsers.parse('the user enter "{search_term}" into the search bar and press Enter')
+        parsers.parse('the user enters "{search_term}" into the search bar and press Enter')
     )
     def enter_search_term(browser, search_term):
         search_input = WebDriverWait(browser, 10).until(
@@ -104,7 +104,7 @@ lavague-qa --url https://amazon.fr/ --feature lavague-qa/features/demo_amazon.fe
         search_input.submit()
 
 
-    @when("the user click on the first product in the search results")
+    @when("the user clicks on the first product in the search results")
     def click_first_product(browser):
         first_product_link = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
@@ -117,7 +117,7 @@ lavague-qa --url https://amazon.fr/ --feature lavague-qa/features/demo_amazon.fe
         first_product_link.click()
 
 
-    @when('the user click on the "Ajouter au panier" button')
+    @when('the user clicks on the "Ajouter au panier" button')
     def add_to_cart(browser):
         add_to_cart_button = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
@@ -130,12 +130,12 @@ lavague-qa --url https://amazon.fr/ --feature lavague-qa/features/demo_amazon.fe
         add_to_cart_button.click()
 
 
-    @when("the user the confirmation message has been displayed")
+    @when("the confirmation message is displayed")
     def confirm_message_displayed(browser):
         time.sleep(3)  # Wait for the confirmation message to be displayed
 
 
-    @when('the user click on "Aller au panier" under "Passer la commande"')
+    @when('the user clicks on "Aller au panier" under "Passer la commande"')
     def go_to_cart(browser):
         go_to_cart_button = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
@@ -148,7 +148,7 @@ lavague-qa --url https://amazon.fr/ --feature lavague-qa/features/demo_amazon.fe
         go_to_cart_button.click()
 
 
-    @when('the user click on "Supprimer" from the cart page')
+    @when('the user clicks on "Supprimer" from the cart page')
     def remove_from_cart(browser):
         remove_button = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
