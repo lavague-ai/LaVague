@@ -17,6 +17,9 @@ matrix:
       # Ignore Bash code blocks
       - open: '(?s)^(?P<open> *`{3,})(bash)?$'
         close: '^(?P=open)$'
+       # Ignore py code blocks
+      - open: '(?s)^(?P<open> *`{3,})(py)?$'
+        close: '^(?P=open)$'
       # Ignore ``` code blocks
       - open: '```'
         close: '```'
