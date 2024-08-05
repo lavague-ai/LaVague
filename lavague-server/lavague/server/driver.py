@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import time
 from lavague.core.base_driver import (
     BaseDriver,
     InteractionType,
@@ -179,6 +180,28 @@ class DriverServer(BaseDriver):
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
+    
+    def get_screenshots_whole_page(self) -> list[str]:
+        """Take screenshots of the whole page"""
+        screenshot_paths = []
+
+        current_screenshot_folder = self.get_current_screenshot_folder()
+
+        while True:
+            # Saves a screenshot
+            screenshot_path = self.save_screenshot(current_screenshot_folder)
+            screenshot_paths.append(screenshot_path)
+            self.execute_script("window.scrollBy(0, (window.innerHeight / 1.5));")
+            self.wait_for_idle()
+            # Necessary as doing screenshot too fast might hit Chrome internal limits
+            time.sleep(1)
+
+            if self.is_bottom_of_page():
+                break
+
+        self.previously_scanned = True
+        return screenshot_paths
+
 
     def wait(self, time_between_actions):
         json_str = f"""- actions:
