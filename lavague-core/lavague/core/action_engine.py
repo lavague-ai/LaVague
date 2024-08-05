@@ -100,6 +100,7 @@ class ActionEngine:
         self.highlight = None
         self.curr_step = 0
         self.curr_instruction = ""
+        self.world_model_output = ""
         self.screenshot_ratio = 1
 
     @classmethod

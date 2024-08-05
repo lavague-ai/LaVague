@@ -2,8 +2,9 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { AppContext } from '../context/AppContext';
 import { Badge, Stack, Text } from '@chakra-ui/react';
 import { RunningAgentState } from '../../connector';
+import { extractNextEngine, extractWorldModelInstruction } from '../../tools';
 
-type LogType = 'network' | 'cmd' | 'userprompt' | 'agent_log';
+export type LogType = 'network' | 'cmd' | 'userprompt' | 'agent_log';
 
 interface Log {
     type: LogType;
@@ -23,10 +24,11 @@ const COMMAND_LABELS: { [key: string]: string } = {
     execute_script: 'Execute script',
     exec_code: 'Execute code',
     is_visible: 'Check visibility',
+    get_possible_interactions: 'Get possible interactions',
 };
 
 export default function Logs({ logTypes }: { logTypes: LogType[] }) {
-    let { connector, serverState, runningAgentState, setRunningAgentState } = useContext(AppContext);
+    const { connector, setRunningAgentState } = useContext(AppContext);
     const [logs, setLogs] = useState<RepeatableLog[]>([]);
     const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
@@ -60,21 +62,36 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 let type: LogType = 'cmd';
                 if (message.command) {
                     log = COMMAND_LABELS[message.command];
-                } else if (message.type === 'agent_log') {
-                    log = message.agent_log.world_model_output;
+                } else if (message.type === 'agent_log' && message.agent_log.world_model_output) {
+                    console.log(message);
+                    const log_tmp = message.agent_log.world_model_output;
+                    const engine = extractNextEngine(log_tmp);
+                    if (engine === 'COMPLETE') {
+                        const instruction = extractWorldModelInstruction(log_tmp);
+                        log = instruction.indexOf('[NONE]') != -1 ? 'Objective reached' : 'Output:' + '\n' + instruction;
+                    } else {
+                        log = 'Instruction: ' + extractWorldModelInstruction(log_tmp);
+                    }
                     type = 'agent_log';
                 } else if (message.type === 'start') {
-                    setRunningAgentState(RunningAgentState.RUNNING)
-                    console.log("START")
+                    setRunningAgentState(RunningAgentState.RUNNING);
+                } else if (message.type === 'stop') {
+                    setRunningAgentState(RunningAgentState.IDLE);
+                    if (message.args == true) {
+                        addLog({ log: 'The agent was interrupted.', type: 'agent_log' });
+                    }
                 }
                 if (log) {
                     addLog({ log, type });
                 }
             }),
             connector.onOutputMessage((message) => addLog({ log: message.args, type: 'userprompt' })),
+            connector.onSystemMessage((message) => {
+                addLog({ log: message.args, type: 'agent_log' });
+            }),
         ];
         return () => destructors.forEach((d) => d());
-    }, [connector, addLog, setLogs]);
+    }, [connector, addLog, setLogs, setRunningAgentState]);
 
     return (
         <div className="logs">

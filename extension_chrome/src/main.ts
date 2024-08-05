@@ -1,1 +1,1 @@
-import("./inject_main");
+import('./inject_main');

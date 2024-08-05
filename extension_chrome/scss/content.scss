@@ -1,4 +1,5 @@
-html, #app {
+html,
+#app {
   height: 100vh;
 }
 
@@ -18,7 +19,7 @@ html, #app {
   height: calc(100vh - 168px);
   flex-direction: column;
   gap: 8px;
-  
+
   .wmlogs {
     flex: 1;
     overflow-y: auto;
@@ -38,6 +39,16 @@ html, #app {
   flex-direction: column;
   gap: 8px;
 
+  .log_welcome {
+    font-size: 16px;
+    background: #ebebeb;
+    padding: 14px 18px;
+    border-radius: 16px;
+    white-space: pre-wrap;
+    width: fit-content;
+    max-width: 90%;
+  }
+
   .log {
     font-size: 16px;
     background: #ebebeb;
@@ -50,6 +61,7 @@ html, #app {
     &.error {
       background: #ff9589;
     }
+
     &.userprompt {
       background: #268bdd;
       color: white;

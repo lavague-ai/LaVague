@@ -137,6 +137,30 @@ def extract_world_model_instruction(text):
     raise ValueError("No instruction found in the text.")
 
 
+def replace_hyphens(text: str, replacement_char="•"):
+    formatted_text = text.replace("- ", f"{replacement_char} ")
+    return formatted_text
+
+
+def extract_before_next_engine(text: str) -> str:
+    # Define the patterns for "Next engine:" and similar patterns
+    next_engine_patterns = [r"Next engine:\s*", r"### Next Engine:\s*"]
+
+    # Split the text using the "Next engine:" patterns
+    for pattern in next_engine_patterns:
+        split_text = re.split(pattern, text, maxsplit=1)
+        if len(split_text) > 1:
+            result = split_text[0].strip()
+            break
+    else:
+        result = text.strip()
+
+    thoughts_pattern = r"^Thoughts:\s*"
+    result = re.sub(thoughts_pattern, "", result).strip()
+
+    return result
+
+
 def extract_next_engine(text: str, next_engines: List[str] = DEFAULT_ENGINES) -> str:
     # Use a regular expression to find the content after "Next engine:"
 

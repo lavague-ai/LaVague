@@ -59,7 +59,10 @@ export const waitSchema = z.object({
 export const failSchema = z.object({
     name: z.literal('fail'),
     description: z.literal('Indicate that the task cannot be completed').optional(),
-    args: z.object({}).optional(),
+    args: z.object({
+        xpath: z.string().optional(),
+        value: z.string().optional(),
+    }),
 });
 
 export const toolSchemaUnion = z.discriminatedUnion('name', [

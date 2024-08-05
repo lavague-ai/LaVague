@@ -1,7 +1,7 @@
 import base64
-from io import BytesIO
 import json
 import logging
+import time
 from lavague.core.base_driver import (
     BaseDriver,
     InteractionType,
@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional, Mapping
 
 import yaml
 from lavague.server.channel import AgentSession
-from PIL import Image
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -94,11 +93,17 @@ class DriverServer(BaseDriver):
     def resolve_xpath(self, xpath: str):
         pass
 
-    def get_possible_interactions(self) -> PossibleInteractionsByXpath:
+    def get_possible_interactions(
+        self, in_viewport=True, foreground_only=True
+    ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = {}
         try:
+            args: Dict[str, bool] = {
+                "in_viewport": in_viewport,
+                "foreground_only": foreground_only,
+            }
             exe_json = self.send_command_and_get_response_sync(
-                "get_possible_interactions"
+                "get_possible_interactions", json.dumps(args)
             )
             exe = json.loads(exe_json)
         except Exception as e:
@@ -176,6 +181,27 @@ class DriverServer(BaseDriver):
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
 
+    def get_screenshots_whole_page(self) -> list[str]:
+        """Take screenshots of the whole page"""
+        screenshot_paths = []
+
+        current_screenshot_folder = self.get_current_screenshot_folder()
+
+        while True:
+            # Saves a screenshot
+            screenshot_path = self.save_screenshot(current_screenshot_folder)
+            screenshot_paths.append(screenshot_path)
+            self.execute_script("window.scrollBy(0, (window.innerHeight / 1.5));")
+            self.wait_for_idle()
+            # Necessary as doing screenshot too fast might hit Chrome internal limits
+            time.sleep(0.5)
+
+            if self.is_bottom_of_page():
+                break
+
+        self.previously_scanned = True
+        return screenshot_paths
+
     def wait(self, time_between_actions):
         json_str = f"""- actions:
     - action:
@@ -250,8 +276,11 @@ Arguments:
   - xpath (string)
 
 Name: fail
-Description: Indicate that you are unable to complete the task
-No arguments.
+Description: Indicate that you are unable to complete the task and explain why.
+Arguments:
+  - xpath (string): Always set to an empty string
+  - value (string): Detailled explanation of why the task cannot be completed
+
 
 Here are examples of previous answers:
 HTML:

@@ -7,8 +7,10 @@ from typing import Any, Optional
 from lavague.core.action_engine import ActionEngine
 from lavague.core.world_model import WorldModel
 from lavague.core.utilities.format_utils import (
+    extract_before_next_engine,
     extract_next_engine,
     extract_world_model_instruction,
+    replace_hyphens,
 )
 from lavague.core.logger import AgentLogger, LocalDBLogger
 from lavague.core.memory import ShortTermMemory
@@ -49,6 +51,7 @@ class WebAgent:
         self.world_model: WorldModel = world_model
         self.st_memory = ShortTermMemory()
         self.token_counter = token_counter
+        self.interrupted = False
 
         self.n_steps = n_steps
 
@@ -149,6 +152,9 @@ class WebAgent:
             world_model_output = world_model.get_instruction(
                 objective, current_state, past, obs
             )
+            self.action_engine.world_model_output = replace_hyphens(
+                extract_before_next_engine(world_model_output)
+            )
             logging_print.info(world_model_output)
             next_engine_name = extract_next_engine(world_model_output)
             instruction = extract_world_model_instruction(world_model_output)
@@ -172,8 +178,10 @@ class WebAgent:
             if instruction.find("[NONE]") == -1 and next_engine_name != "COMPLETE":
                 history[-1] = ChatMessage(
                     role="assistant",
-                    content=f"{instruction}",
-                    metadata={"title": f"⏳ Step {curr_step + 1}"},
+                    content=f"{self.action_engine.world_model_output}",
+                    metadata={
+                        "title": f"⏳ Step {curr_step + 1} - {self.action_engine.curr_instruction}"
+                    },
                 )
             yield (
                 objective_obj,
@@ -213,14 +221,14 @@ class WebAgent:
                 if success:
                     history[-1] = ChatMessage(
                         role="assistant",
-                        content=f"{instruction}",
-                        metadata={"title": f"✅ Step {curr_step + 1}"},
+                        content=f"{self.action_engine.world_model_output}",
+                        metadata={"title": f"✅ Step {curr_step + 1} - {instruction}"},
                     )
                 else:
                     history[-1] = ChatMessage(
                         role="assistant",
-                        content=f"{instruction}",
-                        metadata={"title": f"❌ Step {curr_step + 1}"},
+                        content=f"{self.action_engine.world_model_output}",
+                        metadata={"title": f"❌ Step {curr_step + 1} - {instruction}"},
                     )
                 history.append(
                     ChatMessage(
@@ -344,6 +352,7 @@ class WebAgent:
         log_to_db: bool = is_flag_true("LAVAGUE_LOG_TO_DB"),
         step_by_step=False,
     ) -> ActionResult:
+        self.interrupted = False
         self.prepare_run(display=display, user_data=user_data)
 
         try:
@@ -358,9 +367,11 @@ class WebAgent:
 
         except KeyboardInterrupt:
             logging_print.warning("The agent was interrupted.")
+            self.interrupted = True
             pass
         except Exception as e:
             logging_print.error(f"Error while running the agent: {e}")
+            self.interrupted = True
             raise e
         finally:
             send_telemetry(self.logger.return_pandas())

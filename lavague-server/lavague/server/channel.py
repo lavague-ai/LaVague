@@ -6,14 +6,16 @@ from typing import Callable
 import uuid
 from lavague.core.agents import WebAgent
 from lavague.core.extractors import YamlFromMarkdownExtractor
-from lavague.core.logger import AgentLogger
 import types
 import copy
 
 
 class AgentSession(ABC):
-    uid = str(uuid.uuid4())
     agent: WebAgent
+
+    def __init__(self):
+        self.uid = str(uuid.uuid4())
+        self._task: threading.Thread = None
 
     @abstractmethod
     async def send_message(self, message: str):
@@ -23,30 +25,34 @@ class AgentSession(ABC):
     async def send_message_for_result(self, message: str, id: str) -> any:
         pass
 
-    def handle_prompt_agent_action(self, type: str, args: str):
+    def handle_prompt_agent_action(self, type: str, args: str, id: str):
         if type == "run":
             start = {"type": "start"}
             asyncio.run(self.send_message(json.dumps(start)))
             try:
                 self.agent.run(args)
-            except Exception as e:
+            except Exception:
                 pass
             finally:
-                stop = {"type": "stop"}
-                asyncio.run(self.send_message(json.dumps(stop)))
+                try:
+                    stop = {"type": "stop", "args": self.agent.interrupted}
+                    asyncio.run(self.send_message(json.dumps(stop)))
+                except:
+                    print("The stop signal could not be sent")
         elif type == "get":
             self.agent.get(args)
 
     def handle_agent_message(self, json_message):
         if "type" in json_message:
 
-            def exe_task():
+            def exe_task(id):
                 self.handle_prompt_agent_action(
-                    json_message["type"], json_message["args"]
+                    json_message["type"], json_message["args"], id
                 )
 
-            task = threading.Thread(target=exe_task)
-            task.start()
+            task_id = self.uid
+            self._task = threading.Thread(target=exe_task, args=(task_id,))
+            self._task.start()
 
     def send_command_and_get_response_sync(self, command, args=""):
         id = str(uuid.uuid4())

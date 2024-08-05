@@ -4,6 +4,7 @@ import time
 from typing import Any, List, Optional
 from lavague.core.action_template import ActionTemplate
 from lavague.core.context import Context, get_default_context
+from lavague.core.exceptions import NavigationException
 from lavague.core.extractors import (
     BaseExtractor,
     YamlFromMarkdownExtractor,
@@ -117,7 +118,6 @@ class NavigationEngine(BaseEngine):
         self.n_attempts = n_attempts
         self.display = display
         self.raise_on_error = raise_on_error
-        self.viewport_only = True
         self.shape_validator = JSON_SCHEMA
 
     @classmethod
@@ -150,8 +150,9 @@ class NavigationEngine(BaseEngine):
         Return:
             `List[str]`: The nodes
         """
+        viewport_only = not self.driver.previously_scanned
         source_nodes = self.retriever.retrieve(
-            QueryBundle(query_str=query), [self.driver.get_html()], self.viewport_only
+            QueryBundle(query_str=query), [self.driver.get_html()], viewport_only
         )
         return source_nodes
 
@@ -195,7 +196,6 @@ class NavigationEngine(BaseEngine):
         """
 
         from gradio import ChatMessage
-        from selenium.webdriver.support.ui import WebDriverWait
 
         success = False
         action_full = ""
@@ -280,8 +280,10 @@ class NavigationEngine(BaseEngine):
                 self.driver.exec_code(action)
                 self.history[-1] = ChatMessage(
                     role="assistant",
-                    content=f"{action_engine.curr_instruction}\n",
-                    metadata={"title": f"✅ Step {action_engine.curr_step}"},
+                    content=f"{action_engine.world_model_output}\n",
+                    metadata={
+                        "title": f"✅ Step {action_engine.curr_step} - {action_engine.curr_instruction}"
+                    },
                 )
                 self.history.append(
                     ChatMessage(role="assistant", content="⏳ Loading the page...")
@@ -336,8 +338,10 @@ class NavigationEngine(BaseEngine):
         if not success:
             self.history[-1] = ChatMessage(
                 role="assistant",
-                content=f"Instruction: {action_engine.curr_instruction}",
-                metadata={"title": f"❌ Step {action_engine.curr_step + 1}"},
+                content=f"{action_engine.world_model_output}",
+                metadata={
+                    "title": f"❌ Step {action_engine.curr_step + 1} - {action_engine.curr_instruction}"
+                },
             )
         if logger:
             log = {
@@ -510,54 +514,55 @@ class NavigationControl(BaseEngine):
     def set_display(self, display: bool):
         self.display = display
 
-    def set_is_full_page(self, is_fullpage: bool):
-        if self.navigation_engine is not None:
-            self.navigation_engine.viewport_only = not is_fullpage
-
     def execute_instruction(self, instruction: str) -> ActionResult:
         import inspect
 
         code = ""
+        output = None
+        success = True
         logger = self.logger
 
-        if "SCROLL_DOWN" in instruction:
-            self.driver.scroll_down()
-            code = inspect.getsource(self.driver.scroll_down)
-        elif "SCROLL_UP" in instruction:
-            self.driver.scroll_up()
-            code = inspect.getsource(self.driver.scroll_up)
-        elif "WAIT" in instruction:
-            self.driver.wait(self.time_between_actions)
-            code = inspect.getsource(self.driver.wait)
-        elif "BACK" in instruction:
-            self.driver.back()
-            code = inspect.getsource(self.driver.back)
-            self.set_is_full_page(False)
-        elif "SCAN" in instruction:
-            self.driver.get_screenshots_whole_page()
-            code = inspect.getsource(self.driver.get_screenshots_whole_page)
-            self.set_is_full_page(True)
-        elif "MAXIMIZE_WINDOW" in instruction:
-            self.driver.maximize_window()
-            code = inspect.getsource(self.driver.maximize_window)
-        elif "SWITCH_TAB" in instruction:
-            tab_id = int(instruction.split(" ")[1])
-            try:
-                self.driver.switch_tab(tab_id=tab_id)
-            except Exception as e:
-                raise ValueError(f"Error while switching tab: {e}")
-            code = inspect.getsource(self.driver.switch_tab)
-            self.set_is_full_page(False)
-        else:
-            raise ValueError(f"Unknown instruction: {instruction}")
-        success = True
+        try:
+            if "SCROLL_DOWN" in instruction:
+                self.driver.scroll_down()
+                code = inspect.getsource(self.driver.scroll_down)
+            elif "SCROLL_UP" in instruction:
+                self.driver.scroll_up()
+                code = inspect.getsource(self.driver.scroll_up)
+            elif "WAIT" in instruction:
+                self.driver.wait(self.time_between_actions)
+                code = inspect.getsource(self.driver.wait)
+            elif "BACK" in instruction:
+                self.driver.back()
+                code = inspect.getsource(self.driver.back)
+            elif "SCAN" in instruction:
+                self.driver.get_screenshots_whole_page()
+                code = inspect.getsource(self.driver.get_screenshots_whole_page)
+            elif "MAXIMIZE_WINDOW" in instruction:
+                self.driver.maximize_window()
+                code = inspect.getsource(self.driver.maximize_window)
+            elif "SWITCH_TAB" in instruction:
+                tab_id = int(instruction.split(" ")[1])
+                try:
+                    self.driver.switch_tab(tab_id=tab_id)
+                except Exception as e:
+                    raise ValueError(f"Error while switching tab: {e}")
+                code = inspect.getsource(self.driver.switch_tab)
+            else:
+                raise ValueError(f"Unknown instruction: {instruction}")
+
+        except NavigationException as e:
+            success = False
+            output = str(e)
+            logging_print.error(f"Navigation error: {e}")
+
         if logger:
             log = {
                 "engine": "Navigation Controls",
                 "instruction": instruction,
                 "engine_log": None,
                 "success": success,
-                "output": None,
+                "output": output,
                 "code": code,
             }
             logger.add_log(log)
@@ -565,7 +570,7 @@ class NavigationControl(BaseEngine):
         self.driver.wait_for_idle()
 
         return ActionResult(
-            instruction=instruction, code=code, success=success, output=None
+            instruction=instruction, code=code, success=success, output=output
         )
 
 

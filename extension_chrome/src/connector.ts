@@ -12,7 +12,7 @@ export enum RunningAgentState {
     RUNNING,
 }
 
-export type EventType = 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage';
+export type EventType = 'init' | 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage' | 'systemMessage';
 
 export class AgentServerConnector {
     private webSocket: WebSocket | null = null;
@@ -20,9 +20,12 @@ export class AgentServerConnector {
     readonly driver: ChromeExtensionDriver;
     currentState: AgentServerState = AgentServerState.DISCONNECTED;
     runningAgentState: RunningAgentState = RunningAgentState.IDLE;
+    public host = '';
+    public forced_disconnection = false;
 
     constructor() {
         this.driver = new ChromeExtensionDriver();
+        this.emit('init', null);
     }
 
     async connect(host: string) {
@@ -30,6 +33,8 @@ export class AgentServerConnector {
         this.updateState(AgentServerState.CONNECTING);
         try {
             const webSocket = new WebSocket('ws://' + host);
+            this.host = host;
+            this.forced_disconnection = false;
 
             webSocket.onmessage = async (event: { data: string }) => {
                 if (event.data === 'PONG') {
@@ -61,7 +66,10 @@ export class AgentServerConnector {
                 webSocket.onerror = reject;
             });
             webSocket.onerror = (error) => this.emit('error', error);
-            webSocket.onclose = () => this.updateState(AgentServerState.DISCONNECTED);
+            webSocket.onclose = () => {
+                this.updateState(AgentServerState.DISCONNECTED);
+                this.updateRunningState(RunningAgentState.IDLE);
+            };
             this.webSocket = webSocket;
             this.keepAlive();
             await this.driver.start();
@@ -93,7 +101,13 @@ export class AgentServerConnector {
         await this.driver.stop();
     }
 
-    sendPrompt(type: 'run' | 'get' | 'stop', args: string) {
+    sendSystemMessage(msg: string) {
+        this.emit('systemMessage', {
+            args: msg,
+        });
+    }
+
+    sendPrompt(type: 'run' | 'get', args: string) {
         this.sendMessage({ type, args });
     }
 
@@ -109,8 +123,16 @@ export class AgentServerConnector {
         return this.on('error', fn);
     }
 
+    onInit(fn: (ret: any) => void) {
+        return this.on('init', fn);
+    }
+
     onInputMessage(fn: (ret: any) => void) {
         return this.on('inputMessage', fn);
+    }
+
+    onSystemMessage(fn: (message: any) => void) {
+        return this.on('systemMessage', fn);
     }
 
     onOutputMessage(fn: (message: any) => void) {

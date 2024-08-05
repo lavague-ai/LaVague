@@ -1,3 +1,5 @@
+const DEFAULT_ENGINES: string[] = ['Navigation Controls', 'Python Engine', 'Navigation Engine', 'COMPLETE'];
+
 export async function copyToClipboard(text: string) {
     await navigator.clipboard.writeText(text);
 }
@@ -8,6 +10,66 @@ export async function sleep(ms: number) {
 
 export function truthyFilter<T>(value: T | null | undefined): value is T {
     return Boolean(value);
+}
+
+export function extractNextEngine(text: string, nextEngines: string[] = DEFAULT_ENGINES): string {
+    // Define the patterns to match "Next engine:"
+    const nextEnginePatterns: RegExp[] = [/Next engine:\s*(.*)/, /### Next Engine:\s*(.*)/];
+
+    for (const pattern of nextEnginePatterns) {
+        try {
+            const nextEngineMatch = text.match(pattern);
+            if (nextEngineMatch) {
+                const extractedText = nextEngineMatch[1].trim();
+                // Check if the extracted text matches any of the provided engines
+                for (const engine of nextEngines) {
+                    if (extractedText.toLowerCase().includes(engine.toLowerCase())) {
+                        return engine;
+                    }
+                }
+            }
+        } catch (e) {}
+    }
+
+    throw new Error(`No next engine found in the text: ${text}`);
+}
+
+export function extractWorldModelInstruction(text: string): string {
+    // Define the instruction patterns as an array of regular expressions
+    const instructionPatterns: RegExp[] = [
+        /Instruction:\s*((?:- .*\n?)+)/, // For multi-line hyphenated instructions
+        /### Instruction:\s*((?:- .*\n?)+)/, // For multi-line hyphenated instructions with ### prefix
+        /Instruction:\s*((?:\d+\.\s.*\n?)+)/, // For multi-line numbered instructions
+        /### Instruction:\s*((?:\d+\.\s.*\n?)+)/, // For multi-line numbered instructions with ### prefix
+        /Instruction:\s*```([\s\S]*?)```/, // For block of text within triple backticks
+        /### Instruction:\s*```([\s\S]*?)```/, // For block of text within triple backticks with ### prefix
+        /Instruction:\s*(.*)/, // For single-line instructions
+        /### Instruction:\s*(.*)/, // For single-line instructions with ### prefix
+    ];
+
+    let longestInstruction = '';
+
+    for (const pattern of instructionPatterns) {
+        const matches = text.match(pattern);
+        if (matches && matches[1]) {
+            let instructionText = matches[1];
+            // Check if the instruction is multi-line or single-line
+            if (instructionText.includes('\n')) {
+                // Remove newlines and extra spaces for multi-line instructions
+                instructionText = instructionText.split('\n').join(' ').trim();
+            }
+            // Update longestInstruction if the current one is longer
+            if (instructionText.length > longestInstruction.length) {
+                longestInstruction = instructionText;
+            }
+        }
+    }
+
+    if (longestInstruction) {
+        return longestInstruction;
+    }
+
+    throw new Error('No instruction found in the text.');
 }
 
 export function ripple(x: number, y: number) {

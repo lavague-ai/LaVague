@@ -19,7 +19,7 @@ export class ChromeExtensionDriver {
         exec_code: (msg) => this.executeCode(msg.args),
         highlight_elem: (msg) => this.highlight_elem(msg.args),
         is_visible: (msg) => this.isVisible(msg.args),
-        get_possible_interactions: (msg) => this.get_possible_interactions(),
+        get_possible_interactions: (msg) => this.get_possible_interactions(msg.args),
         get_tabs: (msg) => this.get_tabs(),
         switch_tab: (msg) => this.switch_tab(msg.args),
     };
@@ -30,22 +30,26 @@ export class ChromeExtensionDriver {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
             if (tabs[0].url != undefined && !tabs[0].url.startsWith('chrome://')) {
                 const newTabId = activeInfo.tabId;
-                if (this.currentTabId != null && this.currentTabId !== newTabId) {
-                    this.detachDebuggerFromTab(this.currentTabId);
+                if (this.currentTabId !== newTabId) {
+                    if (this.currentTabId != null) {
+                        this.detachDebuggerFromTab(this.currentTabId);
+                    }
+                    this.currentTabId = newTabId;
+                    this.attachDebuggerToTab(this.currentTabId);
                 }
-                this.currentTabId = newTabId;
-                this.attachDebuggerToTab(this.currentTabId);
             }
         });
     };
 
     tabUpdatedListener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
         if (tab.active && changeInfo.status === 'complete' && !tab.url!.startsWith('chrome://')) {
-            if (this.currentTabId && this.currentTabId !== tabId) {
-                this.detachDebuggerFromTab(this.currentTabId);
+            if (this.currentTabId !== tabId) {
+                if (this.currentTabId != null) {
+                    this.detachDebuggerFromTab(this.currentTabId);
+                }
+                this.currentTabId = tabId;
+                this.attachDebuggerToTab(tabId);
             }
-            this.currentTabId = tabId;
-            this.attachDebuggerToTab(tabId);
         }
     };
 
@@ -212,13 +216,13 @@ export class ChromeExtensionDriver {
         return true;
     }
 
-    async get_possible_interactions() {
+    async get_possible_interactions(args: string) {
         const tabId = await this.getTabId();
         if (tabId == null) {
             return false;
         }
         const dom = new DomActions(tabId);
-        const res = await dom.get_possible_interactions();
+        const res = await dom.get_possible_interactions(args);
         return res;
     }
 
@@ -228,7 +232,7 @@ export class ChromeExtensionDriver {
             return false;
         }
         const dom = new DomActions(tabId);
-        let res = await dom.highlight_elem(xpath);
+        const res = await dom.highlight_elem(xpath);
         const json_ret = JSON.stringify(res.result.value);
         return json_ret;
     }

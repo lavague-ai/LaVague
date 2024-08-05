@@ -9,11 +9,17 @@ export default function Prompt({ requestConnection }: { requestConnection: () =>
     const [prompt, setPrompt] = useState('');
 
     const handleStart = () => {
-        if (!prompt) {
+        if (!prompt && runningAgentState != RunningAgentState.RUNNING) {
             return false;
         }
         if (serverState === AgentServerState.CONNECTED) {
-            connector.sendPrompt('run', prompt);
+            if (runningAgentState === RunningAgentState.IDLE) {
+                connector.sendPrompt('run', prompt);
+            } else {
+                connector.disconnect();
+                connector.sendSystemMessage('The agent is now interrupted.');
+                connector.connect(connector.host);
+            }
             setPrompt('');
         } else {
             requestConnection();
@@ -33,14 +39,15 @@ export default function Prompt({ requestConnection }: { requestConnection: () =>
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Can I do something for you?"
+                placeholder={runningAgentState == RunningAgentState.IDLE ? 'Can I do something for you?' : 'Thinking...'}
                 resize={'none'}
+                isDisabled={runningAgentState == RunningAgentState.RUNNING}
                 required
             ></Textarea>
             <IconButton
                 className="button"
                 aria-label="Submit"
-                icon={runningAgentState == RunningAgentState.IDLE ? <ChatIcon /> : <CloseIcon/>}
+                icon={runningAgentState == RunningAgentState.IDLE ? <ChatIcon /> : <CloseIcon />}
                 onClick={handleStart}
                 zIndex={10}
                 isActive={!!prompt && serverState !== AgentServerState.CONNECTED}

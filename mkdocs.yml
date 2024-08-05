@@ -18,7 +18,7 @@ theme:
     - navigation.sections
     - navigation.indexes
     - content.code.copy
-    
+
   logo: assets/logo.png
   favicon: assets/logo.png
   palette:
@@ -91,67 +91,68 @@ markdown_extensions:
 
 # Documentation tree
 nav:
-- 🏠 Home: 'index.md'
+  - 🏠 Home: "index.md"
 
-- ⚡ Getting Started:
-  - Installation: 'docs/get-started/installation.md'
-  - Quick tour: 'docs/get-started/quick-tour.md'
-  - Changing models: 'docs/get-started/customization.md'
-  - Key features:
-    - TokenCounter tool: 'docs/get-started/token-usage.md'
-    - Benchmarking tool: 'docs/learn/testing.md'
-    - Gradio: 'docs/get-started/gradio.md'
-  - Support:
-    - Troubleshooting: 'docs/get-started/troubleshoot.md'
-    - FAQs: 'docs/get-started/FAQs.md'
+  - ⚡ Getting Started:
+      - Installation: "docs/get-started/installation.md"
+      - Quick tour: "docs/get-started/quick-tour.md"
+      - Changing models: "docs/get-started/customization.md"
+      - Key features:
+          - TokenCounter tool: "docs/get-started/token-usage.md"
+          - Benchmarking tool: "docs/learn/testing.md"
+          - Gradio: "docs/get-started/gradio.md"
+      - Support:
+          - Troubleshooting: "docs/get-started/troubleshoot.md"
+          - FAQs: "docs/get-started/FAQs.md"
 
-- LaVague QA:
+  - LaVague QA:
   - Quick tour: 'docs/lavague-qa/quicktour.md'
   - Installation and usage: 'docs/lavague-qa/usage.md'
   - Examples: 'docs/lavague-qa/examples.md'
 
 - 🤝 Integrations:
-    - Anthropic: 'docs/integrations/anthropic.md'
-    - Azure: 'docs/integrations/azure.md'
-    - Fireworks: 'docs/integrations/fireworks.md'
-    - Gemini: 'docs/integrations/gemini.md'
-    - Openai: 'docs/integrations/openai.md'
-    - Contribute: 'docs/integrations/contribute.md'
+      - Anthropic: "docs/integrations/anthropic.md"
+      - Azure: "docs/integrations/azure.md"
+      - Fireworks: "docs/integrations/fireworks.md"
+      - Gemini: "docs/integrations/gemini.md"
+      - Openai: "docs/integrations/openai.md"
+      - Contribute: "docs/integrations/contribute.md"
 
-- 📚 Learn:
-  - Architecture: 'docs/learn/architecture.md'
-  - Debugging agents: 
-    - End-to-end debugging: 'docs/learn/debugging.md'
-    - Debug tools: 'docs/learn/debug-tools.md'
- 
-- ✅ Quick examples:
-  - Knowledge Retrieval:
-    - Navigate through Notion: "docs/use-cases/notion.md"
-  - Data Entry:
-    - Fill out forms: "docs/use-cases/forms.md"
+  - 📚 Learn:
+      - Architecture: "docs/learn/architecture.md"
+      - Debugging agents:
+          - End-to-end debugging: "docs/learn/debugging.md"
+          - Debug tools: "docs/learn/debug-tools.md"
 
-- 📝 End to end examples:
-  - Knowledge Retrieval:
-    - HF papers retrieval: "docs/examples/hf-papers-retrieval.md"
-  - Data Entry:
-    - Automated job application: "docs/examples/job-application.md"
-  - QA Automation: 
-    - Generate automated tests: "docs/examples/qa-automation.md"
+  - ✅ Quick examples:
+      - Knowledge Retrieval:
+          - Navigate through Notion: "docs/use-cases/notion.md"
+      - Data Entry:
+          - Fill out forms: "docs/use-cases/forms.md"
 
-- 🧩 Module Guides:
-    - Web Agents: 'docs/learn/agents.md'
-    - World Model: 'docs/learn/world-model.md'
-    - Action Engine: 
-        - Overview: 'docs/learn/action-engine.md'
-        - Navigation Engine: 'docs/learn/navigation-engine.md'
-    - Evaluator: 'docs/learn/evaluation.md'
-    - Drivers: 'docs/learn/browser-drivers.md'
-    - Logger: 'docs/learn/local-log.md'
-  
-- 🤗 Contributing:
-  - Home: "docs/contributing/contributing.md"
-  - General guidelines: "docs/contributing/general.md"
-  - Documentation: "docs/contributing/documentation.md"
-  
-- 🛠️ API reference:
-  - API reference home: 'docs/core/index.html'
+  - 📝 End to end examples:
+      - Knowledge Retrieval:
+          - HF papers retrieval: "docs/examples/hf-papers-retrieval.md"
+      - Data Entry:
+          - Automated job application: "docs/examples/job-application.md"
+          - Medical appointment booking: "docs/examples/medical_appointment_booking.md"
+      - QA Automation:
+          - Generate automated tests: "docs/examples/qa-automation.md"
+
+  - 🧩 Module Guides:
+      - Web Agents: "docs/learn/agents.md"
+      - World Model: "docs/learn/world-model.md"
+      - Action Engine:
+          - Overview: "docs/learn/action-engine.md"
+          - Navigation Engine: "docs/learn/navigation-engine.md"
+      - Evaluator: "docs/learn/evaluation.md"
+      - Drivers: "docs/learn/browser-drivers.md"
+      - Logger: "docs/learn/local-log.md"
+
+  - 🤗 Contributing:
+      - Home: "docs/contributing/contributing.md"
+      - General guidelines: "docs/contributing/general.md"
+      - Documentation: "docs/contributing/documentation.md"
+
+  - 🛠️ API reference:
+      - API reference home: "docs/core/index.html"
