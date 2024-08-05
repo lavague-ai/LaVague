@@ -17,7 +17,10 @@ LaVague QA is a command-line tool that turns Gherkin test specifications into re
 2. Run LaVague QA to automatically generate the corresponding Pytest code.
 3. Execute tests or regenerate them as your website evolves.
 
+
 ## Example
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/lavague-qa/demo_lavague_QA.ipynb">
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 ### Install LaVague QA
 

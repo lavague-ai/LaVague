@@ -38,6 +38,9 @@ pip install -e .
 
 ## Default usage
 
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/lavague-qa/demo_lavague_QA.ipynb">
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+
 Run `lavague-qa --help` to see all available arguments
 
 ```

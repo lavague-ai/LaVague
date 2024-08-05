@@ -16,7 +16,10 @@ All commands shown in this documentation assume you're running them from the LaV
 | https://hsbc.fr/                 | [demo_hsbc.feature](https://github.com/lavague-ai/LaVague/blob/main/lavague-qa/features/demo_hsbc.feature)           | Tests proper multi-tab navigation and cookie banners |
 
 
-In each of these examples, we'll showcase how LaVague QA can be used to generate tests for critical parts of your websites. 
+In each of these examples, we'll showcase how LaVague QA can be used to generate tests for critical parts of your websites.
+
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/lavague-qa/demo_lavague_QA.ipynb">
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
 
 ## Amazon Cart testing
 
