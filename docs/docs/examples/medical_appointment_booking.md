@@ -29,33 +29,22 @@ If you want to know more about LaVague, you can have a look at our [architecture
 
 We start by downloading LaVague and the other integrations:
 
-```python
-!pip install lavague
-!pip install llama-index-multi-modal-llms-anthropic
-!pip install llama-index-llms-fireworks
+```bash
+pip install lavague
+pip install llama-index-multi-modal-llms-anthropic
+pip install llama-index-llms-fireworks
 ```
 
-We will need to set our secrets with Colab secrets (see the key icon on the left-hand side of the Colab notebook) if on Colab, or simply load them regularly with environment variables.
+!!! warning "API KEYS"
+    To run this code example, you will need to have the following API keys set in your current environment:
+        
+    - OPENAI_API_KEY
+    - ANTHROPIC_API_KEY
+    - FIREWORKS_API_KEY
 
-```python
-import os
+    To learn how to change the models used in this code to leverage different AI providers, see our [customization guide](../get-started/customization.md)
 
-# Check if running in Google Colab
-try:
-    from google.colab import userdata
-    IN_COLAB = True
-except ImportError:
-    IN_COLAB = False
-
-if IN_COLAB:
-    os.environ["FIREWORKS_API_KEY"] = userdata.get('FIREWORKS_API_KEY')
-    os.environ["ANTHROPIC_API_KEY"] = userdata.get('ANTHROPIC_API_KEY')
-    os.environ["OPENAI_API_KEY"] = userdata.get('OPENAI_API_KEY')
-else:
-    os.environ["FIREWORKS_API_KEY"] = os.getenv('FIREWORKS_API_KEY')
-    os.environ["ANTHROPIC_API_KEY"] = os.getenv('ANTHROPIC_API_KEY')
-    os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
-```
+    For instructions on how to set environment variable in your environment, see our [FAQ guide](../get-started/FAQs.md#how-can-i-set-environment-variables)
 
 ## Demo
 
@@ -65,7 +54,7 @@ We start here by pulling extra knowledge about Doctolib to ensure the `WorldMode
 
 You can learn more about building Agents with LaVague in our [webinar](https://www.youtube.com/watch?v=bNE4s8h3CIc).
 
-```python
+```bash
 !wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
 ```
 
@@ -135,7 +124,7 @@ If you are blocked and on Google Colab, just delete the instance and get a new o
 
 If ever you encounter some error showing your browser is being blocked, try using Browser Base with the following code from their [Quick tour](https://docs.browserbase.com/quickstart/selenium) to setup a managed Selenium Driver:
 
-```python
+```py
 from selenium import webdriver
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -175,7 +164,7 @@ driver.driver = webdriver.Remote(custom_conn, options=options)
 
 Another option is to simply run a driver in non-headless mode with:
 
-```python
+```py
 driver = SeleniumDriver(headless=True, no_load_strategy=True)
 ```
 
@@ -185,7 +174,7 @@ Note that this will not work on Colab, you will have to do it on your own machin
 
 Now we can run the Agent to try booking an appointment for us! We provide the objective below and run it:
 
-```python
+```py
 objective = """Accept cookies if they are shown.
 Find dermatologists in Paris.
 When filling input fields, wait for the results to update before clicking on the most relevant result.
