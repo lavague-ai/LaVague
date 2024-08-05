@@ -183,7 +183,7 @@ jobs:
   
   notify-checks-success:
     runs-on: ubuntu-latest
-    needs: [check-docs-links, check-docs-links]
+    needs: [check-docs-links, check-docs-examples]
     if: success() 
     steps:
       - name: Notify Discord on successful checks
