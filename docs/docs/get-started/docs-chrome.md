@@ -37,7 +37,7 @@ See the video below for a full demo of the installation process & extension usag
 
 ## Customizing your Agent
 
-If you want to modify your LaVague Chrome extenstion Agent, for example, so that it runs using Anthropic models instead of OpenAI models, you will need to launch your Agent Server using our Python library, which is more customizable than our CLI tool.
+If you want to modify your LaVague Chrome extension Agent, for example, so that it runs using Anthropic models instead of OpenAI models, you will need to launch your Agent Server using our Python library, which is more customizable than our CLI tool.
 
 To do this, you will need to create an instance of AgentServer, passing it your own custom function which must:
 
@@ -97,7 +97,7 @@ Finally, you can upload and test your locally modified Chrome extension by doing
 -   Click the `Load unpacked` button
 -   Select the `dist` directory
 
-Ta-da! The extension has been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
+The extension has now been successfully installed. Every time you update the extension code, click the refresh button on the LaVague extension.
 
 ### 4. Launch the LaVague Chrome Extension server
 
@@ -105,6 +105,6 @@ You can now launch your `Agent Server` using either the CLI or Python library as
 
 You will now be able to interact with your modified version of the LaVague extension in your Chrome navigator.
 
-### 5. Contributing to the LaVague Chrom Extension package
+### 5. Contributing to the LaVague Chrome Extension package
 
 If you think your changes to our Extension can improve our package, please feel free to open a PR so we can review your suggested updates! To learn more about how to contribute to LaVague, see our [contribution guide](../contributing/general.md).
