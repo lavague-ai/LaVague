@@ -94,7 +94,7 @@ jobs:
           lavague-qa --headless --url https://www.amazon.com --feature ./demo_amazon.feature
 
      
-  docs-learn-checker:
+  docs-examples-checker:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
@@ -147,13 +147,13 @@ jobs:
 
   notify-docs-examples-failure:
     runs-on: ubuntu-latest
-    needs: check-docs-examples
+    needs: docs-examples-checker
     if: failure() 
     steps:
       - name: Notify Discord on docs-examples failure
         run: |
           curl -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-examples' failed\"}" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'docs-examples-checker' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
 
   notify-docs-links-failure:
@@ -169,7 +169,7 @@ jobs:
   
   notify-checks-success:
     runs-on: ubuntu-latest
-    needs: [docs-link-checker, check-docs-examples]
+    needs: [docs-link-checker, docs-examples-checker]
     if: success() 
     steps:
       - name: Notify Discord on successful checks
