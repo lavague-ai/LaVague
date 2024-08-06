@@ -77,7 +77,7 @@ jobs:
   docs-lavagueqa-checker:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      LAVAGUE_TELEMETRY: "None"
+      LAVAGUE_TELEMETRY: "NONE"
     runs-on: ubuntu-latest
     if: github.event_name == 'push' 
     steps:
@@ -101,7 +101,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      LAVAGUE_TELEMETRY: "None"
+      LAVAGUE_TELEMETRY: "NONE"
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
@@ -135,6 +135,9 @@ jobs:
               echo "Running $script_file"
               cat $script_file
               python "$script_file"
+              if [ $? -ne 0 ]; then
+                echo "Script $script_file failed"
+              fi
             done < generated_scripts.txt
           else
             echo "No generated scripts found."
