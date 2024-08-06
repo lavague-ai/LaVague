@@ -28,15 +28,12 @@ Now you're ready to install and interact with the LaVague browser extension dire
 
 You can install the extension [here](https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm).
 
-<table>
-  <tr>
-    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/launch-ext.png?raw=true" alt="Launch Extension" style="width: 100%; max-width: 300px;"></td>
-    <td><img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/prompt_ext.png?raw=true" alt="Example Query Chrome" style="width: 100%; max-width: 300px;"></td>
-  </tr>
-</table>
+### Demo: Installation & Usage
 
-<img src="https://github.com/lavague-ai/LaVague/blob/update-chrome-readme/docs/assets/beatles-found.png?raw=true" alt="Launch Extension" style="width: 85%">
+See the video below for a full demo of the installation process & extension usage:
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/O8CMSdj1a28
+" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Customizing your Agent
 

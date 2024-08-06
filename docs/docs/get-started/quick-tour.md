@@ -51,6 +51,8 @@ agent.run("Go on the quicktour of PEFT")
 
 ![qt_output](../../assets/demo_agent_hf.gif)
 
+### Gradio interface
+
 You can also use LaVague to launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
 
 ```py
@@ -77,9 +79,14 @@ You can take a quick look at the `demo` feature in the video below:
   </video>
 </figure>
 
-!!! tip "LaVague Chrome Extension"
+### LaVague Chrome Extension
 
-  You can also run LaVague in-browser with our LaVague Chrome Extension. To learn how to get started with the Chrome extension, see our [LaVague extension docs](./chrome.md)
+You can also run LaVague in-browser with our LaVague Chrome Extension:
+
+<iframe width="560" height="315"  src="https://www.youtube.com/embed/f7-pRFtT6hY
+" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+To learn how to install and get started with the Chrome extension, see our [LaVague extension docs](./docs-chrome.md)
 
 ## Key features
 
