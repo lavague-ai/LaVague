@@ -138,8 +138,6 @@ nav:
       - Data Entry:
           - Automated job application: "docs/examples/job-application.md"
           - Medical appointment booking: "docs/examples/medical_appointment_booking.md"
-      - QA Automation:
-          - Generate automated tests: "docs/examples/qa-automation.md"
 
   - 🧩 Module Guides:
       - Web Agents: "docs/module-guides/agents.md"
