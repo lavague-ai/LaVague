@@ -106,7 +106,7 @@ nav:
           - FAQs: "docs/get-started/FAQs.md"
 
   - LaVague QA:
-      - Quick tour: 'docs/lavague-qa/quicktour.md'
+      - Quick tour: 'docs/lavague-qa/quick-tour.md'
       - Installation and usage: 'docs/lavague-qa/usage.md'
       - Examples: 'docs/lavague-qa/examples.md'
 
