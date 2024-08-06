@@ -4,7 +4,7 @@ This troubleshooting guide is based on the issues reported back to us from the c
 
 You can use this guide to look for possible solutions if you experience any issues running LaVague.
 
-!!! tips "LaVague latest version"
+!!! tip "LaVague latest version"
 
     One of the most common causes of issues using LaVague is outdated packages. We regularly update and patch our packages.
 
@@ -155,7 +155,7 @@ from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver(headless=False, user_data_dir="/home/<YourUsername>/.config/google-chrome")
 ```
 
-??? hint "User_data_dir path"
+??? tip "User_data_dir path"
     You will need to substitute the path supplied to the `user_data_dir` with the correct path for your browser profile. 
     
     Here are the default paths on Windows, Linux and OSX:
@@ -201,7 +201,7 @@ action_engine = ActionEngine(selenium_driver, llm=custom_llm)
 
 To find out more about using custom LLMs, see our [customization guide](./customization.md).
 
-!!! "tips" "Debugging"
+!!! tip "Debugging"
 
     For a more detailed guide on how to debug and adjust your agent to handle performance errors, see our [debugging guide](../learn/debugging.md).
 
