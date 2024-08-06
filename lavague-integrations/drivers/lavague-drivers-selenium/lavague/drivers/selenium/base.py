@@ -52,6 +52,7 @@ class SeleniumDriver(BaseDriver):
         driver: Optional[WebDriver] = None,
         log_waiting_time=False,
         waiting_completion_timeout=10,
+        browserbase: bool = False,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -62,6 +63,7 @@ class SeleniumDriver(BaseDriver):
         self.driver = driver
         self.log_waiting_time = log_waiting_time
         self.waiting_completion_timeout = waiting_completion_timeout
+        self.browserbase = browserbase
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -95,12 +97,20 @@ class SeleniumDriver(BaseDriver):
         chrome_options.add_argument("--disable-notifications")
         chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
 
-        if self.driver is None:
+        if self.browserbase:
+            session_id = create_session()
+            custom_conn = CustomRemoteConnection('http://connect.browserbase.com/webdriver', session_id)
+            # options = webdriver.ChromeOptions()
+            chrome_options.add_experimental_option("debuggerAddress", "localhost:9223")
+
+            # options.debugger_address = "localhost:9223"
+            self.driver = webdriver.Remote(custom_conn, options=chrome_options)
+        elif self.driver is None:
             self.driver = webdriver.Chrome(options=chrome_options)
-        self.driver.execute_cdp_cmd(
-            "Page.addScriptToEvaluateOnNewDocument",
-            {"source": JS_SETUP_GET_EVENTS},
-        )
+        # self.driver.execute_cdp_cmd(
+        #     "Page.addScriptToEvaluateOnNewDocument",
+        #     {"source": JS_SETUP_GET_EVENTS},
+        # )
         self.resize_driver(self.width, self.height)
         return self.driver
 
