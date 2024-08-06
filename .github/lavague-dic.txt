@@ -213,3 +213,4 @@ ul
 userpage
 vide
 wikipedia
+ElementClickInterceptedException
