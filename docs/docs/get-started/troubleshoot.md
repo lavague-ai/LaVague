@@ -181,7 +181,7 @@ time.sleep(30)
 agent.run("What is the weather in Birmingham")
 ```
 
-### Truncated output
+## Truncated output
 
 A final common error is not getting the expected full output from an `objective` like: `give me the top 30 number of products from this page`.
 
@@ -205,6 +205,6 @@ To find out more about using custom LLMs, see our [customization guide](./custom
 
     For a more detailed guide on how to debug and adjust your agent to handle performance errors, see our [debugging guide](../learn/debugging.md).
 
-### Further support
+## Further support
 
 If your issue is not covered here or you need further support, you can ping us on the `#support` channel on [Discord](https://discord.gg/SDxn9KpqX9) or open an [issue](https://github.com/lavague-ai/LaVague/issues) on our GitHub.
