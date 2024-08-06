@@ -517,8 +517,8 @@ return Object.fromEntries(Object.entries("""
         iframe = iframe.ownerDocument.defaultView.frameElement;
     }
     const elemCenter = {
-        x: rect.left + element.offsetWidth / 2,
-        y: rect.top + element.offsetHeight / 2
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
     };
     if (elemCenter.x < 0) return false;
     if (elemCenter.x > windowWidth) return false;

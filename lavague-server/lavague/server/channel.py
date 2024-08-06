@@ -25,22 +25,46 @@ class AgentSession(ABC):
     async def send_message_for_result(self, message: str, id: str) -> any:
         pass
 
+    def exe_start_stop(self, run: Callable):
+        asyncio.run(self.send_message(json.dumps({"type": "start"})))
+        try:
+            run()
+        except Exception:
+            pass
+        finally:
+            try:
+                asyncio.run(
+                    self.send_message(
+                        json.dumps({"type": "stop", "args": self.agent.interrupted})
+                    )
+                )
+            except:
+                print("The stop signal could not be sent")
+
     def handle_prompt_agent_action(self, type: str, args: str, id: str):
         if type == "run":
-            start = {"type": "start"}
-            asyncio.run(self.send_message(json.dumps(start)))
-            try:
-                self.agent.run(args)
-            except Exception:
-                pass
-            finally:
-                try:
-                    stop = {"type": "stop", "args": self.agent.interrupted}
-                    asyncio.run(self.send_message(json.dumps(stop)))
-                except:
-                    print("The stop signal could not be sent")
+            self.exe_start_stop(lambda: self.agent.run(args))
+
+        elif type == "run_step":
+            self.exe_start_stop(lambda: self.agent.run_step(args))
+
         elif type == "get":
             self.agent.get(args)
+
+        elif type == "prepare_run":
+            self.agent.prepare_run()
+
+        elif type == "navigate":
+            self.exe_start_stop(
+                lambda: self.agent.action_engine.navigation_engine.execute_instruction(
+                    args
+                )
+            )
+
+        elif type == "nav_action":
+            self.exe_start_stop(
+                lambda: self.agent.action_engine.navigation_engine.execute_action(args)
+            )
 
     def handle_agent_message(self, json_message):
         if "type" in json_message:
