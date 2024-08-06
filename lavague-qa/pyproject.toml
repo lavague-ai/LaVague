@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "lavague-tests"
-version = "0.0.4"
-description = "Test runner for Lavague"
+name = "lavague-qa"
+version = "0.0.2"
+description = "QA Automation with LaVague"
 authors = ["lavague-ai"]
 readme = "README.md"
 license = "Apache-2.0"
@@ -13,24 +13,23 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "License :: OSI Approved :: Apache Software License",
 ]
-keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "selenium"]
+keywords = ["QA", "testing", "automation", "cypress", "agents", "RAG", "selenium", "ai"]
 homepage = "https://lavague.ai"
 repository = "https://github.com/lavague-ai/LaVague/"
 documentation = "https://docs.lavague.ai/en/latest/"
-packages = [
-  {include = "lavague/"},
-  {include = "contexts/default_context.py"},
-  {include = "contexts/__init__.py"}
-]
+packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
 lavague-core = "^0.2.28"
-click = "^8.1.7"
+lavague-tests = "^0.0.4"
 lavague-drivers-selenium = "^0.2.6"
+gherkin-official = "^28.0.0"
+click = "^8.1.7"
+yaspin = "^3.0.2"
 
 [tool.poetry.scripts]
-lavague-test = "lavague.tests.cli:cli"
+lavague-qa = "lavague.qa.cli:cli"
 
 [build-system]
 requires = ["poetry-core"]

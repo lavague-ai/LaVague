@@ -11,7 +11,7 @@ from lavague.tests.runner import TestRunner
     "--context",
     "-c",
     type=str,
-    default=os.getcwd() + "/lavague-tests/contexts/default_context.py",
+    default=None,
     required=False,
     help="python file containing an initialized context and token_counter. Default is context/default_context.py",
 )
@@ -80,19 +80,24 @@ def _load_sites(directory, site):
 
 
 def _load_context(context):
-    # read context file and execute it
-    with open(context, "r") as file:
-        file_content = file.read()
-    local_namespace = {}
-    exec(file_content, {}, local_namespace)
+    if context:
+        # read context file and execute it
+        with open(context, "r") as file:
+            file_content = file.read()
+        local_namespace = {}
+        exec(file_content, {}, local_namespace)
 
-    # ensure variables are defined
-    if "context" in local_namespace and "token_counter" in local_namespace:
-        return local_namespace["context"], local_namespace["token_counter"]
+        # ensure variables are defined
+        if "context" in local_namespace and "token_counter" in local_namespace:
+            return local_namespace["context"], local_namespace["token_counter"]
+        else:
+            raise Exception(
+                "Expected variables (`context` and `token_counter`) not found in the provided context file"
+            )
     else:
-        raise Exception(
-            "Expected variables (`context` and `token_counter`) not found in the provided context file"
-        )
+        from contexts.default_context import context, token_counter
+
+        return context, token_counter
 
 
 if __name__ == "__main__":

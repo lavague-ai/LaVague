@@ -105,6 +105,11 @@ nav:
           - Troubleshooting: "docs/get-started/troubleshoot.md"
           - FAQs: "docs/get-started/FAQs.md"
 
+  - LaVague QA:
+      - Quick tour: 'docs/lavague-qa/quick-tour.md'
+      - Installation and usage: 'docs/lavague-qa/usage.md'
+      - Examples: 'docs/lavague-qa/examples.md'
+
   - 🤝 Integrations:
       - Anthropic: "docs/integrations/anthropic.md"
       - Azure: "docs/integrations/azure.md"
