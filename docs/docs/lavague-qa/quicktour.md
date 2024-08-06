@@ -165,7 +165,7 @@ This will generate `demo_amazon.py`, a Pytest file implementing all steps in you
         empty_cart_message = WebDriverWait(browser, 10).until(
             EC.presence_of_element_located((By.XPATH, "//h1[contains(text(), 'Your amazon Basket is empty.')]"))
         )
-        assert 'Votre panier Amazon est vide.' in empty_cart_message.text, "Cart is not empty"
+        assert 'Your Amazon Cart is empty' in empty_cart_message.text, "Cart is not empty"
 
     ```
 
