@@ -37,7 +37,7 @@ def send_telemetry(logger_telemetry: DataFrame, origin: str, test: bool = False)
             )
             logger_telemetry = logger_telemetry.drop("html", axis=1, errors="ignore")
             logger_telemetry = logger_telemetry.replace({np.nan: None})
-            
+
             logger_telemetry["origin"] = origin
 
             for index, row in logger_telemetry.iterrows():

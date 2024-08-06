@@ -449,6 +449,6 @@ class WebAgent:
             print(
                 f"No previous nodes available. Please run the agent atleast once to view previous steps"
             )
-            
+
     def set_origin(self, origin: str):
         self.origin = origin
