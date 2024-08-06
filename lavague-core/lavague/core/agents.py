@@ -374,6 +374,7 @@ class WebAgent:
             self.interrupted = True
             raise e
         finally:
+            self.driver.destroy()
             send_telemetry(self.logger.return_pandas())
             if log_to_db:
                 local_db_logger = LocalDBLogger()
