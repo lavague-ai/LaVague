@@ -1,4 +1,4 @@
-name: Spellcheck & Link Checker
+name: Docs checker
 
 on:
   push:
@@ -33,9 +33,9 @@ jobs:
         run: |
           pyspelling -c .github/.pyspelling.yaml
 
-  check-README-links:
+  README-link-checker:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -46,7 +46,7 @@ jobs:
       - name: Check links in README.md
         run: markdown-link-check README.md
 
-  check-docs-links:
+  docs-link-checker:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
@@ -62,7 +62,7 @@ jobs:
         id: linkcheck
         run: linkchecker https://docs.lavague.ai/en/latest/
 
-  check-bullet-points-format:
+  bullet-points-format-checker:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
@@ -74,13 +74,14 @@ jobs:
           chmod +x .github/bullet-points.sh
           .github/bullet-points.sh
 
-  check-docs-examples:
+  docs-examples-checker:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      LAVAGUE_TELEMETRY_VAR: "None"
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
@@ -137,18 +138,18 @@ jobs:
 
   notify-docs-links-failure:
     runs-on: ubuntu-latest
-    needs: check-docs-links
+    needs: [docs-link-checker,  README-link-checker]
     if: failure() 
     steps:
       - name: Notify Discord on docs-links failure
         run: |
           curl -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-links' failed\"}" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'docs-link-checker' or 'README-link-checker' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
   
   notify-checks-success:
     runs-on: ubuntu-latest
-    needs: [check-docs-links, check-docs-examples]
+    needs: [docs-link-checker, check-docs-examples]
     if: success() 
     steps:
       - name: Notify Discord on successful checks
