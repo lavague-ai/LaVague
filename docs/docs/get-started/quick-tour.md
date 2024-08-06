@@ -125,7 +125,7 @@ For more information about our Contexts, see our [customization guide](./customi
 
 We provide a test runner for benchmarking the performance of LaVague.
 
-For more information on how to use our test runner, see our [LaVague testing guide](https://docs.lavague.ai/en/latest/docs/learn/testing/).
+For more information on how to use our test runner, see our [LaVague testing guide](https://docs.lavague.ai/en/latest/docs/get-started/testing/).
 
 ### TokenCounter
 
@@ -143,7 +143,7 @@ To log to a local database, you can use the `log_to_db` option when calling the 
 agent.run("Go to the first Model in the Models section", log_to_db=True)
 ```
 
-For more information about our loggers, see our [logging guide](../learn/local-log.md)
+For more information about our loggers, see our [logging guide](../module-guides/local-log.md)
 
 ### Debugging Tools
 
@@ -155,7 +155,7 @@ We also provide debugging tools, allowing you to enable step-by-step agent execu
 
 The Driver component is used to perform actions on web browsers and get information about our current web page.
 
-We currently provide a Selenium Driver component by default, as well as a Playwright Driver option. Feature support varies based on the driver used, learn more in our [Driver documentation](../learn/browser-drivers.md).
+We currently provide a Selenium Driver component by default, as well as a Playwright Driver option. Feature support varies based on the driver used, learn more in our [Driver documentation](../module-guides/browser-drivers.md).
 
 !!! tip "Avoiding issues around pop ups, CAPTCHA, logins, etc."
     You may experience difficulties using LaVague for logins due to bot protections.
@@ -176,7 +176,7 @@ We currently provide a Selenium Driver component by default, as well as a Playwr
     
     If not supplied, Chrome starts a fresh session.
 
-For more information on the Driver component see our [Driver module guide](../learn/browser-drivers.md)
+For more information on the Driver component see our [Driver module guide](../module-guides/browser-drivers.md)
 
 ### Action Engine
 
@@ -199,7 +199,7 @@ embedding = HuggingFaceEmbedding(
 action_engine = ActionEngine(driver=driver, llm=llm, embedding=embedding)
 ```
 
-To find out more about the Action Engine and how to use custom models see our [Action Engine guide](../learn/action-engine.md) or [customization guide](./customization.md).
+To find out more about the Action Engine and how to use custom models see our [Action Engine guide](../module-guides/action-engine.md) or [customization guide](./customization.md).
 
 ### World Model
 
@@ -215,7 +215,7 @@ mm_llm = GeminiMultiModal(model_name="models/gemini-1.5-pro-latest")
 world_model = WorldModel(mm_llm=mm_llm)
 ```
 
-To find out more about the World Model, see our [World Model guide](../learn/world-model.md), and for more information on using custom models, see our [customization guide](./customization.md).
+To find out more about the World Model, see our [World Model guide](../module-guides/world-model.md), and for more information on using custom models, see our [customization guide](./customization.md).
 
 ### Web Agent
 

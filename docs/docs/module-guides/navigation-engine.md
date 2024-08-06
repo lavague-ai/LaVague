@@ -4,7 +4,7 @@ The Navigation Engine is the engine dedicated to generating and executing Seleni
 
 Let's get to know the Navigation Engine better by removing the usual layers of abstraction and working directly with one as an agent would!
 
-<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/learn/notebooks/NavigationEngine.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/module-guides/notebooks/NavigationEngine.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open code examples in Colab"></a>
 
 ### Initializing a Navigation Engine
