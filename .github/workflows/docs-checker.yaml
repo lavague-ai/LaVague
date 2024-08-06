@@ -77,7 +77,7 @@ jobs:
   docs-lavagueqa-checker:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      LAVAGUE_TELEMETRY_VAR: "None"
+      LAVAGUE_TELEMETRY: "None"
     runs-on: ubuntu-latest
     if: github.event_name == 'push' 
     steps:
@@ -91,7 +91,7 @@ jobs:
 
       - name: Check QA command
         run: |
-          lavague-qa --headless --url https://www.amazon.com --feature ./demo_amazon.feature
+          lavague-qa --headless --url https://www.amazon.fr --feature ./demo_amazon.feature
 
      
   docs-examples-checker:
@@ -101,7 +101,7 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
-      LAVAGUE_TELEMETRY_VAR: "None"
+      LAVAGUE_TELEMETRY: "None"
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
