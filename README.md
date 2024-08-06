@@ -99,7 +99,7 @@ For an end-to-end example of LaVague in a Google Colab, see our [quick-tour note
 
 If you're experiencing any issues getting started with LaVague, you can:
 
-- Check out our [troubleshooting guide](https://docs.lavague.ai/en/latest/docs/get-started/troubleshoot/) - where we list information and fixes for common issues.
+- Check out our [troubleshooting guide](https://docs.lavague.ai/en/latest/docs/get-started/troubleshoot/) where we list information and fixes for common issues.
 - Opening a [GitHub issue](https://github.com/lavague-ai/LaVague/issues) describing your issue
 - Messaging us in the '#support channel' on our [Discord](https://discord.gg/SDxn9KpqX9") server
 

@@ -48,7 +48,7 @@ By default, our Drivers should run in`headless` mode, but you can verify that th
 | `driver = SeleniumDriver(headless=False)`| ❌ GUI environments only        |
 
 
-!!! tips "Display option"
+!!! tip "Display option"
     When using `headless` mode, you can activate the Agent `display` mode option to display real-time updated screenshots of the agent's progress. This is recommended to provide a visual display when using LaVague in a Google Colab.
 
     ```py
@@ -207,4 +207,4 @@ To find out more about using custom LLMs, see our [customization guide](./custom
 
 ### Further support
 
-If your issue is not covered here or you need further support, you can ping us on the `#support` channel on [Discord]((https://discord.gg/SDxn9KpqX9) or open an [issue](https://github.com/lavague-ai/LaVague/issues) on our GitHub.
+If your issue is not covered here or you need further support, you can ping us on the `#support` channel on [Discord](https://discord.gg/SDxn9KpqX9) or open an [issue](https://github.com/lavague-ai/LaVague/issues) on our GitHub.
