@@ -52,7 +52,7 @@ pip install llama-index-llms-fireworks
 
 We start here by pulling extra knowledge about Doctolib to ensure the `WorldModel` will provide the right reasoning steps.
 
-You can learn more about building Agents with LaVague in our [webinar](https://www.youtube.com/watch?v=bNE4s8h3CIc).
+You can learn more about building Agents with LaVague in our [webinar](https://www.youtube.com/watch?v=tqgKGOTlmlk).
 
 ```bash
 wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/knowledge/doctolib_knowledge.txt
