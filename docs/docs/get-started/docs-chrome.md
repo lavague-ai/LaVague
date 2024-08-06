@@ -92,6 +92,7 @@ This will allow the extension built files to be updated in real time when change
 ### 3. Upload your local Chrome Extension
 
 Finally, you can upload and test your locally modified Chrome extension by doing the following:
+
 -   Go to the Extensions page [chrome://extensions/](chrome://extensions/)
 -   Click the `Load unpacked` button
 -   Select the `dist` directory
