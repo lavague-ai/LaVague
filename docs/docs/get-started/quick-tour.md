@@ -77,6 +77,10 @@ You can take a quick look at the `demo` feature in the video below:
   </video>
 </figure>
 
+!!! tip "LaVague Chrome Extension"
+
+  You can also run LaVague in-browser with our LaVague Chrome Extension. To learn how to get started with the Chrome extension, see our [LaVague extension docs](./chrome.md)
+
 ## Key features
 
 ### Contexts
