@@ -31,6 +31,9 @@ from selenium.webdriver.common.action_chains import ActionChains
 import time
 import yaml
 import json
+from selenium.webdriver.remote.remote_connection import RemoteConnection
+import requests
+import os
 
 
 class SeleniumDriver(BaseDriver):
@@ -525,6 +528,26 @@ class SeleniumNode(DOMNode):
         return self._driver.execute_script(
             "return arguments[0].outerHTML", self.element
         )
+
+def create_session():
+    url = 'https://www.browserbase.com/v1/sessions'
+    headers = {'Content-Type': 'application/json', 'x-bb-api-key': os.environ["BROWSERBASE_API_KEY"]}
+    response = requests.post(url, json={ "projectId": os.environ["BROWSERBASE_PROJECT_ID"] }, headers=headers)
+    # print(response.json())
+    return response.json()['id']
+
+class CustomRemoteConnection(RemoteConnection):
+    _session_id = None
+
+    def __init__(self, remote_server_addr: str, session_id: str):
+        super().__init__(remote_server_addr)
+        self._session_id = session_id
+
+    def get_remote_connection_headers(self, parsed_url, keep_alive=False):
+        headers = super().get_remote_connection_headers(parsed_url, keep_alive)
+        headers.update({'x-bb-api-key': os.environ["BROWSERBASE_API_KEY"]})
+        headers.update({'session-id': self._session_id})
+        return headers
 
 
 SELENIUM_PROMPT_TEMPLATE = """
