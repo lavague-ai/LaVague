@@ -128,6 +128,8 @@ class TestGenerator:
         )
 
     def _run_lavague_agent(self):
+        from lavague.core.utilities.telemetry import send_telemetry
+
         selenium_driver = SeleniumDriver(headless=self.headless)
         action_engine = ActionEngine.from_context(
             context=self.context, driver=selenium_driver
@@ -146,6 +148,7 @@ class TestGenerator:
             for step in self.scenario.steps:
                 agent.run_step(step)
             scenario_completion = agent.run_step(" and ".join(self.scenario.expect))
+            send_telemetry(agent.logger.return_pandas(), origin="lavague-qa")
             if scenario_completion:
                 print("Scenario completed successfully", scenario_completion.output)
             else:
