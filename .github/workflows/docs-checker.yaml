@@ -74,7 +74,7 @@ jobs:
           chmod +x .github/bullet-points.sh
           .github/bullet-points.sh
 
-  docs-lavagueqa-checker:
+  lavague-qa-checker:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       LAVAGUE_TELEMETRY: "NONE"
@@ -158,6 +158,18 @@ jobs:
           curl -X POST -H "Content-Type: application/json" \
             -d "{\"content\": \"<@762664509813817345> Cron job for 'docs-examples-checker' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+  
+    notify-lavague-qa-failure:
+    runs-on: ubuntu-latest
+    needs: lavague-qa-failure
+    if: failure() 
+    steps:
+      - name: Notify Discord on docs-examples failure
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'lavague-qa-checker' failed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+
 
   notify-docs-links-failure:
     runs-on: ubuntu-latest
