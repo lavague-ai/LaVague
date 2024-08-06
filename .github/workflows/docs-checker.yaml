@@ -74,7 +74,27 @@ jobs:
           chmod +x .github/bullet-points.sh
           .github/bullet-points.sh
 
-  docs-examples-checker:
+  docs-lavagueqa-checker:
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LAVAGUE_TELEMETRY_VAR: "None"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          pip install lavague-qa
+          wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/lavague-qa/features/demo_amazon.feature
+
+      - name: Check QA command
+        run: |
+          lavague-qa --headless --url https://www.amazon.com --feature ./demo_amazon.feature
+
+     
+  docs-learn-checker:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
