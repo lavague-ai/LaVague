@@ -159,9 +159,9 @@ jobs:
             -d "{\"content\": \"<@762664509813817345> Cron job for 'docs-examples-checker' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
   
-    notify-lavague-qa-failure:
+  notify-lavague-qa-failure:
     runs-on: ubuntu-latest
-    needs: lavague-qa-failure
+    needs: lavague-qa-checker
     if: failure() 
     steps:
       - name: Notify Discord on docs-examples failure
