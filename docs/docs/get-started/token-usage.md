@@ -105,4 +105,4 @@ print(f"Total cost: ${round(total_cost, 3)}")
 
 ```
 
-Tokens consumed will be logged along with cost estimations. To learn more about different ways of accessing those logs, please visit our [Logger documentation](../lmodule-guides/local-log.md).
+Tokens consumed will be logged along with cost estimations. To learn more about different ways of accessing those logs, please visit our [Logger documentation](../module-guides/local-log.md).
