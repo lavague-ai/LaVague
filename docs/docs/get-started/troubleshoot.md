@@ -33,8 +33,9 @@ If you have errors in your trace relating back to `selenium.common.exceptions` a
 
 An example of a Selenium error message that could be caused by trying to use `non-headless` mode in an incompatible environment would be:
 
-```code
+```sh
 selenium.common.exceptions.SessionNotCreatedException: Message: session not created: Chrome failed to start: exited normally.
+
 (session not created: DevToolsActivePort file doesn't exist)
 (The process started from chrome location /home/user/.cache/selenium/chrome/linux64/126.0.6478.55/chrome is no longer running, so ChromeDriver is assuming that Chrome has crashed.)
 ```
