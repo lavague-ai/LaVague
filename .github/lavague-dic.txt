@@ -222,3 +222,4 @@ autoplay
 frameborder
 src
 AgentServer
+minified
