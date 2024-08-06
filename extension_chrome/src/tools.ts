@@ -90,35 +90,9 @@ export function ripple(x: number, y: number) {
     });
 }
 
-function isInteractive(element: HTMLElement, style: CSSStyleDeclaration): boolean {
-    return (
-        element.tagName === 'A' ||
-        element.tagName === 'INPUT' ||
-        element.tagName === 'BUTTON' ||
-        element.tagName === 'SELECT' ||
-        element.tagName === 'TEXTAREA' ||
-        element.hasAttribute('onclick') ||
-        element.hasAttribute('onmousedown') ||
-        element.hasAttribute('onmouseup') ||
-        element.hasAttribute('onkeydown') ||
-        element.hasAttribute('onkeyup') ||
-        style.cursor === 'pointer'
-    );
-}
-
-function isVisible(element: HTMLElement, style: CSSStyleDeclaration): boolean {
-    return (
-        style.opacity !== '' &&
-        style.display !== 'none' &&
-        style.visibility !== 'hidden' &&
-        style.opacity !== '0' &&
-        element.getAttribute('aria-hidden') !== 'true'
-    );
-}
-
 export function xpathToCss(xpath: string) {
     // Replace double slashes with spaces
-    let css = xpath
+    const css = xpath
         .replace(/\/\//g, ' ')
         .replace(/\//g, ' > ')
         .replace(/\[(\d+)\]/g, (match, p1) => `:nth-of-type(${p1})`)

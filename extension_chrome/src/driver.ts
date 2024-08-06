@@ -1,4 +1,3 @@
-import { json } from 'stream/consumers';
 import { operateToolWithXPATH } from './actions';
 import { DomActions } from './domactions';
 import { parseResponse } from './parseactions';
@@ -20,7 +19,7 @@ export class ChromeExtensionDriver {
         highlight_elem: (msg) => this.highlight_elem(msg.args),
         is_visible: (msg) => this.isVisible(msg.args),
         get_possible_interactions: (msg) => this.get_possible_interactions(msg.args),
-        get_tabs: (msg) => this.get_tabs(),
+        get_tabs: () => this.get_tabs(),
         switch_tab: (msg) => this.switch_tab(msg.args),
     };
     onTabDebugged?: (tabId: number) => void;
@@ -235,6 +234,16 @@ export class ChromeExtensionDriver {
         const res = await dom.highlight_elem(xpath);
         const json_ret = JSON.stringify(res.result.value);
         return json_ret;
+    }
+
+    async remove_highlight(xpath: string) {
+        const tabId = await this.getTabId();
+        if (tabId == null) {
+            return false;
+        }
+        const dom = new DomActions(tabId);
+        await dom.remove_highlight(xpath);
+        return true;
     }
 
     async switch_tab(tab_id_str: string) {

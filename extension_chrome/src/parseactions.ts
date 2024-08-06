@@ -21,11 +21,8 @@ export function extractJsonFromMarkdown(input: string): string[] {
 }
 
 export function parseResponse(text: string) {
-    let action: any;
     const action_list = [];
-    action = yaml.load(text);
-    console.log(action);
-    console.log(action[0].actions);
+    const action: any = yaml.load(text);
 
     for (let i = 0; i < action[0].actions.length; i++) {
         const act = action[0].actions[i];

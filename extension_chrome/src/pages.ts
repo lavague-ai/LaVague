@@ -72,8 +72,8 @@ function getInteractives(elements: any, foreground_only = false): Record<string,
             const rect = element.getBoundingClientRect();
 
             const elemCenter = {
-                x: rect.left + element.offsetWidth / 2,
-                y: rect.top + element.offsetHeight / 2,
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
             };
 
             if (elemCenter.x < 0) return false;
@@ -106,7 +106,7 @@ async function getEventListenersAll(xpath: string[]) {
     return res.response;
 }
 
-export async function traverse(node: any, xpath: string, results: any) {
+function traverse(node: any, xpath: string, results: any) {
     if (node.nodeType === Node.ELEMENT_NODE) {
         results.push(xpath);
     }
@@ -125,12 +125,12 @@ export async function traverse(node: any, xpath: string, results: any) {
         }
         if (tag === 'iframe') {
             try {
-                await traverse(child.contentWindow!.document.body, childXpath + '/html/body', results);
+                traverse(child.contentWindow!.document.body, childXpath + '/html/body', results);
             } catch (e) {
                 console.error('iframe access blocked', child, e);
             }
         } else {
-            await traverse(child, childXpath, results);
+            traverse(child, childXpath, results);
         }
     }
     return results;
@@ -140,11 +140,11 @@ function getElementByXpath(xpath: string) {
     return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
 
-export async function get_possible_interactions(args: string) {
+export async function getPossibleInteractions(args: string) {
     let final_results: { [key: string]: string[] } = {};
     let xpath_list: string[] = [];
     const args_parsed = JSON.parse(args);
-    xpath_list = await traverse(document.body, '/html/body', xpath_list);
+    xpath_list = traverse(document.body, '/html/body', xpath_list);
     const results_events = await getEventListenersAll(xpath_list);
     for (const xpath of xpath_list) {
         const elem = getElementByXpath(xpath);
@@ -156,6 +156,5 @@ export async function get_possible_interactions(args: string) {
     if (args_parsed['in_viewport'] == true) {
         final_results = getInteractives(final_results, args_parsed['foreground_only']);
     }
-    const ret_json = JSON.stringify(final_results);
-    return ret_json;
+    return JSON.stringify(final_results);
 }

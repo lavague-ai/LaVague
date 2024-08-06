@@ -3,13 +3,13 @@ import { sleep, waitTillStable } from './tools';
 const DEFAULT_INTERVAL = 500;
 const DEFAULT_TIMEOUT = 10000; // 10 seconds
 
-function getNodeFromXPATH(xpath: string): Node | null {
+export function getNodeFromXPATH(xpath: string): Node | null {
     const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
     const res2 = result.singleNodeValue;
     return res2;
 }
 
-function clickElementByXPath(xpath: string): boolean {
+export function clickElementByXPath(xpath: string): boolean {
     const element = getNodeFromXPATH(xpath);
     if (element && element instanceof HTMLElement) {
         if (element.tagName.toLowerCase() === 'a') {
@@ -193,26 +193,25 @@ export class DomActions {
         return ret.result.objectId;
     }
 
+    public async remove_highlight(xpath: string) {
+        const code = `
+        (function() {
+            const element = document.evaluate("${xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            if (element) {
+                element.style.removeProperty('outline');
+            }
+        })();`;
+        return this.execCode(code, true);
+    }
+
     public async highlight_elem(xpath: string) {
         const code = `
         (function() {
-            function getElementByXpath(path) {
-                const nodes = [];
-                const result = document.evaluate(path, document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-                let node;
-                while ((node = result.iterateNext())) {
-                    nodes.push(node);
-                }
-                return nodes;
-            }
-            
-            const elements = getElementByXpath("${xpath}");
-            if (elements.length > 0) {
-                elements[0].style.border = '2px solid red';
-                // elements[0].scrollIntoView({behavior: 'smooth', block: 'center'});
-
-                // Get the coordinates and size of the first element
-                const rect = elements[0].getBoundingClientRect();
+            const element = document.evaluate("${xpath}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            if (element) {
+                element.style.outline = '2px solid red';
+                element.style['outline-offset'] = '-1px';
+                const rect = element.getBoundingClientRect();
                 return {
                     x: rect.x,
                     y: rect.y,
@@ -300,11 +299,11 @@ export class DomActions {
     private async get_possible_interactions_dispatch(args: string) {
         return new Promise((resolve, reject) => {
             chrome.tabs.sendMessage(this.tabId, { method: 'get_possible_interactions', message: args }, (res) => {
-                if (chrome.runtime.lastError) {
-                    console.error('Error: ' + chrome.runtime.lastError.message);
-                    reject(chrome.runtime.lastError.message);
+                const error = chrome.runtime.lastError?.message || res.error;
+                if (chrome.runtime.lastError || res.error) {
+                    console.error('Error: ' + error);
+                    reject(error);
                 } else {
-                    console.log('Received response:', res);
                     resolve(res);
                 }
             });
@@ -312,11 +311,8 @@ export class DomActions {
     }
 
     public async get_possible_interactions(args: string) {
-        let results = {};
         const res: any = await this.get_possible_interactions_dispatch(args);
-        console.log('res: ' + res.response);
-        results = res.response;
-        return results;
+        return res.response;
     }
 
     public async clickwithXPath(xpath: string) {
