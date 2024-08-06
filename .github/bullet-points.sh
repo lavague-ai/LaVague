@@ -48,7 +48,7 @@ if [[ -f ../README.md ]]; then
 fi
 
 # Check all .md files in the ../docs/docs folder
-for file in $(find ../docs/docs -type f -name "*.md"); do
+for file in $(find ./docs/docs -type f -name "*.md"); do
   check_file "$file"
 done
 

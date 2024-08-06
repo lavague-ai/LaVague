@@ -21,14 +21,26 @@
 <h1></h1>
 </div>
 
-## 🏄‍♀️  What is LaVague?
+## LaVague: Web Agent framework for builders
 
-LaVague is an **open-source Large Action Model framework** to develop AI Web Agents.
+LaVague is an open-source framework designed for developers who want to create AI Web Agents to automate processes for their end users.
 
-Our web agents take an objective, such as "Print installation steps for Hugging Face's Diffusers library" and performs the required actions to achieve this goal by leveraging our two core components:
+Our Web Agents can take an objective, such as "Print installation steps for Hugging Face's Diffusers library," and generate and perform the actions required to achieve the objective.
 
-- A **World Model** that takes an objective and the current state (aka the current web page) and turns that into instructions
-- An **Action Engine** which “compiles” these instructions into action code, e.g. **Selenium** or **Playwright** & executes them
+LaVague Agents are made up of:
+
+- A World Model that takes an objective and the current state (aka the current web page) and outputs an appropriate set of instructions.
+- An Action Engine which “compiles” these instructions into action code, e.g., Selenium or Playwright & executes them
+
+
+### LaVague QA: Dedicated tooling for QA Engineers
+**🌊 Built on LaVague**
+
+LaVague QA is a tool tailored for QA engineers leveraging our framework. 
+
+It allows you to automate test writing by turning Gherkin specs into easy-to-integrate tests. LaVague QA is a project leveraging the LaVague framework behind the scenes to make web testing 10x more efficient.
+
+For detailed information and setup instructions, visit the [LaVague QA documentation](https://docs.lavague.ai/en/latest/docs/lavague-qa/quick-tour/).
 
 ## 🚀 Getting Started
 
