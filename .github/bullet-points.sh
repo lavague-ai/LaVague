@@ -52,4 +52,6 @@ for file in $(find ./docs/docs -type f -name "*.md"); do
   check_file "$file"
 done
 
+check_file "./docs/index.md"
+
 echo "All specified .md files are properly formatted."

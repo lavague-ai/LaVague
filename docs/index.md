@@ -107,7 +107,8 @@ To keep up to date with our project backlog [here](https://github.com/orgs/lavag
 
 LaVague uses LLMs, (by default OpenAI's `gpt4-o` but this is completely customizable), under the hood.
 
-The cost of these LLM calls depends on: 
+The cost of these LLM calls depends on:
+
 - the models chosen to run a given agent
 - the complexity of the objective
 - the website you're interacting with. 
