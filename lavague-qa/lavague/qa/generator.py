@@ -134,7 +134,7 @@ class TestGenerator:
         )
         world_model = WorldModel.from_context(context=self.context)
         agent = WebAgent(world_model, action_engine, token_counter=self.token_counter)
-
+        agent.set_origin("lavague-qa")
         agent.get(self.url)
         time.sleep(1)
 
