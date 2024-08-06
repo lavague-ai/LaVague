@@ -71,11 +71,19 @@ For an end-to-end example of LaVague in a Google Colab, see our [quick-tour note
 
 - ✅ [Built-in Contexts](https://docs.lavague.ai/en/latest/docs/get-started/customization/) (aka. configurations)
 - ✅ [Customizable configuration](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
-- ✅ [A test runner](https://docs.lavague.ai/en/latest/docs/learn/testing/) for testing and benchmarking the performance of LaVague
+- ✅ [A test runner](https://docs.lavague.ai/en/latest/docs/get-started/testing/) for testing and benchmarking the performance of LaVague
 - ✅ A [Token Counter](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) for estimating token usage and costs
 - ✅ [Logging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
 - ✅ An optional, interactive [Gradio interface](https://docs.lavague.ai/en/latest/docs/get-started/gradio/)
 - ✅ [Debugging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
+
+## 🔎 Support
+
+If you're experiencing any issues getting started with LaVague, you can:
+
+- Check out our [troubleshooting guide](https://docs.lavague.ai/en/latest/docs/get-started/troubleshoot/) where we list information and fixes for common issues.
+- Opening a [GitHub issue](https://github.com/lavague-ai/LaVague/issues) describing your issue
+- Messaging us in the '#support` channel on our [Discord](https://discord.gg/SDxn9KpqX9") server
 
 ## 🙋 Contributing
 

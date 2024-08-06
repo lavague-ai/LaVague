@@ -1,4 +1,4 @@
-name: Spellcheck & Link Checker
+name: Docs checker
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
         run: |
           pyspelling -c .github/.pyspelling.yaml
 
-  check-README-links:
+  README-link-checker:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
@@ -46,7 +46,7 @@ jobs:
       - name: Check links in README.md
         run: markdown-link-check README.md
 
-  check-docs-links:
+  docs-link-checker:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
@@ -62,7 +62,7 @@ jobs:
         id: linkcheck
         run: linkchecker https://docs.lavague.ai/en/latest/
 
-  check-bullet-points-format:
+  bullet-points-format-checker:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
@@ -74,13 +74,34 @@ jobs:
           chmod +x .github/bullet-points.sh
           .github/bullet-points.sh
 
-  check-docs-examples:
+  lavague-qa-checker:
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LAVAGUE_TELEMETRY: "NONE"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          pip install lavague-qa
+          wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/lavague-qa/features/demo_amazon.feature
+
+      - name: Check QA command
+        run: |
+          lavague-qa --headless --url https://www.amazon.fr --feature ./demo_amazon.feature
+
+     
+  docs-examples-checker:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      LAVAGUE_TELEMETRY: "NONE"
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
     steps:
@@ -104,7 +125,7 @@ jobs:
       - name: Extract Python code
         run: |
           rm ./docs/docs/examples/qa-automation.md
-          python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md  ./docs/docs/learn/*.md
+          python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md  ./docs/docs/module-guides/*.md ./docs/docs/learn/*.md
 
       - name: Run extracted Python scripts
         run: |
@@ -114,6 +135,9 @@ jobs:
               echo "Running $script_file"
               cat $script_file
               python "$script_file"
+              if [ $? -ne 0 ]; then
+                echo "Script $script_file failed"
+              fi
             done < generated_scripts.txt
           else
             echo "No generated scripts found."
@@ -126,29 +150,41 @@ jobs:
 
   notify-docs-examples-failure:
     runs-on: ubuntu-latest
-    needs: check-docs-examples
+    needs: docs-examples-checker
     if: failure() 
     steps:
       - name: Notify Discord on docs-examples failure
         run: |
           curl -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-examples' failed\"}" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'docs-examples-checker' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+  
+    notify-lavague-qa-failure:
+    runs-on: ubuntu-latest
+    needs: lavague-qa-failure
+    if: failure() 
+    steps:
+      - name: Notify Discord on docs-examples failure
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'lavague-qa-checker' failed\"}" \
+            ${{ secrets.DOCS_DISCORD_WEBHOOK }}
+
 
   notify-docs-links-failure:
     runs-on: ubuntu-latest
-    needs: check-docs-links
+    needs: [docs-link-checker,  README-link-checker]
     if: failure() 
     steps:
       - name: Notify Discord on docs-links failure
         run: |
           curl -X POST -H "Content-Type: application/json" \
-            -d "{\"content\": \"<@762664509813817345> Cron job for 'check-docs-links' failed\"}" \
+            -d "{\"content\": \"<@762664509813817345> Cron job for 'docs-link-checker' or 'README-link-checker' failed\"}" \
             ${{ secrets.DOCS_DISCORD_WEBHOOK }}
   
   notify-checks-success:
     runs-on: ubuntu-latest
-    needs: [check-docs-links, check-docs-examples]
+    needs: [docs-link-checker, docs-examples-checker]
     if: success() 
     steps:
       - name: Notify Discord on successful checks

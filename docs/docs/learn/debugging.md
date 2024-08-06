@@ -207,4 +207,4 @@ agent = WebAgent(WorldModel(), action_engine)
 
 !!! note "Evaluating LLMs & Retrievers"
 
-    See our [Evaluator module guide](https://docs.lavague.ai/en/latest/docs/learn/evaluation/) for details on how to benchmark LLM and Retriever performance.
+    See our [Evaluator module guide](https://docs.lavague.ai/en/latest/docs/module-guides/evaluation/) for details on how to benchmark LLM and Retriever performance.

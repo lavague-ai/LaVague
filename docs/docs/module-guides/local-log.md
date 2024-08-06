@@ -40,7 +40,7 @@ You can view the columns of information added to the log per step in the agentic
 
 ### Logging to a pandas DataFrame
 
-<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/learn/notebooks/logger.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/module-guides/notebooks/logger.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open code examples in Colab"></a>
 
 

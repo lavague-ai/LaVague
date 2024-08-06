@@ -99,7 +99,7 @@ nav:
       - Changing models: "docs/get-started/customization.md"
       - Key features:
           - TokenCounter tool: "docs/get-started/token-usage.md"
-          - Benchmarking tool: "docs/learn/testing.md"
+          - Benchmarking tool: "docs/get-started/testing.md"
           - Gradio: "docs/get-started/gradio.md"
       - Support:
           - Troubleshooting: "docs/get-started/troubleshoot.md"
@@ -140,14 +140,14 @@ nav:
           - Generate automated tests: "docs/examples/qa-automation.md"
 
   - 🧩 Module Guides:
-      - Web Agents: "docs/learn/agents.md"
-      - World Model: "docs/learn/world-model.md"
+      - Web Agents: "docs/module-guides/agents.md"
+      - World Model: "docs/module-guides/world-model.md"
       - Action Engine:
-          - Overview: "docs/learn/action-engine.md"
-          - Navigation Engine: "docs/learn/navigation-engine.md"
-      - Evaluator: "docs/learn/evaluation.md"
-      - Drivers: "docs/learn/browser-drivers.md"
-      - Logger: "docs/learn/local-log.md"
+          - Overview: "docs/module-guides/action-engine.md"
+          - Navigation Engine: "docs/module-guides/navigation-engine.md"
+      - Evaluator: "docs/module-guides/evaluation.md"
+      - Drivers: "docs/module-guides/browser-drivers.md"
+      - Logger: "docs/module-guides/local-log.md"
 
   - 🤗 Contributing:
       - Home: "docs/contributing/contributing.md"
