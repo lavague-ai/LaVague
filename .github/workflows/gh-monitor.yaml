@@ -40,7 +40,7 @@ jobs:
 
       - name: Fetch changes
         run: |
-          git fetch origin ${{ env.BRANCH_NAME }}
+          git fetch origin gh-monitor
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
             git fetch origin pull/${{ env.PR_NUMBER }}/head:pr-${{ env.PR_NUMBER }}
           else
@@ -51,8 +51,8 @@ jobs:
         id: list_changed_files
         run: |
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
-            CHANGED_FILES=$(git diff --name-only ${{ env.BRANCH_NAME }}...pr-${{ env.PR_NUMBER }})
-            DIFF=$(git diff ${{ env.BRANCH_NAME }}...pr-${{ env.PR_NUMBER }})
+            CHANGED_FILES=$(git diff --name-only gh-monitor...pr-${{ env.PR_NUMBER }})
+            DIFF=$(git diff gh-monitor...pr-${{ env.PR_NUMBER }})
           else
             PREVIOUS_COMMIT=$(git rev-list -n 1 HEAD^1)
             CHANGED_FILES=$(git diff --name-only ${PREVIOUS_COMMIT}...${GITHUB_SHA})
@@ -66,7 +66,7 @@ jobs:
         id: get_authors
         run: |
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
-            AUTHORS=$(git log --format='%ae' ${{ env.BRANCH_NAME }}...pr-${{ env.PR_NUMBER }} | sort | uniq)
+            AUTHORS=$(git log --format='%ae' gh-monitor...pr-${{ env.PR_NUMBER }} | sort | uniq)
           else
             PREVIOUS_COMMIT=$(git rev-list -n 1 HEAD^1)
             AUTHORS=$(git log --format='%ae' ${PREVIOUS_COMMIT}...${GITHUB_SHA} | sort | uniq)
