@@ -9,6 +9,7 @@ import {
     Box,
     Button,
     Checkbox,
+    FormControl,
     FormLabel,
     HStack,
     IconButton,
@@ -33,6 +34,10 @@ export default function Debug({ requestConnection }: { requestConnection: () => 
     const [action, setAction] = useState('click');
     const [element, setElement] = useState('');
     const [value, setValue] = useState('');
+    const [query, setQuery] = useState('');
+    const [contextExpansionSize, setContextExpansionSize] = useState(750);
+    const [semanticTopK, setSemanticTopK] = useState(5);
+    const [isRetrieving, setIsRetrieving] = useState(false);
 
     const removeHighlight = async () => {
         await Promise.all(highlightedElements.map((xpath) => connector.driver.remove_highlight(xpath)));
@@ -95,6 +100,28 @@ export default function Debug({ requestConnection }: { requestConnection: () => 
         }
     };
 
+    const onRetrieve = async () => {
+        setIsRetrieving(true);
+        const unsubscribe = connector.on('inputMessage', async (msg) => {
+            if (msg.type === 'retrieved') {
+                try {
+                    unsubscribe();
+                    await removeHighlight();
+                    const xpaths: string[] = msg.args;
+                    await Promise.all(xpaths.map((xpath) => connector.driver.highlight_elem(xpath)));
+                    setHighlightedElements(xpaths);
+                } finally {
+                    setIsRetrieving(false);
+                }
+            }
+        });
+        if (serverState !== AgentServerState.CONNECTED) {
+            requestConnection();
+        } else {
+            connector.sendPrompt('retrieve', JSON.stringify({ query, contextExpansionSize, semanticTopK }));
+        }
+    };
+
     const executeCommand = () => {
         connector.driver.withConnection(async () => {
             try {
@@ -137,7 +164,7 @@ export default function Debug({ requestConnection }: { requestConnection: () => 
                             In viewport only
                         </Checkbox>
                         <HStack>
-                            <Button isDisabled={loadHighlight} onClick={highlightElements}>
+                            <Button isLoading={loadHighlight} onClick={highlightElements}>
                                 Highlight
                             </Button>
                             <Button isDisabled={highlightedElements.length === 0} onClick={handleRemoveHighlight}>
@@ -176,6 +203,38 @@ export default function Debug({ requestConnection }: { requestConnection: () => 
                             isActive={!!prompt && serverState !== AgentServerState.CONNECTED && runningAgentState == RunningAgentState.IDLE}
                         ></IconButton>
                     </div>
+                </AccordionPanel>
+            </AccordionItem>
+            <AccordionItem>
+                <h2>
+                    <AccordionButton>
+                        <Box as="span" flex="1" textAlign="left">
+                            Retrieval
+                        </Box>
+                        <AccordionIcon />
+                    </AccordionButton>
+                </h2>
+                <AccordionPanel>
+                    <FormControl>
+                        <FormLabel>Query</FormLabel>
+                        <Input placeholder="input with 'Search' placeholder" value={query} onChange={(e) => setQuery(e.target.value)} />
+                    </FormControl>
+                    <FormControl mt={1}>
+                        <FormLabel>Context expansion size</FormLabel>
+                        <Input
+                            placeholder="750"
+                            type="number"
+                            value={contextExpansionSize}
+                            onChange={(e) => setContextExpansionSize(Number(e.target.value))}
+                        />
+                    </FormControl>
+                    <FormControl mt={1}>
+                        <FormLabel>Semantic top k retrieval</FormLabel>
+                        <Input placeholder="5" type="number" value={semanticTopK} onChange={(e) => setSemanticTopK(Number(e.target.value))} />
+                    </FormControl>
+                    <Button mt={2} onClick={onRetrieve} isLoading={isRetrieving}>
+                        Highlight
+                    </Button>
                 </AccordionPanel>
             </AccordionItem>
             <AccordionItem>
