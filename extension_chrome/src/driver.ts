@@ -8,6 +8,7 @@ export interface DriverCommandHandler {
 
 export class ChromeExtensionDriver {
     private currentTabId: number | null = null;
+    private started = false;
     private readonly handlers: { [command: string]: DriverCommandHandler } = {
         get_url: () => this.sendTabURL(),
         get_html: () => this.sendHTML(),
@@ -92,12 +93,28 @@ export class ChromeExtensionDriver {
         chrome.tabs.onActivated.addListener(this.tabActivatedListener);
         chrome.tabs.onUpdated.addListener(this.tabUpdatedListener);
         await this.attachDebuggerToTab(await this.getTabId());
+        this.started = true;
     }
 
     async stop() {
+        this.started = false;
         chrome.tabs.onActivated.removeListener(this.tabActivatedListener);
         chrome.tabs.onUpdated.removeListener(this.tabUpdatedListener);
         await this.detachDebuggerFromTab(await this.getTabId());
+    }
+
+    async withConnection(exe: () => Promise<void>) {
+        const wasStarted = this.started;
+        if (!wasStarted) {
+            await this.start();
+        }
+        try {
+            await exe();
+        } finally {
+            if (!wasStarted) {
+                await this.stop();
+            }
+        }
     }
 
     async getTabId() {

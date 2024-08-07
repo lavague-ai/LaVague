@@ -34,27 +34,31 @@ export default function Debug({ requestConnection }: { requestConnection: () => 
     const [element, setElement] = useState('');
     const [value, setValue] = useState('');
 
-    const removeHighlight = () => {
-        for (const xpath of highlightedElements) {
-            connector.driver.remove_highlight(xpath);
-        }
+    const removeHighlight = async () => {
+        await Promise.all(highlightedElements.map((xpath) => connector.driver.remove_highlight(xpath)));
         setHighlightedElements([]);
     };
 
-    const highlightElements = async () => {
-        setLoadHighlight(true);
-        try {
-            removeHighlight();
-            const res = await connector.driver.get_possible_interactions(`{"in_viewport": ${inViewport}, "foreground_only": ${foregroundOnly}}`);
-            const interactions = JSON.parse(res);
-            const xpaths = Object.keys(interactions);
-            for (const xpath of xpaths) {
-                connector.driver.highlight_elem(xpath);
+    const handleRemoveHighlight = () => {
+        connector.driver.withConnection(async () => {
+            await removeHighlight();
+        });
+    };
+
+    const highlightElements = () => {
+        connector.driver.withConnection(async () => {
+            setLoadHighlight(true);
+            try {
+                await removeHighlight();
+                const res = await connector.driver.get_possible_interactions(`{"in_viewport": ${inViewport}, "foreground_only": ${foregroundOnly}}`);
+                const interactions = JSON.parse(res);
+                const xpaths = Object.keys(interactions);
+                await Promise.all(xpaths.map((xpath) => connector.driver.highlight_elem(xpath)));
+                setHighlightedElements(xpaths);
+            } finally {
+                setLoadHighlight(false);
             }
-            setHighlightedElements(xpaths);
-        } finally {
-            setLoadHighlight(false);
-        }
+        });
     };
 
     const selectInViewport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,23 +95,25 @@ export default function Debug({ requestConnection }: { requestConnection: () => 
         }
     };
 
-    const executeCommand = async () => {
-        try {
-            await connector.driver.executeCode(
-                yaml.dump([
-                    {
-                        actions: [
-                            {
-                                action: { name: action, args: { xpath: element, value } },
-                            },
-                        ],
-                    },
-                ])
-            );
-        } catch (e: any) {
-            alert(e?.message ?? e + '');
-            console.error(e);
-        }
+    const executeCommand = () => {
+        connector.driver.withConnection(async () => {
+            try {
+                await connector.driver.executeCode(
+                    yaml.dump([
+                        {
+                            actions: [
+                                {
+                                    action: { name: action, args: { xpath: element, value } },
+                                },
+                            ],
+                        },
+                    ])
+                );
+            } catch (e: any) {
+                alert(e?.message ?? e + '');
+                console.error(e);
+            }
+        });
     };
 
     return (
@@ -134,7 +140,7 @@ export default function Debug({ requestConnection }: { requestConnection: () => 
                             <Button isDisabled={loadHighlight} onClick={highlightElements}>
                                 Highlight
                             </Button>
-                            <Button isDisabled={highlightedElements.length === 0} onClick={removeHighlight}>
+                            <Button isDisabled={highlightedElements.length === 0} onClick={handleRemoveHighlight}>
                                 Clear highlight
                             </Button>
                         </HStack>

@@ -127,7 +127,7 @@ function traverse(node: any, xpath: string, results: any) {
             try {
                 traverse(child.contentWindow!.document.body, childXpath + '/html/body', results);
             } catch (e) {
-                console.error('iframe access blocked', child, e);
+                // iframe access blocked
             }
         } else {
             traverse(child, childXpath, results);

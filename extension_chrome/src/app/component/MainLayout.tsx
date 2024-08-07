@@ -71,7 +71,7 @@ export default function MainLayout() {
     });
 
     tabs.push({
-        header: <>Tools</>,
+        header: <>Dev tool</>,
         content: <Debug requestConnection={requestConnection} />,
     });
 
