@@ -53,11 +53,11 @@ From there, if have launched your Agent Server using the default port, you can d
 
 ![extension](../../assets/lavague-extension.png)
 
-If you are using a custom port, you can click on the `connection` tab to manually modify the port and conenct to your `Agent Server`.
+If you are using a custom port, you can click on the `connection` tab to manually modify the port and connect to your `Agent Server`.
 
 ![custom-port](../../assets/custom-port.png)
 
-You will see the Agent's thoughts, internal step-by-step instructions & any ouput in the chat interface.
+You will see the Agent's thoughts, internal step-by-step instructions & any output in the chat interface.
 
 For more detailed step-by-step information, you can see the `logs` tab.
 
