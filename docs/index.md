@@ -154,20 +154,27 @@ We want to build a dataset that can be used by the AI community to build better 
 This is why LaVague collects the following user data telemetry by default:
 
 - Version of LaVague installed
-- Code generated for each web action step
+- Code / List of actions generated for each web action step
+- The past actions
+- The "observations" (method used to check the current page)
 - LLM used (i.e GPT4)
 - Multi modal LLM used (i.e GPT4)
 - Randomly generated anonymous user ID
-- Whether you are using a CLI command or our library directly
-- The instruction used/generated
-- The objective used (if you are using the agent)
-- The chain of thoughts (if you are using the agent)
+- Whether you are using a CLI command (lavague-qa for example), the gradio demo or our library directly.
+- The objective used 
+- The chain of thoughts on the agent
 - The interaction zone on the page (bounding box)
 - The viewport size of your browser
+- The current step
+- The instruction(s) generated & the current engine used
+- The token costs & usages
 - The URL you performed an action on
 - Whether the action failed or succeeded
+- The extra used data specified
 - Error message, where relevant
 - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
+
+!!! warning Be careful to NEVER includes personal informations in your objectives and the extra used data. If you intend to includes personal informations in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry to preserve your personal informations.
 
 ### 🚫 Turn off all telemetry
 
