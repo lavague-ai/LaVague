@@ -174,7 +174,8 @@ This is why LaVague collects the following user data telemetry by default:
 - Error message, where relevant
 - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
 
-!!! warning "Warning regarding personal informations used" Be careful to NEVER includes personal information in your objectives and the extra used data. If you intend to includes personal information in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry.
+
+!!! warning "Personal data" Be careful to NEVER includes personal information in your objectives and the extra used data. If you intend to includes personal information in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry.
 
 ### 🚫 Turn off all telemetry
 
