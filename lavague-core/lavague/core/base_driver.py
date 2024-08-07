@@ -9,7 +9,6 @@ from lavague.core.utilities.format_utils import (
     extract_imports_from_lines,
 )
 from enum import Enum
-import time
 from datetime import datetime
 import hashlib
 
