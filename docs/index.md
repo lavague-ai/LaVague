@@ -160,7 +160,7 @@ This is why LaVague collects the following user data telemetry by default:
 - LLM used (i.e GPT4)
 - Multi modal LLM used (i.e GPT4)
 - Randomly generated anonymous user ID
-- Whether you are using a CLI command (lavague-qa for example), the gradio demo or our library directly.
+- Whether you are using a CLI command (lavague-qa for example), the Gradio demo or our library directly.
 - The objective used 
 - The chain of thoughts on the agent
 - The interaction zone on the page (bounding box)
@@ -174,7 +174,7 @@ This is why LaVague collects the following user data telemetry by default:
 - Error message, where relevant
 - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
 
-!!! warning Be careful to NEVER includes personal informations in your objectives and the extra used data. If you intend to includes personal informations in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry to preserve your personal informations.
+!!! warning "Warning regarding personal informations used" Be careful to NEVER includes personal information in your objectives and the extra used data. If you intend to includes personal information in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry.
 
 ### 🚫 Turn off all telemetry
 
