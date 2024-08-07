@@ -12,34 +12,8 @@ export function getNodeFromXPATH(xpath: string): Node | null {
 export function clickElementByXPath(xpath: string): boolean {
     const element = getNodeFromXPATH(xpath);
     if (element && element instanceof HTMLElement) {
-        if (element.tagName.toLowerCase() === 'a') {
-            const anchorElement = element as HTMLAnchorElement;
-            if (anchorElement.href) {
-                // Navigate to the href URL to ensure history update
-                console.log('Navigating to:', anchorElement.href);
-                window.location.href = anchorElement.href;
-            }
-        } else {
-            // Simulate a user-initiated click
-            const event = new MouseEvent('click', {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-                buttons: 1,
-            });
-            element.dispatchEvent(event);
-            if (
-                element.tagName.toLowerCase() === 'button' ||
-                (element.tagName.toLowerCase() === 'input' && (element as HTMLInputElement).type === 'submit')
-            ) {
-                // Special handling for button and submit inputs to ensure form submission
-                if ((element as HTMLInputElement).form) {
-                    (element as HTMLInputElement).form!.submit();
-                }
-            }
-        }
-        console.log(element.textContent);
-        console.log('clicked!');
+        element.click();
+        console.log('click', element.textContent);
         return true;
     } else {
         console.log('failed to click!');
