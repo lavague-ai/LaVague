@@ -2,19 +2,31 @@
 
 ## Getting started with the LaVague Extension
 
+The LaVague Chrome Extension enables you to automate web navigation using LaVague Agents directly in your browser.
+
+It is made up of two key components:
+
+- The [Chrome extension](https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm) which you can install from the Chrome Web Store.
+- The `lavague-server` package & CLI tool, which enable you to launch the Agent that will be used by the extension.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/O8CMSdj1a28
+" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ### Install necessary packages
 
-You will need to install the following lavague packages:
+You will firstly need to install the following lavague package:
 
 ```shell
-pip install lavague-core lavague-server
+pip install lavague-server
 ```
 
 You will also need to make sure your `OPENAI_API_KEY` is set in your current environment.
 
 ### Running the LaVague Chrome Extension server
 
-Before you can use the LaVague Chrome Extension in your browser, you will need to launch our Agent Server. The fastest way to do this is using our CLI command:
+Before you can use the LaVague Chrome Extension in your browser, you will need to launch our `AgentServer`, which will launch our default Agent which uses OpenAI's `gpt-4o`.
+
+🚀 The fastest way to do this is using our CLI command:
 
 ```bash
 lavague-serve
@@ -22,18 +34,34 @@ lavague-serve
 
 > This server will need to be running whenever you want to use the extension.
 
+!!! hint "Ports"
+    Note, by default this will launch our Agent Server on pot `8000`. You can change this by using the `-p` or `--port` option followed by the port of your choice:
+    
+    ```bash
+    lavague-server 8001
+    ```
+
 ### Using the extension
 
 Now you're ready to install and interact with the LaVague browser extension directly in your Chrome navigator.
 
 You can install the extension [here](https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm).
 
-### Demo: Installation & Usage
+Once the extension is installed, you can navigate to the website you want to use your LaVague agent on and open the extension via the Chrome `Extensions` menu (a 🧩 shortcut is usually visible on the top right, next to the URL navigation bar).
 
-See the video below for a full demo of the installation process & extension usage:
+From there, if have launched your Agent Server using the default port, you can directly input your `objective` into the chat interface to start using your Agent.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/O8CMSdj1a28
-" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+![extension](../../assets/lavague-extension.png)
+
+If you are using a custom port, you can click on the `connection` tab to manually modify the port and conenct to your `Agent Server`.
+
+![custom-port](../../assets/custom-port.png)
+
+You will see the Agent's thoughts, internal step-by-step instructions & any ouput in the chat interface.
+
+For more detailed step-by-step information, you can see the `logs` tab.
+
+![logs](../../assets/logs.png)
 
 ## Customizing your Agent
 
