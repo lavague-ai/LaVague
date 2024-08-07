@@ -52,7 +52,7 @@ class SeleniumDriver(BaseDriver):
         driver: Optional[WebDriver] = None,
         log_waiting_time=False,
         waiting_completion_timeout=10,
-        browserbase: bool = False,
+        remote_connection: "BrowserbaseRemoteConnection" = None,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -63,7 +63,7 @@ class SeleniumDriver(BaseDriver):
         self.driver = driver
         self.log_waiting_time = log_waiting_time
         self.waiting_completion_timeout = waiting_completion_timeout
-        self.browserbase = browserbase
+        self.remote_connection = remote_connection
         super().__init__(url, get_selenium_driver)
 
     #   Default code to init the driver.
@@ -97,20 +97,19 @@ class SeleniumDriver(BaseDriver):
         chrome_options.add_argument("--disable-notifications")
         chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
 
-        if self.browserbase:
-            session_id = create_session()
-            custom_conn = CustomRemoteConnection('http://connect.browserbase.com/webdriver', session_id)
-            # options = webdriver.ChromeOptions()
+        if self.remote_connection:
             chrome_options.add_experimental_option("debuggerAddress", "localhost:9223")
-
             # options.debugger_address = "localhost:9223"
-            self.driver = webdriver.Remote(custom_conn, options=chrome_options)
+            self.driver = webdriver.Remote(self.remote_connection, options=chrome_options)
         elif self.driver is None:
             self.driver = webdriver.Chrome(options=chrome_options)
-        # self.driver.execute_cdp_cmd(
-        #     "Page.addScriptToEvaluateOnNewDocument",
-        #     {"source": JS_SETUP_GET_EVENTS},
-        # )
+        
+            # 538: browserbase implementation - move execute_cdp_cmd to inner block to avoid error
+            # AttributeError: 'WebDriver' object has no attribute 'execute_cdp_cmd'
+            self.driver.execute_cdp_cmd(
+                "Page.addScriptToEvaluateOnNewDocument",
+                {"source": JS_SETUP_GET_EVENTS},
+            )
         self.resize_driver(self.width, self.height)
         return self.driver
 
@@ -539,25 +538,27 @@ class SeleniumNode(DOMNode):
             "return arguments[0].outerHTML", self.element
         )
 
-def create_session():
-    url = 'https://www.browserbase.com/v1/sessions'
-    headers = {'Content-Type': 'application/json', 'x-bb-api-key': os.environ["BROWSERBASE_API_KEY"]}
-    response = requests.post(url, json={ "projectId": os.environ["BROWSERBASE_PROJECT_ID"] }, headers=headers)
-    # print(response.json())
-    return response.json()['id']
-
-class CustomRemoteConnection(RemoteConnection):
+class BrowserbaseRemoteConnection(RemoteConnection):
     _session_id = None
 
-    def __init__(self, remote_server_addr: str, session_id: str):
+    def __init__(self, remote_server_addr: str, api_key: str = None, project_id: str = None):
         super().__init__(remote_server_addr)
-        self._session_id = session_id
+        self.api_key = api_key or os.environ["BROWSERBASE_API_KEY"]
+        self.project_id = project_id or os.environ["BROWSERBASE_PROJECT_ID"]
 
     def get_remote_connection_headers(self, parsed_url, keep_alive=False):
+        if self._session_id is None:
+            self._session_id = self._create_session()
         headers = super().get_remote_connection_headers(parsed_url, keep_alive)
-        headers.update({'x-bb-api-key': os.environ["BROWSERBASE_API_KEY"]})
+        headers.update({'x-bb-api-key': self.api_key})
         headers.update({'session-id': self._session_id})
         return headers
+    
+    def _create_session(self):
+        url = 'https://www.browserbase.com/v1/sessions'
+        headers = {'Content-Type': 'application/json', 'x-bb-api-key': self.api_key}
+        response = requests.post(url, json={ "projectId": self.project_id}, headers=headers)
+        return response.json()['id']
 
 
 SELENIUM_PROMPT_TEMPLATE = """
