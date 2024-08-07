@@ -18,31 +18,35 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 try {
                     const eventsXpath: { [key: string]: string[] } = {};
                     await domAction.sendCommand('DOM.getDocument', { depth: -1 });
-                    const object_id = await domAction.getObjectID('/html/body');
-                    const result_list: any = await domAction.sendCommand('DOMDebugger.getEventListeners', { objectId: object_id, depth: -1 });
+                    const bodyId = await domAction.getObjectID('/html/body');
+                    const result_list: any = await domAction.sendCommand('DOMDebugger.getEventListeners', { objectId: bodyId, depth: -1 });
                     const result: any[] = result_list.listeners;
-                    for (const xpath of xpath_list) {
-                        try {
-                            const object_id = await domAction.getObjectID(xpath);
-                            const nodeId_OBJ = await domAction.sendCommand('DOM.requestNode', {
-                                objectId: object_id,
-                            });
-                            const describedNode = await domAction.sendCommand('DOM.describeNode', {
-                                nodeId: nodeId_OBJ.nodeId,
-                            });
-                            for (const listener_obj of result) {
-                                if (listener_obj.backendNodeId == describedNode.node.backendNodeId) {
-                                    if (!(xpath in eventsXpath)) {
-                                        eventsXpath[xpath] = [listener_obj.type];
-                                    } else if (!eventsXpath[xpath].includes(listener_obj.type)) {
-                                        eventsXpath[xpath].push(listener_obj.type);
+                    await Promise.all(
+                        xpath_list.map(async (xpath: string) => {
+                            try {
+                                const objectId = await domAction.getObjectID(xpath);
+                                if (objectId != null) {
+                                    const nodeId_OBJ = await domAction.sendCommand('DOM.requestNode', {
+                                        objectId: objectId,
+                                    });
+                                    const describedNode = await domAction.sendCommand('DOM.describeNode', {
+                                        nodeId: nodeId_OBJ.nodeId,
+                                    });
+                                    for (const listener_obj of result) {
+                                        if (listener_obj.backendNodeId == describedNode.node.backendNodeId) {
+                                            if (!(xpath in eventsXpath)) {
+                                                eventsXpath[xpath] = [listener_obj.type];
+                                            } else if (!eventsXpath[xpath].includes(listener_obj.type)) {
+                                                eventsXpath[xpath].push(listener_obj.type);
+                                            }
+                                        }
                                     }
                                 }
+                            } catch (error) {
+                                console.error(error);
                             }
-                        } catch (error) {
-                            console.error(error);
-                        }
-                    }
+                        })
+                    );
                     sendResponse({ response: eventsXpath });
                 } catch (error) {
                     console.error(error);

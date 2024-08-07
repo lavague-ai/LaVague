@@ -6,8 +6,16 @@ from typing import Callable
 import uuid
 from lavague.core.agents import WebAgent
 from lavague.core.extractors import YamlFromMarkdownExtractor
+from llama_index.core import QueryBundle
+from lavague.core.retrievers import (
+    FromXPathNodesExpansionRetriever,
+    InteractiveXPathRetriever,
+    RetrieversPipeline,
+    SemanticRetriever,
+)
 import types
 import copy
+import re
 
 
 class AgentSession(ABC):
@@ -25,22 +33,71 @@ class AgentSession(ABC):
     async def send_message_for_result(self, message: str, id: str) -> any:
         pass
 
-    def handle_prompt_agent_action(self, type: str, args: str, id: str):
-        if type == "run":
-            start = {"type": "start"}
-            asyncio.run(self.send_message(json.dumps(start)))
+    def exe_start_stop(self, run: Callable):
+        asyncio.run(self.send_message(json.dumps({"type": "start"})))
+        try:
+            run()
+        except Exception:
+            pass
+        finally:
             try:
-                self.agent.run(args)
-            except Exception:
-                pass
-            finally:
-                try:
-                    stop = {"type": "stop", "args": self.agent.interrupted}
-                    asyncio.run(self.send_message(json.dumps(stop)))
-                except:
-                    print("The stop signal could not be sent")
-        elif type == "get":
-            self.agent.get(args)
+                asyncio.run(
+                    self.send_message(
+                        json.dumps({"type": "stop", "args": self.agent.interrupted})
+                    )
+                )
+            except:
+                print("The stop signal could not be sent")
+
+    def handle_prompt_agent_action(self, type: str, args: str, id: str):
+        match type:
+            case "run":
+                self.exe_start_stop(lambda: self.agent.run(args))
+
+            case "run_step":
+                self.exe_start_stop(lambda: self.agent.run_step(args))
+
+            case "get":
+                self.agent.get(args)
+
+            case "prepare_run":
+                self.agent.prepare_run()
+
+            case "navigate":
+                self.exe_start_stop(
+                    lambda: self.agent.action_engine.navigation_engine.execute_instruction(
+                        args
+                    )
+                )
+
+            case "nav_action":
+                self.exe_start_stop(
+                    lambda: self.agent.action_engine.navigation_engine.execute_action(
+                        args
+                    )
+                )
+
+            case "retrieve":
+                args_obj = json.loads(args)
+                retriever = RetrieversPipeline(
+                    InteractiveXPathRetriever(self.agent.driver),
+                    FromXPathNodesExpansionRetriever(
+                        chunk_size=args_obj.get("contextExpansionSize", 750)
+                    ),
+                    SemanticRetriever(
+                        embedding=None, top_k=args_obj.get("semanticTopK", 5)
+                    ),
+                )
+                html = retriever.retrieve(
+                    QueryBundle(query_str=args_obj.get("query", "")),
+                    [self.agent.driver.get_html()],
+                )
+                xpaths = re.findall(r'xpath=["\'](.*?)["\']', "".join(html))
+                asyncio.run(
+                    self.send_message(
+                        json.dumps({"type": "retrieved", "args": xpaths, "id": id})
+                    )
+                )
 
     def handle_agent_message(self, json_message):
         if "type" in json_message:

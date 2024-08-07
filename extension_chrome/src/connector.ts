@@ -107,7 +107,7 @@ export class AgentServerConnector {
         });
     }
 
-    sendPrompt(type: 'run' | 'get', args: string) {
+    sendPrompt(type: 'run' | 'get' | 'run_step' | 'navigate' | 'prepare_run' | 'retrieve', args: string) {
         this.sendMessage({ type, args });
     }
 

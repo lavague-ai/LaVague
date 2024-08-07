@@ -1,7 +1,7 @@
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const Dotenv = require('dotenv-webpack');
-
+const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const outputPath = 'dist';
 
@@ -10,9 +10,7 @@ module.exports = (env, { mode }) => {
 
     return {
         entry: {
-            main: [
-                path.resolve(__dirname, 'src', 'main.ts'),
-            ],
+            main: [path.resolve(__dirname, 'src', 'main.ts')],
             background: path.resolve(__dirname, 'src', 'background.ts'),
             content: path.resolve(__dirname, 'src', 'content.ts'),
         },
@@ -76,6 +74,14 @@ module.exports = (env, { mode }) => {
             mergeDuplicateChunks: true,
             removeEmptyChunks: true,
             sideEffects: false,
+            minimizer: [
+                new TerserPlugin({
+                    terserOptions: {
+                        keep_classnames: true,
+                        keep_fnames: true,
+                    },
+                }),
+            ],
         },
         devtool: isProduction ? 'source-map' : 'inline-source-map',
     };

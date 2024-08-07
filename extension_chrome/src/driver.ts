@@ -1,4 +1,3 @@
-import { json } from 'stream/consumers';
 import { operateToolWithXPATH } from './actions';
 import { DomActions } from './domactions';
 import { parseResponse } from './parseactions';
@@ -9,6 +8,7 @@ export interface DriverCommandHandler {
 
 export class ChromeExtensionDriver {
     private currentTabId: number | null = null;
+    private started = false;
     private readonly handlers: { [command: string]: DriverCommandHandler } = {
         get_url: () => this.sendTabURL(),
         get_html: () => this.sendHTML(),
@@ -20,7 +20,7 @@ export class ChromeExtensionDriver {
         highlight_elem: (msg) => this.highlight_elem(msg.args),
         is_visible: (msg) => this.isVisible(msg.args),
         get_possible_interactions: (msg) => this.get_possible_interactions(msg.args),
-        get_tabs: (msg) => this.get_tabs(),
+        get_tabs: () => this.get_tabs(),
         switch_tab: (msg) => this.switch_tab(msg.args),
     };
     onTabDebugged?: (tabId: number) => void;
@@ -93,12 +93,28 @@ export class ChromeExtensionDriver {
         chrome.tabs.onActivated.addListener(this.tabActivatedListener);
         chrome.tabs.onUpdated.addListener(this.tabUpdatedListener);
         await this.attachDebuggerToTab(await this.getTabId());
+        this.started = true;
     }
 
     async stop() {
+        this.started = false;
         chrome.tabs.onActivated.removeListener(this.tabActivatedListener);
         chrome.tabs.onUpdated.removeListener(this.tabUpdatedListener);
         await this.detachDebuggerFromTab(await this.getTabId());
+    }
+
+    async withConnection(exe: () => Promise<void>) {
+        const wasStarted = this.started;
+        if (!wasStarted) {
+            await this.start();
+        }
+        try {
+            await exe();
+        } finally {
+            if (!wasStarted) {
+                await this.stop();
+            }
+        }
     }
 
     async getTabId() {
@@ -235,6 +251,16 @@ export class ChromeExtensionDriver {
         const res = await dom.highlight_elem(xpath);
         const json_ret = JSON.stringify(res.result.value);
         return json_ret;
+    }
+
+    async remove_highlight(xpath: string) {
+        const tabId = await this.getTabId();
+        if (tabId == null) {
+            return false;
+        }
+        const dom = new DomActions(tabId);
+        await dom.remove_highlight(xpath);
+        return true;
     }
 
     async switch_tab(tab_id_str: string) {
