@@ -242,7 +242,7 @@ class DriverServer(BaseDriver):
 REMOTE_PROMPT_TEMPLATE = """
 You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.
 Your goal is to return a list of actions that should be done in order to execute the actions.
-Always target elements by XPATH.
+Always target elements by XPATH. You can only use one of the Xpaths included in the HTML. Do not derive new Xpaths.
 
 Your response must always be in the YAML format with the yaml markdown indicator and must include the main item "actions" , which will contains the objects "action", which contains the string "name" of tool of choice, and necessary arguments ("args") if required by the tool. 
 There must be only ONE args sub-object, such as args (if the tool has multiple arguments). 
