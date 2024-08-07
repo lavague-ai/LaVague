@@ -258,7 +258,7 @@ class WebAgent:
                 history,
                 output,
             )
-        send_telemetry(logger.return_pandas())
+        send_telemetry(logger.return_pandas(), origin="gradio")
         url_input = self.action_engine.driver.get_url()
         if output is not None:
             if len(output) > 0 and output.strip() != "[NONE]":
@@ -375,7 +375,8 @@ class WebAgent:
             raise e
         finally:
             self.driver.destroy()
-            send_telemetry(self.logger.return_pandas())
+            origin = self.origin if hasattr(self, "origin") else "lavague"
+            send_telemetry(self.logger.return_pandas(), origin=origin)
             if log_to_db:
                 local_db_logger = LocalDBLogger()
                 local_db_logger.insert_logs(self)
@@ -449,3 +450,6 @@ class WebAgent:
             print(
                 f"No previous nodes available. Please run the agent atleast once to view previous steps"
             )
+
+    def set_origin(self, origin: str):
+        self.origin = origin

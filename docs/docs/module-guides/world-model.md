@@ -11,7 +11,7 @@ In our agentic workflow, the Agent will get the next instruction and engine to b
 
 ### Getting started with the World Model 
 
-<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/learn/notebooks/WorldModel.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/module-guides/notebooks/WorldModel.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open code examples in Colab"></a>
 
 Let's now create an instance of World Model that we can work with directly to understand better how it works.

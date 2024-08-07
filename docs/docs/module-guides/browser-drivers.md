@@ -5,7 +5,7 @@ Drivers are interfaces for interacting with web browsers autonomously.
 
 Our Driver modules are used to perform actions on web browsers and to get information from our current web page.
 
-We have two Driver options:
+We have three Driver options:
 
 - ✅ SeleniumDriver: the Action Engine will generate and execute code using Selenium. We use the SeleniumDriver by default and it has the most complete feature set. 
 - 🎭 PlaywrightDriver: the Action Engine will generate and execute code using Playwright

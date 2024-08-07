@@ -19,7 +19,11 @@ from lavague.core.base_driver import (
     InteractionType,
     DOMNode,
 )
-from lavague.core.exceptions import CannotBackException
+from lavague.core.exceptions import (
+    CannotBackException,
+    NoElementException,
+    AmbiguousException,
+)
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
@@ -207,17 +211,12 @@ driver.set_window_size({width}, {height} + height_difference)
             data = [data]
         for item in data:
             for action in item["actions"]:
-                action_name = action["action"]["name"]
-                if action_name != "fail":
+                try:
                     xpath = action["action"]["args"]["xpath"]
-                    try:
-                        elem = self.driver.find_element(By.XPATH, xpath)
-                        elements.append(elem)
-                    except:
-                        pass
-
-        if len(elements) == 0:
-            raise ValueError("No element found.")
+                    elem = self.driver.find_element(By.XPATH, xpath)
+                    elements.append(elem)
+                except:
+                    pass
 
         outputs = []
         for element in elements:
@@ -299,8 +298,10 @@ driver.set_window_size({width}, {height} + height_difference)
                     self.set_value(args["xpath"], args["value"], True)
                 elif action_name == "dropdownSelect":
                     self.dropdown_select(args["xpath"], args["value"])
-                elif action_name == "fail":
-                    raise Exception("Action generation failed. Reason: ", args["value"])
+                elif action_name == "failNoElement":
+                    raise NoElementException("No element: " + args["value"])
+                elif action_name == "failAmbiguous":
+                    raise AmbiguousException("Ambiguous: " + args["value"])
                 else:
                     raise ValueError(f"Unknown action: {action_name}")
 
@@ -598,11 +599,17 @@ Arguments:
   - xpath (string)
   - value (string)
 
-Name: fail
-Description: Indicate that you are unable to complete the task and explain why.
+Name: failNoElement
+Description: Indicate that you are unable to find an element that could match.
 Arguments:
   - xpath (string): Always set to an empty string
-  - value (string): Detailled explanation of why the task cannot be completed
+  - value (string): Detailled explanation to clarify the non-existence of any relevant element
+
+Name: failAmbiguous 
+Description: Indicate that the provided information is too vague or unclear to successfully choose between multiple elements.
+Arguments:
+  - xpath (string): Always set to an empty string
+  - value (string): Detailled explanation such as unclear instructions or multiple possible interpretations
 
 Here are examples of previous answers:
 HTML:

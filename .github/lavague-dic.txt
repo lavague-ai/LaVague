@@ -214,3 +214,12 @@ userpage
 vide
 wikipedia
 ElementClickInterceptedException
+VMs
+onwards
+accelerometer
+allowfullscreen
+autoplay
+frameborder
+src
+AgentServer
+minified

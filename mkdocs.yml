@@ -97,10 +97,12 @@ nav:
       - Installation: "docs/get-started/installation.md"
       - Quick tour: "docs/get-started/quick-tour.md"
       - Changing models: "docs/get-started/customization.md"
-      - Key features:
-          - TokenCounter tool: "docs/get-started/token-usage.md"
-          - Benchmarking tool: "docs/learn/testing.md"
+      - Tools & interfaces:
+          - Chrome Extension: "docs/get-started/docs-chrome.md"
           - Gradio: "docs/get-started/gradio.md"
+          - TokenCounter tool: "docs/get-started/token-usage.md"
+          - Benchmarking tool: "docs/get-started/testing.md"
+          
       - Support:
           - Troubleshooting: "docs/get-started/troubleshoot.md"
           - FAQs: "docs/get-started/FAQs.md"
@@ -136,18 +138,16 @@ nav:
       - Data Entry:
           - Automated job application: "docs/examples/job-application.md"
           - Medical appointment booking: "docs/examples/medical_appointment_booking.md"
-      - QA Automation:
-          - Generate automated tests: "docs/examples/qa-automation.md"
 
   - 🧩 Module Guides:
-      - Web Agents: "docs/learn/agents.md"
-      - World Model: "docs/learn/world-model.md"
+      - Web Agents: "docs/module-guides/agents.md"
+      - World Model: "docs/module-guides/world-model.md"
       - Action Engine:
-          - Overview: "docs/learn/action-engine.md"
-          - Navigation Engine: "docs/learn/navigation-engine.md"
-      - Evaluator: "docs/learn/evaluation.md"
-      - Drivers: "docs/learn/browser-drivers.md"
-      - Logger: "docs/learn/local-log.md"
+          - Overview: "docs/module-guides/action-engine.md"
+          - Navigation Engine: "docs/module-guides/navigation-engine.md"
+      - Evaluator: "docs/module-guides/evaluation.md"
+      - Drivers: "docs/module-guides/browser-drivers.md"
+      - Logger: "docs/module-guides/local-log.md"
 
   - 🤗 Contributing:
       - Home: "docs/contributing/contributing.md"

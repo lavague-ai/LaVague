@@ -18,7 +18,7 @@ The evaluator allows users to assess the performance of different open and close
     - `LLM precision:` The LLM precision measures the accuracy of the LLM in targeting the correct HTML element.
     - `code_generation_time:` Time taken to generate action.
 
-<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/eval-docs/docs/docs/get-started/notebooks/eval.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/docs/docs/module-guides/notebooks/eval.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="View code examples with Google Colab"></a>
 
 ## Getting started with the evaluator
@@ -35,24 +35,23 @@ from lavague.core.evaluator import RetrieverEvaluator
 retriever_evaluator = RetrieverEvaluator()
 ```
 
-Next, we will download the dataset we will use for this example, `TheWaveMetaSmall.csv`. This is a reduce 5-row version of our larger 250-row [dataset](https://huggingface.co/datasets/BigAction/the-wave-250) which we curated for evaluation. It contains a natural language query (or instruction) alongside the correct node to be retrieved and XPATH for the LLM to target in order to successfully achieve the instruction.
+Next, we will download the dataset we will use for this example from a [250 testing dataset](https://huggingface.co/datasets/BigAction/the-meta-wave-raw) that we provide through our BigAction initiative. The dataset contains a natural language query (or instruction) alongside the correct node to be retrieved and XPATH for the LLM to target in order to successfully achieve the instruction. We will reduce this to a 5-row version the dataset for the sake of this example, but you can change the value of `nr` to select more or less rows.
 
-```bash
-wget https://raw.githubusercontent.com/lavague-ai/LaVague/main/examples/TheWaveMetaSmall.csv
+```python
+import pandas as pd
+
+raw_dataset = pd.read_parquet("hf://datasets/BigAction/the-meta-wave-raw/data/train-00000-of-00001.parquet")
+
+# Select the first 5 rows
+nr = 5 
+small_df = raw_dataset.head(nr)
 ```
 
 #### Running the evaluator
 
 In this section, we will will use the Evaluator to compare our default `OpsmSplitRetriever` against our legacy `BM25HTMLRetriever`.
 
-We will first need to get a Panda's Dataframe containing our dataset:
-
-```python
-import pandas as pd
-raw_dataset = pd.read_csv("TheWaveMetaSmall.csv")
-```
-
-We can then the `evaluate` method the retriever we wish to evaluate, along with our Panda's DataFrame and the file name we wish to give to the CSV file which will be output by the method.
+We will use the `evaluate` method, passing it the retriever we wish to evaluate, along with our Panda's DataFrame and the file name we wish to give to the CSV file which will be output by the method.
 
 This method will return a new DataFrame which is made up of the original dataset, plus the following columns:
 
@@ -74,10 +73,10 @@ from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver()
 
 retrieved_data_opsm = retriever_evaluator.evaluate(
-    OpsmSplitRetriever(driver), raw_dataset, "retrieved_data_opsm.csv"
+    OpsmSplitRetriever(driver), small_df, "retrieved_data_opsm.csv"
 )
 retrieved_data_bm25 = retriever_evaluator.evaluate(
-    BM25HtmlRetriever(), raw_dataset, "retrieved_data_bm25.csv"
+    BM25HtmlRetriever(), small_df, "retrieved_data_bm25.csv"
 )
 ```
 
@@ -135,7 +134,7 @@ We can see from these results that our default `OpsmSplitRetriever outperforms t
 
 ### Evaluating LLMs
 
-Let's now take a look at how we can evaluate the performance of an LLM to be used by the [Navigation Engine](../learn/navigation-engine.md) in our AI pipeline.
+Let's now take a look at how we can evaluate the performance of an LLM to be used by the [Navigation Engine](../module-guides/navigation-engine.md) in our AI pipeline.
 
 For this example, we will compare the performance of OpenAI's gpt-4o against Gemini's `gemini-1.5-flash-latest`.
 

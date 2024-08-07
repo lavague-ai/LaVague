@@ -138,4 +138,4 @@ We recommend you track/limit the cost of your usage with the relevant API provid
 
     ### Modifying prompt templates
 
-    You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailed information about the components see our [module guides](../learn/world-model.md).
+    You can also view and modify the prompt templates used by the World Model and Navigation Engine (the shorter, the less costly). For more detailed information about the components see our [module guides](../module-guides/world-model.md).
