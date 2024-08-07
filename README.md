@@ -94,6 +94,29 @@ For an end-to-end example of LaVague in a Google Colab, see our [quick-tour note
 - ✅ [Logging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
 - ✅ An optional, interactive [Gradio interface](https://docs.lavague.ai/en/latest/docs/get-started/gradio/)
 - ✅ [Debugging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
+- ✅ [A Chrome Extension](https://docs.lavague.ai/en/latest/docs/get-started/docs-chrome/)
+
+## Supported Drivers
+
+We support three Driver options:
+
+- A Selenium Webdriver
+- A Playwright webdriver
+- A Chrome extension driver
+
+Note that not all drivers support all agent features:
+
+| Feature                  | Selenium  | Playwright       | Chrome Extension                     |
+|--------------------------|-----------|------------------|--------------------------------------|
+| Headless agents    | ✅ | ⏳ | N/A |
+| Handle iframes     | ✅ | ✅ | ❌ |
+| Open several tabs  | ✅ | ⏳ | ✅  |
+| Highlight elements | ✅ | ✅  | ✅ |
+
+
+✅ supported  
+⏳ coming soon  
+❌ not supported 
 
 ## 🔎 Support
 

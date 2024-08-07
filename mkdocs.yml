@@ -97,10 +97,12 @@ nav:
       - Installation: "docs/get-started/installation.md"
       - Quick tour: "docs/get-started/quick-tour.md"
       - Changing models: "docs/get-started/customization.md"
-      - Key features:
+      - Tools & interfaces:
+          - Chrome Extension: "docs/get-started/docs-chrome.md"
+          - Gradio: "docs/get-started/gradio.md"
           - TokenCounter tool: "docs/get-started/token-usage.md"
           - Benchmarking tool: "docs/get-started/testing.md"
-          - Gradio: "docs/get-started/gradio.md"
+          
       - Support:
           - Troubleshooting: "docs/get-started/troubleshoot.md"
           - FAQs: "docs/get-started/FAQs.md"
@@ -136,8 +138,6 @@ nav:
       - Data Entry:
           - Automated job application: "docs/examples/job-application.md"
           - Medical appointment booking: "docs/examples/medical_appointment_booking.md"
-      - QA Automation:
-          - Generate automated tests: "docs/examples/qa-automation.md"
 
   - 🧩 Module Guides:
       - Web Agents: "docs/module-guides/agents.md"
