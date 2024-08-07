@@ -104,10 +104,12 @@ class SeleniumDriver(BaseDriver):
         if self.remote_connection:
             chrome_options.add_experimental_option("debuggerAddress", "localhost:9223")
             # options.debugger_address = "localhost:9223"
-            self.driver = webdriver.Remote(self.remote_connection, options=chrome_options)
+            self.driver = webdriver.Remote(
+                self.remote_connection, options=chrome_options
+            )
         elif self.driver is None:
             self.driver = webdriver.Chrome(options=chrome_options)
-        
+
             # 538: browserbase implementation - move execute_cdp_cmd to inner block to avoid error
             # AttributeError: 'WebDriver' object has no attribute 'execute_cdp_cmd'
             self.driver.execute_cdp_cmd(
@@ -539,10 +541,13 @@ class SeleniumNode(DOMNode):
             "return arguments[0].outerHTML", self.element
         )
 
+
 class BrowserbaseRemoteConnection(RemoteConnection):
     _session_id = None
 
-    def __init__(self, remote_server_addr: str, api_key: str = None, project_id: str = None):
+    def __init__(
+        self, remote_server_addr: str, api_key: str = None, project_id: str = None
+    ):
         super().__init__(remote_server_addr)
         self.api_key = api_key or os.environ["BROWSERBASE_API_KEY"]
         self.project_id = project_id or os.environ["BROWSERBASE_PROJECT_ID"]
@@ -551,15 +556,17 @@ class BrowserbaseRemoteConnection(RemoteConnection):
         if self._session_id is None:
             self._session_id = self._create_session()
         headers = super().get_remote_connection_headers(parsed_url, keep_alive)
-        headers.update({'x-bb-api-key': self.api_key})
-        headers.update({'session-id': self._session_id})
+        headers.update({"x-bb-api-key": self.api_key})
+        headers.update({"session-id": self._session_id})
         return headers
-    
+
     def _create_session(self):
-        url = 'https://www.browserbase.com/v1/sessions'
-        headers = {'Content-Type': 'application/json', 'x-bb-api-key': self.api_key}
-        response = requests.post(url, json={ "projectId": self.project_id}, headers=headers)
-        return response.json()['id']
+        url = "https://www.browserbase.com/v1/sessions"
+        headers = {"Content-Type": "application/json", "x-bb-api-key": self.api_key}
+        response = requests.post(
+            url, json={"projectId": self.project_id}, headers=headers
+        )
+        return response.json()["id"]
 
 
 SELENIUM_PROMPT_TEMPLATE = """
