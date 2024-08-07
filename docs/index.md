@@ -149,6 +149,9 @@ Please see our [dedicated documentation on token counting and cost estimations](
 
 ## 📈 Data collection
 
+!!! warning "Personal data" 
+    Be careful to NEVER includes personal information in your objectives and the extra used data. If you intend to includes personal information in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry.
+
 We want to build a dataset that can be used by the AI community to build better Large Action Models for better Web Agents. You can see our work so far on building community datasets on our [BigAction HuggingFace page](https://huggingface.co/BigAction).
 
 This is why LaVague collects the following user data telemetry by default:
@@ -173,8 +176,6 @@ This is why LaVague collects the following user data telemetry by default:
 - The extra used data specified
 - Error message, where relevant
 - The source nodes (chunks of HTML code retrieved from the web page to perform this action)
-
-!!! warning "Warning regarding personal informations used" Be careful to NEVER includes personal information in your objectives and the extra used data. If you intend to includes personal information in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry.
 
 ### 🚫 Turn off all telemetry
 
