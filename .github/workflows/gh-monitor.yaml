@@ -6,10 +6,10 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - ${{ env.BRANCH_NAME }}
+      - gh-monitor
   push:
     branches:
-      - ${{ env.BRANCH_NAME }}
+      - gh-monitor
 
 jobs:
   find-changed-files:
