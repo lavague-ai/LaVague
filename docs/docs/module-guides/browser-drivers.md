@@ -22,6 +22,7 @@ Not all agent features are supported by all drivers. **Selenium is our preferred
 | Handle iframes     | ✅ | ✅ | ❌ |
 | Open several tabs  | ✅ | ⏳ | ✅  |
 | Highlight elements | ✅ | ✅  | ✅ |
+| Remote driver (Browserbase) | ✅ | ❌ | ❌ |
 
 
 ✅ supported  
@@ -128,4 +129,20 @@ You can then pass this path via the `user_data_dir` argument.
 ```py
 from lavague.drivers.selenium import SeleniumDriver
 driver = SeleniumDriver(headless=False, user_data_dir="C:/Users/YourUsername/AppData/Local/Google/Chrome/User Data")
+```
+
+### Using a remote driver (Browserbase)
+
+The `SeleniumDriver` supports running remote drivers using Browserbase.
+
+1. Create an account on [Browserbase](https://www.browserbase.com/)
+2. Get your `BROWSERBASE_API_KEY` and `BROWSERBASE_PROJECT_ID`. You can optionaly set them as environment variables.
+3. Create a remote driver
+
+```py
+from lavague.drivers.selenium import SeleniumDriver
+from lavague.drivers.selenium import BrowserbaseRemoteConnection
+
+browserbase_connection = BrowserbaseRemoteConnection('http://connect.browserbase.com/webdriver', api_key = "your_key", project_id="your_project_id")
+selenium_driver = SeleniumDriver(remote_connection=connection)
 ```
