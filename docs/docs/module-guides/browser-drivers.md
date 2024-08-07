@@ -136,7 +136,7 @@ driver = SeleniumDriver(headless=False, user_data_dir="C:/Users/YourUsername/App
 The `SeleniumDriver` supports running remote drivers using Browserbase.
 
 1. Create an account on [Browserbase](https://www.browserbase.com/)
-2. Get your `BROWSERBASE_API_KEY` and `BROWSERBASE_PROJECT_ID`. You can optionaly set them as environment variables.
+2. Get your `BROWSERBASE_API_KEY` and `BROWSERBASE_PROJECT_ID`. You can optionnaly set them as environment variables.
 3. Create a remote driver
 
 ```py
