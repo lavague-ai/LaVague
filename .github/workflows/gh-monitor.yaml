@@ -32,6 +32,7 @@ jobs:
             echo "IS_PR=true" >> $GITHUB_ENV
           else
             echo "IS_PR=false" >> $GITHUB_ENV
+          fi
 
       - name: Fetch changes
         run: |
@@ -40,6 +41,7 @@ jobs:
             git fetch origin pull/${{ env.PR_NUMBER }}/head:pr-${{ env.PR_NUMBER }}
           else
             git fetch origin ${GITHUB_SHA}^:previous_commit
+          fi
 
       - name: List changed files
         id: list_changed_files
