@@ -1,11 +1,16 @@
+name: Detect Changed Files on PR Merge or Direct Push
+
 on:
   pull_request:
     types: [closed]
     branches:
-      - gh-monitor
+      - ${{ env.BRANCH_NAME }}
   push:
     branches:
-      - gh-monitor
+      - ${{ env.BRANCH_NAME }}
+
+env:
+  BRANCH_NAME: gh-monitor  # Set the branch name here
 
 jobs:
   find-changed-files:
@@ -21,6 +26,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Ensure full history is fetched
 
       - name: Determine if PR or Direct Push
         id: check_event
@@ -34,7 +41,7 @@ jobs:
 
       - name: Fetch changes
         run: |
-          git fetch origin main
+          git fetch origin ${{ env.BRANCH_NAME }}
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
             git fetch origin pull/${{ env.PR_NUMBER }}/head:pr-${{ env.PR_NUMBER }}
           else
@@ -45,10 +52,10 @@ jobs:
         id: list_changed_files
         run: |
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
-            CHANGED_FILES=$(git diff --name-only main...pr-${{ env.PR_NUMBER }})
-            DIFF=$(git diff main...pr-${{ env.PR_NUMBER }})
+            CHANGED_FILES=$(git diff --name-only ${{ env.BRANCH_NAME }}...pr-${{ env.PR_NUMBER }})
+            DIFF=$(git diff ${{ env.BRANCH_NAME }}...pr-${{ env.PR_NUMBER }})
           else
-            PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+            PREVIOUS_COMMIT=$(git rev-list -n 1 HEAD^1)
             CHANGED_FILES=$(git diff --name-only ${PREVIOUS_COMMIT}...${GITHUB_SHA})
             DIFF=$(git diff ${PREVIOUS_COMMIT}...${GITHUB_SHA})
           fi
@@ -60,9 +67,9 @@ jobs:
         id: get_authors
         run: |
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
-            AUTHORS=$(git log --format='%ae' main...pr-${{ env.PR_NUMBER }} | sort | uniq)
+            AUTHORS=$(git log --format='%ae' ${{ env.BRANCH_NAME }}...pr-${{ env.PR_NUMBER }} | sort | uniq)
           else
-            PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+            PREVIOUS_COMMIT=$(git rev-list -n 1 HEAD^1)
             AUTHORS=$(git log --format='%ae' ${PREVIOUS_COMMIT}...${GITHUB_SHA} | sort | uniq)
           fi
           echo "AUTHORS=$AUTHORS" >> $GITHUB_ENV
