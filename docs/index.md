@@ -160,7 +160,7 @@ This is why LaVague collects the following user data telemetry by default:
 - LLM used (i.e GPT4)
 - Multi modal LLM used (i.e GPT4)
 - Randomly generated anonymous user ID
-- Whether you are using a CLI command (lavague-qa for example), the gradio demo or our library directly.
+- Whether you are using a CLI command (lavague-qa for example), the Gradio demo or our library directly.
 - The objective used 
 - The chain of thoughts on the agent
 - The interaction zone on the page (bounding box)
