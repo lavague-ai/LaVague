@@ -1,4 +1,6 @@
 name: Detect Changed Files on PR Merge or Direct Push
+env:
+  BRANCH_NAME: gh-monitor
 
 on:
   pull_request:
@@ -8,9 +10,6 @@ on:
   push:
     branches:
       - ${{ env.BRANCH_NAME }}
-
-env:
-  BRANCH_NAME: gh-monitor  # Set the branch name here
 
 jobs:
   find-changed-files:
