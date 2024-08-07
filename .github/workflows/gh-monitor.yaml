@@ -1,5 +1,3 @@
-name: Detect Changed Files on PR Merge or Direct Push to Main
-
 on:
   pull_request:
     types: [closed]
@@ -40,7 +38,7 @@ jobs:
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
             git fetch origin pull/${{ env.PR_NUMBER }}/head:pr-${{ env.PR_NUMBER }}
           else
-            git fetch origin ${GITHUB_SHA}^:previous_commit
+            git fetch origin
           fi
 
       - name: List changed files
@@ -50,8 +48,9 @@ jobs:
             CHANGED_FILES=$(git diff --name-only main...pr-${{ env.PR_NUMBER }})
             DIFF=$(git diff main...pr-${{ env.PR_NUMBER }})
           else
-            CHANGED_FILES=$(git diff --name-only previous_commit...${GITHUB_SHA})
-            DIFF=$(git diff previous_commit...${GITHUB_SHA})
+            PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+            CHANGED_FILES=$(git diff --name-only ${PREVIOUS_COMMIT}...${GITHUB_SHA})
+            DIFF=$(git diff ${PREVIOUS_COMMIT}...${GITHUB_SHA})
           fi
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           echo "::set-output name=changed_files::$CHANGED_FILES"
@@ -63,7 +62,8 @@ jobs:
           if [[ "${{ env.IS_PR }}" == "true" ]]; then
             AUTHORS=$(git log --format='%ae' main...pr-${{ env.PR_NUMBER }} | sort | uniq)
           else
-            AUTHORS=$(git log --format='%ae' previous_commit...${GITHUB_SHA} | sort | uniq)
+            PREVIOUS_COMMIT=$(git rev-parse HEAD^1)
+            AUTHORS=$(git log --format='%ae' ${PREVIOUS_COMMIT}...${GITHUB_SHA} | sort | uniq)
           fi
           echo "AUTHORS=$AUTHORS" >> $GITHUB_ENV
           echo "::set-output name=authors::$AUTHORS"
