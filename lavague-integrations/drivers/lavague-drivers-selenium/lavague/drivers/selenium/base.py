@@ -103,7 +103,6 @@ class SeleniumDriver(BaseDriver):
 
         if self.remote_connection:
             chrome_options.add_experimental_option("debuggerAddress", "localhost:9223")
-            # options.debugger_address = "localhost:9223"
             self.driver = webdriver.Remote(
                 self.remote_connection, options=chrome_options
             )
