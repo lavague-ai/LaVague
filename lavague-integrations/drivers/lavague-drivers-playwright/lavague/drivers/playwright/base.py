@@ -34,9 +34,9 @@ class PlaywrightDriver(BaseDriver):
         log_waiting_time=False,
         waiting_completion_timeout=10,
     ):
-        os.environ[
-            "PW_TEST_SCREENSHOT_NO_FONTS_READY"
-        ] = "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        os.environ["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = (
+            "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
+        )
         self.headless = headless
         self.user_data_dir = user_data_dir
         self.width = width

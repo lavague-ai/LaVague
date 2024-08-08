@@ -56,8 +56,7 @@ agent.run("Go on the quicktour of PEFT")
 You can also use LaVague to launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
 
 ```py
-# We should set no_load_strategy to True when using the demo() method
-driver = SeleniumDriver(headless=True, no_load_strategy=True)
+driver = SeleniumDriver(headless=True)
 action_engine = ActionEngine(driver)
 world_model = WorldModel()
 
