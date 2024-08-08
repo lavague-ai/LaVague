@@ -12,7 +12,7 @@ export enum RunningAgentState {
     RUNNING,
 }
 
-export type EventType = 'init' | 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage' | 'systemMessage';
+export type EventType = 'init' | 'disconnect' | 'error' | 'stateChange' | 'runningStateChange' | 'inputMessage' | 'outputMessage' | 'systemMessage';
 
 export class AgentServerConnector {
     private webSocket: WebSocket | null = null;
@@ -69,6 +69,7 @@ export class AgentServerConnector {
             webSocket.onclose = () => {
                 this.updateState(AgentServerState.DISCONNECTED);
                 this.updateRunningState(RunningAgentState.IDLE);
+                this.emit('disconnect');
             };
             this.webSocket = webSocket;
             this.keepAlive();
@@ -76,6 +77,7 @@ export class AgentServerConnector {
         } catch (e) {
             this.updateState(AgentServerState.DISCONNECTED);
             this.updateRunningState(RunningAgentState.IDLE);
+            this.emit('disconnect');
             throw e;
         }
     }
@@ -97,6 +99,7 @@ export class AgentServerConnector {
             this.webSocket = null;
             this.updateState(AgentServerState.DISCONNECTED);
             this.updateRunningState(RunningAgentState.IDLE);
+            this.emit('disconnect');
         }
         await this.driver.stop();
     }
@@ -129,6 +132,10 @@ export class AgentServerConnector {
 
     onInputMessage(fn: (ret: any) => void) {
         return this.on('inputMessage', fn);
+    }
+
+    onDisconnect(fn: () => void) {
+        return this.on('disconnect', fn);
     }
 
     onSystemMessage(fn: (message: any) => void) {

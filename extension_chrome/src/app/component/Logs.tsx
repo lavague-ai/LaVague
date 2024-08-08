@@ -97,6 +97,11 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                     setRunningAgentState(RunningAgentState.RUNNING);
                 } else if (message.type === 'stop') {
                     setRunningAgentState(RunningAgentState.IDLE);
+                    for (let i = logs.length - 1; i >= 0; i--) {
+                        if (logs[i].log === "") {
+                            logs.splice(i, 1);
+                        }
+                    }
                     if (message.args == true) {
                         addLog({ log: 'The agent was interrupted.', type: 'agent_log' });
                     }
@@ -116,6 +121,13 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
             connector.onOutputMessage((message) => addLog({ log: message.args, type: 'userprompt' })),
             connector.onSystemMessage((message) => {
                 addLog({ log: message.args, type: 'agent_log' });
+            }),
+            connector.onDisconnect(() => {
+                for (let i = logs.length - 1; i >= 0; i--) {
+                    if (logs[i].log === "") {
+                        logs.splice(i, 1);
+                    }
+                }
             }),
         ];
         return () => destructors.forEach((d) => d());
