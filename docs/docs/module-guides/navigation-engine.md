@@ -2,7 +2,7 @@
 
 The Navigation Engine is the engine dedicated to generating and executing Selenium code to perform an action on a web page.
 
-Let's get to know the Navigation Engine better by removing the usual layers of abstraction and working directly with one as an agent would!
+Let's get to know the Navigation Engine better by removing the usual layers of abstraction and working directly with one directly as an agent would!
 
 <a target="_blank" href="https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/module-guides/notebooks/NavigationEngine.ipynb">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open code examples in Colab"></a>
@@ -20,11 +20,27 @@ selenium_driver = SeleniumDriver(headless=True, url="https://huggingface.co/docs
 nav_engine = NavigationEngine(selenium_driver)
 ```
 
+??? note "Optional arguments"
+
+    | **Argument**           | **Type**         | **Description**                                                                                                               | **Default Value**                                                        |
+    |------------------------|------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+    | `driver`               | `BaseDriver`     | The web driver used to interact with the headless browser. (must be provided)                                                 | None                                                                      |
+    | `llm`                  | `BaseLLM`        | This argument can be used to pass an LLM object directly to the NavigationEngine to overwrite the default/context LLM. We support any `llama_index.llms` LLMs. | `None` (defaults to the LLM from the context)                             |
+    | `retriever`            | `BaseHtmlRetriever` | The retriever to be used to retrieve the web elements to perform our action on.                                                | `None` (defaults to the retriever based on the driver and embedding)      |
+    | `prompt_template`      | `PromptTemplate` | The prompt template used to query the LLM to generate an action.                                                              | `NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template`                       |
+    | `extractor`            | `BaseExtractor`  | Specifies how to extract the final code from the LLM's response.                                                              | `DynamicExtractor()`                                                      |
+    | `time_between_actions` | `float`          | Time (in seconds) between each action executed by the engine.                                                                 | `1.5` seconds                                                             |
+    | `n_attempts`           | `int`            | The number of attempts the LLM should take to generate a valid action. Retries can increase success rate since LLMs are non-deterministic and may succeed even if they fail on the first attempt. | `5` attempts                                                              |
+    | `logger`               | `AgentLogger`    | Logger to log the actions taken by the agent.                                                                                 | `None`                                                                    |
+    | `display`              | `bool`           | Indicates if the agent is running in `display` mode. This mode can be used when in headless mode to display visual screenshot updates of the agent's progress. | `False`                                                                   |
+    | `raise_on_error`       | `bool`           | Whether to raise an exception if an error occurs during execution.                                                            | `False`                                                                   |
+    | `embedding`            | `BaseEmbedding`  | This argument can be used to pass an embedding model object directly to the NavigationEngine, which will be used instead of the default/context embedding model. We support any `llama_index.embeddings` models. | `None`                                                                    |
+
 ### Retrieval
 
 The first task handled by the Navigation Engine is to perform retrieval on the web page to collect the most relevant chunks, or nodes, of HTML code.
 
-The Navigation Engine's embedding model is used at this stage (here we use the default embedding model, OpenAI's `text-embedding-3-large`).
+The Navigation Engine's embedding model is used at this stage (here we use the default embedding model, OpenAI's `text-embedding-3-small`).
 
 ```python
 instruction = "Click on the PEFT section."
