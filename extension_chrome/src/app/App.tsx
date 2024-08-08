@@ -17,18 +17,9 @@ export default function App({ port }: { port: chrome.runtime.Port }) {
 }
 
 function MainContent() {
-    const { runningAgentState } = useContext(AppContext);
-
     return (
         <>
-            {runningAgentState === RunningAgentState.IDLE ? (
-                <img src="images/lavague.png" className="logo" />
-            ) : (
-                <Box display="flex" alignItems="center" justifyContent="center" className='logo'>
-                    <Spinner thickness='4px' speed='0.55s' emptyColor='gray.200' color='blue.500' width="35px" height='35px' />
-                    <Text fontSize="xl" ml={2}>Thinking...</Text>
-                </Box>
-            )}
+            {<img src="images/lavague.png" className="logo" />}
             <MainLayout />
         </>
     );

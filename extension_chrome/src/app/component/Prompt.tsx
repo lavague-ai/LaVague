@@ -15,6 +15,7 @@ export default function Prompt({ requestConnection }: { requestConnection: () =>
         if (serverState === AgentServerState.CONNECTED) {
             if (runningAgentState === RunningAgentState.IDLE) {
                 connector.sendPrompt('run', prompt);
+                connector.sendSystemMessage("")
             } else {
                 connector.disconnect();
                 connector.sendSystemMessage('The agent is now interrupted.');
