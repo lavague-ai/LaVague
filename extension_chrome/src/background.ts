@@ -3,7 +3,33 @@ import { DomActions } from './domactions';
 chrome.runtime.onInstalled.addListener(() => {
     const sidePanel = (chrome as any).sidePanel;
     sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+    // Forcefully inject the RPC script on the open tabs, as chrome will usually only start to inject the code after the page is refreshed...
+    initRPCScript();
 });
+
+function injectIntoTab(tab: any) {
+    const manifest = chrome.runtime.getManifest();
+    const scripts = manifest.content_scripts![0].js;
+    const s = scripts!.length;
+    for (let i = 0; i < s; i++) {
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: [scripts![i]],
+        });
+    }
+}
+
+function initRPCScript(): void {
+    chrome.windows.getAll({ populate: true }, (windows: chrome.windows.Window[]) => {
+        windows.forEach((currentWindow) => {
+            currentWindow.tabs?.forEach((currentTab) => {
+                if (currentTab.url && currentTab.url.match(/(file|http|https):\/\//gi)) {
+                    injectIntoTab(currentTab);
+                }
+            });
+        });
+    });
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'getEventListeners_all') {

@@ -28,7 +28,7 @@ const COMMAND_LABELS: { [key: string]: string } = {
 };
 
 export default function Logs({ logTypes }: { logTypes: LogType[] }) {
-    const { connector, setRunningAgentState } = useContext(AppContext);
+    const { connector, setRunningAgentState, runningAgentState } = useContext(AppContext);
     const [logs, setLogs] = useState<RepeatableLog[]>([]);
     const bottomElementRef = useRef<HTMLDivElement | null>(null);
 
@@ -40,8 +40,23 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                     newLogs[newLogs.length - 1].count++;
                     setLogs(newLogs);
                 } else {
-                    setLogs([...logs, { ...log, count: 1 }]);
-                    setTimeout(() => bottomElementRef.current?.scrollIntoView({ behavior: 'smooth' }), 500);
+                    if (log.type == 'agent_log') {
+                        const index = logs.findIndex(log => log.type === 'agent_log' && log.log === "");
+                        const foundLog = index !== -1 ? logs[index] : undefined;
+                        if (foundLog === undefined) {
+                            setLogs([...logs, { ...log, count: 1 }]);
+                            setTimeout(() => bottomElementRef.current?.scrollIntoView({ behavior: 'smooth' }), 500);
+                        } 
+                        else {
+                            const newLogs = [...logs];
+                            newLogs[index].log = log.log;
+                            setLogs(newLogs);
+                        } 
+                    }
+                    else {
+                        setLogs([...logs, { ...log, count: 1 }]);
+                        setTimeout(() => bottomElementRef.current?.scrollIntoView({ behavior: 'smooth' }), 500);
+                    } 
                 }
             }
         },
@@ -49,6 +64,7 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
     );
 
     useEffect(() => {
+        let check_last_entry = false
         const destructors = [
             connector.onError((err: any) => {
                 if (err instanceof Event && err.target instanceof WebSocket) {
@@ -63,17 +79,21 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 if (message.command) {
                     log = COMMAND_LABELS[message.command];
                 } else if (message.type === 'agent_log' && message.agent_log.world_model_output) {
-                    console.log(message);
                     const log_tmp = message.agent_log.world_model_output;
                     const engine = extractNextEngine(log_tmp);
                     if (engine === 'COMPLETE') {
                         const instruction = extractWorldModelInstruction(log_tmp);
                         log = instruction.indexOf('[NONE]') != -1 ? 'Objective reached' : 'Output:' + '\n' + instruction;
                     } else {
-                        log = 'Instruction: ' + extractWorldModelInstruction(log_tmp);
+                        log = extractWorldModelInstruction(log_tmp);
                     }
                     type = 'agent_log';
-                } else if (message.type === 'start') {
+                } else if (message.type === 'agent_log' && message.agent_log.current_state) {
+                    log = ""
+                    type = 'agent_log';
+                    check_last_entry = true
+                }
+                else if (message.type === 'start') {
                     setRunningAgentState(RunningAgentState.RUNNING);
                 } else if (message.type === 'stop') {
                     setRunningAgentState(RunningAgentState.IDLE);
@@ -83,6 +103,14 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
                 }
                 if (log) {
                     addLog({ log, type });
+                }
+                else if (check_last_entry) {
+                    const curr_logs = [...logs]
+                    if (curr_logs.length == 0 || curr_logs[curr_logs.length - 1].log != "")  {
+                        const lo: string = log!
+                        addLog({ log: lo, type });
+                    }
+                    check_last_entry = false                
                 }
             }),
             connector.onOutputMessage((message) => addLog({ log: message.args, type: 'userprompt' })),
@@ -97,7 +125,7 @@ export default function Logs({ logTypes }: { logTypes: LogType[] }) {
         <div className="logs">
             {logs.map((log, index) => (
                 <Stack key={index} className={'log ' + log.type} direction="row">
-                    <Text>{log.log}</Text>
+                    <Text>{log.log.length == 0 && log.type == "agent_log" ? " Thinking of next steps..." : log.log}</Text>
                     {log.count > 1 && <Badge>{log.count}</Badge>}
                 </Stack>
             ))}

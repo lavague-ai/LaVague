@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { List, ListItem, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
+import { Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import Prompt from './Prompt';
 import Logs from './Logs';
 import Debug from './Debug';
@@ -27,7 +27,7 @@ export default function MainLayout() {
             }
             setRunningAgentState(RunningAgentState.IDLE);
         }
-    }, [serverState, setTabIndex, setFirstConnection, setRunningAgentState, firstConnection, connector, requestConnection]);
+    }, [serverState ,setTabIndex, setFirstConnection, setRunningAgentState, firstConnection, connector, requestConnection]);
 
     tabs.push({
         header: <>Agent</>,
@@ -35,28 +35,6 @@ export default function MainLayout() {
             <div className="chatbox">
                 <div className="wmlogs">
                     <div className="logs">
-                        <Stack className={'log agent_log'} direction="column">
-                            <Text>Welcome to the Lavague Chrome Extension!</Text>
-                            <Text mt={3}>To get started:</Text>
-                            <List mt={1}>
-                                <ListItem>
-                                    - Open your terminal and type <code>lavague-serve</code> to run the command ;
-                                </ListItem>
-                                <ListItem mt={1}>
-                                    - Go to the{' '}
-                                    <span style={{ cursor: 'pointer' }} onClick={() => requestConnection()}>
-                                        &quot;Connection&quot;
-                                    </span>{' '}
-                                    tab and enter the host you want to reach (e.g., 127.0.0.1:8000).
-                                </ListItem>
-                            </List>
-                            <Text mt={3}>
-                                For more information and details, visit{' '}
-                                <a href="https://docs.lavague.ai" target="_blank" rel="noreferrer">
-                                    https://docs.lavague.ai
-                                </a>
-                            </Text>
-                        </Stack>
                         <Logs logTypes={['userprompt', 'agent_log']} />
                     </div>
                 </div>
