@@ -7,15 +7,19 @@ from selenium.common.exceptions import (
     WebDriverException,
     ElementClickInterceptedException,
     StaleElementReferenceException,
+    TimeoutException,
 )
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     JS_GET_INTERACTIVES_IN_VIEWPORT,
     JS_WAIT_DOM_IDLE,
+    JS_GET_SCROLLABLE_PARENT,
     PossibleInteractionsByXpath,
+    ScrollDirection,
     InteractionType,
     DOMNode,
 )
@@ -39,6 +43,7 @@ import json
 
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
+    last_hover_xpath: Optional[str] = None
 
     def __init__(
         self,
@@ -250,7 +255,9 @@ driver.set_window_size({width}, {height} + height_difference)
     def switch_parent_frame(self) -> None:
         self.driver.switch_to.parent_frame()
 
-    def resolve_xpath(self, xpath: str) -> WebElement:
+    def resolve_xpath(self, xpath: Optional[str]) -> WebElement:
+        if not xpath:
+            raise NoSuchElementException("xpath is missing")
         before, sep, after = xpath.partition("iframe")
         if len(before) == 0:
             return None
@@ -277,21 +284,30 @@ driver.set_window_size({width}, {height} + height_difference)
             for action in item["actions"]:
                 action_name = action["action"]["name"]
                 args = action["action"]["args"]
+                xpath = args.get("xpath", None)
 
-                if action_name == "click":
-                    self.click(args["xpath"])
-                elif action_name == "setValue":
-                    self.set_value(args["xpath"], args["value"])
-                elif action_name == "setValueAndEnter":
-                    self.set_value(args["xpath"], args["value"], True)
-                elif action_name == "dropdownSelect":
-                    self.dropdown_select(args["xpath"], args["value"])
-                elif action_name == "failNoElement":
-                    raise NoElementException("No element: " + args["value"])
-                elif action_name == "failAmbiguous":
-                    raise AmbiguousException("Ambiguous: " + args["value"])
-                else:
-                    raise ValueError(f"Unknown action: {action_name}")
+                match action_name:
+                    case "click":
+                        self.click(xpath)
+                    case "setValue":
+                        self.set_value(xpath, args["value"])
+                    case "setValueAndEnter":
+                        self.set_value(xpath, args["value"], True)
+                    case "dropdownSelect":
+                        self.dropdown_select(xpath, args["value"])
+                    case "hover":
+                        self.hover(xpath)
+                    case "scroll":
+                        self.scroll(
+                            xpath,
+                            ScrollDirection.from_string(args.get("value", "DOWN")),
+                        )
+                    case "failNoElement":
+                        raise NoElementException("No element: " + args["value"])
+                    case "failAmbiguous":
+                        raise AmbiguousException("Ambiguous: " + args["value"])
+                    case _:
+                        raise ValueError(f"Unknown action: {action_name}")
 
                 self.wait_for_idle()
 
@@ -299,18 +315,71 @@ driver.set_window_size({width}, {height} + height_difference)
         return self.driver.execute_script(js_code, *args)
 
     def scroll_up(self):
-        self.execute_script("window.scrollBy(0, -window.innerHeight);")
+        self.scroll(direction=ScrollDirection.UP)
 
     def scroll_down(self):
-        self.execute_script("window.scrollBy(0, window.innerHeight);")
+        self.scroll(direction=ScrollDirection.DOWN)
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
 
+    def hover(self, xpath: str):
+        element = self.resolve_xpath(xpath)
+        self.last_hover_xpath = xpath
+        ActionChains(self.driver).move_to_element(element).perform()
+
+    def scroll_page(self, direction: ScrollDirection = ScrollDirection.DOWN):
+        self.driver.execute_script(direction.get_page_script())
+
+    def get_scroll_anchor(self, xpath_anchor: Optional[str] = None) -> WebElement:
+        element = self.resolve_xpath(xpath_anchor or self.last_hover_xpath)
+        parent = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, element)
+        scroll_anchor = parent or element
+        return scroll_anchor
+
+    def is_bottom_of_page(self) -> bool:
+        return not self.can_scroll(direction=ScrollDirection.DOWN)
+
+    def can_scroll(
+        self,
+        xpath_anchor: Optional[str] = None,
+        direction: ScrollDirection = ScrollDirection.DOWN,
+    ) -> bool:
+        try:
+            scroll_anchor = self.get_scroll_anchor(xpath_anchor)
+            return self.driver.execute_script(
+                direction.get_script_element_is_scrollable(),
+                scroll_anchor,
+            )
+        except NoSuchElementException:
+            return self.driver.execute_script(direction.get_script_page_is_scrollable())
+
+    def scroll(
+        self,
+        xpath_anchor: Optional[str] = None,
+        direction: ScrollDirection = ScrollDirection.DOWN,
+        scroll_factor=0.75,
+    ):
+        try:
+            scroll_anchor = self.get_scroll_anchor(xpath_anchor)
+            size = self.driver.execute_script(
+                "const r = arguments[0].getBoundingClientRect(); return [r.width, r.height]",
+                scroll_anchor,
+            )
+            scroll_xy = direction.get_scroll_xy(size, scroll_factor)
+            ActionChains(self.driver).move_to_element(scroll_anchor).scroll_from_origin(
+                ScrollOrigin(scroll_anchor, 0, 0), scroll_xy[0], scroll_xy[1]
+            ).perform()
+            if xpath_anchor:
+                self.last_hover_xpath = xpath_anchor
+        except NoSuchElementException:
+            self.scroll_page(direction)
+
     def click(self, xpath: str):
         element = self.resolve_xpath(xpath)
+        self.last_hover_xpath = xpath
         try:
             element.click()
         except ElementClickInterceptedException:
@@ -328,18 +397,18 @@ driver.set_window_size({width}, {height} + height_difference)
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.resolve_xpath(xpath)
-
-        if elem.tag_name == "select":
-            # use the dropdown_select to set the value of a select
-            return self.dropdown_select(xpath, value)
-
         try:
             elem = self.resolve_xpath(xpath)
+            self.last_hover_xpath = xpath
+            if elem.tag_name == "select":
+                # use the dropdown_select to set the value of a select
+                return self.dropdown_select(xpath, value)
+
             elem.clear()
         except:
             # might not be a clearable element, but global click + send keys can still success
             pass
+
         self.click(xpath)
 
         (
@@ -357,6 +426,7 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def dropdown_select(self, xpath: str, value: str):
         element = self.resolve_xpath(xpath)
+        self.last_hover_xpath = xpath
 
         if element.tag_name != "select":
             print(
@@ -407,11 +477,15 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def wait_for_idle(self):
         t = time.time()
-        WebDriverWait(self.driver, self.waiting_completion_timeout).until(
-            lambda d: self.is_idle()
-        )
-        elapsed = time.time() - t
-        self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
+        elapsed = 0
+        try:
+            WebDriverWait(self.driver, self.waiting_completion_timeout).until(
+                lambda d: self.is_idle()
+            )
+            elapsed = time.time() - t
+            self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
+        except TimeoutException:
+            pass
 
         total_elapsed = time.time() - t
         if self.log_waiting_time or total_elapsed > 10:
@@ -564,6 +638,17 @@ Description: Like "setValue", except then it presses ENTER. Use this tool can su
 Arguments:
   - xpath (string)
   - value (string)
+
+Name: hover
+Description: Move the mouse cursor over an element identified by the given xpath. It can be used to reveal tooltips or dropdown that appear on hover. It can also be used before scrolling to ensure the focus is in the correct container before performing the scroll action.
+Arguments:
+  - xpath (string)
+
+Name: scroll
+Description: Scroll the container that holds the element identified by the given xpath
+Arguments:
+  - xpath (string)
+  - value (string): UP or DOWN
 
 Name: failNoElement
 Description: Indicate that you are unable to find an element that could match.
