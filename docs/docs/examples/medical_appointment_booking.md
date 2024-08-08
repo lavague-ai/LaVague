@@ -75,7 +75,7 @@ llm = Fireworks(model="accounts/fireworks/models/llama-v3p1-70b-instruct", max_t
 embedding = OpenAIEmbedding(model="text-embedding-3-small")
 
 # Preparing the Agent
-driver = SeleniumDriver(headless=True, no_load_strategy=True)
+driver = SeleniumDriver(headless=True)
 action_engine = ActionEngine(driver,
                              llm=llm,
                              embedding=embedding,
@@ -165,7 +165,7 @@ driver.driver = webdriver.Remote(custom_conn, options=options)
 Another option is to simply run a driver in non-headless mode with:
 
 ```py
-driver = SeleniumDriver(headless=True, no_load_strategy=True)
+driver = SeleniumDriver(headless=True)
 ```
 
 Note that this will not work on Colab, you will have to do it on your own machine.

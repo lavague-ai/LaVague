@@ -48,7 +48,6 @@ class SeleniumDriver(BaseDriver):
         user_data_dir: Optional[str] = None,
         width: int = 1080,
         height: int = 1080,
-        no_load_strategy: bool = False,
         options: Optional[Options] = None,
         driver: Optional[WebDriver] = None,
         log_waiting_time=False,
@@ -58,7 +57,6 @@ class SeleniumDriver(BaseDriver):
         self.user_data_dir = user_data_dir
         self.width = width
         self.height = height
-        self.no_load_strategy = no_load_strategy
         self.options = options
         self.driver = driver
         self.log_waiting_time = log_waiting_time
@@ -88,7 +86,7 @@ class SeleniumDriver(BaseDriver):
             chrome_options.add_argument(f"user-agent={user_agent}")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.page_load_strategy = (
-                "normal" if self.no_load_strategy is False else "none"
+                "normal"
             )
         # allow access to cross origin iframes
         chrome_options.add_argument("--disable-web-security")
