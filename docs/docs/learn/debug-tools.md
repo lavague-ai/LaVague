@@ -42,7 +42,7 @@ agent = WebAgent(world_model, action_engine, step_by_step=True)
 This method allows the agent to perform a single step. It is useful for controlled step-by-step debugging. It is ideal for use within a Jupyter notebook environment where you can manually control and observe each step.
 
 ```py
-agent.run_step()
+agent.run_step(objective)
 ```
 
 ## Highlight nodes 
