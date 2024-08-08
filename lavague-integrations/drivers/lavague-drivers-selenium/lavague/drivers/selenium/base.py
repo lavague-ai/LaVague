@@ -85,9 +85,7 @@ class SeleniumDriver(BaseDriver):
             user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
             chrome_options.add_argument(f"user-agent={user_agent}")
             chrome_options.add_argument("--no-sandbox")
-            chrome_options.page_load_strategy = (
-                "normal"
-            )
+            chrome_options.page_load_strategy = "normal"
         # allow access to cross origin iframes
         chrome_options.add_argument("--disable-web-security")
         chrome_options.add_argument("--disable-site-isolation-trials")
