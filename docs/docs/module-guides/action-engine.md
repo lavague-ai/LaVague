@@ -2,7 +2,7 @@
 
 ### What is the Action Engine?
 
-The Action Engine module is responsible for transforming natural language instructions into code and executing it.
+The Action Engine module is responsible for transforming natural language instructions into [Actions](../learn/actions.md) and executing them.
 
 The Action Engine module contains three sub-engines:
 
@@ -48,7 +48,7 @@ In the case of the Navigation and Python engines:
 
 And in all cases then:
 
-- Executes the code using the Action Engine's `driver`
+- Executes the action using the Action Engine's `driver`
 - Logs information about the action process with the Engine's `logger`
 
 The `dispatch_instruction` method returns an `ActionResult` object, which contains:
