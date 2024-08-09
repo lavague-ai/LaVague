@@ -54,7 +54,7 @@ Thoughts:
 - Hugging Face, is a hub for AI models and datasets, where users can explore and interact with a variety of AI models.
 - I am therefore on the right page to find information about the release date of 'Meta-Llama-3-8B'.
 - However, only information visible right now is about legal and licensing information.
-- Therefore the best next step is to use the 'SCAN' command to take a screenshots of the whole page to find the release date before taking further action.
+- Therefore the best next step is to use the 'SCAN' command to take screenshots of the whole page to find the release date before taking further action.
 Next engine: Navigation Controls
 Instruction: SCAN
 -----
@@ -268,6 +268,26 @@ Thoughts:
 - The next step should involve selecting 'Tokyo (Shinjuku)' from the dropdown to proceed with the booking.
 Next engine: Navigation Engine
 Instruction: Click on 'Tokyo (Shinjuku)' in the dropdown list.
+-----
+Objective: Extract information about the job offer
+Previous instructions:
+Last engine:
+Current state:
+external_observations:
+  vision: '[SCREENSHOT]'
+internal_state:
+  agent_outputs: []
+  user_inputs: []
+Tabs opened:
+0 - [CURRENT] Recommended job offers | Linkedin
+
+Thoughts:
+- The current screenshot shows a LinkedIn job offer page with details about a job offer on the right side.
+- The objective is to get details about the job offer.
+- The job offer details are visible, but there might be more information that is not currently visible due to the scrollbar.
+- The next step should involve positioning the pointer over the scrollable section titled 'About job offer' to be prepare for scanning.
+Next engine: Navigation Engine
+Instruction: Hover 'About job offer'
 """
 
 WORLD_MODEL_PROMPT_TEMPLATE = PromptTemplate(
@@ -310,6 +330,7 @@ Only provide directly the desired output in the instruction in cases where there
 - Only provide instructions one at a time. Do not provide instructions with multiple steps.
 - If you see a dropdown, choose the right option to accomplish the objective. Do not take other actions until the dropdown is closed.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
+- To 'SCAN' a component with a visible scrollbar instead of the main page, first use the Navigation Engine's 'hover' command to position the pointer over an element within the component's container.
 - If the instruction is to maximize the window, use the Navigation Controls's command 'MAXIMIZE_WINDOW'.
 - Switch tabs whenever a new one opens to check if it's relevant. Use the Navigation Controls's command 'SWITCH_TAB' followed by the tab number to switch to the desired tab, such as 'SWITCH TAB 1'.
 - Stick strictly to instructions on visible elements for the Navigation Engine. Do not make assumptions about the state of the page that are not visible in the screenshot.
