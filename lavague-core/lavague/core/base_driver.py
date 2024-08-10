@@ -2,7 +2,7 @@ from PIL import Image
 import os
 from pathlib import Path
 import re
-from typing import Any, Callable, Optional, Mapping, Dict, Set, List, Union
+from typing import Any, Callable, Optional, Mapping, Dict, Set, List, Tuple, Union
 from abc import ABC, abstractmethod
 from lavague.core.utilities.format_utils import (
     extract_code_from_funct,
@@ -166,17 +166,17 @@ class BaseDriver(ABC):
             "return (window.innerHeight + window.scrollY + 1) >= document.body.scrollHeight;"
         )
 
-    def get_screenshots_whole_page(self) -> list[str]:
+    def get_screenshots_whole_page(self, max_screenshots=30) -> list[str]:
         """Take screenshots of the whole page"""
         screenshot_paths = []
 
         current_screenshot_folder = self.get_current_screenshot_folder()
 
-        while True:
+        for i in range(max_screenshots):
             # Saves a screenshot
             screenshot_path = self.save_screenshot(current_screenshot_folder)
             screenshot_paths.append(screenshot_path)
-            self.execute_script("window.scrollBy(0, (window.innerHeight / 1.5));")
+            self.scroll_down()
             self.wait_for_idle()
 
             if self.is_bottom_of_page():
@@ -383,6 +383,53 @@ class DOMNode(ABC):
         return self.get_html()
 
 
+class ScrollDirection(Enum):
+    """Enum for the different scroll directions. Value is (x, y, dimension_index)"""
+
+    LEFT = (-1, 0, 0)
+    RIGHT = (1, 0, 0)
+    UP = (0, -1, 1)
+    DOWN = (0, 1, 1)
+
+    def get_scroll_xy(
+        self, dimension: List[float], scroll_factor: float = 0.75
+    ) -> Tuple[int, int]:
+        size = dimension[self.value[2]]
+        return (
+            round(self.value[0] * size * scroll_factor),
+            round(self.value[1] * size * scroll_factor),
+        )
+
+    def get_page_script(self, scroll_factor: float = 0.75) -> str:
+        return f"window.scrollBy({self.value[0] * scroll_factor} * window.innerWidth, {self.value[1] * scroll_factor} * window.innerHeight);"
+
+    def get_script_element_is_scrollable(self) -> str:
+        match self:
+            case ScrollDirection.UP:
+                return "return arguments[0].scrollTop > 0"
+            case ScrollDirection.DOWN:
+                return "return arguments[0].scrollTop + arguments[0].clientHeight + 1 < arguments[0].scrollHeight"
+            case ScrollDirection.LEFT:
+                return "return arguments[0].scrollLeft > 0"
+            case ScrollDirection.RIGHT:
+                return "return arguments[0].scrollLeft + arguments[0].clientWidth + 1 < arguments[0].scrollWidth"
+
+    def get_script_page_is_scrollable(self) -> str:
+        match self:
+            case ScrollDirection.UP:
+                return "return window.scrollY > 0"
+            case ScrollDirection.DOWN:
+                return "return window.innerHeight + window.scrollY + 1 < document.body.scrollHeight"
+            case ScrollDirection.LEFT:
+                return "return window.scrollX > 0"
+            case ScrollDirection.RIGHT:
+                return "return window.innerWidth + window.scrollX + 1 < document.body.scrollWidth"
+
+    @classmethod
+    def from_string(cls, name: str) -> "ScrollDirection":
+        return cls[name.upper().strip()]
+
+
 def js_wrap_function_call(fn: str):
     return "(function(){" + fn + "})()"
 
@@ -455,6 +502,9 @@ return (function() {
             || (tag === 'label' && document.getElementById(e.getAttribute('for')))
         ) {
             evts.push('CLICK');
+        }
+        if (hasEvent('scroll') || hasEvent('wheel')|| e.scrollHeight > e.clientHeight || e.scrollWidth > e.clientWidth) {
+            evts.push('SCROLL');
         }
         return evts;
     }
@@ -564,4 +614,25 @@ return new Promise(resolve => {
         }
     }, timeout);
 });
+"""
+
+JS_GET_SCROLLABLE_PARENT = """
+let element = arguments[0];
+while (element) {
+    const style = window.getComputedStyle(element);
+
+    // Check if the element is scrollable
+    if (style.overflow === 'auto' || style.overflow === 'scroll' || 
+        style.overflowX === 'auto' || style.overflowX === 'scroll' || 
+        style.overflowY === 'auto' || style.overflowY === 'scroll') {
+        
+        // Check if the element has a scrollable area
+        if (element.scrollHeight > element.clientHeight || 
+            element.scrollWidth > element.clientWidth) {
+            return element;
+        }
+    }
+    element = element.parentElement;
+}
+return null;
 """
