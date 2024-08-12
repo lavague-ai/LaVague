@@ -764,7 +764,7 @@ Completion:
     - action:
         # Select the "3:00 AM - 4:00 AM" option by targeting the dropdown menu with the specified XPATH.
         args:
-            xpath: "/html/body/div[3]/div/div[3]/div[3]/main/form/section[3]/div/div/div/div[2]/div/div/div/div/select"
+            xpath: "/html/body/div/main/form/section/div/select"
             value: "3"
         name: "dropdownSelect"
 """
