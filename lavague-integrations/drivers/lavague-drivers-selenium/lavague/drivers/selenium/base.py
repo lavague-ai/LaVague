@@ -739,4 +739,65 @@ Completion:
             value: ""
         name: "click"
 ```
+-----
+HTML:
+<div class="bui-form__group bp-form-group bp-form-group__checkin_eta_hour   ">
+<label class="bui-form__label" for="checkin_eta_hour">Add your estimated arrival time  
+<span class="bp-form-field__indicator bp-form-field__indicator--optional bui-text--variant-small_1 bui-text--color-neutral_alt">(optional)</span>
+ </label>
+<div class="bui-input-select">
+<select name="checkin_eta_hour" class="
+bui-form__control
+" id="checkin_eta_hour">
+<option value="" disabled="" selected="">Please select</option>
+<option value="-1">I don't know</option>
+<option value="0">12:00&nbsp;AM – 1:00&nbsp;AM </option>
+<option value="1">1:00&nbsp;AM – 2:00&nbsp;AM </option>
+<option value="2">2:00&nbsp;AM – 3:00&nbsp;AM </option>
+<option value="3">3:00&nbsp;AM – 4:00&nbsp;AM </option>
+<option value="4">4:00&nbsp;AM – 5:00&nbsp;AM </option>
+<option value="5">5:00&nbsp;AM – 6:00&nbsp;AM </option>
+<option value="6">6:00&nbsp;AM – 7:00&nbsp;AM </option>
+<option value="7">7:00&nbsp;AM – 8:00&nbsp;AM </option>
+<option value="8">8:00&nbsp;AM – 9:00&nbsp;AM </option>
+<option value="9">9:00&nbsp;AM – 10:00&nbsp;AM </option>
+<option value="10">10:00&nbsp;AM – 11:00&nbsp;AM </option>
+<option value="11">11:00&nbsp;AM – 12:00&nbsp;PM </option>
+<option value="12">12:00&nbsp;PM – 1:00&nbsp;PM </option>
+<option value="13">1:00&nbsp;PM – 2:00&nbsp;PM </option>
+<option value="14">2:00&nbsp;PM – 3:00&nbsp;PM </option>
+<option value="15">3:00&nbsp;PM – 4:00&nbsp;PM </option>
+<option value="16">4:00&nbsp;PM – 5:00&nbsp;PM </option>
+<option value="17">5:00&nbsp;PM – 6:00&nbsp;PM </option>
+<option value="18">6:00&nbsp;PM – 7:00&nbsp;PM </option>
+<option value="19">7:00&nbsp;PM – 8:00&nbsp;PM </option>
+<option value="20">8:00&nbsp;PM – 9:00&nbsp;PM </option>
+<option value="21">9:00&nbsp;PM – 10:00&nbsp;PM </option>
+<option value="22">10:00&nbsp;PM – 11:00&nbsp;PM </option>
+<option value="23">11:00&nbsp;PM – 12:00&nbsp;AM </option>
+<option value="24">12:00&nbsp;AM – 1:00&nbsp;AM (the next day)</option>
+<option value="25">1:00&nbsp;AM – 2:00&nbsp;AM (the next day)</option>
+</select>
+<svg class="bk-icon -iconset-dropdown bui-input-select__icon" height="16" role="presentation" width="16" viewBox="0 0 128 128" aria-hidden="true" focusable="false"><path d="M92 52a4 4 0 0 1-2.8-1.2L64 25.7 38.8 50.8a4 4 0 0 1-5.6-5.6L64 14.3l30.8 30.9A4 4 0 0 1 92 52zm0 24a4 4 0 0 0-2.8 1.2L64 102.3 38.8 77.2a4 4 0 0 0-5.6 5.6L64 113.7l30.8-30.9A4 4 0 0 0 92 76z"></path></svg>
+</div>
+<div id="form-field__helper--checkin_eta_hour" class="bui-form__helper js-form-field__helper--checkin_eta_hour">Time is for New York time zone</div>
+</div>
+</div>
+
+Query: Select the 4:00 PM - 5:00 PM option from the dropdown menu
+Completion:
+# Let's think step by step
+# The query asks us to select the "4:00 PM - 5:00 PM" option from a dropdown menu.
+# We need to identify the correct option within the dropdown menu based on its value attribute.
+# The dropdown menu is specified by its XPATH, and the value of the option we need to select is "16".
+# We can use the following XPATH to locate the dropdown menu and the value "16" to select the appropriate option.
+
+- actions:
+    - action:
+        # Select the "4:00 PM - 5:00 PM" option by targeting the dropdown menu with the specified XPATH.
+        args:
+            xpath: "/html/body/div[3]/div/div[3]/div[3]/main/form/section[3]/div/div/div/div[2]/div/div/div/div[1]/select"
+            value: "16"
+        name: "dropdownSelect"
+
 """
