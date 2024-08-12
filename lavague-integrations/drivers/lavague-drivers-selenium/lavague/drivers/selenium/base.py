@@ -758,7 +758,7 @@ Completion:
 # We need to identify the correct option within the dropdown menu based on its value attribute.
 # The dropdown menu is specified by its XPATH, and the value of the option we need to select is "3".
 # We can use the following "select" XPATH to locate the dropdown menu and the value "3" to select the appropriate option:
-# /html/body/div[3]/div/div[3]/div[3]/main/form/section[3]/div/div/div/div[2]/div/div/div/div/select
+# /html/body/div/main/form/section/div/select
 
 - actions:
     - action:
