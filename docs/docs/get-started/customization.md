@@ -60,7 +60,7 @@ from lavague.drivers.selenium import SeleniumDriver
 
 # Customize the LLM, multi-modal LLM and embedding models
 llm = Gemini(model_name="models/gemini-1.5-flash-latest")
-mm_llm =  AnthropicModal(model="claude-3-sonnet-20240229", max_tokens=3000)
+mm_llm =  AnthropicMultiModal(model="claude-3-sonnet-20240229", max_tokens=3000)
 
 # Initialize the Selenium driver
 selenium_driver = SeleniumDriver()
