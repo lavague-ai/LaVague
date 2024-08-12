@@ -530,24 +530,44 @@ driver.set_window_size({width}, {height} + height_difference)
         driver.switch_to.window(window_handles[tab_id])
 
     def get_nodes(self, xpaths: List[str]) -> List["SeleniumNode"]:
-        nodes: List["SeleniumNode"] = []
-        for xpath in xpaths:
-            try:
-                element = self.resolve_xpath(xpath)
-                nodes.append(SeleniumNode(element, self.driver))
-            except NoSuchElementException:
-                print(f"WARN(missing-xpath): {xpath} not found")
-                pass
-        return nodes
+        return [SeleniumNode(xpath, self.driver) for xpath in xpaths]
+
+    def exec_script_for_nodes(self, nodes: List["SeleniumNode"], script: str):
+        standard_nodes: List[SeleniumNode] = []
+        iframe_nodes: List[SeleniumNode] = []
+
+        for node in nodes:
+            target = iframe_nodes if "iframe" in node.xpath else standard_nodes
+            target.append(node)
+
+        if len(standard_nodes) > 0:
+            self.driver.execute_script(
+                "arguments[0]=arguments[0].map(a => document.evaluate(a, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue);"
+                + script,
+                [n.xpath for n in standard_nodes],
+            )
+
+        if len(iframe_nodes) > 0:
+            self.driver.execute_script(
+                script,
+                [n.element for n in iframe_nodes if n.element],
+            )
+
+    def remove_nodes_highlight(self, xpaths: List[str]):
+        self.exec_script_for_nodes(
+            self.get_nodes(xpaths),
+            "arguments[0].forEach(a => a.style.removeProperty('outline'))",
+        )
 
     def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
         nodes = self.get_nodes(xpaths)
-        self.driver.execute_script(
-            "arguments[0].forEach(a => { a.style.outline = '2px dashed ' + arguments[1]; a.style['outline-offset'] = '-1px'})",
-            [n.element for n in nodes],
-            color,
+        set_style = f"a.style.outline = '2px dashed {color}'; a.style['outline-offset'] = '-1px'"
+        self.exec_script_for_nodes(
+            nodes, "arguments[0].forEach(a => { " + set_style + "})"
         )
-        return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
+        return self._add_highlighted_destructors(
+            lambda: self.remove_nodes_highlight(xpaths)
+        )
 
     def get_possible_interactions(
         self, in_viewport=True, foreground_only=True
@@ -563,27 +583,27 @@ driver.set_window_size({width}, {height} + height_difference)
 
 
 class SeleniumNode(DOMNode):
-    def __init__(self, element: WebElement, driver: WebDriver) -> None:
-        self.element = element
+    def __init__(self, xpath: str, driver: SeleniumDriver) -> None:
+        self.xpath = xpath
         self._driver = driver
         super().__init__()
 
+    @property
+    def element(self):
+        if hasattr(self, "_element"):
+            return self._element
+        try:
+            self._element = self._driver.resolve_xpath(self.xpath)
+        except StaleElementReferenceException:
+            self._element = None
+        return self._element
+
     def highlight(self, color: str = "red"):
-        self._driver.execute_script(
-            "arguments[0].style.outline = '2px dashed ' + arguments[1]; arguments[0].style['outline-offset'] = '-1px'",
-            self.element,
-            color,
-        )
+        self._driver.highlight_nodes([self.xpath], color)
         return self
 
     def clear(self):
-        try:
-            self._driver.execute_script(
-                "arguments[0].style.removeProperty('outline')",
-                self.element,
-            )
-        except StaleElementReferenceException:
-            pass
+        self._driver.remove_nodes_highlight([self.xpath])
         return self
 
     def take_screenshot(self):
@@ -593,7 +613,7 @@ class SeleniumNode(DOMNode):
             return Image.new("RGB", (0, 0))
 
     def get_html(self):
-        return self._driver.execute_script(
+        return self._driver.driver.execute_script(
             "return arguments[0].outerHTML", self.element
         )
 

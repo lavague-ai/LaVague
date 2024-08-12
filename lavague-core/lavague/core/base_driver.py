@@ -449,13 +449,13 @@ JS_SETUP_GET_EVENTS = """
     targetProto.removeEventListener = function(a, b, c) {
         this._removeEventListener(a, b, c);
         if(this.eventListenerList && this.eventListenerList[a]) {
-        const index = this.eventListenerList[a].indexOf(b);
-        if (index > -1) {
-            this.eventListenerList[a].splice(index, 1);
-            if(!this.eventListenerList[a].length) {
-            delete this.eventListenerList[a];
+            const index = this.eventListenerList[a].indexOf(b);
+            if (index > -1) {
+                this.eventListenerList[a].splice(index, 1);
+                if (!this.eventListenerList[a].length) {
+                    delete this.eventListenerList[a];
+                }
             }
-        }
         }
     };
     window.getEventListeners = function(e) {
