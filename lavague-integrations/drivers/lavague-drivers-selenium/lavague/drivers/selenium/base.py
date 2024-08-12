@@ -335,6 +335,23 @@ driver.set_window_size({width}, {height} + height_difference)
         scroll_anchor = parent or element
         return scroll_anchor
 
+    def get_scroll_container_size(self, scroll_anchor: WebElement):
+        container = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, scroll_anchor)
+        if container:
+            return (
+                self.driver.execute_script(
+                    "const r = arguments[0].getBoundingClientRect(); return [r.width, r.height]",
+                    scroll_anchor,
+                ),
+                True,
+            )
+        return (
+            self.driver.execute_script(
+                "return [window.innerWidth, window.innerHeight]",
+            ),
+            False,
+        )
+
     def is_bottom_of_page(self) -> bool:
         return not self.can_scroll(direction=ScrollDirection.DOWN)
 
@@ -360,14 +377,18 @@ driver.set_window_size({width}, {height} + height_difference)
     ):
         try:
             scroll_anchor = self.get_scroll_anchor(xpath_anchor)
-            size = self.driver.execute_script(
-                "const r = arguments[0].getBoundingClientRect(); return [r.width, r.height]",
-                scroll_anchor,
-            )
+            size, is_container = self.get_scroll_container_size(scroll_anchor)
             scroll_xy = direction.get_scroll_xy(size, scroll_factor)
-            ActionChains(self.driver).move_to_element(scroll_anchor).scroll_from_origin(
-                ScrollOrigin(scroll_anchor, 0, 0), scroll_xy[0], scroll_xy[1]
-            ).perform()
+            if is_container:
+                ActionChains(self.driver).move_to_element(
+                    scroll_anchor
+                ).scroll_from_origin(
+                    ScrollOrigin(scroll_anchor, 0, 0), scroll_xy[0], scroll_xy[1]
+                ).perform()
+            else:
+                ActionChains(self.driver).scroll_by_amount(
+                    scroll_xy[0], scroll_xy[1]
+                ).perform()
             if xpath_anchor:
                 self.last_hover_xpath = xpath_anchor
         except NoSuchElementException:
@@ -534,29 +555,34 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def exec_script_for_nodes(self, nodes: List["SeleniumNode"], script: str):
         standard_nodes: List[SeleniumNode] = []
-        iframe_nodes: List[SeleniumNode] = []
+        special_nodes: List[SeleniumNode] = []
 
         for node in nodes:
-            target = iframe_nodes if "iframe" in node.xpath else standard_nodes
+            # iframe and shadow DOM must use the resolve_xpath method
+            target = (
+                special_nodes
+                if "iframe" in node.xpath or "//" in node.xpath
+                else standard_nodes
+            )
             target.append(node)
 
         if len(standard_nodes) > 0:
             self.driver.execute_script(
-                "arguments[0]=arguments[0].map(a => document.evaluate(a, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue);"
+                "arguments[0]=arguments[0].map(a => document.evaluate(a, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue).filter(a => a);"
                 + script,
                 [n.xpath for n in standard_nodes],
             )
 
-        if len(iframe_nodes) > 0:
+        if len(special_nodes) > 0:
             self.driver.execute_script(
                 script,
-                [n.element for n in iframe_nodes if n.element],
+                [n.element for n in special_nodes if n.element],
             )
 
     def remove_nodes_highlight(self, xpaths: List[str]):
         self.exec_script_for_nodes(
             self.get_nodes(xpaths),
-            "arguments[0].forEach(a => a.style.removeProperty('outline'))",
+            "arguments[0].filter(a => a).forEach(a => a.style.removeProperty('outline'))",
         )
 
     def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
