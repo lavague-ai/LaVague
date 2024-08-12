@@ -5,7 +5,7 @@ on:
     branches:
       - '*'
   schedule:
-    - cron: '0 9 * * 1'
+    - cron: '0 10 * * 1'
   workflow_dispatch:
 
 jobs:
@@ -124,7 +124,6 @@ jobs:
 
       - name: Extract Python code
         run: |
-          rm ./docs/docs/examples/qa-automation.md
           python .github/extract-python-code.py ./docs/docs/examples/*.md docs/docs/use-cases/*.md ./docs/docs/get-started/*.md  ./docs/docs/module-guides/*.md ./docs/docs/learn/*.md
 
       - name: Run extracted Python scripts
@@ -142,11 +141,6 @@ jobs:
           else
             echo "No generated scripts found."
           fi
-
-      - name: Clean up
-        run: |
-          rm hf_knowledge.txt
-          rm -f generated_scripts.txt
 
   notify-docs-examples-failure:
     runs-on: ubuntu-latest

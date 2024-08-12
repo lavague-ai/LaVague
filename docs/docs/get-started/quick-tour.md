@@ -82,8 +82,7 @@ You can take a quick look at the `demo` feature in the video below:
 
 You can also run LaVague in-browser with our LaVague Chrome Extension:
 
-<iframe width="560" height="315"  src="https://www.youtube.com/embed/f7-pRFtT6hY
-" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315"  src="https://www.youtube.com/embed/f7-pRFtT6hY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 To learn how to install and get started with the Chrome extension, see our [LaVague extension docs](./docs-chrome.md)
 
