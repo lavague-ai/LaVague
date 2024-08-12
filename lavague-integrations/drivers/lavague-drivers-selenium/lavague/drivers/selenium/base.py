@@ -741,7 +741,7 @@ Completion:
 ```
 -----
 HTML:
-<select class="bui-form__control" id="checkin_eta_hour" name="checkin_eta_hour" xpath="/html/body/div[3]/div/div[3]/div[3]/main/form/section[3]/div/div/div/div[2]/div/div/div/div/select">
+<select name="checkin_eta_hour" xpath="/html/body/div/main/form/section/div/select">
 <option disabled="" selected="" value="">Please select</option>
 <option value="-1">I don't know</option>
 <option value="0">12:00 AM – 1:00 AM </option>
