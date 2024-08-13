@@ -526,6 +526,7 @@ class WebAgent:
             self.interrupted = True
             raise e
         finally:
+            self.driver.destroy()
             origin = self.origin if hasattr(self, "origin") else "lavague"
             send_telemetry(self.logger.return_pandas(), origin=origin)
             if log_to_db:
