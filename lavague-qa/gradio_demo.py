@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple
 from lavague.contexts.openai.base import OpenaiContext
 from lavague.core.agents import WebAgent
 import gradio as gr
+from lavague.core.memory import ShortTermMemory
 from lavague.core.retrievers import SemanticRetriever
 from lavague.core.world_model import WorldModel
 from lavague.qa.generator import Scenario, TestGenerator
@@ -70,7 +71,7 @@ class GradioQADemo:
         agent: WebAgent = None,
         user_data=None,
         screenshot_ratio: float = 1,
-        use_browserbase=True,
+        use_browserbase=False,
     ):
         self.use_browserbase = use_browserbase
         self.objective = objective
@@ -188,6 +189,7 @@ class GradioQADemo:
                 True, objective, url_input, image_display, history
             )
             self.agent.clean_screenshot_folder = False
+            self.agent.st_memory = ShortTermMemory()
             self.agent.prepare_run()
             nb_steps = 1
             for index, step in enumerate(self.scenario.steps):

@@ -385,8 +385,6 @@ class WebAgent:
             output,
         )
 
-        print(url_input)
-
         if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
             output = self.result.output
             self.result.success = True
@@ -410,8 +408,6 @@ class WebAgent:
         yield from self.action_engine.dispatch_instruction_gradio(
             next_engine_name, instruction
         )
-
-        print(url_input)
 
         success = self.action_engine.ret.success
 
@@ -439,8 +435,6 @@ class WebAgent:
         url_input = self.driver.get_url()
         image_display = self._get_screenshot(screenshot_ratio)
         
-        print(url_input)
-
         yield (
             objective_obj,
             url_input,
