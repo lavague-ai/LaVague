@@ -107,6 +107,95 @@ class WebAgent:
                 "please run `pip install lavague-gradio`"
             )
 
+    def _finish_step(
+        self,
+        next_engine_name: str,
+        history: any,
+        success,
+        curr_step: int,
+        instruction: str,
+        world_model_output: str,
+    ):
+        from gradio import ChatMessage
+
+        if next_engine_name != "Navigation Engine":
+            if success:
+                history[-1] = ChatMessage(
+                    role="assistant",
+                    content=f"{world_model_output}",
+                    metadata={"title": f"✅ Step {curr_step + 1} - {instruction}"},
+                )
+            else:
+                history[-1] = ChatMessage(
+                    role="assistant",
+                    content=f"{world_model_output}",
+                    metadata={"title": f"❌ Step {curr_step + 1} - {instruction}"},
+                )
+            history.append(
+                ChatMessage(role="assistant", content="⏳ Thinking of next steps...")
+            )
+        else:
+            history[-1] = ChatMessage(
+                role="assistant", content=f"⏳ Thinking of next steps..."
+            )
+        return history
+
+    def _add_step(
+        self,
+        instruction: str,
+        next_engine_name: str,
+        history: any,
+        world_model_output: str,
+        curr_step: int,
+        curr_instruction: str,
+    ):
+        from gradio import ChatMessage
+
+        if instruction.find("[NONE]") == -1 and next_engine_name != "COMPLETE":
+            history[-1] = ChatMessage(
+                role="assistant",
+                content=f"{world_model_output}",
+                metadata={"title": f"⏳ Step {curr_step + 1} - {curr_instruction}"},
+            )
+        return history
+
+    def _check_result(self, history: any, output: str, success: bool, curr_step: int):
+        from gradio import ChatMessage
+
+        if output is not None:
+            if len(output) > 0 and output.strip() != "[NONE]":
+                history[-1] = ChatMessage(
+                    role="assistant", content=output, metadata={"title": f"🌊 Output"}
+                )
+            elif len(output) == 0 or output.strip() == "[NONE]":
+                if success:
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"🌊 Objective reached"},
+                    )
+                else:
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was not successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"❌ Failed to reach objective"},
+                    )
+            else:
+                if success:
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"🌊 Objective reached"},
+                    )
+                else:
+                    history[-1] = ChatMessage(
+                        role="assistant",
+                        content=f"The objective was not successfully executed after {curr_step} step(s).",
+                        metadata={"title": f"❌ Failed to reach objective"},
+                    )
+
+        return history
+
     def _run_demo(
         self,
         objective: str,
@@ -119,8 +208,6 @@ class WebAgent:
         screenshot_ratio: float = 1,
     ):
         """Internal run method for the gradio demo. Do not use directly. Use run instead."""
-
-        from gradio import ChatMessage
 
         driver: BaseDriver = self.driver
         logger = self.logger
@@ -160,29 +247,19 @@ class WebAgent:
             instruction = extract_world_model_instruction(world_model_output)
 
             self.action_engine.screenshot_ratio = screenshot_ratio
-            img = self.driver.get_screenshot_as_png()
-            img = BytesIO(img)
-            img = Image.open(img)
-            if screenshot_ratio != 1:
-                img = img.resize(
-                    (
-                        int(img.width / screenshot_ratio),
-                        int(img.height / screenshot_ratio),
-                    )
-                )
-            image_display = img
+            image_display = self._get_screenshot(screenshot_ratio)
 
             self.action_engine.curr_step = curr_step + 1
             self.action_engine.curr_instruction = instruction
 
-            if instruction.find("[NONE]") == -1 and next_engine_name != "COMPLETE":
-                history[-1] = ChatMessage(
-                    role="assistant",
-                    content=f"{self.action_engine.world_model_output}",
-                    metadata={
-                        "title": f"⏳ Step {curr_step + 1} - {self.action_engine.curr_instruction}"
-                    },
-                )
+            history = self._add_step(
+                instruction,
+                next_engine_name,
+                history,
+                self.action_engine.world_model_output,
+                curr_step,
+                self.action_engine.curr_instruction,
+            )
             yield (
                 objective_obj,
                 url_input,
@@ -217,40 +294,16 @@ class WebAgent:
             logger.end_step()
 
             obs = driver.get_obs()
-            if next_engine_name != "Navigation Engine":
-                if success:
-                    history[-1] = ChatMessage(
-                        role="assistant",
-                        content=f"{self.action_engine.world_model_output}",
-                        metadata={"title": f"✅ Step {curr_step + 1} - {instruction}"},
-                    )
-                else:
-                    history[-1] = ChatMessage(
-                        role="assistant",
-                        content=f"{self.action_engine.world_model_output}",
-                        metadata={"title": f"❌ Step {curr_step + 1} - {instruction}"},
-                    )
-                history.append(
-                    ChatMessage(
-                        role="assistant", content="⏳ Thinking of next steps..."
-                    )
-                )
-            else:
-                history[-1] = ChatMessage(
-                    role="assistant", content=f"⏳ Thinking of next steps..."
-                )
+            history = self._finish_step(
+                next_engine_name,
+                history,
+                success,
+                curr_step,
+                instruction,
+                self.action_engine.world_model_output,
+            )
             url_input = self.action_engine.driver.get_url()
-            img = self.driver.get_screenshot_as_png()
-            img = BytesIO(img)
-            img = Image.open(img)
-            if screenshot_ratio != 1:
-                img = img.resize(
-                    (
-                        int(img.width / screenshot_ratio),
-                        int(img.height / screenshot_ratio),
-                    )
-                )
-            image_display = img
+            image_display = self._get_screenshot(screenshot_ratio)
             yield (
                 objective_obj,
                 url_input,
@@ -260,37 +313,69 @@ class WebAgent:
             )
         send_telemetry(logger.return_pandas(), origin="gradio")
         url_input = self.action_engine.driver.get_url()
-        if output is not None:
-            if len(output) > 0 and output.strip() != "[NONE]":
-                history[-1] = ChatMessage(
-                    role="assistant", content=output, metadata={"title": f"🌊 Output"}
+        history = self._check_result(history, output, success, curr_step)
+        yield (
+            objective_obj,
+            url_input,
+            image_display,
+            history,
+            output,
+        )
+
+    def _get_screenshot(self, screenshot_ratio):
+        img = self.driver.get_screenshot_as_png()
+        img = BytesIO(img)
+        img = Image.open(img)
+        if screenshot_ratio != 1:
+            img = img.resize(
+                (
+                    int(img.width / screenshot_ratio),
+                    int(img.height / screenshot_ratio),
                 )
-            elif len(output) == 0 or output.strip() == "[NONE]":
-                if success:
-                    history[-1] = ChatMessage(
-                        role="assistant",
-                        content=f"The objective was successfully executed after {curr_step} step(s).",
-                        metadata={"title": f"🌊 Objective reached"},
-                    )
-                else:
-                    history[-1] = ChatMessage(
-                        role="assistant",
-                        content=f"The objective was not successfully executed after {curr_step} step(s).",
-                        metadata={"title": f"❌ Failed to reach objective"},
-                    )
-            else:
-                if success:
-                    history[-1] = ChatMessage(
-                        role="assistant",
-                        content=f"The objective was successfully executed after {curr_step} step(s).",
-                        metadata={"title": f"🌊 Objective reached"},
-                    )
-                else:
-                    history[-1] = ChatMessage(
-                        role="assistant",
-                        content=f"The objective was not successfully executed after {curr_step} step(s).",
-                        metadata={"title": f"❌ Failed to reach objective"},
-                    )
+            )
+        return img
+
+    def _run_step_gradio(
+        self,
+        objective: str,
+        curr_step: int,
+        objective_obj: Any = None,
+        url_input: Any = None,
+        image_display: Any = None,
+        history: Any = None,
+        screenshot_ratio: float = 1,
+    ):
+        """Internal run method for the gradio demo. Do not use directly. Use run_step instead."""
+        output = None
+        self.action_engine.set_display_all(False)
+        obs = self.driver.get_obs()
+        current_state, past = self.st_memory.get_state()
+        url_input = self.driver.get_url()
+
+        world_model_output = self.world_model.get_instruction(
+            objective, current_state, past, obs
+        )
+        self.action_engine.world_model_output = replace_hyphens(
+            extract_before_next_engine(world_model_output)
+        )
+        logging_print.info(world_model_output)
+        next_engine_name = extract_next_engine(world_model_output)
+        instruction = extract_world_model_instruction(world_model_output)
+
+        self.action_engine.screenshot_ratio = screenshot_ratio
+        image_display = self._get_screenshot(screenshot_ratio)
+
+        self.action_engine.curr_step = curr_step + 1
+        self.action_engine.curr_instruction = instruction
+
+        history = self._add_step(
+            instruction,
+            next_engine_name,
+            history,
+            self.action_engine.world_model_output,
+            curr_step,
+            instruction,
+        )
 
         yield (
             objective_obj,
@@ -299,6 +384,73 @@ class WebAgent:
             history,
             output,
         )
+
+        print(url_input)
+
+        if next_engine_name == "COMPLETE" or next_engine_name == "SUCCESS":
+            output = self.result.output
+            self.result.success = True
+            self.result.output = instruction
+            logging_print.info("Objective reached. Stopping...")
+            url_input = self.action_engine.driver.get_url()
+            self.logger.add_log(obs)
+
+            yield (
+                objective_obj,
+                url_input,
+                image_display,
+                history,
+                output,
+            )
+
+            self.process_token_usage()
+            self.logger.end_step()
+            return
+
+        yield from self.action_engine.dispatch_instruction_gradio(
+            next_engine_name, instruction
+        )
+
+        print(url_input)
+
+        success = self.action_engine.ret.success
+
+        output = self.result.output
+
+        if self.action_engine.ret.success:
+            self.result.code += self.action_engine.ret.code
+            self.result.output = self.action_engine.ret.output
+        self.st_memory.update_state(
+            instruction,
+            next_engine_name,
+            self.action_engine.ret.success,
+            self.action_engine.ret.output,
+        )
+        self.logger.add_log(obs)
+
+        history = self._finish_step(
+            next_engine_name,
+            history,
+            success,
+            curr_step,
+            instruction,
+            self.action_engine.world_model_output,
+        )
+        url_input = self.driver.get_url()
+        image_display = self._get_screenshot(screenshot_ratio)
+        
+        print(url_input)
+
+        yield (
+            objective_obj,
+            url_input,
+            image_display,
+            history,
+            output,
+        )
+
+        self.process_token_usage()
+        self.logger.end_step()
 
     def run_step(self, objective: str) -> Optional[ActionResult]:
         obs = self.driver.get_obs()

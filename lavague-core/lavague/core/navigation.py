@@ -215,6 +215,7 @@ class NavigationEngine(BaseEngine):
         llm_context = "\n".join(source_nodes)
         success = False
         logger = self.logger
+        self.url_input = self.driver.get_url()
 
         navigation_log = {
             "navigation_engine_input": instruction,
@@ -290,6 +291,7 @@ class NavigationEngine(BaseEngine):
                 self.history.append(
                     ChatMessage(role="assistant", content="⏳ Loading the page...")
                 )
+                self.url_input = self.driver.get_url()
                 yield (
                     self.objective,
                     self.url_input,
@@ -364,6 +366,8 @@ class NavigationEngine(BaseEngine):
             output=None,
         )
         action_engine.ret = output
+
+        self.url_input = self.driver.get_url()
 
         yield (
             self.objective,
