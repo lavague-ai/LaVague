@@ -5,7 +5,7 @@ on:
     branches:
       - '*'
   schedule:
-    - cron: '0 12 * * 1'
+    - cron: '0 9 * * 2'
   workflow_dispatch:
 
 jobs:
@@ -112,6 +112,7 @@ jobs:
         run: |
           pip cache purge
           pip install lavague
+          pip install pyarrow
           pip install lavague-contexts-gemini
           pip install llama-index-multi-modal-llms-anthropic
           pip install lavague-contexts-fireworks
@@ -129,15 +130,23 @@ jobs:
       - name: Run extracted Python scripts
         run: |
           if [ -f generated_scripts.txt ]; then
+            overall_status=0
             while IFS= read -r script_file
             do
               echo "Running $script_file"
-              cat $script_file
+              cat "$script_file"
               python "$script_file"
               if [ $? -ne 0 ]; then
                 echo "Script $script_file failed"
+                overall_status=1
               fi
             done < generated_scripts.txt
+            if [ $overall_status -ne 0 ]; then
+              echo "One or more scripts failed."
+              exit 1
+            else
+              echo "All scripts ran successfully."
+            fi
           else
             echo "No generated scripts found."
           fi
