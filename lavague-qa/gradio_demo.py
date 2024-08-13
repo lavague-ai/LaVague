@@ -13,6 +13,7 @@ from lavague.core.action_engine import ActionEngine
 from PIL import Image
 from gherkin.parser import Parser
 
+
 class GradioQADemo:
     """
     Launch an agent gradio demo of lavague-qa
@@ -142,8 +143,14 @@ class GradioQADemo:
         def init_driver_impl(url, img, api_key):
             print("init")
             if self.use_browserbase:
-                browserbase_connection = BrowserbaseRemoteConnection('http://connect.browserbase.com/webdriver', api_key = os.environ["BROWSERBASE_API_KEY"], project_id = os.environ["BROWSERBASE_PROJECT_ID"])
-                selenium_driver = SeleniumDriver(remote_connection=browserbase_connection)
+                browserbase_connection = BrowserbaseRemoteConnection(
+                    "http://connect.browserbase.com/webdriver",
+                    api_key=os.environ["BROWSERBASE_API_KEY"],
+                    project_id=os.environ["BROWSERBASE_PROJECT_ID"],
+                )
+                selenium_driver = SeleniumDriver(
+                    remote_connection=browserbase_connection
+                )
             if self.agent is None:
                 if self.use_browserbase == False:
                     selenium_driver = SeleniumDriver(headless=True)
@@ -162,7 +169,7 @@ class GradioQADemo:
                 agent = WebAgent(world_model, action_engine)
                 agent.set_origin("lavague-qa-gradio-hf")
                 self.agent = agent
-            
+
             if self.use_browserbase:
                 self.agent.driver = selenium_driver
 

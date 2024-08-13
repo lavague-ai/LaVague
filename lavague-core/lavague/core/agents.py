@@ -434,7 +434,7 @@ class WebAgent:
         )
         url_input = self.driver.get_url()
         image_display = self._get_screenshot(screenshot_ratio)
-        
+
         yield (
             objective_obj,
             url_input,
