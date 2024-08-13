@@ -97,21 +97,6 @@ class TestGenerator:
             self.generated_dir, self.feature_file_name
         )
 
-    def start_gradio(self):
-        from lavague.qa.gradio import GradioQADemo
-
-        selenium_driver = SeleniumDriver(headless=self.headless)
-        action_engine = ActionEngine.from_context(
-            context=self.context, driver=selenium_driver
-        )
-        world_model = WorldModel.from_context(context=self.context)
-        agent = WebAgent(world_model, action_engine, token_counter=self.token_counter)
-        agent.set_origin("lavague-qa")
-        agent.get(self.url)
-
-        grad = GradioQADemo(self.feature_file_content, None, agent)
-        grad.launch()
-
     def generate(self):
         start_time = time.time()
         logs, html = self._run_lavague_agent()

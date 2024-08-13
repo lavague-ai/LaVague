@@ -7,29 +7,10 @@ import gradio as gr
 from lavague.core.retrievers import SemanticRetriever
 from lavague.core.world_model import WorldModel
 from lavague.qa.generator import Scenario, TestGenerator
-import requests
-from lavague.drivers.selenium.base import SeleniumDriver
+from lavague.drivers.selenium import SeleniumDriver, BrowserbaseRemoteConnection
 from lavague.core.action_engine import ActionEngine
 from PIL import Image
 from gherkin.parser import Parser
-from selenium.webdriver.remote.remote_connection import RemoteConnection
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium import webdriver
-
-
-class CustomRemoteConnection(RemoteConnection):
-    _session_id = None
-
-    def __init__(self, remote_server_addr: str, session_id: str):
-        super().__init__(remote_server_addr)
-        self._session_id = session_id
-
-    def get_remote_connection_headers(self, parsed_url, keep_alive=False):
-        headers = super().get_remote_connection_headers(parsed_url, keep_alive)
-        headers.update({"x-bb-api-key": os.environ["BROWSERBASE_API_KEY"]})
-        headers.update({"session-id": self._session_id})
-        return headers
-
 
 class GradioQADemo:
     """
@@ -106,19 +87,6 @@ class GradioQADemo:
         self.llm = None
         self.code = ""
 
-    def create_session(self):
-        url = "https://www.browserbase.com/v1/sessions"
-        headers = {
-            "Content-Type": "application/json",
-            "x-bb-api-key": os.environ["BROWSERBASE_API_KEY"],
-        }
-        response = requests.post(
-            url,
-            json={"projectId": os.environ["BROWSERBASE_PROJECT_ID"]},
-            headers=headers,
-        )
-        return response.json()["id"]
-
     @staticmethod
     def _read_scenarios(gherkin: str) -> Tuple[List[Scenario], str]:
         scenarios: List[Scenario] = []
@@ -173,17 +141,8 @@ class GradioQADemo:
         def init_driver_impl(url, img, api_key):
             print("init")
             if self.use_browserbase:
-                # Create a new session
-                session_id = self.create_session()
-
-                custom_conn = CustomRemoteConnection(
-                    "http://connect.browserbase.com/webdriver", session_id
-                )
-                options = webdriver.ChromeOptions()
-                options.debugger_address = "localhost:9223"
-
-                driver = webdriver.Remote(custom_conn, options=options)
-                selenium_driver = SeleniumDriver(driver=driver)
+                browserbase_connection = BrowserbaseRemoteConnection('http://connect.browserbase.com/webdriver', api_key = os.environ["BROWSERBASE_API_KEY"], project_id = os.environ["BROWSERBASE_PROJECT_ID"])
+                selenium_driver = SeleniumDriver(remote_connection=browserbase_connection)
             if self.agent is None:
                 if self.use_browserbase == False:
                     selenium_driver = SeleniumDriver(headless=True)
