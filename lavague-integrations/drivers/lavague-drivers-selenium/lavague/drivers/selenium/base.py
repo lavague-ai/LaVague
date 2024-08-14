@@ -7,15 +7,19 @@ from selenium.common.exceptions import (
     WebDriverException,
     ElementClickInterceptedException,
     StaleElementReferenceException,
+    TimeoutException,
 )
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     JS_GET_INTERACTIVES_IN_VIEWPORT,
     JS_WAIT_DOM_IDLE,
+    JS_GET_SCROLLABLE_PARENT,
     PossibleInteractionsByXpath,
+    ScrollDirection,
     InteractionType,
     DOMNode,
 )
@@ -42,6 +46,7 @@ import os
 
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
+    last_hover_xpath: Optional[str] = None
 
     def __init__(
         self,
@@ -51,7 +56,6 @@ class SeleniumDriver(BaseDriver):
         user_data_dir: Optional[str] = None,
         width: int = 1080,
         height: int = 1080,
-        no_load_strategy: bool = False,
         options: Optional[Options] = None,
         driver: Optional[WebDriver] = None,
         log_waiting_time=False,
@@ -62,7 +66,6 @@ class SeleniumDriver(BaseDriver):
         self.user_data_dir = user_data_dir
         self.width = width
         self.height = height
-        self.no_load_strategy = no_load_strategy
         self.options = options
         self.driver = driver
         self.log_waiting_time = log_waiting_time
@@ -92,9 +95,7 @@ class SeleniumDriver(BaseDriver):
             user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
             chrome_options.add_argument(f"user-agent={user_agent}")
             chrome_options.add_argument("--no-sandbox")
-            chrome_options.page_load_strategy = (
-                "normal" if self.no_load_strategy is False else "none"
-            )
+            chrome_options.page_load_strategy = "normal"
         # allow access to cross origin iframes
         chrome_options.add_argument("--disable-web-security")
         chrome_options.add_argument("--disable-site-isolation-trials")
@@ -263,7 +264,9 @@ driver.set_window_size({width}, {height} + height_difference)
     def switch_parent_frame(self) -> None:
         self.driver.switch_to.parent_frame()
 
-    def resolve_xpath(self, xpath: str) -> WebElement:
+    def resolve_xpath(self, xpath: Optional[str]) -> WebElement:
+        if not xpath:
+            raise NoSuchElementException("xpath is missing")
         before, sep, after = xpath.partition("iframe")
         if len(before) == 0:
             return None
@@ -290,21 +293,30 @@ driver.set_window_size({width}, {height} + height_difference)
             for action in item["actions"]:
                 action_name = action["action"]["name"]
                 args = action["action"]["args"]
+                xpath = args.get("xpath", None)
 
-                if action_name == "click":
-                    self.click(args["xpath"])
-                elif action_name == "setValue":
-                    self.set_value(args["xpath"], args["value"])
-                elif action_name == "setValueAndEnter":
-                    self.set_value(args["xpath"], args["value"], True)
-                elif action_name == "dropdownSelect":
-                    self.dropdown_select(args["xpath"], args["value"])
-                elif action_name == "failNoElement":
-                    raise NoElementException("No element: " + args["value"])
-                elif action_name == "failAmbiguous":
-                    raise AmbiguousException("Ambiguous: " + args["value"])
-                else:
-                    raise ValueError(f"Unknown action: {action_name}")
+                match action_name:
+                    case "click":
+                        self.click(xpath)
+                    case "setValue":
+                        self.set_value(xpath, args["value"])
+                    case "setValueAndEnter":
+                        self.set_value(xpath, args["value"], True)
+                    case "dropdownSelect":
+                        self.dropdown_select(xpath, args["value"])
+                    case "hover":
+                        self.hover(xpath)
+                    case "scroll":
+                        self.scroll(
+                            xpath,
+                            ScrollDirection.from_string(args.get("value", "DOWN")),
+                        )
+                    case "failNoElement":
+                        raise NoElementException("No element: " + args["value"])
+                    case "failAmbiguous":
+                        raise AmbiguousException("Ambiguous: " + args["value"])
+                    case _:
+                        raise ValueError(f"Unknown action: {action_name}")
 
                 self.wait_for_idle()
 
@@ -312,18 +324,92 @@ driver.set_window_size({width}, {height} + height_difference)
         return self.driver.execute_script(js_code, *args)
 
     def scroll_up(self):
-        self.execute_script("window.scrollBy(0, -window.innerHeight);")
+        self.scroll(direction=ScrollDirection.UP)
 
     def scroll_down(self):
-        self.execute_script("window.scrollBy(0, window.innerHeight);")
+        self.scroll(direction=ScrollDirection.DOWN)
 
     def code_for_execute_script(self, js_code: str, *args) -> str:
         return (
             f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
         )
 
+    def hover(self, xpath: str):
+        element = self.resolve_xpath(xpath)
+        self.last_hover_xpath = xpath
+        ActionChains(self.driver).move_to_element(element).perform()
+
+    def scroll_page(self, direction: ScrollDirection = ScrollDirection.DOWN):
+        self.driver.execute_script(direction.get_page_script())
+
+    def get_scroll_anchor(self, xpath_anchor: Optional[str] = None) -> WebElement:
+        element = self.resolve_xpath(xpath_anchor or self.last_hover_xpath)
+        parent = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, element)
+        scroll_anchor = parent or element
+        return scroll_anchor
+
+    def get_scroll_container_size(self, scroll_anchor: WebElement):
+        container = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, scroll_anchor)
+        if container:
+            return (
+                self.driver.execute_script(
+                    "const r = arguments[0].getBoundingClientRect(); return [r.width, r.height]",
+                    scroll_anchor,
+                ),
+                True,
+            )
+        return (
+            self.driver.execute_script(
+                "return [window.innerWidth, window.innerHeight]",
+            ),
+            False,
+        )
+
+    def is_bottom_of_page(self) -> bool:
+        return not self.can_scroll(direction=ScrollDirection.DOWN)
+
+    def can_scroll(
+        self,
+        xpath_anchor: Optional[str] = None,
+        direction: ScrollDirection = ScrollDirection.DOWN,
+    ) -> bool:
+        try:
+            scroll_anchor = self.get_scroll_anchor(xpath_anchor)
+            return self.driver.execute_script(
+                direction.get_script_element_is_scrollable(),
+                scroll_anchor,
+            )
+        except NoSuchElementException:
+            return self.driver.execute_script(direction.get_script_page_is_scrollable())
+
+    def scroll(
+        self,
+        xpath_anchor: Optional[str] = None,
+        direction: ScrollDirection = ScrollDirection.DOWN,
+        scroll_factor=0.75,
+    ):
+        try:
+            scroll_anchor = self.get_scroll_anchor(xpath_anchor)
+            size, is_container = self.get_scroll_container_size(scroll_anchor)
+            scroll_xy = direction.get_scroll_xy(size, scroll_factor)
+            if is_container:
+                ActionChains(self.driver).move_to_element(
+                    scroll_anchor
+                ).scroll_from_origin(
+                    ScrollOrigin(scroll_anchor, 0, 0), scroll_xy[0], scroll_xy[1]
+                ).perform()
+            else:
+                ActionChains(self.driver).scroll_by_amount(
+                    scroll_xy[0], scroll_xy[1]
+                ).perform()
+            if xpath_anchor:
+                self.last_hover_xpath = xpath_anchor
+        except NoSuchElementException:
+            self.scroll_page(direction)
+
     def click(self, xpath: str):
         element = self.resolve_xpath(xpath)
+        self.last_hover_xpath = xpath
         try:
             element.click()
         except ElementClickInterceptedException:
@@ -341,18 +427,18 @@ driver.set_window_size({width}, {height} + height_difference)
         self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        elem = self.resolve_xpath(xpath)
-
-        if elem.tag_name == "select":
-            # use the dropdown_select to set the value of a select
-            return self.dropdown_select(xpath, value)
-
         try:
             elem = self.resolve_xpath(xpath)
+            self.last_hover_xpath = xpath
+            if elem.tag_name == "select":
+                # use the dropdown_select to set the value of a select
+                return self.dropdown_select(xpath, value)
+
             elem.clear()
         except:
             # might not be a clearable element, but global click + send keys can still success
             pass
+
         self.click(xpath)
 
         (
@@ -370,6 +456,7 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def dropdown_select(self, xpath: str, value: str):
         element = self.resolve_xpath(xpath)
+        self.last_hover_xpath = xpath
 
         if element.tag_name != "select":
             print(
@@ -420,11 +507,15 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def wait_for_idle(self):
         t = time.time()
-        WebDriverWait(self.driver, self.waiting_completion_timeout).until(
-            lambda d: self.is_idle()
-        )
-        elapsed = time.time() - t
-        self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
+        elapsed = 0
+        try:
+            WebDriverWait(self.driver, self.waiting_completion_timeout).until(
+                lambda d: self.is_idle()
+            )
+            elapsed = time.time() - t
+            self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
+        except TimeoutException:
+            pass
 
         total_elapsed = time.time() - t
         if self.log_waiting_time or total_elapsed > 10:
@@ -473,24 +564,49 @@ driver.set_window_size({width}, {height} + height_difference)
         driver.switch_to.window(window_handles[tab_id])
 
     def get_nodes(self, xpaths: List[str]) -> List["SeleniumNode"]:
-        nodes: List["SeleniumNode"] = []
-        for xpath in xpaths:
-            try:
-                element = self.resolve_xpath(xpath)
-                nodes.append(SeleniumNode(element, self.driver))
-            except NoSuchElementException:
-                print(f"WARN(missing-xpath): {xpath} not found")
-                pass
-        return nodes
+        return [SeleniumNode(xpath, self.driver) for xpath in xpaths]
+
+    def exec_script_for_nodes(self, nodes: List["SeleniumNode"], script: str):
+        standard_nodes: List[SeleniumNode] = []
+        special_nodes: List[SeleniumNode] = []
+
+        for node in nodes:
+            # iframe and shadow DOM must use the resolve_xpath method
+            target = (
+                special_nodes
+                if "iframe" in node.xpath or "//" in node.xpath
+                else standard_nodes
+            )
+            target.append(node)
+
+        if len(standard_nodes) > 0:
+            self.driver.execute_script(
+                "arguments[0]=arguments[0].map(a => document.evaluate(a, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue).filter(a => a);"
+                + script,
+                [n.xpath for n in standard_nodes],
+            )
+
+        if len(special_nodes) > 0:
+            self.driver.execute_script(
+                script,
+                [n.element for n in special_nodes if n.element],
+            )
+
+    def remove_nodes_highlight(self, xpaths: List[str]):
+        self.exec_script_for_nodes(
+            self.get_nodes(xpaths),
+            "arguments[0].filter(a => a).forEach(a => a.style.removeProperty('outline'))",
+        )
 
     def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
         nodes = self.get_nodes(xpaths)
-        self.driver.execute_script(
-            "arguments[0].forEach(a => { a.style.outline = '2px dashed ' + arguments[1]; a.style['outline-offset'] = '-1px'})",
-            [n.element for n in nodes],
-            color,
+        set_style = f"a.style.outline = '2px dashed {color}'; a.style['outline-offset'] = '-1px'"
+        self.exec_script_for_nodes(
+            nodes, "arguments[0].forEach(a => { " + set_style + "})"
         )
-        return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
+        return self._add_highlighted_destructors(
+            lambda: self.remove_nodes_highlight(xpaths)
+        )
 
     def get_possible_interactions(
         self, in_viewport=True, foreground_only=True
@@ -506,27 +622,27 @@ driver.set_window_size({width}, {height} + height_difference)
 
 
 class SeleniumNode(DOMNode):
-    def __init__(self, element: WebElement, driver: WebDriver) -> None:
-        self.element = element
+    def __init__(self, xpath: str, driver: SeleniumDriver) -> None:
+        self.xpath = xpath
         self._driver = driver
         super().__init__()
 
+    @property
+    def element(self):
+        if hasattr(self, "_element"):
+            return self._element
+        try:
+            self._element = self._driver.resolve_xpath(self.xpath)
+        except StaleElementReferenceException:
+            self._element = None
+        return self._element
+
     def highlight(self, color: str = "red"):
-        self._driver.execute_script(
-            "arguments[0].style.outline = '2px dashed ' + arguments[1]; arguments[0].style['outline-offset'] = '-1px'",
-            self.element,
-            color,
-        )
+        self._driver.highlight_nodes([self.xpath], color)
         return self
 
     def clear(self):
-        try:
-            self._driver.execute_script(
-                "arguments[0].style.removeProperty('outline')",
-                self.element,
-            )
-        except StaleElementReferenceException:
-            pass
+        self._driver.remove_nodes_highlight([self.xpath])
         return self
 
     def take_screenshot(self):
@@ -536,7 +652,7 @@ class SeleniumNode(DOMNode):
             return Image.new("RGB", (0, 0))
 
     def get_html(self):
-        return self._driver.execute_script(
+        return self._driver.driver.execute_script(
             "return arguments[0].outerHTML", self.element
         )
 
@@ -604,6 +720,17 @@ Description: Like "setValue", except then it presses ENTER. Use this tool can su
 Arguments:
   - xpath (string)
   - value (string)
+
+Name: hover
+Description: Move the mouse cursor over an element identified by the given xpath. It can be used to reveal tooltips or dropdown that appear on hover. It can also be used before scrolling to ensure the focus is in the correct container before performing the scroll action.
+Arguments:
+  - xpath (string)
+
+Name: scroll
+Description: Scroll the container that holds the element identified by the given xpath
+Arguments:
+  - xpath (string)
+  - value (string): UP or DOWN
 
 Name: failNoElement
 Description: Indicate that you are unable to find an element that could match.
@@ -698,4 +825,31 @@ Completion:
             value: ""
         name: "click"
 ```
+-----
+HTML:
+<select name="checkin_eta_hour" xpath="/html/body/div/main/form/section/div/select">
+<option disabled="" selected="" value="">Please select</option>
+<option value="-1">I don't know</option>
+<option value="0">12:00 AM – 1:00 AM </option>
+<option value="1">1:00 AM – 2:00 AM </option>
+<option value="2">2:00 AM – 3:00 AM </option>
+<option value="3">3:00 AM – 4:00 AM </option>
+</select>
+
+Query: Select the 2:00 AM - 3:00 AM option from the dropdown menu
+Completion:
+# Let's think step by step
+# The query asks us to select the "2:00 AM - 3:00 AM" option from a dropdown menu.
+# We need to identify the correct option within the dropdown menu based on its value attribute.
+# The dropdown menu is specified by its XPATH, and the value of the option we need to select is "2".
+# We can use the following "select" XPATH to locate the dropdown menu and the value "2" to select the appropriate option:
+# /html/body/div/main/form/section/div/select
+
+- actions:
+    - action:
+        # Select the "3:00 AM - 4:00 AM" option by targeting the dropdown menu with the specified XPATH.
+        args:
+            xpath: "/html/body/div/main/form/section/div/select"
+            value: "2"
+        name: "dropdownSelect"
 """

@@ -143,7 +143,7 @@ class RetrieverEvaluator(Evaluator):
                 results.at[i, "recall"] = 1 if action["args"]["xpath"] in nodes else 0
                 results.at[i, "output_size"] = len(nodes)
                 results.at[i, "time"] = pd.Timedelta(t_end - t_begin).total_seconds()
-            print("Evaluation terminated succesfully.")
+            print("Evaluation terminated successfully.")
         except:
             traceback.print_exc()
             print(f"Evaluation stopped at row {i} because an exception was caught.")
@@ -218,7 +218,7 @@ class NavigationEngineEvaluator(Evaluator):
                     results.at[i, "correct_action"] and results.at[i, "correct_xpath"]
                 )
                 results.at[i, "time"] = pd.Timedelta(t_end - t_begin).total_seconds()
-            print("Evaluation terminated succesfully.")
+            print("Evaluation terminated successfully.")
         except:
             traceback.print_exc()
             print(f"Evaluation stopped at row {i} because an exception was caught.")

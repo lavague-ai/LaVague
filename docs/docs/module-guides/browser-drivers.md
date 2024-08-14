@@ -97,7 +97,6 @@ You can see all optional driver options here:
     | width                      | Integer value for width of the driver's browser window in pixels                                                                                              |
     | height                     | Integer value for height of the driver's browser window in pixels                                                                                             |
     | user_data_dir              | Path to your Chrome profile directory. If left empty, Chrome starts a fresh session every time. If provided, Chrome starts with your profile's settings and data, this can help avoid bot protections |
-    no_load_strategy (**Selenium only**) | If True, Selenium's default load strategy, which waits for the page to be fully loaded before returning, is deactivated. This option should be set to True when using our `agent.demo()` method to avoid slowdown. Instead, LaVague will handle detecting when the page is fully loaded when using this method. However, this option is not recommended with the `agent.run()` method however. |
 
 ### Plugging in an existing browser session
 

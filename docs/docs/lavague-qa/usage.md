@@ -105,7 +105,7 @@ Contexts are used to define the set of LLMs that will be used by LaVague QA to g
 Contexts are defined in `.py` configuration files which instantiate the required `Context` object and a `TokenCounter` object.
 
 - By default we use our OpenaiContext which leverages OpenAI's `gpt-4o` and `text-embedding-3-small`
-- You can learn how to define a custom context with models of your choice [in this guide](https://docs.lavague.ai/en/latest/docs/learn/testing/#providing-a-custom-configuration-files)
+- You can learn how to define a custom context with models of your choice [in this guide](https://docs.lavague.ai/en/latest/docs/get-started/testing/#providing-a-custom-configuration-file)
 
 To run with a custom context, use the `--context` flag along with the path to the `.py` file creating the objects.
 

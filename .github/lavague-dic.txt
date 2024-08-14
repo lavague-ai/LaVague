@@ -170,6 +170,7 @@ PyPi
 yml
 pypi
 Pypi
+hardcoded
 README
 md
 nomic
@@ -224,3 +225,4 @@ src
 AgentServer
 minified
 Browserbase
+NavigationEngine

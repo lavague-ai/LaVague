@@ -125,6 +125,7 @@ nav:
       - Debugging agents:
           - End-to-end debugging: "docs/learn/debugging.md"
           - Debug tools: "docs/learn/debug-tools.md"
+      - Custom actions: "docs/learn/actions.md"
 
   - ✅ Quick examples:
       - Knowledge Retrieval:

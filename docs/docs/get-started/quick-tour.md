@@ -56,8 +56,7 @@ agent.run("Go on the quicktour of PEFT")
 You can also use LaVague to launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
 
 ```py
-# We should set no_load_strategy to True when using the demo() method
-driver = SeleniumDriver(headless=True, no_load_strategy=True)
+driver = SeleniumDriver(headless=True)
 action_engine = ActionEngine(driver)
 world_model = WorldModel()
 
@@ -83,8 +82,7 @@ You can take a quick look at the `demo` feature in the video below:
 
 You can also run LaVague in-browser with our LaVague Chrome Extension:
 
-<iframe width="560" height="315"  src="https://www.youtube.com/embed/f7-pRFtT6hY
-" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315"  src="https://www.youtube.com/embed/f7-pRFtT6hY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 To learn how to install and get started with the Chrome extension, see our [LaVague extension docs](./docs-chrome.md)
 

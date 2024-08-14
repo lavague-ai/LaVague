@@ -15,7 +15,7 @@ class OpenaiContext(Context):
         api_key: Optional[str] = None,
         llm: str = "gpt-4o",
         mm_llm: str = "gpt-4o",
-        embedding: str = "text-embedding-3-small",
+        embedding: str = "text-embedding-3-large",
     ) -> Context:
         if api_key is None:
             api_key = os.getenv("OPENAI_API_KEY")

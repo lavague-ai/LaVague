@@ -9,8 +9,7 @@ It is made up of two key components:
 - The [Chrome extension](https://chromewebstore.google.com/detail/lavague/johbmggagpndaefakonkdfjpcfdmbfbm) which you can install from the Chrome Web Store.
 - The `lavague-server` package & CLI tool, which enable you to launch the Agent that will be used by the extension.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/O8CMSdj1a28
-" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/O8CMSdj1a28" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ### Install necessary packages
 
