@@ -1,28 +1,23 @@
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.llms import MockLLM as LlamaMockLLM
 from llama_index.core.base.llms.types import CompletionResponse
-from llama_index.core.types import PydanticProgramMode
 from typing import Any, Dict, Optional
-from lavague.contexts.cache.prompts_cache import PromptsCache
+from lavague.contexts.cache.prompts_store import PromptsStore, YamlPromptsStore
 
 
-class LLMCache(LlamaMockLLM, PromptsCache):
+class LLMCache(LlamaMockLLM):
     fallback: Optional[BaseLLM]
-    yml_prompts_file: Optional[str]
+    store: PromptsStore[str] = None
 
     def __init__(
         self,
         prompts: Dict[str, str] = None,
-        pydantic_program_mode: PydanticProgramMode = PydanticProgramMode.DEFAULT,
         fallback: Optional[BaseLLM] = None,
-        yml_prompts_file: Optional[str] = None,
+        store: Optional[PromptsStore[str]] = None,
+        yml_prompts_file: Optional[str] = "llm_prompts.yml",
     ) -> None:
-        LlamaMockLLM.__init__(
-            self,
-            pydantic_program_mode=pydantic_program_mode,
-        )
-        PromptsCache.__init__(
-            self,
+        super().__init__()
+        self.store = store or YamlPromptsStore(
             prompts=prompts,
             yml_prompts_file=yml_prompts_file,
         )
@@ -31,11 +26,11 @@ class LLMCache(LlamaMockLLM, PromptsCache):
     def complete(
         self, prompt: str, formatted: bool = False, **kwargs: Any
     ) -> CompletionResponse:
-        text = self.get_for_prompt(prompt)
+        text = self.store.get_for_prompt(prompt)
         if text is None:
             if self.fallback is None:
                 text = "(!) Missing LLM answer"
             else:
                 text = self.fallback.complete(prompt, formatted, **kwargs).text
-            self.add_prompt(prompt, text)
+            self.store.add_prompt(prompt, text)
         return CompletionResponse(text=text)
