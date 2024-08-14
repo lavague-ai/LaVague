@@ -110,10 +110,10 @@ class TestGenerator:
             prompt = self._build_prompt(html_chunks, actions)
             code = self._generate_pytest(prompt, screenshot)
         else:
-            assert_code = self._generate_assert_code(
-                self.scenario.expect[0], html_chunks
+            assert_code = TestGenerator._generate_assert_code(
+                self.scenario.expect[0], html_chunks, self.llm
             )
-            code = self._build_pytest_file(
+            code = TestGenerator._build_pytest_file(
                 logs, assert_code, self.scenario, self.url, self.feature_file_name
             )
 
