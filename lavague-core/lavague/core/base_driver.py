@@ -504,7 +504,7 @@ return (function() {
             evts.push('CLICK');
         }
         if (hasEvent('scroll') || hasEvent('wheel')|| e.scrollHeight > e.clientHeight || e.scrollWidth > e.clientWidth) {
-            evts.push('SCROLL');
+            //evts.push('SCROLL');
         }
         return evts;
     }
