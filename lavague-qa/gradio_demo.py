@@ -14,6 +14,7 @@ from PIL import Image
 from gherkin.parser import Parser
 from urllib.parse import urlparse
 
+
 def uri_validator(x):
     try:
         result = urlparse(x)
@@ -150,9 +151,9 @@ class GradioQADemo:
     def _init_driver(self):
         def init_driver_impl(url, img, api_key):
             if len(api_key) == 0 and os.getenv("OPENAI_API_KEY") is None:
-                raise gr.Error('An OpenAI API Key is needed to run the agent.')
+                raise gr.Error("An OpenAI API Key is needed to run the agent.")
             elif not uri_validator(url):
-                raise gr.Error('Please specify a valid URL.')  
+                raise gr.Error("Please specify a valid URL.")
             else:
                 if self.use_browserbase:
                     browserbase_connection = BrowserbaseRemoteConnection(
