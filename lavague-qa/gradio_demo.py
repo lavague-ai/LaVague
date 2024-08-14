@@ -361,9 +361,7 @@ class GradioQADemo:
                         image_display = gr.Image(
                             label="Browser", interactive=False, height="100%"
                         )
-                        code_display = gr.Markdown(
-                            visible=False
-                        )
+                        code_display = gr.Markdown(visible=False)
                     with gr.Column(scale=2):
                         chatbot = gr.Chatbot(
                             [],
