@@ -110,10 +110,12 @@ class TestGenerator:
             prompt = self._build_prompt(html_chunks, actions)
             code = self._generate_pytest(prompt, screenshot)
         else:
-            assert_code = self._generate_assert_code(
-                self.scenario.expect[0], html_chunks
+            assert_code = TestGenerator._generate_assert_code(
+                self.scenario.expect[0], html_chunks, self.llm
             )
-            code = self._build_pytest_file(logs, assert_code)
+            code = TestGenerator._build_pytest_file(
+                logs, assert_code, self.scenario, self.url, self.feature_file_name
+            )
 
         self._write_files(code)
 
@@ -181,28 +183,31 @@ class TestGenerator:
         code = self.mm_llm.complete(prompt, image_documents=screenshot).text
         return clean_llm_output(code)
 
-    def _generate_assert_code(self, expect: str, html_chunks: str) -> str:
+    @staticmethod
+    def _generate_assert_code(expect: str, html_chunks: str, llm: any) -> str:
         prompt = ASSERT_ONLY_PROMPT_TEMPLATE.format(
             expect=expect,
             html_chunks=html_chunks,
         )
-        code = self.llm.complete(prompt).text
+        code = llm.complete(prompt).text
         code = code.replace("```python", "").replace("```", "")
         code = code.replace("# assert code here", "")
         return "\n".join([INDENT + l for l in code.splitlines()])
 
-    def _build_pytest_file(self, logs, assert_code):
+    @staticmethod
+    def _build_pytest_file(logs, assert_code, scenario, url, feature_file_name):
         pytest_code = PYTEST_HEADER_TEMPLATE.format(
-            url=self.url, feature_file_name=self.feature_file_name
+            url=url, feature_file_name=feature_file_name
         )
-        pytest_code += self._generate_given_steps()
-        pytest_code += self._generate_when_steps(logs)
-        pytest_code += self._generate_then_step(assert_code)
+        pytest_code += TestGenerator._generate_given_steps(scenario)
+        pytest_code += TestGenerator._generate_when_steps(logs, scenario)
+        pytest_code += TestGenerator._generate_then_step(assert_code, scenario)
         return pytest_code
 
-    def _generate_given_steps(self):
+    @staticmethod
+    def _generate_given_steps(scenario):
         given_steps = ""
-        for index, setup in enumerate(self.scenario.context):
+        for index, setup in enumerate(scenario.context):
             step = setup.replace("'", "\\'")
             method_name = to_snake_case(setup)
             code = "browser.get(BASE_URL)" if index == 0 else "pass"
@@ -211,18 +216,20 @@ class TestGenerator:
             )
         return given_steps
 
-    def _generate_when_steps(self, logs):
+    @staticmethod
+    def _generate_when_steps(logs, scenario):
         when_steps = ""
         for index, row in logs.iterrows():
-            if index < len(self.scenario.steps):
-                gherkin_step = self.scenario.steps[index]
-                when_steps += self._get_pytest_when(
+            if index < len(scenario.steps):
+                gherkin_step = scenario.steps[index]
+                when_steps += TestGenerator._get_pytest_when(
                     gherkin_step, row["engine"], row["code"], row["instruction"]
                 )
         return when_steps
 
+    @staticmethod
     def _get_pytest_when(
-        self, gherkin_step: str, engine: str, engine_log: str, instruction: str
+        gherkin_step: str, engine: str, engine_log: str, instruction: str
     ) -> str:
         step = gherkin_step.replace("'", "\\'")
         method_name = to_snake_case(gherkin_step)
@@ -240,9 +247,10 @@ class TestGenerator:
             step=step, method_name=method_name, actions_code=actions_code
         )
 
-    def _generate_then_step(self, assert_code):
-        step = self.scenario.expect[0].replace("'", "\\'")
-        method_name = to_snake_case(self.scenario.expect[0])
+    @staticmethod
+    def _generate_then_step(assert_code, scenario):
+        step = scenario.expect[0].replace("'", "\\'")
+        method_name = to_snake_case(scenario.expect[0])
         return PYTEST_THEN_TEMPLATE.format(
             step=step, method_name=method_name, assert_code=assert_code
         )

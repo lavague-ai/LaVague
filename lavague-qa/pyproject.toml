@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lavague-qa"
-version = "0.0.5"
+version = "0.0.6"
 description = "QA Automation with LaVague"
 authors = ["lavague-ai"]
 readme = "README.md"

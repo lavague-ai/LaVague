@@ -31,7 +31,6 @@ For this example, we will use Hugging Face Inference API, OpenAI API, and LaVagu
 pip install text-generation lavague
 ```
 
-
 We will need to set our OpenAI Key. If you are running this as a Colab, you can provide it through Colab secrets (see the key icon on the left-hand side of the Colab notebook) named 'OPENAI_API_KEY' and then convert it to an environment variable with the same name.
 
 ```python
@@ -118,7 +117,6 @@ class HuggingFaceMMLLM:
         return generated_text
 ```
 
-
 We can see the resume used below:
 
 ```python
@@ -129,9 +127,7 @@ url = "https://d25zcttzf44i59.cloudfront.net/minimalist-resume-template.png"
 display(Image(url))
 ```
 
-
 We can now extract the person's details using Idefics2-8b:
-
 
 ```python
 hf_mm_llm = HuggingFaceMMLLM()
@@ -148,7 +144,6 @@ Our class defined above takes URL as inputs. This seems to be because Hugging Fa
 We provide a workaround by using Cloudinary to upload an image first and then get the URL of the uploaded image to Hugging Face API.
 
 You will need to look at https://cloudinary.com/documentation/image_upload_api_reference for more information to get your credentials.
-
 
 ## AI Web Agent building with LaVague
 
