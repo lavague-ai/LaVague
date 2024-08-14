@@ -12,6 +12,14 @@ from lavague.drivers.selenium import SeleniumDriver, BrowserbaseRemoteConnection
 from lavague.core.action_engine import ActionEngine
 from PIL import Image
 from gherkin.parser import Parser
+from urllib.parse import urlparse
+
+def uri_validator(x):
+    try:
+        result = urlparse(x)
+        return all([result.scheme, result.netloc])
+    except AttributeError:
+        return False
 
 
 class GradioQADemo:
@@ -141,44 +149,48 @@ class GradioQADemo:
 
     def _init_driver(self):
         def init_driver_impl(url, img, api_key):
-            print("init")
-            if self.use_browserbase:
-                browserbase_connection = BrowserbaseRemoteConnection(
-                    "http://connect.browserbase.com/webdriver",
-                    api_key=os.environ["BROWSERBASE_API_KEY"],
-                    project_id=os.environ["BROWSERBASE_PROJECT_ID"],
-                )
-                selenium_driver = SeleniumDriver(
-                    remote_connection=browserbase_connection
-                )
-            if self.agent is None:
-                if self.use_browserbase == False:
-                    selenium_driver = SeleniumDriver(headless=True)
-                openai_content = OpenaiContext(
-                    api_key=api_key if len(api_key) > 0 else None
-                )
-                openai_content.mm_llm.max_new_tokens = 2000
-                self.llm = openai_content.llm
-                self.retriever = SemanticRetriever(
-                    embedding=openai_content.embedding, xpathed_only=False
-                )
-                action_engine = ActionEngine.from_context(
-                    context=openai_content, driver=selenium_driver
-                )
-                world_model = WorldModel.from_context(context=openai_content)
-                agent = WebAgent(world_model, action_engine)
-                agent.set_origin("lavague-qa-gradio-hf")
-                self.agent = agent
+            if len(api_key) == 0 and os.getenv("OPENAI_API_KEY") is None:
+                raise gr.Error('An OpenAI API Key is needed to run the agent.')
+            elif not uri_validator(url):
+                raise gr.Error('Please specify a valid URL.')  
+            else:
+                if self.use_browserbase:
+                    browserbase_connection = BrowserbaseRemoteConnection(
+                        "http://connect.browserbase.com/webdriver",
+                        api_key=os.environ["BROWSERBASE_API_KEY"],
+                        project_id=os.environ["BROWSERBASE_PROJECT_ID"],
+                    )
+                    selenium_driver = SeleniumDriver(
+                        remote_connection=browserbase_connection
+                    )
+                if self.agent is None:
+                    if self.use_browserbase == False:
+                        selenium_driver = SeleniumDriver(headless=True)
+                    openai_content = OpenaiContext(
+                        api_key=api_key if len(api_key) > 0 else None
+                    )
+                    openai_content.mm_llm.max_new_tokens = 2000
+                    self.llm = openai_content.llm
+                    self.retriever = SemanticRetriever(
+                        embedding=openai_content.embedding, xpathed_only=False
+                    )
+                    action_engine = ActionEngine.from_context(
+                        context=openai_content, driver=selenium_driver
+                    )
+                    world_model = WorldModel.from_context(context=openai_content)
+                    agent = WebAgent(world_model, action_engine)
+                    agent.set_origin("lavague-qa-gradio-hf")
+                    self.agent = agent
 
-            if self.use_browserbase:
-                self.agent.driver = selenium_driver
+                if self.use_browserbase:
+                    self.agent.driver = selenium_driver
 
-            self.agent.get(url)
-            ret = self.agent.action_engine.driver.get_screenshot_as_png()
-            ret = BytesIO(ret)
-            ret = Image.open(ret)
-            img = ret
-            return url, img
+                self.agent.get(url)
+                ret = self.agent.action_engine.driver.get_screenshot_as_png()
+                ret = BytesIO(ret)
+                ret = Image.open(ret)
+                img = ret
+                return url, img
 
         return init_driver_impl
 
@@ -376,7 +388,7 @@ class GradioQADemo:
                 self._init_driver(),
                 inputs=[url_input, image_display, api_key],
                 outputs=[url_input, image_display],
-            ).then(
+            ).success(
                 self._process_instructions(),
                 inputs=[
                     objective_input,

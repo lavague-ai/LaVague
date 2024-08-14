@@ -189,6 +189,9 @@ class ActionEngine:
             `Any`: The output of the code
         """
 
+        from io import BytesIO
+        from PIL import Image
+
         next_engine = self.engines[next_engine_name]
 
         if next_engine_name == "Navigation Engine":
@@ -196,6 +199,18 @@ class ActionEngine:
         else:
             ret = next_engine.execute_instruction(instruction)
             self.ret = ret
+            self.navigation_engine.url_input = self.driver.get_url()
+            img = self.driver.get_screenshot_as_png()
+            img = BytesIO(img)
+            img = Image.open(img)
+            if self.screenshot_ratio != 1:
+                img = img.resize(
+                    (
+                        int(img.width / self.screenshot_ratio),
+                        int(img.height / self.screenshot_ratio),
+                    )
+                )
+            self.image_display = img
             yield (
                 self.navigation_engine.objective,
                 self.navigation_engine.url_input,
