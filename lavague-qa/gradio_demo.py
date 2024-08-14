@@ -46,7 +46,8 @@ class GradioQADemo:
             height: 100px; /* Increase the height of the buttons */
             width: 100%; /* Make sure the button takes the full width */
             max-width: 300px; /* Optional: set a max width */
-            font-size: 1.2rem; /* Increase font size */
+            max-height: 80px;
+            font-size: 1.1rem; /* Increase font size */
         }
         .button-container {
             display: flex;
@@ -324,19 +325,19 @@ class GradioQADemo:
                                     interactive=True,
                                 )
                                 with gr.Row():
-                                    txt = gr.Markdown("## Examples: ")
+                                    txt = gr.Markdown("## Example scenarios: ")
                                 with gr.Row():
                                     with gr.Blocks(
                                         elem_id="button-container", fill_height=True
                                     ):
                                         ex1 = gr.Button(
-                                            "Wikipedia", elem_classes="my-button"
+                                            "Wikipedia's login", elem_classes="my-button"
                                         )
                                         ex2 = gr.Button(
-                                            "Amazon", elem_classes="my-button"
+                                            "Amazon cart feature", elem_classes="my-button"
                                         )
                                         ex3 = gr.Button(
-                                            "HSBC", elem_classes="my-button"
+                                            "Navigation on HSBC", elem_classes="my-button"
                                         )
                                         ex1.click()
                             with gr.Column(scale=2):
