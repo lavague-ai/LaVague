@@ -228,7 +228,7 @@ class GradioQADemo:
                 gr.ChatMessage(
                     role="assistant",
                     content="The Pytest code is currently generated.",
-                    metadata={"title": f"PyTest code generation..."},
+                    metadata={"title": f"Generating Pytest..."},
                 )
             )
             yield (
@@ -251,7 +251,7 @@ class GradioQADemo:
             history[-1] = gr.ChatMessage(
                 role="assistant",
                 content="The code is ready to use.",
-                metadata={"title": f"PyTest code generated!"},
+                metadata={"title": f"PyTest generated"},
             )
             yield (
                 objective,
