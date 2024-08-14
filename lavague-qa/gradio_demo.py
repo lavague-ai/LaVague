@@ -331,13 +331,16 @@ class GradioQADemo:
                                         elem_id="button-container", fill_height=True
                                     ):
                                         ex1 = gr.Button(
-                                            "Wikipedia's login", elem_classes="my-button"
+                                            "Wikipedia's login",
+                                            elem_classes="my-button",
                                         )
                                         ex2 = gr.Button(
-                                            "Amazon cart feature", elem_classes="my-button"
+                                            "Amazon cart feature",
+                                            elem_classes="my-button",
                                         )
                                         ex3 = gr.Button(
-                                            "Navigation on HSBC", elem_classes="my-button"
+                                            "Navigation on HSBC",
+                                            elem_classes="my-button",
                                         )
                                         ex1.click()
                             with gr.Column(scale=2):
