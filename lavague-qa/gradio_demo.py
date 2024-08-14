@@ -144,7 +144,7 @@ class GradioQADemo:
             browser = gr.Image(
                 label="Browser", interactive=False, height="100%", visible=False
             )
-            code = gr.Markdown(show_copy_button=True, visible=True, value=self.code)
+            code = gr.Markdown(visible=True, value=self.code)
             return browser, code
 
         return show_code_impl
@@ -284,7 +284,7 @@ class GradioQADemo:
             browser = gr.Image(
                 label="Browser", interactive=False, height="100%", visible=True
             )
-            code = gr.Markdown(show_copy_button=False, visible=False, value="")
+            code = gr.Markdown(visible=False, value="")
             history.clear()
             return history, browser, code
 
@@ -362,7 +362,7 @@ class GradioQADemo:
                             label="Browser", interactive=False, height="100%"
                         )
                         code_display = gr.Markdown(
-                            show_copy_button=False, visible=False
+                            visible=False
                         )
                     with gr.Column(scale=2):
                         chatbot = gr.Chatbot(
