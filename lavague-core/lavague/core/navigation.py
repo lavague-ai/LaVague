@@ -15,7 +15,7 @@ from lavague.core.utilities.web_utils import (
     display_screenshot,
     sort_files_by_creation,
 )
-from lavague.core.exceptions import HallucinatedException
+from lavague.core.exceptions import HallucinatedException, ElementOutOfContextException
 from lavague.core.logger import AgentLogger
 from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.base_driver import BaseDriver
@@ -387,7 +387,12 @@ class NavigationEngine(BaseEngine):
             for action in action_list.get("actions", []):
                 xpath = action.get("action", {}).get("args", {}).get("xpath", "")
                 if xpath and xpath not in llm_context:
-                    raise HallucinatedException(xpath)
+                    try:
+                        self.driver.resolve_xpath(xpath)
+                        exception = ElementOutOfContextException(xpath)
+                    except:
+                        exception = HallucinatedException(xpath)
+                    raise exception
 
     def execute_instruction(self, instruction: str) -> ActionResult:
         """

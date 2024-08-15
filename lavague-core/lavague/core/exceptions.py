@@ -24,3 +24,8 @@ class AmbiguousException(RetrievalException):
 class HallucinatedException(RetrievalException):
     def __init__(self, xpath: str, message: str = None):
         super().__init__(message or f"Element was hallucinated: {xpath}")
+
+
+class ElementOutOfContextException(RetrievalException):
+    def __init__(self, xpath: str, message: str = None):
+        super().__init__(message or f"Element exists but was not in context: {xpath}")
