@@ -23,6 +23,7 @@ from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
+from lavague-core.lavague.core.exceptions import ElementOutOfContextException
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -387,7 +388,12 @@ class NavigationEngine(BaseEngine):
             for action in action_list.get("actions", []):
                 xpath = action.get("action", {}).get("args", {}).get("xpath", "")
                 if xpath and xpath not in llm_context:
-                    raise HallucinatedException(xpath)
+                    try:
+                        self.driver.resolve_xpath(xpath)
+                        exception = ElementOutOfContextException(xpath)
+                    except:
+                        exception = HallucinatedException(xpath)
+                    raise exception
 
     def execute_instruction(self, instruction: str) -> ActionResult:
         """
