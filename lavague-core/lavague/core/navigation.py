@@ -15,7 +15,7 @@ from lavague.core.utilities.web_utils import (
     display_screenshot,
     sort_files_by_creation,
 )
-from lavague.core.exceptions import HallucinatedException
+from lavague.core.exceptions import HallucinatedException, ElementOutOfContextException
 from lavague.core.logger import AgentLogger
 from lavague.core.base_engine import BaseEngine, ActionResult
 from lavague.core.base_driver import BaseDriver
@@ -23,7 +23,6 @@ from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
-from lavague-core.lavague.core.exceptions import ElementOutOfContextException
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
