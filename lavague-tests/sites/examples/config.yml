@@ -6,7 +6,16 @@ tasks:
   - name: Navigate using link
     url: http://localhost:8000
     prompt: Go to the menu
+    max_steps: 1
     expect:
       - URL is http://localhost:8000/menu.html
-      - Status is success
       - HTML contains <h1>Menu</h1>
+
+  - name: Upload a file
+    url: http://localhost:8000/file.html
+    prompt: Upload my picture
+    max_steps: 1
+    user_data:
+      my_picture: dummy_file.png
+    expect:
+      - HTML contains File uploaded

@@ -433,6 +433,9 @@ driver.set_window_size({width}, {height} + height_difference)
             if elem.tag_name == "select":
                 # use the dropdown_select to set the value of a select
                 return self.dropdown_select(xpath, value)
+            if elem.tag_name == "input" and elem.get_attribute("type") == "file":
+                # set the value of a file input
+                return self.upload_file(xpath, value)
 
             elem.clear()
         except:
@@ -470,6 +473,11 @@ driver.set_window_size({width}, {height} + height_difference)
         except NoSuchElementException:
             select.select_by_visible_text(value)
         self.driver.switch_to.default_content()
+
+    def upload_file(self, xpath: str, file_path: str):
+        element = self.resolve_xpath(xpath)
+        self.last_hover_xpath = xpath
+        element.send_keys(file_path)
 
     def perform_wait(self, duration: float):
         import time
@@ -838,6 +846,7 @@ HTML:
 
 Query: Select the 2:00 AM - 3:00 AM option from the dropdown menu
 Completion:
+```yaml
 # Let's think step by step
 # The query asks us to select the "2:00 AM - 3:00 AM" option from a dropdown menu.
 # We need to identify the correct option within the dropdown menu based on its value attribute.
@@ -852,4 +861,5 @@ Completion:
             xpath: "/html/body/div/main/form/section/div/select"
             value: "2"
         name: "dropdownSelect"
+```
 """

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload Example</title>
+  <style>
+    #message {
+      color: green;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Upload your picture</h1>
+  <input type="file" id="fileInput">
+  <p id="message"></p>
+
+  <script>
+    document.getElementById('fileInput').addEventListener('change', function () {
+      const message = document.getElementById('message');
+      if (this.files.length > 0) {
+        message.innerHTML = 'File uploaded: ' + this.files.length;
+      } else {
+        message.innerHTML = '';
+      }
+    });
+  </script>
+</body>
+
+</html>
