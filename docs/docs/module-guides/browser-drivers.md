@@ -143,5 +143,15 @@ from lavague.drivers.selenium import SeleniumDriver
 from lavague.drivers.selenium import BrowserbaseRemoteConnection
 
 browserbase_connection = BrowserbaseRemoteConnection('http://connect.browserbase.com/webdriver', api_key = "your_key", project_id="your_project_id")
-selenium_driver = SeleniumDriver(remote_connection=connection)
 ```
+
+4. Create and run an agent
+
+```py
+with SeleniumDriver(remote_connection=browserbase_connection) as selenium_driver:
+    world_model = WorldModel()
+    action_engine = ActionEngine(selenium_driver)
+    agent = WebAgent(world_model, action_engine)
+    agent.get("https://wikipedia.org")
+    agent.run("Search for AI")
+``` 
