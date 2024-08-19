@@ -761,7 +761,8 @@ Completion:
         # Click on the anchor tag that contains the listing title
         args:
             xpath: "/html/body/div[5]/div/div/div/div/div[3]/div/main/div[2]/div/div[2]/div/div/div/div/div/div/div/div[2]/div/div/div/div/div/div/div/div/div[2]/div/div/div/div/a"
-        name: "click"```
+        name: "click"
+```
 -----
 HTML:
 <div class="devsite-top-logo-row-middle" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]">
@@ -813,6 +814,7 @@ HTML:
 Authorized Xpaths: "{'/html/body/div/main/form/section/div/select'}"
 Query: Select the 2:00 AM - 3:00 AM option from the dropdown menu
 Completion:
+```yaml
 # Let's think step by step
 # The query asks us to select the "2:00 AM - 3:00 AM" option from a dropdown menu.
 # We need to identify the correct option within the dropdown menu based on its value attribute.
@@ -827,4 +829,5 @@ Completion:
             xpath: "/html/body/div/main/form/section/div/select"
             value: "2"
         name: "dropdownSelect"
+```
 """
