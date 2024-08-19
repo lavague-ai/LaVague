@@ -9,7 +9,7 @@ from lavague.core.extractors import (
     BaseExtractor,
     YamlFromMarkdownExtractor,
     DynamicExtractor,
-    extract_xpaths_from_html
+    extract_xpaths_from_html,
 )
 from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
 from lavague.core.utilities.web_utils import (
@@ -446,9 +446,11 @@ class NavigationEngine(BaseEngine):
                 except:
                     pass
             start = time.time()
-            authorized_xpaths = extract_xpaths_from_html(llm_context) 
+            authorized_xpaths = extract_xpaths_from_html(llm_context)
             prompt = self.prompt_template.format(
-                context_str=llm_context, query_str=instruction, authorized_xpaths=authorized_xpaths
+                context_str=llm_context,
+                query_str=instruction,
+                authorized_xpaths=authorized_xpaths,
             )
             response = self.llm.complete(prompt).text
             end = time.time()

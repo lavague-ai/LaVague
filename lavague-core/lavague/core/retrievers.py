@@ -57,7 +57,9 @@ class BM25HtmlRetriever(BaseHtmlRetriever):
     def __init__(self, top_k=3) -> None:
         self.top_k = top_k
 
-    def retrieve(self, query: QueryBundle, html_chunks: List[str], viewport_only=True) -> List[str]:
+    def retrieve(
+        self, query: QueryBundle, html_chunks: List[str], viewport_only=True
+    ) -> List[str]:
         html = clean_html(merge_html_chunks(html_chunks))
         cleaned_html = clean_html(html)
 
