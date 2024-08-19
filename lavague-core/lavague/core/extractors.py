@@ -6,6 +6,22 @@ import json
 from typing import Any, Dict
 
 
+def extract_xpaths_from_html(html):
+    r_get_xpaths_from_html = r'xpath=["\'](.*?)["\']'
+    xpaths = re.findall(r_get_xpaths_from_html, html)
+    return xpaths
+
+
+def extract_xpath_from_action(content):
+    # Regular expression to match XPath values
+    xpath_pattern = r'xpath:\s*"([^"]*)"'
+
+    # Find all matches in the content
+    xpaths = re.findall(xpath_pattern, content)
+
+    return xpaths
+
+
 class ExtractionError(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
