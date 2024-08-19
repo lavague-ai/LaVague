@@ -608,7 +608,9 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
         nodes = self.get_nodes(xpaths)
-        set_style = f"a.style.outline = '2px dashed {color}'; a.style['outline-offset'] = '-1px'"
+        set_style = (
+            f"a.style.outline = '4px solid {color}'; a.style['outline-offset'] = '-2px'"
+        )
         self.exec_script_for_nodes(
             nodes, "arguments[0].forEach(a => { " + set_style + "})"
         )
