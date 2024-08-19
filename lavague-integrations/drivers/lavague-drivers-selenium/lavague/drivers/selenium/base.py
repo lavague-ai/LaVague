@@ -140,10 +140,10 @@ class SeleniumDriver(BaseDriver):
                 keep_next = True
         code_lines.append(self.code_for_resize(self.width, self.height))
         return "\n".join(code_lines) + "\n"
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, *args):
         self.destroy()
 
