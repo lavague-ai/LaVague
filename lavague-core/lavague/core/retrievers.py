@@ -21,7 +21,7 @@ def get_default_retriever(
     return RetrieversPipeline(
         InteractiveXPathRetriever(driver),
         FromXPathNodesExpansionRetriever(),
-        UniqueXPathRetriever(driver),
+        # UniqueXPathRetriever(driver),
         SemanticRetriever(embedding=embedding),
     )
 
