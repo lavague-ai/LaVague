@@ -379,7 +379,7 @@ class NavigationEngine(BaseEngine):
             output.output,
         )
 
-    def _verify_llm_reponse(self, llm_response: str, llm_context: str):
+    def _verify_llm_reponse(self, llm_response: str, authorized_xpaths: List[str]):
         """Make sure the action is performed on a given context to avoid hallucination"""
         actions_obj = self.extractor.extract_as_object(llm_response)
         if not isinstance(actions_obj, list):
@@ -388,7 +388,7 @@ class NavigationEngine(BaseEngine):
         for action_list in actions_obj:
             for action in action_list.get("actions", []):
                 xpath = action.get("action", {}).get("args", {}).get("xpath", "")
-                if xpath and xpath not in llm_context:
+                if xpath and xpath not in authorized_xpaths:
                     try:
                         self.driver.resolve_xpath(xpath)
                         exception = ElementOutOfContextException(xpath)
@@ -465,7 +465,7 @@ class NavigationEngine(BaseEngine):
             try:
                 # We extract the action
                 action = self.extractor.extract(response)
-                self._verify_llm_reponse(response, llm_context)
+                self._verify_llm_reponse(response, authorized_xpaths)
 
                 action_outcome["action"] = action
                 action_full += action
