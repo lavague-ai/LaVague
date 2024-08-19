@@ -497,9 +497,15 @@ class WebAgent:
         display: bool = False,
         log_to_db: bool = is_flag_true("LAVAGUE_LOG_TO_DB"),
         step_by_step=False,
+        agent_ops: bool = False,
     ) -> ActionResult:
         self.interrupted = False
         self.prepare_run(display=display, user_data=user_data)
+        
+        if agent_ops:
+            import agentops
+            agent_ops_key = os.getenv("AGENTOPS_KEY")
+            agentops.init(agent_ops_key)
 
         try:
             for _ in range(self.n_steps):
@@ -523,6 +529,10 @@ class WebAgent:
             self.driver.destroy()
             origin = self.origin if hasattr(self, "origin") else "lavague"
             send_telemetry(self.logger.return_pandas(), origin=origin)
+            
+            if agent_ops:
+                agentops.end_session("Success")
+            
             if log_to_db:
                 local_db_logger = LocalDBLogger()
                 local_db_logger.insert_logs(self)
