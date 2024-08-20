@@ -60,11 +60,17 @@ class EventListener:
                 return self.listen_next_action(xpaths, no_timeout)
             raise e
 
-    def listen_next_action_async(self, callback: Callable):
+    def listen_next_action_async(
+        self, callback: Callable, xpaths: List[str] = None, no_timeout=False
+    ):
         """
         Same as listen_next_action but async with a callback.
         """
-        thread = threading.Thread(target=lambda: callback(self.listen_next_action()))
+        thread = threading.Thread(
+            target=lambda: callback(
+                self.listen_next_action(xpaths=xpaths, no_timeout=no_timeout)
+            )
+        )
         thread.start()
 
     def listen(self, callback: Callable[[Any], bool]):
