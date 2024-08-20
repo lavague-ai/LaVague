@@ -8,6 +8,7 @@ from llama_index.core.schema import NodeWithScore, TextNode
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from llama_index.core.node_parser import LangchainNodeParser
 from llama_index.core.embeddings import BaseEmbedding
+from lavague.core.extractors import extract_xpaths_from_html
 from lavague.core.base_driver import BaseDriver, PossibleInteractionsByXpath
 from lavague.core.utilities.format_utils import clean_html
 import re
@@ -20,6 +21,7 @@ def get_default_retriever(
     return RetrieversPipeline(
         InteractiveXPathRetriever(driver),
         FromXPathNodesExpansionRetriever(),
+        # UniqueXPathRetriever(driver),
         SemanticRetriever(embedding=embedding),
     )
 
@@ -49,6 +51,50 @@ class RetrieversPipeline(BaseHtmlRetriever):
         for retriever in self.retrievers:
             html_nodes = retriever.retrieve(query, html_nodes, viewport_only)
         return html_nodes
+
+
+class UniqueXPathRetriever(BaseHtmlRetriever):
+    """Retriever that removes rendudancy when elements have the same bounding box"""
+
+    def __init__(self, driver: BaseDriver) -> None:
+        self.driver = driver
+
+    def retrieve(
+        self, query: QueryBundle, html_nodes: List[str], viewport_only=True
+    ) -> List[str]:
+        html = merge_html_chunks(html_nodes)
+        xpaths = extract_xpaths_from_html(html)
+
+        js_function = """
+        function getUniqueElementsWithXPaths(xpaths) {
+            const uniqueElements = [];
+            const boundingBoxes = new Set();
+
+            xpaths.forEach(xpath => {
+                const elements = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                for (let i = 0; i < elements.snapshotLength; i++) {
+                    const element = elements.snapshotItem(i);
+                    const rect = element.getBoundingClientRect();
+                    const boundingBox = `${rect.x},${rect.y},${rect.width},${rect.height}`;
+
+                    if (!boundingBoxes.has(boundingBox)) {
+                        boundingBoxes.add(boundingBox);
+                        const clonedElement = element.cloneNode(true);
+                        clonedElement.setAttribute('xpath', xpath);
+                        uniqueElements.push(clonedElement.outerHTML);
+                        break;  // We only need one unique element per XPath
+                    }
+                }
+            });
+
+            return uniqueElements;
+        }
+        return getUniqueElementsWithXPaths(arguments[0]);
+        """
+
+        html_chunks = self.driver.execute_script(js_function, xpaths)
+
+        return html_chunks
 
 
 class BM25HtmlRetriever(BaseHtmlRetriever):
@@ -469,7 +515,7 @@ class SemanticRetriever(BaseHtmlRetriever):
     def __init__(
         self,
         embedding: Optional[BaseEmbedding],
-        top_k: int = 5,
+        top_k: int = 10,
         xpathed_only=True,
     ):
         self.top_k = top_k
