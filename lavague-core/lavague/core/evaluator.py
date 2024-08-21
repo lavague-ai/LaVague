@@ -77,12 +77,15 @@ def normalize_xpath(xpath: str):
     return xpath.replace("[1]", "")
 
 
-def load_website_in_driver(driver, html, viewport_size):
+def load_website_in_driver(driver, html, viewport_size, action):
     f = NamedTemporaryFile(delete=False, mode="w", suffix=".html")
     f.write(html)
     driver.resize_driver(viewport_size["width"], viewport_size["height"])
     driver.get(f"file:{f.name}")
     driver.wait_for_idle()
+    element = driver.resolve_xpath(action["args"]["xpath"])
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center'});", element)
 
 
 FAIL_ACTION = {"args": {"xpath": "(string)"}, "name": "fail"}
@@ -103,6 +106,7 @@ class RetrieverEvaluator(Evaluator):
             + ".csv"
         )
         results = dataset.loc[dataset["validated"]].copy()
+        results.insert(len(results.columns), "result_nodes", None)
         results.insert(len(results.columns), "recall", None)
         results.insert(len(results.columns), "output_size", None)
         results.insert(len(results.columns), "time", None)
@@ -113,11 +117,11 @@ class RetrieverEvaluator(Evaluator):
             for i, row in tqdm(results.iterrows()):
                 driver.__init__()  # reinit the driver
                 action = yaml.safe_load(row["action"])
-                if driver:  # artificially get the page if the retriever needs a driver
-                    viewport_size = parse_viewport_size(row["viewport_size"])
-                    load_website_in_driver(driver, row["html"], viewport_size)
                 instruction = row["instruction"]
                 try:
+                    if driver:  # artificially get the page if the retriever needs a driver
+                        viewport_size = parse_viewport_size(row["viewport_size"])
+                        load_website_in_driver(driver, row["html"], viewport_size, action)
                     t_begin = datetime.now()
                     nodes = retriever.retrieve(
                         QueryBundle(query_str=instruction), [driver.get_html()]
@@ -128,6 +132,7 @@ class RetrieverEvaluator(Evaluator):
                     traceback.print_exc()
                     nodes = []
                 nodes = "\n".join(nodes)
+                results.at[i, "result_nodes"] = nodes
                 results.at[i, "recall"] = 1 if normalize_xpath(action["args"]["xpath"]) in nodes else 0
                 results.at[i, "output_size"] = len(nodes)
                 results.at[i, "time"] = pd.Timedelta(t_end - t_begin).total_seconds()
@@ -177,9 +182,9 @@ class NavigationEngineEvaluator(Evaluator):
             for i, row in tqdm(results.iterrows()):
                 action = yaml.safe_load(row["action"])
                 viewport_size = parse_viewport_size(row["viewport_size"])
-                load_website_in_driver(navigation_engine.driver, row["html"], viewport_size)
                 instruction = row["instruction"]
                 try:
+                    load_website_in_driver(navigation_engine.driver, row["html"], viewport_size, action)
                     t_begin = datetime.now()
                     test_action = navigation_engine.execute_instruction(
                         instruction
