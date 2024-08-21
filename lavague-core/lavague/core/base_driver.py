@@ -307,23 +307,23 @@ class BaseDriver(ABC):
         return self.get_nodes(re.findall(r_get_xpaths_from_html, html))
 
     def highlight_node_from_xpath(
-        self, xpath: str, color: str = "red", bounding_boxes: bool = True, label=False
+        self, xpath: str, color: str = "red", label=False
     ) -> Callable:
-        return self.highlight_nodes([xpath], color, bounding_boxes, label)
+        return self.highlight_nodes([xpath], color, label)
 
     def highlight_nodes(
-        self, xpaths: List[str], color: str = "red", bounding_boxes=True, label=False
+        self, xpaths: List[str], color: str = "red", label=False
     ) -> Callable:
         nodes = self.get_nodes(xpaths)
         for n in nodes:
-            n.highlight(color, bounding_boxes)
+            n.highlight(color)
         return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
 
     def highlight_nodes_from_html(
-        self, html: str, color: str = "blue", bounding_boxes: bool = True, label=False
+        self, html: str, color: str = "blue", label=False
     ) -> Callable:
         return self.highlight_nodes(
-            re.findall(r_get_xpaths_from_html, html), color, bounding_boxes, label
+            re.findall(r_get_xpaths_from_html, html), color, label
         )
 
     def remove_highlight(self):
@@ -339,9 +339,10 @@ class BaseDriver(ABC):
             self._highlight_destructors = []
         if isinstance(destructors, Callable):
             self._highlight_destructors.append(destructors)
-        else:
-            self._highlight_destructors.extend(destructors)
-        return destructors
+            return destructors
+
+        self._highlight_destructors.extend(destructors)
+        return lambda: [d() for d in destructors]
 
     def highlight_interactive_nodes(
         self,
@@ -349,7 +350,6 @@ class BaseDriver(ABC):
         color: str = "red",
         in_viewport=True,
         foreground_only=True,
-        bounding_boxes=True,
         label=False,
     ):
         if with_interactions is None or len(with_interactions) == 0:
@@ -360,7 +360,6 @@ class BaseDriver(ABC):
                     ).keys()
                 ),
                 color,
-                bounding_boxes,
                 label,
             )
 
@@ -373,7 +372,6 @@ class BaseDriver(ABC):
                 if set(interactions) & set(with_interactions)
             ],
             color,
-            bounding_boxes,
             label,
         )
 
@@ -485,7 +483,7 @@ return (function() {
     function getInteractions(e) {
         const tag = e.tagName.toLowerCase();
         if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
-          || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden')) {
+          || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden') || tag === 'body') {
             return [];
         }
         const rect = e.getBoundingClientRect();
