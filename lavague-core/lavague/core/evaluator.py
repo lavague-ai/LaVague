@@ -15,6 +15,7 @@ import traceback
 import base64
 import ast
 from bs4 import BeautifulSoup
+from tempfile import NamedTemporaryFile
 
 
 class Evaluator(ABC):
@@ -47,17 +48,6 @@ class Evaluator(ABC):
         return fig
 
 
-def parse_action(action: str) -> dict:
-    action = yaml.safe_load(action)
-    try:
-        action = action[0]["actions"][0]["action"]
-        _ = action["args"]["xpath"]
-        _ = action["name"]
-        return action
-    except:
-        return None
-
-
 def parse_yaml(action):
     try:
         return yaml.safe_load(action)[0]["actions"][0]["action"]
@@ -83,12 +73,16 @@ def validate_action(action):
     except:
         return False
 
+def normalize_xpath(xpath: str):
+    return xpath.replace("[1]", "")
 
-def remove_img(html):
-    soup = BeautifulSoup(html, "html.parser")
-    for tag in soup.find_all("img"):
-        tag.extract()
-    return soup.decode()
+
+def load_website_in_driver(driver, html, viewport_size):
+    f = NamedTemporaryFile(delete=False, mode="w", suffix=".html")
+    f.write(html)
+    driver.resize_driver(viewport_size["width"], viewport_size["height"])
+    driver.get(f"file:{f.name}")
+    driver.wait_for_idle()
 
 
 FAIL_ACTION = {"args": {"xpath": "(string)"}, "name": "fail"}
@@ -108,7 +102,7 @@ class RetrieverEvaluator(Evaluator):
             + datetime.now().strftime("%Y-%m-%d_%H-%M")
             + ".csv"
         )
-        results = dataset.loc[dataset["is_verified"]].copy()
+        results = dataset.loc[dataset["validated"]].copy()
         results.insert(len(results.columns), "recall", None)
         results.insert(len(results.columns), "output_size", None)
         results.insert(len(results.columns), "time", None)
@@ -118,16 +112,10 @@ class RetrieverEvaluator(Evaluator):
         try:
             for i, row in tqdm(results.iterrows()):
                 driver.__init__()  # reinit the driver
-                action = parse_action(row["action"])
+                action = yaml.safe_load(row["action"])
                 if driver:  # artificially get the page if the retriever needs a driver
-                    html_bs64 = base64.b64encode(
-                        remove_img(row["preaction_html_bundle"]).encode()
-                    ).decode()
-                    driver.get("data:text/html;base64," + html_bs64)
                     viewport_size = parse_viewport_size(row["viewport_size"])
-                    driver.resize_driver(
-                        width=viewport_size["width"], height=viewport_size["height"]
-                    )
+                    load_website_in_driver(driver, row["html"], viewport_size)
                 instruction = row["instruction"]
                 try:
                     t_begin = datetime.now()
@@ -140,7 +128,7 @@ class RetrieverEvaluator(Evaluator):
                     traceback.print_exc()
                     nodes = []
                 nodes = "\n".join(nodes)
-                results.at[i, "recall"] = 1 if action["args"]["xpath"] in nodes else 0
+                results.at[i, "recall"] = 1 if normalize_xpath(action["args"]["xpath"]) in nodes else 0
                 results.at[i, "output_size"] = len(nodes)
                 results.at[i, "time"] = pd.Timedelta(t_end - t_begin).total_seconds()
             print("Evaluation terminated successfully.")
@@ -177,7 +165,7 @@ class NavigationEngineEvaluator(Evaluator):
             + datetime.now().strftime("%Y-%m-%d_%H-%M")
             + ".csv"
         )
-        results = dataset.loc[dataset["is_verified"]].copy()
+        results = dataset.loc[dataset["validated"]].copy()
         results.insert(len(results.columns), "recall", None)
         results.insert(len(results.columns), "correct_action", None)
         results.insert(len(results.columns), "correct_xpath", None)
@@ -187,15 +175,9 @@ class NavigationEngineEvaluator(Evaluator):
 
         try:
             for i, row in tqdm(results.iterrows()):
-                action = parse_action(row["action"])
-                html_bs64 = base64.b64encode(
-                    remove_img(row["preaction_html_bundle"]).encode()
-                ).decode()
-                navigation_engine.driver.get("data:text/html;base64," + html_bs64)
+                action = yaml.safe_load(row["action"])
                 viewport_size = parse_viewport_size(row["viewport_size"])
-                navigation_engine.driver.resize_driver(
-                    width=viewport_size["width"], height=viewport_size["height"]
-                )
+                load_website_in_driver(navigation_engine.driver, row["html"], viewport_size)
                 instruction = row["instruction"]
                 try:
                     t_begin = datetime.now()
@@ -212,7 +194,7 @@ class NavigationEngineEvaluator(Evaluator):
                     test_action = FAIL_ACTION
                 results.at[i, "correct_action"] = action["name"] == test_action["name"]
                 results.at[i, "correct_xpath"] = (
-                    action["args"]["xpath"] == test_action["args"]["xpath"]
+                    normalize_xpath(action["args"]["xpath"]) == test_action["args"]["xpath"]
                 )
                 results.at[i, "recall"] = (
                     results.at[i, "correct_action"] and results.at[i, "correct_xpath"]
