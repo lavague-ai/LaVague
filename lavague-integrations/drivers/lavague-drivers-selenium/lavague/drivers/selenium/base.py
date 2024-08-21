@@ -42,6 +42,11 @@ import json
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 import requests
 import os
+from lavague.drivers.selenium.javascript import (
+    ATTACH_MOVE_LISTENER,
+    get_highlighter_style,
+    REMOVE_HIGHLIGHT,
+)
 
 
 class SeleniumDriver(BaseDriver):
@@ -54,8 +59,8 @@ class SeleniumDriver(BaseDriver):
         get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
         headless: bool = True,
         user_data_dir: Optional[str] = None,
-        width: int = 1080,
-        height: int = 1080,
+        width: Optional[int] = 1080,
+        height: Optional[int] = 1080,
         options: Optional[Options] = None,
         driver: Optional[WebDriver] = None,
         log_waiting_time=False,
@@ -611,53 +616,15 @@ driver.set_window_size({width}, {height} + height_difference)
     def remove_nodes_highlight(self, xpaths: List[str]):
         self.exec_script_for_nodes(
             self.get_nodes(xpaths),
-            """
-            arguments[0].filter(a => a).forEach(a => a.style.cssText = a.dataset.originalStyle || '');
-            document.querySelectorAll('.lavague-highlight').forEach(a => a.remove());
-            """,
+            REMOVE_HIGHLIGHT,
         )
 
     def highlight_nodes(
-        self, xpaths: List[str], color: str = "red", bounding_boxes=True, label=False
+        self, xpaths: List[str], color: str = "red", label=False
     ) -> Callable:
         nodes = self.get_nodes(xpaths)
-        if bounding_boxes:
-            set_style = f"""
-                const r = a.getBoundingClientRect();
-                const bb = document.createElement('div');
-                const s = window.getComputedStyle(a);
-                bb.className = 'lavague-highlight';
-                bb.style.position = 'fixed';
-                bb.style.top = r.top + 'px';
-                bb.style.left = r.left + 'px';
-                bb.style.width = r.width + 'px';
-                bb.style.height = r.height + 'px';
-                bb.style.border = '3px solid {color}';
-                bb.style.borderRadius = s.borderRadius;
-                bb.style['z-index'] = '2147483647';
-                bb.style['pointer-events'] = 'none';
-                document.body.appendChild(bb);
-                """
-            if label:
-                set_style += """
-                const label = document.createElement('div');
-                label.style.position = 'absolute';
-                label.style.backgroundColor = 'red';
-                label.style.color = 'white';
-                label.style.padding = '0 4px';
-                label.style.top = '-12px';
-                label.style.left = '-12px';
-                label.style['font-size'] = '13px';
-                label.style['border-bottom-right-radius'] = '13px';
-                label.textContent = i;
-                bb.appendChild(label);
-                """
-        else:
-            set_style = f"""
-                a.dataset.originalStyle = a.style.cssText;
-                a.style.outline = '3px solid {color}';
-                a.style['outline-offset'] = '-2px';
-                """
+        self.driver.execute_script(ATTACH_MOVE_LISTENER)
+        set_style = get_highlighter_style(color, label)
         self.exec_script_for_nodes(
             nodes, "arguments[0].forEach((a, i) => { " + set_style + "})"
         )
