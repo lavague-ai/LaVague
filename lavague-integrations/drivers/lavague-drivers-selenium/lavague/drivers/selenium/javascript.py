@@ -6,6 +6,8 @@ if (!window._lavague_move_listener) {
             const rect = bb._tracking.getBoundingClientRect();
             bb.style.top = rect.top + 'px';
             bb.style.left = rect.left + 'px';
+            bb.style.width = rect.width + 'px';
+            bb.style.height = rect.height + 'px';
         });
     };
     window.addEventListener('scroll', window._lavague_move_listener);
