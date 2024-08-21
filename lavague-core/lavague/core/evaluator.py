@@ -73,6 +73,7 @@ def validate_action(action):
     except:
         return False
 
+
 def normalize_xpath(xpath: str):
     return xpath.replace("[1]", "")
 
@@ -84,8 +85,7 @@ def load_website_in_driver(driver, html, viewport_size, action):
     driver.get(f"file:{f.name}")
     driver.wait_for_idle()
     element = driver.resolve_xpath(action["args"]["xpath"])
-    driver.execute_script(
-        "arguments[0].scrollIntoView({block: 'center'});", element)
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
 
 
 FAIL_ACTION = {"args": {"xpath": "(string)"}, "name": "fail"}
@@ -119,9 +119,13 @@ class RetrieverEvaluator(Evaluator):
                 action = yaml.safe_load(row["action"])
                 instruction = row["instruction"]
                 try:
-                    if driver:  # artificially get the page if the retriever needs a driver
+                    if (
+                        driver
+                    ):  # artificially get the page if the retriever needs a driver
                         viewport_size = parse_viewport_size(row["viewport_size"])
-                        load_website_in_driver(driver, row["html"], viewport_size, action)
+                        load_website_in_driver(
+                            driver, row["html"], viewport_size, action
+                        )
                     t_begin = datetime.now()
                     nodes = retriever.retrieve(
                         QueryBundle(query_str=instruction), [driver.get_html()]
@@ -133,7 +137,9 @@ class RetrieverEvaluator(Evaluator):
                     nodes = []
                 nodes = "\n".join(nodes)
                 results.at[i, "result_nodes"] = nodes
-                results.at[i, "recall"] = 1 if normalize_xpath(action["args"]["xpath"]) in nodes else 0
+                results.at[i, "recall"] = (
+                    1 if normalize_xpath(action["args"]["xpath"]) in nodes else 0
+                )
                 results.at[i, "output_size"] = len(nodes)
                 results.at[i, "time"] = pd.Timedelta(t_end - t_begin).total_seconds()
             print("Evaluation terminated successfully.")
@@ -184,7 +190,9 @@ class NavigationEngineEvaluator(Evaluator):
                 viewport_size = parse_viewport_size(row["viewport_size"])
                 instruction = row["instruction"]
                 try:
-                    load_website_in_driver(navigation_engine.driver, row["html"], viewport_size, action)
+                    load_website_in_driver(
+                        navigation_engine.driver, row["html"], viewport_size, action
+                    )
                     t_begin = datetime.now()
                     test_action = navigation_engine.execute_instruction(
                         instruction
@@ -199,7 +207,8 @@ class NavigationEngineEvaluator(Evaluator):
                     test_action = FAIL_ACTION
                 results.at[i, "correct_action"] = action["name"] == test_action["name"]
                 results.at[i, "correct_xpath"] = (
-                    normalize_xpath(action["args"]["xpath"]) == test_action["args"]["xpath"]
+                    normalize_xpath(action["args"]["xpath"])
+                    == test_action["args"]["xpath"]
                 )
                 results.at[i, "recall"] = (
                     results.at[i, "correct_action"] and results.at[i, "correct_xpath"]
