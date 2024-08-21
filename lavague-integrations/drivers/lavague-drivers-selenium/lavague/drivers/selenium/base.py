@@ -720,7 +720,10 @@ class BrowserbaseRemoteConnection(RemoteConnection):
     _session_id = None
 
     def __init__(
-        self, remote_server_addr: str, api_key: Optional[str] = None, project_id: Optional[str] = None
+        self,
+        remote_server_addr: str,
+        api_key: Optional[str] = None,
+        project_id: Optional[str] = None,
     ):
         super().__init__(remote_server_addr)
         self.api_key = api_key or os.environ["BROWSERBASE_API_KEY"]

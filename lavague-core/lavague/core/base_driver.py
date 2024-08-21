@@ -311,7 +311,9 @@ class BaseDriver(ABC):
     ) -> Callable:
         return self.highlight_nodes([xpath], color, bounding_boxes, label)
 
-    def highlight_nodes(self, xpaths: List[str], color: str = "red", bounding_boxes=True, label=False) -> Callable:
+    def highlight_nodes(
+        self, xpaths: List[str], color: str = "red", bounding_boxes=True, label=False
+    ) -> Callable:
         nodes = self.get_nodes(xpaths)
         for n in nodes:
             n.highlight(color, bounding_boxes)
