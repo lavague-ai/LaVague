@@ -306,15 +306,25 @@ class BaseDriver(ABC):
     def get_nodes_from_html(self, html: str) -> List["DOMNode"]:
         return self.get_nodes(re.findall(r_get_xpaths_from_html, html))
 
-    def highlight_node_from_xpath(self, xpath: str, color: str = "red") -> Callable:
-        return self.highlight_nodes([xpath], color)
+    def highlight_node_from_xpath(
+        self, xpath: str, color: str = "red", bounding_boxes: bool = True, label=False
+    ) -> Callable:
+        return self.highlight_nodes([xpath], color, bounding_boxes, label)
 
-    def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
-        nodes = [n.highlight(color) for n in self.get_nodes(xpaths)]
+    def highlight_nodes(
+        self, xpaths: List[str], color: str = "red", bounding_boxes=True, label=False
+    ) -> Callable:
+        nodes = self.get_nodes(xpaths)
+        for n in nodes:
+            n.highlight(color, bounding_boxes)
         return self._add_highlighted_destructors(lambda: [n.clear() for n in nodes])
 
-    def highlight_nodes_from_html(self, html: str, color: str = "blue") -> Callable:
-        return self.highlight_nodes(re.findall(r_get_xpaths_from_html, html), color)
+    def highlight_nodes_from_html(
+        self, html: str, color: str = "blue", bounding_boxes: bool = True, label=False
+    ) -> Callable:
+        return self.highlight_nodes(
+            re.findall(r_get_xpaths_from_html, html), color, bounding_boxes, label
+        )
 
     def remove_highlight(self):
         if hasattr(self, "_highlight_destructors"):
@@ -324,7 +334,7 @@ class BaseDriver(ABC):
 
     def _add_highlighted_destructors(
         self, destructors: Union[List[Callable], Callable]
-    ):
+    ) -> Callable:
         if not hasattr(self, "_highlight_destructors"):
             self._highlight_destructors = []
         if isinstance(destructors, Callable):
@@ -339,6 +349,8 @@ class BaseDriver(ABC):
         color: str = "red",
         in_viewport=True,
         foreground_only=True,
+        bounding_boxes=True,
+        label=False,
     ):
         if with_interactions is None or len(with_interactions) == 0:
             return self.highlight_nodes(
@@ -348,6 +360,8 @@ class BaseDriver(ABC):
                     ).keys()
                 ),
                 color,
+                bounding_boxes,
+                label,
             )
 
         return self.highlight_nodes(
@@ -359,12 +373,14 @@ class BaseDriver(ABC):
                 if set(interactions) & set(with_interactions)
             ],
             color,
+            bounding_boxes,
+            label,
         )
 
 
 class DOMNode(ABC):
     @abstractmethod
-    def highlight(self, color: str = "red"):
+    def highlight(self, color: str = "red", bounding_box=True):
         pass
 
     @abstractmethod
