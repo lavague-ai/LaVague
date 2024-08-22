@@ -58,16 +58,12 @@ jobs:
                 # Sleep to allow some time for pypi package to upload
                 echo "Waiting for version to update..."
                 sleep 60
-                
-                # Install the latest package from PyPI
-                echo "Installing the latest version of $package_name from PyPI..."
-                pip install --upgrade "$package_name"
-                
+              
                 # Confirm the installed version is the latest version
-                installed_version=$(pip show "$package_name" | grep '^Version:' | awk '{print $2}')
-                echo "Installed Version: $installed_version"
+                new_latest_version=$(get_latest_version "$package_name")
+                echo "New Latest Version: $new_latest_version"
                 
-                if [ "$installed_version" == "$latest_version" ]; then
+                if [ "$current_version" == "$new_latest_version" ]; then
                     echo "Version successfully updated."
                 else
                     echo "Version update failed." >&2
