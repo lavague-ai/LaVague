@@ -7,7 +7,6 @@ on:
 
 jobs:
   update-version:
-    env:
     runs-on: ubuntu-latest
     
     steps:
