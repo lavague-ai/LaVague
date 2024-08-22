@@ -59,10 +59,10 @@ jobs:
                 poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
 
                 # Run poetry publish
-                # poetry publish --build
+                poetry publish --build
                 
                 # Install the latest package and confirm the version is updated
-                # installed_version=$(pip show "$package_name" | grep '^Version:' | awk '{print $2}')
+                installed_version=$(pip show "$package_name" | grep '^Version:' | awk '{print $2}')
                 
                 if [ "$installed_version" == "$latest_version" ]; then
                     echo "Version successfully updated."
