@@ -79,9 +79,10 @@ def normalize_xpath(xpath: str):
 
 
 def load_website_in_driver(driver, html, viewport_size, action):
-    f = NamedTemporaryFile(delete=False, mode="w", suffix=".html")
-    f.write(html)
-    driver.resize_driver(viewport_size["width"], viewport_size["height"])
+    with NamedTemporaryFile(delete=False, mode="w", suffix=".html") as f:
+        f.write(html)
+    if viewport_size:
+        driver.resize_driver(viewport_size["width"], viewport_size["height"])
     driver.get(f"file:{f.name}")
     driver.wait_for_idle()
     element = driver.resolve_xpath(action["args"]["xpath"])
