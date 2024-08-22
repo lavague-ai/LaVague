@@ -116,13 +116,13 @@ class RetrieverEvaluator(Evaluator):
 
         try:
             for i, row in tqdm(results.iterrows()):
-                driver.__init__()  # reinit the driver
                 action = yaml.safe_load(row["action"])
                 instruction = row["instruction"]
                 try:
                     if (
                         driver
                     ):  # artificially get the page if the retriever needs a driver
+                        driver.__init__()  # reinit the driver
                         viewport_size = parse_viewport_size(row["viewport_size"])
                         load_website_in_driver(
                             driver, row["html"], viewport_size, action
