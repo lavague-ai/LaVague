@@ -310,7 +310,7 @@ It does not impact the outside world and does not navigate.
 - Navigation Engine: This engine is used when the next step of the task requires further navigation to reach the goal.
 For instance it can be used to click on a link or to fill a form on a webpage. This engine is heavy and will do complex processing of the current HTML to decide which element to interact with.
 - Navigation Controls: This engine is used to perform simple navigation. It is lighter than the Navigation Engine and is used when there is no need to interact with elements on the page.
-Current controls are WAIT (to wait for a certain amount of time), BACK (to go back in the browser history), SCAN (to take screenshots of the whole page) and MAXIMIZE_WINDOW (to maximize the viewport of the driver).
+Current controls are WAIT (to wait for a certain amount of time), BACK (to go back in the browser history), SCAN (to take screenshots of the whole page), MAXIMIZE_WINDOW (to maximize the viewport of the driver), SCROLL_DOWN (to scroll down the page), SCROLL_UP (to scroll up the page) and SWITCH_TAB (to switch tabs if we have opened a new page in a new tab that we need to access).
 
 Here are guidelines to follow:
 
