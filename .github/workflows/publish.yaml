@@ -60,10 +60,6 @@ jobs:
 
                 # Run poetry publish
                 # poetry publish --build
-
-                #testing
-                pwd
-                ls
                 
                 # Install the latest package and confirm the version is updated
                 # installed_version=$(pip show "$package_name" | grep '^Version:' | awk '{print $2}')
@@ -77,7 +73,6 @@ jobs:
 
                 # Return to the root of the repository
                 cd - > /dev/null
-                pwd
             else
                 echo "Version is up-to-date."
             fi
