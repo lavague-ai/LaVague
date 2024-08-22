@@ -55,6 +55,8 @@ jobs:
                 
                 poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
 
+                poetry publish --build
+                
                 # Sleep to allow some time for pypi package to upload
                 echo "Waiting for version to update..."
                 sleep 60
