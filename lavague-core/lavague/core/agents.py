@@ -24,7 +24,7 @@ from lavague.core.utilities.config import is_flag_true
 
 from lavague.core.utilities.profiling import (
     ChartGenerator,
-    profile_agent,
+    time_profiler,
     start_new_step,
     clear_profiling_data,
 )
@@ -453,7 +453,6 @@ class WebAgent:
         self.process_token_usage()
         self.logger.end_step()
 
-    @profile_agent(event_type="RUN_STEP")
     def run_step(self, objective: str) -> Optional[ActionResult]:
         obs = self.driver.get_obs()
         current_state, past = self.st_memory.get_state()
@@ -512,7 +511,8 @@ class WebAgent:
         try:
             for _ in range(self.n_steps):
                 start_new_step()
-                result = self.run_step(objective)
+                with time_profiler("Run step", full_step_profiling=True):
+                    result = self.run_step(objective)
 
                 if result is not None:
                     break

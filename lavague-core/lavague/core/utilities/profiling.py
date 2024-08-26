@@ -5,6 +5,7 @@ from functools import wraps
 import io
 from IPython.display import Image
 from itertools import cycle
+from contextlib import contextmanager
 
 # stores llm and retriever calls
 agent_events = []
@@ -25,57 +26,40 @@ def clear_profiling_data():
     agent_steps = []
 
 
-# The profile decorator that handles different event types
-def profile_agent(event_type: str, event_name: str = None):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            result = func(*args, **kwargs)
-            end_time = time.time()
-            duration = end_time - start_time
+@contextmanager
+def time_profiler(
+    event_name, prompt_size=None, html_size=None, full_step_profiling=False
+):
+    """
+    A context manager to profile the execution time of code blocks.
 
-            if event_type == "RUN_STEP":
-                agent_steps.append({"start_time": start_time, "duration": duration})
-            elif event_type == "LLM_CALL":
-                agent_events[-1].append(
-                    {
-                        "event_name": event_name,
-                        "start_time": start_time,
-                        "duration": duration,
-                        "prompt_size": len(args[0]),  # Assuming args[0] is the prompt
-                        "completion_size": len(
-                            result.text
-                        ),  # Assuming result.text is the completion
-                    }
-                )
-            elif event_type == "RETRIEVER_CALL":
-                agent_events[-1].append(
-                    {
-                        "event_name": "Retriever",
-                        "start_time": start_time,
-                        "duration": duration,
-                        "html_size": len(
-                            args[0].driver.get_html()
-                        ),  # Assuming args[0] is the retriever object
-                    }
-                )
-            elif event_type == "DEFAULT":
-                agent_events[-1].append(
-                    {
-                        "event_name": event_name,
-                        "start_time": start_time,
-                        "duration": duration,
-                    }
-                )
-            else:
-                raise ValueError(f"Unknown event type: {event_type}")
+    Parameters:
+    - event_name: The name of the event being profiled.
+    - prompt_size: Optional size of the prompt, if applicable.
+    - html_size: Optional size of the HTML, if applicable.
+    - full_step_profiling: Boolean indicating whether to profile full steps or individual events.
+    """
+    start_time = time.perf_counter()
+    try:
+        yield
+    finally:
+        end_time = time.perf_counter()
+        duration = end_time - start_time
 
-            return result
+        # create profiling record
+        record = {
+            "event_name": event_name,
+            "start_time": start_time,
+            "duration": duration,
+            **({"prompt_size": prompt_size} if prompt_size is not None else {}),
+            **({"html_size": html_size} if html_size is not None else {}),
+        }
 
-        return wrapper
-
-    return decorator
+        # append the record to the appropriate list
+        if full_step_profiling:
+            agent_steps.append(record)
+        else:
+            agent_events[-1].append(record)
 
 
 class ChartGenerator:
