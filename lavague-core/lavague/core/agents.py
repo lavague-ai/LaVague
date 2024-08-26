@@ -609,4 +609,6 @@ class WebAgent:
         plot = chart_generator.plot_waterfall()
         table = chart_generator.get_summary_df()
         
+        clear_profiling_data()
+        
         return plot, table
