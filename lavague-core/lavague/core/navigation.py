@@ -24,7 +24,7 @@ from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
-from lavague.core.utilities.profiling import track_retriever, track_llm_call
+from lavague.core.utilities.profiling import profile_agent
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -144,7 +144,7 @@ class NavigationEngine(BaseEngine):
             extractor,
         )
 
-    @track_retriever()
+    @profile_agent(event_type="RETRIEVER_CALL")
     def get_nodes(self, query: str) -> List[str]:
         """
         Get the nodes from the html page
@@ -456,7 +456,7 @@ class NavigationEngine(BaseEngine):
             )
 
             # response = self.llm.complete(prompt).text
-            response = track_llm_call("Navigation")(self.llm.complete)(prompt).text
+            response = profile_agent(event_type="LLM_CALL", event_name="Navigation Engine")(self.llm.complete)(prompt).text
             end = time.time()
             action_generation_time = end - start
             action_outcome = {
@@ -480,6 +480,8 @@ class NavigationEngine(BaseEngine):
                     for item in vision_data:
                         display_screenshot(item["screenshot"])
                         time.sleep(0.2)
+                        
+                profile_agent(event_type="DEFAULT", event_name="Execute code")(self.driver.exec_code)(action)
                 self.driver.exec_code(action)
                 time.sleep(self.time_between_actions)
                 if self.display:

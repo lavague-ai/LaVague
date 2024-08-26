@@ -22,7 +22,7 @@ from IPython.display import display, HTML, Code
 from lavague.core.token_counter import TokenCounter
 from lavague.core.utilities.config import is_flag_true
 
-from lavague.core.utilities.profiling import ChartGenerator, track_total_runtime, start_new_step
+from lavague.core.utilities.profiling import ChartGenerator, profile_agent, start_new_step, clear_profiling_data
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -448,7 +448,7 @@ class WebAgent:
         self.process_token_usage()
         self.logger.end_step()
 
-    @track_total_runtime()
+    @profile_agent(event_type="RUN_STEP")
     def run_step(self, objective: str) -> Optional[ActionResult]:
         obs = self.driver.get_obs()
         current_state, past = self.st_memory.get_state()
