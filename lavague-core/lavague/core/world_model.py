@@ -433,9 +433,9 @@ class WorldModel(ABC, Loggable):
         start = time.time()
 
         # decorated llm call
-        mm_llm_output = profile_agent(event_type="LLM_CALL", event_name="World Model")(mm_llm.complete)(
-            prompt, image_documents=image_documents
-        ).text
+        mm_llm_output = profile_agent(event_type="LLM_CALL", event_name="World Model")(
+            mm_llm.complete
+        )(prompt, image_documents=image_documents).text
         # mm_llm_output = mm_llm.complete(prompt, image_documents=image_documents).text
 
         end = time.time()

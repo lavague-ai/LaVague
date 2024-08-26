@@ -456,7 +456,9 @@ class NavigationEngine(BaseEngine):
             )
 
             # response = self.llm.complete(prompt).text
-            response = profile_agent(event_type="LLM_CALL", event_name="Navigation Engine")(self.llm.complete)(prompt).text
+            response = profile_agent(
+                event_type="LLM_CALL", event_name="Navigation Engine"
+            )(self.llm.complete)(prompt).text
             end = time.time()
             action_generation_time = end - start
             action_outcome = {
@@ -480,8 +482,10 @@ class NavigationEngine(BaseEngine):
                     for item in vision_data:
                         display_screenshot(item["screenshot"])
                         time.sleep(0.2)
-                        
-                profile_agent(event_type="DEFAULT", event_name="Execute code")(self.driver.exec_code)(action)
+
+                profile_agent(event_type="DEFAULT", event_name="Execute code")(
+                    self.driver.exec_code
+                )(action)
                 # self.driver.exec_code(action)
                 time.sleep(self.time_between_actions)
                 if self.display:

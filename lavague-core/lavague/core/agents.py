@@ -22,7 +22,12 @@ from IPython.display import display, HTML, Code
 from lavague.core.token_counter import TokenCounter
 from lavague.core.utilities.config import is_flag_true
 
-from lavague.core.utilities.profiling import ChartGenerator, profile_agent, start_new_step, clear_profiling_data
+from lavague.core.utilities.profiling import (
+    ChartGenerator,
+    profile_agent,
+    start_new_step,
+    clear_profiling_data,
+)
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
@@ -605,10 +610,13 @@ class WebAgent:
 
     def get_summary(self):
         from lavague.core.utilities.profiling import agent_events, agent_steps
-        chart_generator = ChartGenerator(agent_events=agent_events, agent_steps=agent_steps)
+
+        chart_generator = ChartGenerator(
+            agent_events=agent_events, agent_steps=agent_steps
+        )
         plot = chart_generator.plot_waterfall()
         table = chart_generator.get_summary_df()
-        
+
         clear_profiling_data()
-        
+
         return plot, table
