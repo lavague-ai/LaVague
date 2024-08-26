@@ -248,8 +248,11 @@ class NavigationEngine(BaseEngine):
                 except:
                     pass
             start = time.time()
+            authorized_xpaths = extract_xpaths_from_html(llm_context)
             prompt = self.prompt_template.format(
-                context_str=llm_context, query_str=instruction
+                context_str=llm_context,
+                query_str=instruction,
+                authorized_xpaths=authorized_xpaths,
             )
             response = self.llm.complete(prompt).text
             end = time.time()
