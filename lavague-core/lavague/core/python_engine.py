@@ -86,7 +86,7 @@ class PythonEngine(BaseEngine):
         try:
             output_dict = json.loads(clean)
         except json.JSONDecodeError as e:
-            print(f"Error extracting Yaml: {e}")
+            print(f"Error extracting Json: {e}")
             return None
         return output_dict
 
