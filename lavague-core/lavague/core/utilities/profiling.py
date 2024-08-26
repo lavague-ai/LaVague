@@ -68,11 +68,16 @@ class ChartGenerator:
         self.total_step_runtime = agent_steps
         self.step_color = "grey"
         self.event_color_scheme = [
-            "lightblue",
-            "bisque",
-            "thistle",
-            "lightgreen",
-            "pink",
+            "#FFB3B3",  # Pastel Red
+            "#ADD8E6",  # Pastel Blue
+            "#B2D8B2",  # Pastel Green
+            "#FFCC99",  # Pastel Orange
+            "#D1B3FF",  # Pastel Purple
+            "#FFB3DE",  # Pastel Pink
+            "#B3FFFF",  # Pastel Cyan
+            "#FFFFB3",  # Pastel Yellow
+            "#FFB3FF",  # Pastel Magenta
+            "#D2B48C",  # Pastel Brown
         ]
 
     def plot_waterfall(self):
