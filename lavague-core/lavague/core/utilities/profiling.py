@@ -1,10 +1,9 @@
 import time
-from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 from functools import wraps
 import io
-from IPython.display import display, Image
+from IPython.display import Image
 from itertools import cycle
 
 # stores llm and retriever calls
@@ -17,9 +16,14 @@ agent_steps = []
 def start_new_step():
     global agent_events
     agent_events.append([])
+    
+def clear_profiling_data():
+    global agent_events, agent_steps
+    agent_events = []
+    agent_steps = []
 
-# track the runtime of the run_step function
-def track_total_runtime():
+# The profile decorator that handles different event types
+def profile_agent(event_type: str, event_name: str = None):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -27,54 +31,36 @@ def track_total_runtime():
             result = func(*args, **kwargs)
             end_time = time.time()
             duration = end_time - start_time
-            agent_steps.append({
-                'start_time': start_time,
-                # 'end_time': end_time,
-                'duration': duration
-            })
-            return result
-        return wrapper
-    return decorator
 
-# track runtime, prompt size, and completion size of a llm call (used on world model + action engine)
-def track_llm_call(event_name):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            result = func(*args, **kwargs)
-            end_time = time.time()
-            duration = end_time - start_time
-            
-            agent_events[-1].append({
-                'event_name': event_name,
-                'start_time': start_time,
-                # 'end_time': end_time,
-                'duration': duration,
-                'prompt_size': len(args[0]),
-                'completion_size': len(result.text)
-            })
-            return result
-        return wrapper
-    return decorator
+            if event_type == "RUN_STEP":
+                agent_steps.append({
+                    'start_time': start_time,
+                    'duration': duration
+                })
+            elif event_type == "LLM_CALL":
+                agent_events[-1].append({
+                    'event_name': event_name,
+                    'start_time': start_time,
+                    'duration': duration,
+                    'prompt_size': len(args[0]),  # Assuming args[0] is the prompt
+                    'completion_size': len(result.text)  # Assuming result.text is the completion
+                })
+            elif event_type == "RETRIEVER_CALL":
+                agent_events[-1].append({
+                    'event_name': 'Retriever',
+                    'start_time': start_time,
+                    'duration': duration,
+                    'html_size': len(args[0].driver.get_html()),  # Assuming args[0] is the retriever object
+                })
+            elif event_type == "DEFAULT":
+                agent_events[-1].append({
+                    'event_name': event_name,
+                    'start_time': start_time,
+                    'duration': duration
+                })
+            else:
+                raise ValueError(f"Unknown event type: {event_type}")
 
-# track runtime and html size of a retriever call
-def track_retriever(event_name):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            result = func(*args, **kwargs)
-            end_time = time.time()
-            duration = end_time - start_time
-            
-            agent_events[-1].append({
-                'event_name': event_name,
-                'start_time': start_time,
-                # 'end_time': end_time,
-                'duration': duration,
-                'html_size': len(args[0].driver.get_html()),
-            })
             return result
         return wrapper
     return decorator
@@ -84,7 +70,7 @@ class ChartGenerator:
     def __init__(self, agent_events, agent_steps):
         self.agent_events = agent_events
         self.total_step_runtime = agent_steps
-        self.step_color = "lightgrey"
+        self.step_color = "grey"
         self.event_color_scheme = ["lightblue", "bisque", "thistle", "lightgreen", "pink"]
 
     def plot_waterfall(self):
@@ -117,7 +103,7 @@ class ChartGenerator:
                     event_colors[event_name] = next(color_cycle)
                 
                 color = event_colors[event_name]
-                ax.barh(step_index, duration, left=start_time, color=color)
+                ax.barh(step_index, duration, left=start_time, color=color, alpha=1)
                 ax.text(start_time + duration / 2, step_index, f"{duration:.2f}s",
                         ha='center', va='center', fontsize=9, color='black', rotation=90)
         
@@ -125,7 +111,7 @@ class ChartGenerator:
         ax.set_yticks(range(len(self.total_step_runtime)))
         ax.set_yticklabels([f'Step {i+1}' for i in range(len(self.total_step_runtime))])
         ax.set_xlabel('Time (seconds)')
-        ax.set_title('Waterfall Chart with Events Overlay')
+        ax.set_title('Agent Event Waterfall')
 
         
         # Add legend for event colors
