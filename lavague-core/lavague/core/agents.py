@@ -22,6 +22,8 @@ from IPython.display import display, HTML, Code
 from lavague.core.token_counter import TokenCounter
 from lavague.core.utilities.config import is_flag_true
 
+from lavague.core.utilities.profiling import ChartGenerator, track_total_runtime, start_new_step
+
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
 format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -446,6 +448,7 @@ class WebAgent:
         self.process_token_usage()
         self.logger.end_step()
 
+    @track_total_runtime()
     def run_step(self, objective: str) -> Optional[ActionResult]:
         obs = self.driver.get_obs()
         current_state, past = self.st_memory.get_state()
@@ -503,6 +506,7 @@ class WebAgent:
 
         try:
             for _ in range(self.n_steps):
+                start_new_step()
                 result = self.run_step(objective)
 
                 if result is not None:

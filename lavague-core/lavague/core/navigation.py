@@ -24,6 +24,7 @@ from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
+from lavague.core.utilities.profiling import track_retriever, track_llm_call
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -143,6 +144,7 @@ class NavigationEngine(BaseEngine):
             extractor,
         )
 
+    @track_retriever()
     def get_nodes(self, query: str) -> List[str]:
         """
         Get the nodes from the html page
@@ -452,7 +454,9 @@ class NavigationEngine(BaseEngine):
                 query_str=instruction,
                 authorized_xpaths=authorized_xpaths,
             )
-            response = self.llm.complete(prompt).text
+
+            # response = self.llm.complete(prompt).text
+            response = track_llm_call("Navigation")(self.llm.complete)(prompt).text
             end = time.time()
             action_generation_time = end - start
             action_outcome = {
