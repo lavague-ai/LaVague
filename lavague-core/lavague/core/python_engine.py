@@ -56,7 +56,7 @@ class PythonEngine(BaseEngine):
         display: bool = False,
         batch_size: int = 5,
         confidence_threshold: float = 0.85,
-        fallback_threshold: float = 0.65,
+        fallback_threshold: float = 0.85,
         temp_screenshots_path="./tmp_screenshots",
         n_search_attemps=10,
     ):
@@ -81,7 +81,8 @@ class PythonEngine(BaseEngine):
         return cls(llm=context.llm, embedding=context.embedding, driver=driver)
 
     def extract_json(self, output: str) -> Optional[dict]:
-        clean = JsonFromMarkdownExtractor.extract(output)
+        extractor = JsonFromMarkdownExtractor()
+        clean = extractor.extract(markdown_text=output)
         try:
             output_dict = json.loads(clean)
         except json.JSONDecodeError as e:
