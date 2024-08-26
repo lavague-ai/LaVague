@@ -42,6 +42,11 @@ import json
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 import requests
 import os
+from lavague.drivers.selenium.javascript import (
+    ATTACH_MOVE_LISTENER,
+    get_highlighter_style,
+    REMOVE_HIGHLIGHT,
+)
 
 
 class SeleniumDriver(BaseDriver):
@@ -54,13 +59,13 @@ class SeleniumDriver(BaseDriver):
         get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
         headless: bool = True,
         user_data_dir: Optional[str] = None,
-        width: int = 1080,
-        height: int = 1080,
+        width: Optional[int] = 1080,
+        height: Optional[int] = 1080,
         options: Optional[Options] = None,
         driver: Optional[WebDriver] = None,
         log_waiting_time=False,
         waiting_completion_timeout=10,
-        remote_connection: "BrowserbaseRemoteConnection" = None,
+        remote_connection: Optional["BrowserbaseRemoteConnection"] = None,
     ):
         self.headless = headless
         self.user_data_dir = user_data_dir
@@ -151,6 +156,8 @@ class SeleniumDriver(BaseDriver):
         return self.driver
 
     def resize_driver(self, width, height) -> None:
+        if width is None and height is None:
+            return None
         # Selenium is only being able to set window size and not viewport size
         self.driver.set_window_size(width, height)
         viewport_height = self.driver.execute_script("return window.innerHeight;")
@@ -578,7 +585,7 @@ driver.set_window_size({width}, {height} + height_difference)
         driver.switch_to.window(window_handles[tab_id])
 
     def get_nodes(self, xpaths: List[str]) -> List["SeleniumNode"]:
-        return [SeleniumNode(xpath, self.driver) for xpath in xpaths]
+        return [SeleniumNode(xpath, self) for xpath in xpaths]
 
     def exec_script_for_nodes(self, nodes: List["SeleniumNode"], script: str):
         standard_nodes: List[SeleniumNode] = []
@@ -609,16 +616,17 @@ driver.set_window_size({width}, {height} + height_difference)
     def remove_nodes_highlight(self, xpaths: List[str]):
         self.exec_script_for_nodes(
             self.get_nodes(xpaths),
-            "arguments[0].filter(a => a).forEach(a => a.style.removeProperty('outline'))",
+            REMOVE_HIGHLIGHT,
         )
 
-    def highlight_nodes(self, xpaths: List[str], color: str = "red") -> Callable:
+    def highlight_nodes(
+        self, xpaths: List[str], color: str = "red", label=False
+    ) -> Callable:
         nodes = self.get_nodes(xpaths)
-        set_style = (
-            f"a.style.outline = '4px solid {color}'; a.style['outline-offset'] = '-2px'"
-        )
+        self.driver.execute_script(ATTACH_MOVE_LISTENER)
+        set_style = get_highlighter_style(color, label)
         self.exec_script_for_nodes(
-            nodes, "arguments[0].forEach(a => { " + set_style + "})"
+            nodes, "arguments[0].forEach((a, i) => { " + set_style + "})"
         )
         return self._add_highlighted_destructors(
             lambda: self.remove_nodes_highlight(xpaths)
@@ -653,8 +661,8 @@ class SeleniumNode(DOMNode):
             self._element = None
         return self._element
 
-    def highlight(self, color: str = "red"):
-        self._driver.highlight_nodes([self.xpath], color)
+    def highlight(self, color: str = "red", bounding_box=True):
+        self._driver.highlight_nodes([self.xpath], color, bounding_box)
         return self
 
     def clear(self):
@@ -662,10 +670,12 @@ class SeleniumNode(DOMNode):
         return self
 
     def take_screenshot(self):
-        try:
-            return Image.open(BytesIO(self.element.screenshot_as_png))
-        except WebDriverException:
-            return Image.new("RGB", (0, 0))
+        if self.element:
+            try:
+                return Image.open(BytesIO(self.element.screenshot_as_png))
+            except WebDriverException:
+                pass
+        return Image.new("RGB", (0, 0))
 
     def get_html(self):
         return self._driver.driver.execute_script(
@@ -677,7 +687,10 @@ class BrowserbaseRemoteConnection(RemoteConnection):
     _session_id = None
 
     def __init__(
-        self, remote_server_addr: str, api_key: str = None, project_id: str = None
+        self,
+        remote_server_addr: str,
+        api_key: Optional[str] = None,
+        project_id: Optional[str] = None,
     ):
         super().__init__(remote_server_addr)
         self.api_key = api_key or os.environ["BROWSERBASE_API_KEY"]

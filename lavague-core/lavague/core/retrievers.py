@@ -21,7 +21,6 @@ def get_default_retriever(
     return RetrieversPipeline(
         InteractiveXPathRetriever(driver),
         FromXPathNodesExpansionRetriever(),
-        # UniqueXPathRetriever(driver),
         SemanticRetriever(embedding=embedding),
     )
 
@@ -451,12 +450,11 @@ class FromXPathNodesExpansionRetriever(BaseHtmlRetriever):
         chunks = []
         processed_xpaths = set()
 
-        def include_html(sibling) -> str:
+        def include_html(sibling) -> Optional[str]:
             sibling_xpaths = self.get_included_xpaths(sibling)
             if processed_xpaths.isdisjoint(sibling_xpaths):
                 processed_xpaths.update(sibling_xpaths)
                 return str(sibling)
-            return ""
 
         # For each marked element
         for element in elements:
@@ -465,12 +463,12 @@ class FromXPathNodesExpansionRetriever(BaseHtmlRetriever):
                 continue
 
             chunk = str(element)
-            processed_xpaths.add(xpath)
+            processed_xpaths.update(self.get_included_xpaths(element))
+            expanding = len(chunk) < self.chunk_size
 
             # Expand to siblings, then parent until we reach the chunk size
-            while len(chunk) < self.chunk_size and (
-                element.parent or element.previous_sibling or element.next_sibling
-            ):
+            while expanding:
+                previous_size = len(chunk)
                 previous_sibling = element.previous_sibling
                 next_sibling = element.next_sibling
 
@@ -479,11 +477,19 @@ class FromXPathNodesExpansionRetriever(BaseHtmlRetriever):
                     previous_sibling or next_sibling
                 ):
                     if previous_sibling:
-                        chunk = include_html(previous_sibling) + chunk
-                        previous_sibling = previous_sibling.previous_sibling
+                        add_html = include_html(previous_sibling)
+                        if add_html:
+                            chunk += add_html
+                            previous_sibling = previous_sibling.previous_sibling
+                        else:
+                            previous_sibling = None
                     if next_sibling:
-                        chunk = chunk + include_html(next_sibling)
-                        next_sibling = next_sibling.next_sibling
+                        add_html = include_html(next_sibling)
+                        if add_html:
+                            chunk = chunk + add_html
+                            next_sibling = next_sibling.next_sibling
+                        else:
+                            next_sibling = None
 
                 # Move to parent if no more siblings can be added
                 if len(chunk) < self.chunk_size and element.parent:
@@ -494,6 +500,8 @@ class FromXPathNodesExpansionRetriever(BaseHtmlRetriever):
 
                     # Remove previous chunks that are now included in the parent
                     chunks = [c for c in chunks if c not in chunk]
+
+                expanding = len(chunk) < self.chunk_size and len(chunk) > previous_size
 
             if chunk.strip():
                 chunks.append(chunk)
