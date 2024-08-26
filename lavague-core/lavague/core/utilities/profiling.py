@@ -115,8 +115,15 @@ class ChartGenerator:
 
         
         # Add legend for event colors
+        # Existing legend labels
         legend_labels = [plt.Line2D([0], [0], color=color, lw=4) for color in event_colors.values()]
-        ax.legend(legend_labels, event_colors.keys(), title="Event Name")
+
+        # Adding the "Step" label in grey
+        step_label = plt.Line2D([0], [0], color='grey', lw=4)
+        legend_labels.append(step_label)
+
+        # Update the legend to include "Step"
+        ax.legend(legend_labels, list(event_colors.keys()) + ["Step"], title="Event Name")
         
         # Save to buffer
         buf = io.BytesIO()
