@@ -482,7 +482,7 @@ class NavigationEngine(BaseEngine):
                         time.sleep(0.2)
                         
                 profile_agent(event_type="DEFAULT", event_name="Execute code")(self.driver.exec_code)(action)
-                self.driver.exec_code(action)
+                # self.driver.exec_code(action)
                 time.sleep(self.time_between_actions)
                 if self.display:
                     try:
