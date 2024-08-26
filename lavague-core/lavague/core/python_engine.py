@@ -21,7 +21,7 @@ from llama_index.core import Document, VectorStoreIndex
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
 import re
-from lavague.core.extractors import JsonFromMarkdownExtractor
+from lavague.core.extractors import DynamicExtractor
 
 DEFAULT_TEMPERATURE = 0.0
 
@@ -81,12 +81,12 @@ class PythonEngine(BaseEngine):
         return cls(llm=context.llm, embedding=context.embedding, driver=driver)
 
     def extract_json(self, output: str) -> Optional[dict]:
-        extractor = JsonFromMarkdownExtractor()
-        clean = extractor.extract(markdown_text=output)
+        extractor = DynamicExtractor()
+        clean = extractor.extract(output)
         try:
             output_dict = json.loads(clean)
         except json.JSONDecodeError as e:
-            print(f"Error extracting JSON: {e}")
+            print(f"Error extracting Yaml: {e}")
             return None
         return output_dict
 
@@ -119,7 +119,7 @@ class PythonEngine(BaseEngine):
         context_score = -1
 
         prompt = f"""
-        You must respond with a dictionary in the following format:
+        You must respond with a JSON object in the following format:
         {{
             "ret": "[any relevant text transcribed from the image in order to answer the query {instruction} - make sure to answer with full sentences so the reponse can be understood out of context.]",
             "score": [a confidence score between 0 and 1 that the necessary context has been captured in order to answer the following query]
@@ -150,9 +150,10 @@ class PythonEngine(BaseEngine):
                 image_documents=screenshots, prompt=prompt
             ).text.strip()
             output_dict = self.extract_json(output)
-            context_score = output_dict.get("score", 0)
-            output = output_dict.get("ret")
-            memory += output
+            if output_dict:
+                context_score = output_dict.get("score", 0)
+                output = output_dict.get("ret")
+                memory += output
 
             # delete temp image folder
             shutil.rmtree(Path(self.temp_screenshots_path))
