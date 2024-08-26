@@ -602,3 +602,11 @@ class WebAgent:
 
     def set_origin(self, origin: str):
         self.origin = origin
+
+    def get_summary(self):
+        from lavague.core.utilities.profiling import agent_events, agent_steps
+        chart_generator = ChartGenerator(agent_events=agent_events, agent_steps=agent_steps)
+        plot = chart_generator.plot_waterfall()
+        table = chart_generator.get_summary_df()
+        
+        return plot, table
