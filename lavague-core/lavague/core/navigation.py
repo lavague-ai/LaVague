@@ -173,7 +173,7 @@ class NavigationEngine(BaseEngine):
             query_str=query,
             authorized_xpaths=authorized_xpaths,
         )
-        
+
         response = self.llm.complete(prompt).text
         code = self.extractor.extract(response)
         return code
