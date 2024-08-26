@@ -21,6 +21,7 @@ from llama_index.core import Document, VectorStoreIndex
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
 import re
+from lavague.core.extractors import JsonFromMarkdownExtractor
 
 DEFAULT_TEMPERATURE = 0.0
 
@@ -80,14 +81,7 @@ class PythonEngine(BaseEngine):
         return cls(llm=context.llm, embedding=context.embedding, driver=driver)
 
     def extract_json(self, output: str) -> Optional[dict]:
-        clean = (
-            output.replace("'ret'", '"ret"')
-            .replace("'score'", '"score"')
-            .replace("```json", "")
-            .replace("```", "")
-            .strip()
-        )
-        clean = re.sub(r"\n+", "\n", clean)
+        clean = JsonFromMarkdownExtractor.extract(output)
         try:
             output_dict = json.loads(clean)
         except json.JSONDecodeError as e:
