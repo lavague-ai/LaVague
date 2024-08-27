@@ -11,6 +11,7 @@ from PIL import Image
 from lavague.core.utilities.model_utils import get_model_name
 import time
 import yaml
+from lavague.core.utilities.profiling import time_profiler
 
 WORLD_MODEL_GENERAL_EXAMPLES = """
 Objective:  Go to the first issue you can find
@@ -430,7 +431,12 @@ class WorldModel(ABC, Loggable):
         )
 
         start = time.time()
-        mm_llm_output = mm_llm.complete(prompt, image_documents=image_documents).text
+
+        with time_profiler("World Model Inference", prompt_size=len(prompt)):
+            mm_llm_output = mm_llm.complete(
+                prompt, image_documents=image_documents
+            ).text
+
         end = time.time()
         world_model_inference_time = end - start
 
