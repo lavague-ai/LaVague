@@ -191,6 +191,7 @@ class PythonEngine(BaseEngine):
         ret: "[your answer]"
         ```
         If you do not have sufficient context, set 'ret' to 'Insufficient context' and 'score' to 0.
+        Keep the answer in 'ret' concise but informative.
         The query is: {instruction}
         """
 
