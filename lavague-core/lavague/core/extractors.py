@@ -3,7 +3,7 @@ import re
 from jsonschema import validate, ValidationError
 import yaml
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 
 def extract_xpaths_from_html(html):
@@ -59,11 +59,18 @@ class YamlFromMarkdownExtractor(BaseExtractor):
         if match:
             # Return the first matched group, which is the code inside the ```python ```
             yml_str = match.group(1).strip()
+        cleaned_yml = re.sub(r"^```.*\n|```$", "", yml_str, flags=re.DOTALL)
         try:
-            yaml.safe_load(yml_str)
-            return yml_str
+            yaml.safe_load(cleaned_yml)
+            return cleaned_yml
         except yaml.YAMLError:
-            return None
+            # retry with extra quote in case of truncated output
+            cleaned_yml += '"'
+            try:
+                yaml.safe_load(cleaned_yml)
+                return cleaned_yml
+            except yaml.YAMLError:
+                return None
 
     def extract_as_object(self, text: str):
         return yaml.safe_load(self.extract(text))
@@ -164,27 +171,28 @@ class DynamicExtractor(BaseExtractor):
             "python": PythonFromMarkdownExtractor(),
         }
 
-    def get_type(self, text: str) -> str:
+    def get_type(self, text: str) -> Tuple[str, str]:
         types_pattern = "|".join(self.extractors.keys())
         pattern = rf"```({types_pattern}).*?```"
         match = re.search(pattern, text, re.DOTALL)
         if match:
-            return match.group(1).strip()
+            return match.group(1).strip(), text
         else:
-            # Try to auto-detect first matching extractor
+            # Try to auto-detect first matching extractor, and remove extra ```(type)``` wrappers
+            cleaned_text = re.sub(r"^```.*\n|```$", "", text, flags=re.DOTALL)
             for type, extractor in self.extractors.items():
                 try:
-                    value = extractor.extract(text)
+                    value = extractor.extract(cleaned_text)
                     if value:
-                        return type
+                        return type, value
                 except:
                     pass
             raise ValueError(f"No extractor pattern can be found from {text}")
 
     def extract(self, text: str) -> str:
-        type = self.get_type(text)
-        return self.extractors[type].extract(text)
+        type, target_text = self.get_type(text)
+        return self.extractors[type].extract(target_text)
 
     def extract_as_object(self, text: str) -> Any:
-        type = self.get_type(text)
-        return self.extractors[type].extract_as_object(text)
+        type, target_text = self.get_type(text)
+        return self.extractors[type].extract_as_object(target_text)

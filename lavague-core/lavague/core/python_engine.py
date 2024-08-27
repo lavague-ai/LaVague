@@ -1,4 +1,3 @@
-import json
 import shutil
 import time
 from io import BytesIO
@@ -20,7 +19,6 @@ from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.core import Document, VectorStoreIndex
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
-import re
 from lavague.core.extractors import DynamicExtractor
 
 DEFAULT_TEMPERATURE = 0.0
@@ -60,14 +58,14 @@ class PythonEngine(BaseEngine):
         temp_screenshots_path="./tmp_screenshots",
         n_search_attemps=10,
     ):
-        self.llm = llm or get_default_context().llm
+        self.llm = llm or get_default_context().extraction_llm
         self.embedding = embedding or get_default_context().embedding
         self.clean_html = clean_html
         self.driver = driver
         self.logger = logger
         self.display = display
         self.ocr_mm_llm = ocr_mm_llm or OpenAIMultiModal(
-            model="gpt-4o-mini", temperature=DEFAULT_TEMPERATURE
+            model="gpt-4o-mini", temperature=DEFAULT_TEMPERATURE, max_new_tokens=16384
         )
         self.ocr_llm = ocr_llm or self.llm
         self.batch_size = batch_size
@@ -80,15 +78,9 @@ class PythonEngine(BaseEngine):
     def from_context(cls, context: Context, driver: BaseDriver):
         return cls(llm=context.llm, embedding=context.embedding, driver=driver)
 
-    def extract_json(self, output: str) -> Optional[dict]:
+    def extract_structured_data(self, output: str) -> Optional[dict]:
         extractor = DynamicExtractor()
-        clean = extractor.extract(output)
-        try:
-            output_dict = json.loads(clean)
-        except json.JSONDecodeError as e:
-            print(f"Error extracting Json: {e}")
-            return None
-        return output_dict
+        return extractor.extract_as_object(output)
 
     def get_screenshots_batch(self) -> list[str]:
         screenshot_paths = []
@@ -149,7 +141,7 @@ class PythonEngine(BaseEngine):
             output = self.ocr_mm_llm.complete(
                 image_documents=screenshots, prompt=prompt
             ).text.strip()
-            output_dict = self.extract_json(output)
+            output_dict = self.extract_structured_data(output)
             if output_dict:
                 context_score = output_dict.get("score", 0)
                 output = output_dict.get("ret")
@@ -193,17 +185,17 @@ class PythonEngine(BaseEngine):
         query_engine = index.as_query_engine(llm=llm)
 
         prompt = f"""
-        Based on the context provided, you must respond to query with a JSON object in the following format:
-        {{
-            "ret": "[your answer]",
-            "score": [a float value between 0 and 1 on your confidence that you have enough context to answer the question]
-        }}
+        Based on the context provided, you must respond to query with a YAML object in the following format:
+        ```yaml
+        score: [a float value between 0 and 1 on your confidence that you have enough context to answer the question]
+        ret: "[your answer]"
+        ```
         If you do not have sufficient context, set 'ret' to 'Insufficient context' and 'score' to 0.
         The query is: {instruction}
         """
 
         output = query_engine.query(prompt).response.strip()
-        output_dict = self.extract_json(output)
+        output_dict = self.extract_structured_data(output)
 
         try:
             if (
