@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Dict
+from typing import Dict, Optional
 from llama_index.core import PromptTemplate
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
@@ -49,6 +49,7 @@ class ActionEngine:
         python_engine: BaseEngine = None,
         navigation_control: BaseEngine = None,
         llm: BaseLLM = None,
+        extraction_llm: Optional[BaseLLM] = None,
         embedding: BaseEmbedding = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
@@ -62,6 +63,9 @@ class ActionEngine:
 
         if embedding is None:
             embedding = get_default_context().embedding
+
+        if extraction_llm is None:
+            extraction_llm = get_default_context().extraction_llm
 
         self.driver = driver
 
@@ -81,7 +85,7 @@ class ActionEngine:
                 embedding=embedding,
             )
         if python_engine is None:
-            python_engine = PythonEngine(driver, llm, embedding)
+            python_engine = PythonEngine(driver, extraction_llm, embedding)
         if navigation_control is None:
             navigation_control = NavigationControl(
                 driver,
