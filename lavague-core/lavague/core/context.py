@@ -1,6 +1,7 @@
 from llama_index.core.llms import LLM
 from llama_index.core.multi_modal_llms import MultiModalLLM
 from llama_index.core.embeddings import BaseEmbedding
+from typing import Optional
 
 DEFAULT_MAX_TOKENS = 512
 DEFAULT_TEMPERATURE = 0.0
@@ -14,6 +15,7 @@ class Context:
         llm: LLM,
         mm_llm: MultiModalLLM,
         embedding: BaseEmbedding,
+        extraction_llm: Optional[LLM] = None,
     ):
         """
         llm (`LLM`):
@@ -26,6 +28,7 @@ class Context:
         self.llm = llm
         self.mm_llm = mm_llm
         self.embedding = embedding
+        self.extraction_llm = extraction_llm or llm
 
 
 def get_default_context() -> Context:

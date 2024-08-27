@@ -1,4 +1,3 @@
-import json
 import shutil
 import time
 from io import BytesIO
@@ -20,7 +19,7 @@ from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.core import Document, VectorStoreIndex
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
-import re
+from lavague.core.extractors import DynamicExtractor
 
 DEFAULT_TEMPERATURE = 0.0
 
@@ -39,6 +38,7 @@ class PythonEngine(BaseEngine):
     ocr_llm: BaseLLM
     batch_size: int
     confidence_threshold: float
+    fallback_theshold: float
     temp_screenshots_path: str
     n_search_attempts: int
 
@@ -54,43 +54,33 @@ class PythonEngine(BaseEngine):
         display: bool = False,
         batch_size: int = 5,
         confidence_threshold: float = 0.85,
+        fallback_threshold: float = 0.85,
         temp_screenshots_path="./tmp_screenshots",
         n_search_attemps=10,
     ):
-        self.llm = llm or get_default_context().llm
+        self.llm = llm or get_default_context().extraction_llm
         self.embedding = embedding or get_default_context().embedding
         self.clean_html = clean_html
         self.driver = driver
         self.logger = logger
         self.display = display
         self.ocr_mm_llm = ocr_mm_llm or OpenAIMultiModal(
-            model="gpt-4o-mini", temperature=DEFAULT_TEMPERATURE
+            model="gpt-4o-mini", temperature=DEFAULT_TEMPERATURE, max_new_tokens=16384
         )
         self.ocr_llm = ocr_llm or self.llm
         self.batch_size = batch_size
         self.confidence_threshold = confidence_threshold
         self.temp_screenshots_path = temp_screenshots_path
         self.n_search_attempts = n_search_attemps
+        self.fallback_theshold = fallback_threshold
 
     @classmethod
     def from_context(cls, context: Context, driver: BaseDriver):
         return cls(llm=context.llm, embedding=context.embedding, driver=driver)
 
-    def extract_json(self, output: str) -> Optional[dict]:
-        clean = (
-            output.replace("'ret'", '"ret"')
-            .replace("'score'", '"score"')
-            .replace("```json", "")
-            .replace("```", "")
-            .strip()
-        )
-        clean = re.sub(r"\n+", "\n", clean)
-        try:
-            output_dict = json.loads(clean)
-        except json.JSONDecodeError as e:
-            print(f"Error extracting JSON: {e}")
-            return None
-        return output_dict
+    def extract_structured_data(self, output: str) -> Optional[dict]:
+        extractor = DynamicExtractor()
+        return extractor.extract_as_object(output)
 
     def get_screenshots_batch(self) -> list[str]:
         screenshot_paths = []
@@ -121,7 +111,7 @@ class PythonEngine(BaseEngine):
         context_score = -1
 
         prompt = f"""
-        You must respond with a dictionary in the following format:
+        You must respond with a JSON object in the following format:
         {{
             "ret": "[any relevant text transcribed from the image in order to answer the query {instruction} - make sure to answer with full sentences so the reponse can be understood out of context.]",
             "score": [a confidence score between 0 and 1 that the necessary context has been captured in order to answer the following query]
@@ -151,10 +141,11 @@ class PythonEngine(BaseEngine):
             output = self.ocr_mm_llm.complete(
                 image_documents=screenshots, prompt=prompt
             ).text.strip()
-            output_dict = self.extract_json(output)
-            context_score = output_dict.get("score")
-            output = output_dict.get("ret")
-            memory += output
+            output_dict = self.extract_structured_data(output)
+            if output_dict:
+                context_score = output_dict.get("score", 0)
+                output = output_dict.get("ret")
+                memory += output
 
             # delete temp image folder
             shutil.rmtree(Path(self.temp_screenshots_path))
@@ -194,21 +185,22 @@ class PythonEngine(BaseEngine):
         query_engine = index.as_query_engine(llm=llm)
 
         prompt = f"""
-        Based on the context provided, you must respond to query with a JSON object in the following format:
-        {{
-            "ret": "[your answer]",
-            "score": [a float value between 0 and 1 on your confidence that you have enough context to answer the question]
-        }}
+        Based on the context provided, you must respond to query with a YAML object in the following format:
+        ```yaml
+        score: [a float value between 0 and 1 on your confidence that you have enough context to answer the question]
+        ret: "[your answer]"
+        ```
         If you do not have sufficient context, set 'ret' to 'Insufficient context' and 'score' to 0.
+        Keep the answer in 'ret' concise but informative.
         The query is: {instruction}
         """
 
         output = query_engine.query(prompt).response.strip()
-        output_dict = self.extract_json(output)
+        output_dict = self.extract_structured_data(output)
 
         try:
             if (
-                output_dict.get("score", 0) < self.confidence_threshold
+                output_dict.get("score", 0) < self.fallback_theshold
             ):  # use fallback method
                 output = self.perform_fallback(prompt=prompt, instruction=instruction)
 
