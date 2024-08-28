@@ -24,6 +24,7 @@ from llama_index.core import QueryBundle, PromptTemplate
 from PIL import Image
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
+from lavague.core.utilities.profiling import time_profiler
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """
@@ -154,9 +155,13 @@ class NavigationEngine(BaseEngine):
             `List[str]`: The nodes
         """
         viewport_only = not self.driver.previously_scanned
-        source_nodes = self.retriever.retrieve(
-            QueryBundle(query_str=query), [self.driver.get_html()], viewport_only
-        )
+
+        html = self.driver.get_html()
+
+        with time_profiler("Retriever Inference", html_size=len(html)):
+            source_nodes = self.retriever.retrieve(
+                QueryBundle(query_str=query), [html], viewport_only
+            )
         return source_nodes
 
     def add_knowledge(self, knowledge: str):
@@ -462,7 +467,10 @@ class NavigationEngine(BaseEngine):
                 query_str=instruction,
                 authorized_xpaths=authorized_xpaths,
             )
-            response = self.llm.complete(prompt).text
+
+            with time_profiler("Navigation Engine Inference", prompt_size=len(prompt)):
+                response = self.llm.complete(prompt).text
+
             end = time.time()
             action_generation_time = end - start
             action_outcome = {
@@ -486,7 +494,9 @@ class NavigationEngine(BaseEngine):
                     for item in vision_data:
                         display_screenshot(item["screenshot"])
                         time.sleep(0.2)
-                self.driver.exec_code(action)
+
+                with time_profiler("Execute Code"):
+                    self.driver.exec_code(action)
                 time.sleep(self.time_between_actions)
                 if self.display:
                     try:

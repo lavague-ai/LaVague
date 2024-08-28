@@ -22,6 +22,13 @@ from IPython.display import display, HTML, Code
 from lavague.core.token_counter import TokenCounter
 from lavague.core.utilities.config import is_flag_true
 
+from lavague.core.utilities.profiling import (
+    ChartGenerator,
+    time_profiler,
+    start_new_step,
+    clear_profiling_data,
+)
+
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
 format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
@@ -503,7 +510,9 @@ class WebAgent:
 
         try:
             for _ in range(self.n_steps):
-                result = self.run_step(objective)
+                start_new_step()
+                with time_profiler("Run step", full_step_profiling=True):
+                    result = self.run_step(objective)
 
                 if result is not None:
                     break
@@ -598,3 +607,16 @@ class WebAgent:
 
     def set_origin(self, origin: str):
         self.origin = origin
+
+    def get_summary(self):
+        from lavague.core.utilities.profiling import agent_events, agent_steps
+
+        chart_generator = ChartGenerator(
+            agent_events=agent_events, agent_steps=agent_steps
+        )
+        plot = chart_generator.plot_waterfall()
+        table = chart_generator.get_summary_df()
+
+        clear_profiling_data()
+
+        return plot, table
