@@ -48,6 +48,7 @@ from lavague.drivers.selenium.javascript import (
     REMOVE_HIGHLIGHT,
 )
 
+
 class XPathResolved(ABC):
     def __init__(self, xpath: str, driver: any, element: WebElement) -> None:
         self.xpath = xpath
@@ -60,6 +61,7 @@ class XPathResolved(ABC):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._driver.switch_default_frame()
+
 
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
@@ -222,7 +224,9 @@ driver.set_window_size({width}, {height} + height_difference)
         try:
             # Done manually here to avoid issues
             element = self.resolve_xpath(xpath).element
-            res = element is not None and element.is_displayed() and element.is_enabled()
+            res = (
+                element is not None and element.is_displayed() and element.is_enabled()
+            )
             self.switch_default_frame()
             return res
         except:
@@ -364,13 +368,17 @@ driver.set_window_size({width}, {height} + height_difference)
     def hover(self, xpath: str):
         with self.resolve_xpath(xpath) as element_resolved:
             self.last_hover_xpath = xpath
-            ActionChains(self.driver).move_to_element(element_resolved.element).perform()
+            ActionChains(self.driver).move_to_element(
+                element_resolved.element
+            ).perform()
 
     def scroll_page(self, direction: ScrollDirection = ScrollDirection.DOWN):
         self.driver.execute_script(direction.get_page_script())
 
     def get_scroll_anchor(self, xpath_anchor: Optional[str] = None) -> WebElement:
-        with self.resolve_xpath(xpath_anchor or self.last_hover_xpath) as element_resolved:
+        with self.resolve_xpath(
+            xpath_anchor or self.last_hover_xpath
+        ) as element_resolved:
             element = element_resolved.element
             parent = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, element)
             scroll_anchor = parent or element
@@ -657,13 +665,14 @@ driver.set_window_size({width}, {height} + height_difference)
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.driver.execute_script(
             JS_GET_INTERACTIVES,
-            in_viewport, 
+            in_viewport,
             foreground_only,
         )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
         return res
+
 
 class SeleniumNode(DOMNode):
     def __init__(self, xpath: str, driver: SeleniumDriver) -> None:
@@ -731,6 +740,7 @@ class BrowserbaseRemoteConnection(RemoteConnection):
             url, json={"projectId": self.project_id}, headers=headers
         )
         return response.json()["id"]
+
 
 SELENIUM_PROMPT_TEMPLATE = """
 You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.

@@ -312,7 +312,7 @@ class PlaywrightDriver(BaseDriver):
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.execute_script(
             JS_GET_INTERACTIVES,
-            in_viewport, 
+            in_viewport,
             foreground_only,
         )
         res = dict()

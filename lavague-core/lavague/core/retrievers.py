@@ -182,7 +182,7 @@ class InteractiveXPathRetriever(BaseHtmlRetriever):
                 filter_by_possible_interactions,
                 xpath_prefix + frame_xpath,
             )
-            frame_soup = BeautifulSoup(frame_soup_str, 'html.parser')
+            frame_soup = BeautifulSoup(frame_soup_str, "html.parser")
             iframe_tag.replace_with(frame_soup)
             self.driver.switch_parent_frame()
         return str(soup)
