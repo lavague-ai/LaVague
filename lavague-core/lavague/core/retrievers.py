@@ -99,25 +99,29 @@ class UniqueXPathRetriever(BaseHtmlRetriever):
 class BM25HtmlRetriever(BaseHtmlRetriever):
     """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
 
-    def __init__(self, top_k=3) -> None:
+    def __init__(self, top_k=10, xpathed_only=True) -> None:
         self.top_k = top_k
+        self.xpathed_only = xpathed_only
 
     def retrieve(
         self, query: QueryBundle, html_chunks: List[str], viewport_only=True
     ) -> List[str]:
-        html = clean_html(merge_html_chunks(html_chunks))
-        cleaned_html = clean_html(html)
-
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
             )
         )
-        nodes = splitter.get_nodes_from_documents([Document(text=cleaned_html)])
+        nodes = splitter.get_nodes_from_documents(
+            [Document(text=merge_html_chunks(html_chunks))]
+        )
+
+        if self.xpathed_only:
+            nodes = filter_for_xpathed_nodes(nodes)
 
         retriever = BM25Retriever.from_defaults(
             nodes=nodes, similarity_top_k=self.top_k
         )
+
         nodes = retriever.retrieve(query)
         return get_nodes_text(nodes)
 
