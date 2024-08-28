@@ -86,7 +86,9 @@ def load_website_in_driver(driver, html, viewport_size, action):
     driver.get(f"file:{f.name}")
     driver.wait_for_idle()
     element = driver.resolve_xpath(action["args"]["xpath"])
-    driver.execute_script("arguments[0].scrollIntoView({block: 'center', behavior: 'instant'});", element)
+    driver.execute_script(
+        "arguments[0].scrollIntoView({block: 'center', behavior: 'instant'});", element
+    )
 
 
 FAIL_ACTION = {"args": {"xpath": "(string)"}, "name": "fail"}
@@ -99,7 +101,7 @@ class RetrieverEvaluator(Evaluator):
         dataset: pd.DataFrame,
         driver: SeleniumDriver = None,  # Optional, the driver passed to the retriever
         retriever_name: str = "",
-        wait_for_scroll: int = 1
+        wait_for_scroll: int = 1,
     ) -> pd.DataFrame:
         result_filename = (
             (retriever_name if retriever_name else type(retriever).__name__)
@@ -120,7 +122,7 @@ class RetrieverEvaluator(Evaluator):
                 action = yaml.safe_load(row["action"])
                 instruction = row["instruction"]
                 try:
-                    if driver: 
+                    if driver:
                         driver.__init__()
                         viewport_size = parse_viewport_size(row["viewport_size"])
                         load_website_in_driver(
