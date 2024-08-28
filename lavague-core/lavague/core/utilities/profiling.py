@@ -28,10 +28,7 @@ def clear_profiling_data():
 
 @contextmanager
 def time_profiler(
-    event_name,
-    prompt_size=None,
-    html_size=None,
-    full_step_profiling=False,
+    event_name, prompt_size=None, html_size=None, full_step_profiling=False
 ):
     """
     A context manager to profile the execution time of code blocks.
