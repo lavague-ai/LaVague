@@ -28,7 +28,11 @@ def clear_profiling_data():
 
 @contextmanager
 def time_profiler(
-    event_name, prompt_size=None, html_size=None, full_step_profiling=False
+    event_name,
+    prompt_size=None,
+    html_size=None,
+    retrieved_nodes_size=None,
+    full_step_profiling=False,
 ):
     """
     A context manager to profile the execution time of code blocks.
@@ -53,6 +57,11 @@ def time_profiler(
             "duration": duration,
             **({"prompt_size": prompt_size} if prompt_size is not None else {}),
             **({"html_size": html_size} if html_size is not None else {}),
+            **(
+                {"retrieved_nodes_size": retrieved_nodes_size["size"]}
+                if retrieved_nodes_size is not None
+                else {}
+            ),
         }
 
         # append the record to the appropriate list

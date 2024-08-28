@@ -158,10 +158,19 @@ class NavigationEngine(BaseEngine):
 
         html = self.driver.get_html()
 
-        with time_profiler("Retriever Inference", html_size=len(html)):
+        retrieved_nodes_size = {"size": 0}
+
+        with time_profiler(
+            "Retriever Inference",
+            html_size=len(html),
+            retrieved_nodes_size=retrieved_nodes_size,
+        ):
             source_nodes = self.retriever.retrieve(
                 QueryBundle(query_str=query), [html], viewport_only
             )
+
+            retrieved_nodes_size["size"] = sum(len(node) for node in source_nodes)
+
         return source_nodes
 
     def add_knowledge(self, knowledge: str):
