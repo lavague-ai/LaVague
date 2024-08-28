@@ -158,18 +158,15 @@ class NavigationEngine(BaseEngine):
 
         html = self.driver.get_html()
 
-        retrieved_nodes_size = {"size": 0}
-
         with time_profiler(
             "Retriever Inference",
             html_size=len(html),
-            retrieved_nodes_size=retrieved_nodes_size,
-        ):
+        ) as profiler:
             source_nodes = self.retriever.retrieve(
                 QueryBundle(query_str=query), [html], viewport_only
             )
 
-            retrieved_nodes_size["size"] = sum(len(node) for node in source_nodes)
+            profiler["retrieved_nodes_size"] = sum(len(node) for node in source_nodes)
 
         return source_nodes
 

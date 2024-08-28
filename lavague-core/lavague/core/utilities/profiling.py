@@ -31,7 +31,6 @@ def time_profiler(
     event_name,
     prompt_size=None,
     html_size=None,
-    retrieved_nodes_size=None,
     full_step_profiling=False,
 ):
     """
@@ -43,9 +42,10 @@ def time_profiler(
     - html_size: Optional size of the HTML, if applicable.
     - full_step_profiling: Boolean indicating whether to profile full steps or individual events.
     """
+    context = {}
     start_time = time.perf_counter()
     try:
-        yield
+        yield context
     finally:
         end_time = time.perf_counter()
         duration = end_time - start_time
@@ -57,11 +57,7 @@ def time_profiler(
             "duration": duration,
             **({"prompt_size": prompt_size} if prompt_size is not None else {}),
             **({"html_size": html_size} if html_size is not None else {}),
-            **(
-                {"retrieved_nodes_size": retrieved_nodes_size["size"]}
-                if retrieved_nodes_size is not None
-                else {}
-            ),
+            **context,
         }
 
         # append the record to the appropriate list
