@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -15,7 +16,6 @@ from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
-    JS_GET_INTERACTIVES_IN_VIEWPORT,
     JS_WAIT_DOM_IDLE,
     JS_GET_SCROLLABLE_PARENT,
     PossibleInteractionsByXpath,
@@ -48,6 +48,18 @@ from lavague.drivers.selenium.javascript import (
     REMOVE_HIGHLIGHT,
 )
 
+class XPathResolved(ABC):
+    def __init__(self, xpath: str, driver: any, element: WebElement) -> None:
+        self.xpath = xpath
+        self._driver = driver
+        self.element = element
+        super().__init__()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._driver.switch_default_frame()
 
 class SeleniumDriver(BaseDriver):
     driver: WebDriver
@@ -208,10 +220,11 @@ driver.set_window_size({width}, {height} + height_difference)
 
     def check_visibility(self, xpath: str) -> bool:
         try:
-            element = self.resolve_xpath(xpath)
-            return (
-                element is not None and element.is_displayed() and element.is_enabled()
-            )
+            # Done manually here to avoid issues
+            element = self.resolve_xpath(xpath).element
+            res = element is not None and element.is_displayed() and element.is_enabled()
+            self.switch_default_frame()
+            return res
         except:
             return False
 
@@ -277,17 +290,18 @@ driver.set_window_size({width}, {height} + height_difference)
     def switch_parent_frame(self) -> None:
         self.driver.switch_to.parent_frame()
 
-    def resolve_xpath(self, xpath: Optional[str]) -> WebElement:
+    def resolve_xpath(self, xpath: Optional[str]) -> XPathResolved:
         if not xpath:
             raise NoSuchElementException("xpath is missing")
         before, sep, after = xpath.partition("iframe")
         if len(before) == 0:
             return None
         if len(sep) == 0:
-            return self.driver.find_element(By.XPATH, before)
+            res = self.driver.find_element(By.XPATH, before)
+            res = XPathResolved(xpath, self, res)
+            return res
         self.switch_frame(before + sep)
         element = self.resolve_xpath(after)
-        self.switch_default_frame()
         return element
 
     def exec_code(
@@ -348,18 +362,19 @@ driver.set_window_size({width}, {height} + height_difference)
         )
 
     def hover(self, xpath: str):
-        element = self.resolve_xpath(xpath)
-        self.last_hover_xpath = xpath
-        ActionChains(self.driver).move_to_element(element).perform()
+        with self.resolve_xpath(xpath) as element_resolved:
+            self.last_hover_xpath = xpath
+            ActionChains(self.driver).move_to_element(element_resolved.element).perform()
 
     def scroll_page(self, direction: ScrollDirection = ScrollDirection.DOWN):
         self.driver.execute_script(direction.get_page_script())
 
     def get_scroll_anchor(self, xpath_anchor: Optional[str] = None) -> WebElement:
-        element = self.resolve_xpath(xpath_anchor or self.last_hover_xpath)
-        parent = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, element)
-        scroll_anchor = parent or element
-        return scroll_anchor
+        with self.resolve_xpath(xpath_anchor or self.last_hover_xpath) as element_resolved:
+            element = element_resolved.element
+            parent = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, element)
+            scroll_anchor = parent or element
+            return scroll_anchor
 
     def get_scroll_container_size(self, scroll_anchor: WebElement):
         container = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, scroll_anchor)
@@ -421,39 +436,40 @@ driver.set_window_size({width}, {height} + height_difference)
             self.scroll_page(direction)
 
     def click(self, xpath: str):
-        element = self.resolve_xpath(xpath)
-        self.last_hover_xpath = xpath
-        try:
-            element.click()
-        except ElementClickInterceptedException:
+        with self.resolve_xpath(xpath) as element_resolved:
+            element = element_resolved.element
+            self.last_hover_xpath = xpath
             try:
-                # Move to the element and click at its position
-                ActionChains(self.driver).move_to_element(element).click().perform()
-            except WebDriverException as click_error:
+                element.click()
+            except ElementClickInterceptedException:
+                try:
+                    # Move to the element and click at its position
+                    ActionChains(self.driver).move_to_element(element).click().perform()
+                except WebDriverException as click_error:
+                    raise Exception(
+                        f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
+                    )
+            except Exception as e:
                 raise Exception(
-                    f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
+                    f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
                 )
-        except Exception as e:
-            raise Exception(
-                f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
-            )
-        self.driver.switch_to.default_content()
 
     def set_value(self, xpath: str, value: str, enter: bool = False):
-        try:
-            elem = self.resolve_xpath(xpath)
-            self.last_hover_xpath = xpath
-            if elem.tag_name == "select":
-                # use the dropdown_select to set the value of a select
-                return self.dropdown_select(xpath, value)
-            if elem.tag_name == "input" and elem.get_attribute("type") == "file":
-                # set the value of a file input
-                return self.upload_file(xpath, value)
+        with self.resolve_xpath(xpath) as element_resolved:
+            elem = element_resolved.element
+            try:
+                self.last_hover_xpath = xpath
+                if elem.tag_name == "select":
+                    # use the dropdown_select to set the value of a select
+                    return self.dropdown_select(xpath, value)
+                if elem.tag_name == "input" and elem.get_attribute("type") == "file":
+                    # set the value of a file input
+                    return self.upload_file(xpath, value)
 
-            elem.clear()
-        except:
-            # might not be a clearable element, but global click + send keys can still success
-            pass
+                elem.clear()
+            except:
+                # might not be a clearable element, but global click + send keys can still success
+                pass
 
         self.click(xpath)
 
@@ -468,29 +484,29 @@ driver.set_window_size({width}, {height} + height_difference)
         )
         if enter:
             ActionChains(self.driver).send_keys(Keys.ENTER).perform()
-        self.driver.switch_to.default_content()
 
     def dropdown_select(self, xpath: str, value: str):
-        element = self.resolve_xpath(xpath)
-        self.last_hover_xpath = xpath
+        with self.resolve_xpath(xpath) as element_resolved:
+            element = element_resolved.element
+            self.last_hover_xpath = xpath
 
-        if element.tag_name != "select":
-            print(
-                f"Cannot use dropdown_select on {element.tag_name}, falling back to simple click on {xpath}"
-            )
-            return self.click(xpath)
+            if element.tag_name != "select":
+                print(
+                    f"Cannot use dropdown_select on {element.tag_name}, falling back to simple click on {xpath}"
+                )
+                return self.click(xpath)
 
-        select = Select(element)
-        try:
-            select.select_by_value(value)
-        except NoSuchElementException:
-            select.select_by_visible_text(value)
-        self.driver.switch_to.default_content()
+            select = Select(element)
+            try:
+                select.select_by_value(value)
+            except NoSuchElementException:
+                select.select_by_visible_text(value)
 
     def upload_file(self, xpath: str, file_path: str):
-        element = self.resolve_xpath(xpath)
-        self.last_hover_xpath = xpath
-        element.send_keys(file_path)
+        with self.resolve_xpath(xpath) as element_resolved:
+            element = element_resolved.element
+            self.last_hover_xpath = xpath
+            element.send_keys(file_path)
 
     def perform_wait(self, duration: float):
         import time
@@ -608,10 +624,14 @@ driver.set_window_size({width}, {height} + height_difference)
             )
 
         if len(special_nodes) > 0:
-            self.driver.execute_script(
-                script,
-                [n.element for n in special_nodes if n.element],
-            )
+            # iframe and shadow DOM must use the resolve_xpath method
+            for n in special_nodes:
+                if n.element:
+                    self.driver.execute_script(
+                        script,
+                        [n.element],
+                    )
+                    self.switch_default_frame()
 
     def remove_nodes_highlight(self, xpaths: List[str]):
         self.exec_script_for_nodes(
@@ -636,14 +656,14 @@ driver.set_window_size({width}, {height} + height_difference)
         self, in_viewport=True, foreground_only=True
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.driver.execute_script(
-            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES,
+            JS_GET_INTERACTIVES,
+            in_viewport, 
             foreground_only,
         )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
         return res
-
 
 class SeleniumNode(DOMNode):
     def __init__(self, xpath: str, driver: SeleniumDriver) -> None:
@@ -656,7 +676,7 @@ class SeleniumNode(DOMNode):
         if hasattr(self, "_element"):
             return self._element
         try:
-            self._element = self._driver.resolve_xpath(self.xpath)
+            self._element = self._driver.resolve_xpath(self.xpath).element
         except StaleElementReferenceException:
             self._element = None
         return self._element
@@ -711,7 +731,6 @@ class BrowserbaseRemoteConnection(RemoteConnection):
             url, json={"projectId": self.project_id}, headers=headers
         )
         return response.json()["id"]
-
 
 SELENIUM_PROMPT_TEMPLATE = """
 You are a chrome extension and your goal is to interact with web pages. You have been given a series of HTML snippets and queries.

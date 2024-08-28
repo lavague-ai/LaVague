@@ -1,0 +1,11 @@
+type: static
+port: 8000
+directory: www
+tasks:
+  - name: Explore the website
+    url: http://localhost:8000
+    prompt: Go to the menu, go to the sub-menu, write "Hello world" in the textbox & go to the second page
+    max_steps: 6
+    expect:
+      - Status is success
+      - HTML contains Welcome to the second page
