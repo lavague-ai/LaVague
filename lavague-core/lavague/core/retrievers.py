@@ -25,6 +25,12 @@ def get_default_retriever(
     )
 
 
+def get_trivial_retriever(
+    driver: BaseDriver, embedding: Optional[BaseEmbedding] = None
+) -> BaseHtmlRetriever:
+    return InteractiveXPathRetriever(driver)
+
+
 class BaseHtmlRetriever(ABC):
     @abstractmethod
     def retrieve(

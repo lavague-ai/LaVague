@@ -12,10 +12,10 @@ from datetime import datetime
 import yaml
 from llama_index.core import QueryBundle
 import traceback
-import base64
 import ast
 from bs4 import BeautifulSoup
 from tempfile import NamedTemporaryFile
+import time
 
 
 class Evaluator(ABC):
@@ -86,7 +86,7 @@ def load_website_in_driver(driver, html, viewport_size, action):
     driver.get(f"file:{f.name}")
     driver.wait_for_idle()
     element = driver.resolve_xpath(action["args"]["xpath"])
-    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center', behavior: 'instant'});", element)
 
 
 FAIL_ACTION = {"args": {"xpath": "(string)"}, "name": "fail"}
@@ -99,6 +99,7 @@ class RetrieverEvaluator(Evaluator):
         dataset: pd.DataFrame,
         driver: SeleniumDriver = None,  # Optional, the driver passed to the retriever
         retriever_name: str = "",
+        wait_for_scroll: int = 1
     ) -> pd.DataFrame:
         result_filename = (
             (retriever_name if retriever_name else type(retriever).__name__)
@@ -119,14 +120,13 @@ class RetrieverEvaluator(Evaluator):
                 action = yaml.safe_load(row["action"])
                 instruction = row["instruction"]
                 try:
-                    if (
-                        driver
-                    ):  # artificially get the page if the retriever needs a driver
-                        driver.__init__()  # reinit the driver
+                    if driver: 
+                        driver.__init__()
                         viewport_size = parse_viewport_size(row["viewport_size"])
                         load_website_in_driver(
                             driver, row["html"], viewport_size, action
                         )
+                        time.sleep(wait_for_scroll)
                     t_begin = datetime.now()
                     nodes = retriever.retrieve(
                         QueryBundle(query_str=instruction), [driver.get_html()]
