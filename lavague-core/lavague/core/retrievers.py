@@ -598,9 +598,9 @@ class CleanHTMLRetriever(BaseHtmlRetriever):
 
     def _clean_chunk(self, html: str) -> str:
         if self.drop_base_64:
-            html = re.sub('src="data:image/png;base64,([^"]*?)"', '', html)
+            html = re.sub('src="data:image/png;base64,([^"]*?)"', "", html)
         if self.drop_svg:
-            html = re.sub('<svg.*?>(.+?)</svg>', '', html)
+            html = re.sub("<svg.*?>(.+?)</svg>", "", html)
         return html
 
     def retrieve(
