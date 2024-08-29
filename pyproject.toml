@@ -30,9 +30,57 @@ lavague-drivers-selenium = "^0.2.12"
 lavague-contexts-openai = "^0.2.0"
 lavague-gradio = "^0.2.8"
 
-[tool.poetry.dev-dependencies]
-ruff = "^0.2.2"
-
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
+isort = "^5.13.2"
+pytest = "^8.3.2"
+ruff = "^0.6.0"
 
+[tool.isort]
+py_version=310
+profile = "black"
+line_length = 140
+src_paths = ["lavague-core", "lavague-gradio", "lavague-integrations", "lavague-qa", "lavague-server", "lavague-tests", "examples", "tests"]
+virtual_env = ".venv"
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv"
+]
+line-length = 140
+indent-width = 4
+target-version = "py310"
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["A", "C", "I", "E", "F", "W", "B", "I", "N", "C90", "PT", "YTT", "TID", "S", "R", "ANN", "TCH", "RUF", "T20", "SIM"]
+ignore = ["ANN101", "ANN204", "ANN401", "PT009"]
