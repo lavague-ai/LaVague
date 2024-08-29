@@ -1,8 +1,8 @@
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.drivers.selenium import SeleniumDriver
 from lavague.contexts.gemini import GeminiContext
+from lavague.drivers.selenium import SeleniumDriver
 
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
 
 context = GeminiContext()
 selenium_driver = SeleniumDriver(headless=False)

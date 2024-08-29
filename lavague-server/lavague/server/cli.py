@@ -1,9 +1,10 @@
 import click
 from lavague.server import AgentSession
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.server.driver import DriverServer
 from lavague.server.base import AgentServer
+from lavague.server.driver import DriverServer
+
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
 
 
 @click.command()

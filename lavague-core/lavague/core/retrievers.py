@@ -1,18 +1,21 @@
 from __future__ import annotations
-from typing import List, Optional, Tuple
-from abc import ABC, abstractmethod
-from bs4 import BeautifulSoup, NavigableString
-from llama_index.retrievers.bm25 import BM25Retriever
-from llama_index.core import Document, VectorStoreIndex, QueryBundle
-from llama_index.core.schema import NodeWithScore, TextNode
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from llama_index.core.node_parser import LangchainNodeParser
-from llama_index.core.embeddings import BaseEmbedding
-from lavague.core.extractors import extract_xpaths_from_html
-from lavague.core.base_driver import BaseDriver, PossibleInteractionsByXpath
-from lavague.core.utilities.format_utils import clean_html
-import re
+
 import ast
+import re
+from abc import ABC, abstractmethod
+from typing import List, Optional, Tuple
+
+from bs4 import BeautifulSoup, NavigableString
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from llama_index.core import Document, QueryBundle, VectorStoreIndex
+from llama_index.core.embeddings import BaseEmbedding
+from llama_index.core.node_parser import LangchainNodeParser
+from llama_index.core.schema import NodeWithScore, TextNode
+from llama_index.retrievers.bm25 import BM25Retriever
+
+from lavague.core.base_driver import BaseDriver, PossibleInteractionsByXpath
+from lavague.core.extractors import extract_xpaths_from_html
+from lavague.core.utilities.format_utils import clean_html
 
 
 def get_default_retriever(

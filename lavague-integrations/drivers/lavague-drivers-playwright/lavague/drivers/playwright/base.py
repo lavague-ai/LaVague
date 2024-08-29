@@ -1,23 +1,22 @@
-from io import BytesIO
 import json
 import os
+import time
+from io import BytesIO
+from typing import Any, Callable, Dict, List, Mapping, Optional
+
 from PIL import Image
-from typing import Callable, Optional, Any, Mapping, Dict, List
-from lavague.core.utilities.format_utils import extract_code_from_funct
-from playwright.sync_api import Page, Locator
+from playwright.sync_api import Locator, Page
+
 from lavague.core.base_driver import (
-    BaseDriver,
     JS_GET_INTERACTIVES,
     JS_GET_INTERACTIVES_IN_VIEWPORT,
     JS_WAIT_DOM_IDLE,
-    PossibleInteractionsByXpath,
+    BaseDriver,
     InteractionType,
+    PossibleInteractionsByXpath,
 )
-from lavague.core.exceptions import (
-    NoElementException,
-    AmbiguousException,
-)
-import time
+from lavague.core.exceptions import AmbiguousException, NoElementException
+from lavague.core.utilities.format_utils import extract_code_from_funct
 
 
 class PlaywrightDriver(BaseDriver):

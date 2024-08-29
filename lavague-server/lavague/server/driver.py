@@ -2,15 +2,12 @@ import base64
 import json
 import logging
 import time
-from lavague.core.base_driver import (
-    BaseDriver,
-    InteractionType,
-    PossibleInteractionsByXpath,
-)
-from typing import Any, Dict, List, Optional, Mapping
+from typing import Any, Dict, List, Mapping, Optional
 
 import yaml
 from lavague.server.channel import AgentSession
+
+from lavague.core.base_driver import BaseDriver, InteractionType, PossibleInteractionsByXpath
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)

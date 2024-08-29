@@ -1,7 +1,8 @@
+from typing import Optional
+
+from llama_index.core.embeddings import BaseEmbedding
 from llama_index.core.llms import LLM
 from llama_index.core.multi_modal_llms import MultiModalLLM
-from llama_index.core.embeddings import BaseEmbedding
-from typing import Optional
 
 DEFAULT_MAX_TOKENS = 512
 DEFAULT_TEMPERATURE = 0.0

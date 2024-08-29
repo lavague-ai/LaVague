@@ -1,9 +1,11 @@
-from typing import Optional
-from llama_index.llms.fireworks import Fireworks
-from llama_index.embeddings.fireworks import FireworksEmbedding
-from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 import os
-from lavague.core.context import Context, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
+from typing import Optional
+
+from llama_index.embeddings.fireworks import FireworksEmbedding
+from llama_index.llms.fireworks import Fireworks
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+
+from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, Context
 
 
 class FireworksContext(Context):

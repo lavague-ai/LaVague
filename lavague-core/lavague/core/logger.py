@@ -1,11 +1,12 @@
-import uuid
-import pandas as pd
-import os
-from PIL import Image
-import json
-import sqlite3
 import io
+import json
+import os
+import sqlite3
+import uuid
+
+import pandas as pd
 from pandas.core.frame import DataFrame
+from PIL import Image
 
 
 def load_images_from_folder(folder_path):

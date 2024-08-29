@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Any, Optional
+
 from lavague.core.display import Display
 from lavague.core.logger import Loggable
-from dataclasses import dataclass
 
 
 @dataclass

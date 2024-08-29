@@ -1,8 +1,9 @@
-from lavague.core.token_counter import TokenCounter
+from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.llms.openai import OpenAI
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
-from llama_index.embeddings.openai import OpenAIEmbedding
+
 from lavague.core.context import Context
+from lavague.core.token_counter import TokenCounter
 
 llm_name = "gpt-4o"
 mm_llm_name = "gpt-4o"

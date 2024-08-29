@@ -1,10 +1,9 @@
-from llama_index.core.embeddings import (
-    BaseEmbedding,
-    MockEmbedding as LlamaMockEmbedding,
-)
-from lavague.contexts.cache.prompts_store import PromptsStore, VectorStrPromptStore
-from typing import List, Optional, Callable
 import sys
+from typing import Callable, List, Optional
+
+from lavague.contexts.cache.prompts_store import PromptsStore, VectorStrPromptStore
+from llama_index.core.embeddings import BaseEmbedding
+from llama_index.core.embeddings import MockEmbedding as LlamaMockEmbedding
 
 
 class EmbeddingCache(LlamaMockEmbedding):

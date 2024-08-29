@@ -1,4 +1,5 @@
 from selenium.webdriver.remote.webdriver import WebDriver
+
 from lavague.core.listener import EventListener as BaseEventListener
 
 

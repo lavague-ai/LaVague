@@ -1,11 +1,12 @@
-import time
-import pandas as pd
-import matplotlib.pyplot as plt
-from functools import wraps
 import io
-from IPython.display import Image
-from itertools import cycle
+import time
 from contextlib import contextmanager
+from functools import wraps
+from itertools import cycle
+
+import matplotlib.pyplot as plt
+import pandas as pd
+from IPython.display import Image
 
 # stores llm and retriever calls
 agent_events = []

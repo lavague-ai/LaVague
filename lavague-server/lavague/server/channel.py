@@ -1,21 +1,18 @@
-from abc import ABC, abstractmethod
 import asyncio
+import copy
 import json
+import re
 import threading
-from typing import Callable
+import types
 import uuid
+from abc import ABC, abstractmethod
+from typing import Callable
+
+from llama_index.core import QueryBundle
+
 from lavague.core.agents import WebAgent
 from lavague.core.extractors import YamlFromMarkdownExtractor
-from llama_index.core import QueryBundle
-from lavague.core.retrievers import (
-    FromXPathNodesExpansionRetriever,
-    InteractiveXPathRetriever,
-    RetrieversPipeline,
-    SemanticRetriever,
-)
-import types
-import copy
-import re
+from lavague.core.retrievers import FromXPathNodesExpansionRetriever, InteractiveXPathRetriever, RetrieversPipeline, SemanticRetriever
 
 
 class AgentSession(ABC):

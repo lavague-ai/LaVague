@@ -1,4 +1,5 @@
 from lavague.drivers.playwright import PlaywrightDriver
+
 from lavague.core import ActionEngine
 
 # Don't forget to export OPENAI_API_KEY

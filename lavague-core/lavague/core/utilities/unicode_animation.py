@@ -1,6 +1,6 @@
 import os
-from time import sleep
 import random
+from time import sleep
 
 term_size = 0
 icons = ["  ", "🌊", "🏄", "🏄", "🏄", "🏄", "🏄", "🐬", "🦈", "🦀", "🐙", "🐟"]

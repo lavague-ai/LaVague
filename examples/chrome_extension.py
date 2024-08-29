@@ -1,7 +1,9 @@
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
 from lavague.drivers.driverserver import DriverServer
 from lavague.server import AgentServer, AgentSession
+
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
+
 
 def create_agent(session: AgentSession):
     world_model = WorldModel()

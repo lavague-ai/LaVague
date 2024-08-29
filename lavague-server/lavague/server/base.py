@@ -1,7 +1,9 @@
 from typing import Callable
-from lavague.core.agents import WebAgent
-from lavague.server.websocket_channel import WebSocketHandler
+
 from lavague.server.channel import CommunicationChannel
+from lavague.server.websocket_channel import WebSocketHandler
+
+from lavague.core.agents import WebAgent
 
 
 class AgentServer:

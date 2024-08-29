@@ -1,33 +1,28 @@
-from io import BytesIO
 import logging
 import os
 import shutil
+from io import BytesIO
 from typing import Any, Optional
 
+from IPython.display import HTML, Code, display
+from PIL import Image
+
 from lavague.core.action_engine import ActionEngine
-from lavague.core.world_model import WorldModel
+from lavague.core.base_driver import BaseDriver
+from lavague.core.base_engine import ActionResult
+from lavague.core.logger import AgentLogger, LocalDBLogger
+from lavague.core.memory import ShortTermMemory
+from lavague.core.token_counter import TokenCounter
+from lavague.core.utilities.config import is_flag_true
 from lavague.core.utilities.format_utils import (
     extract_before_next_engine,
     extract_next_engine,
     extract_world_model_instruction,
     replace_hyphens,
 )
-from lavague.core.logger import AgentLogger, LocalDBLogger
-from lavague.core.memory import ShortTermMemory
-from lavague.core.base_driver import BaseDriver
-from lavague.core.base_engine import ActionResult
+from lavague.core.utilities.profiling import ChartGenerator, clear_profiling_data, start_new_step, time_profiler
 from lavague.core.utilities.telemetry import send_telemetry
-from PIL import Image
-from IPython.display import display, HTML, Code
-from lavague.core.token_counter import TokenCounter
-from lavague.core.utilities.config import is_flag_true
-
-from lavague.core.utilities.profiling import (
-    ChartGenerator,
-    time_profiler,
-    start_new_step,
-    clear_profiling_data,
-)
+from lavague.core.world_model import WorldModel
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)

@@ -1,6 +1,8 @@
 from typing import Optional
-from lavague.core.retrievers import OpsmSplitRetriever
+
 import cohere
+
+from lavague.core.retrievers import OpsmSplitRetriever
 
 
 class CohereRetriever(OpsmSplitRetriever):

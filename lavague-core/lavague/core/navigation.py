@@ -1,30 +1,23 @@
-from io import BytesIO
 import logging
 import time
+from io import BytesIO
 from typing import Any, List, Optional
-from lavague.core.action_template import ActionTemplate
-from lavague.core.context import Context, get_default_context
-from lavague.core.exceptions import NavigationException
-from lavague.core.extractors import (
-    BaseExtractor,
-    YamlFromMarkdownExtractor,
-    DynamicExtractor,
-    extract_xpaths_from_html,
-)
-from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
-from lavague.core.utilities.web_utils import (
-    display_screenshot,
-    sort_files_by_creation,
-)
-from lavague.core.exceptions import HallucinatedException, ElementOutOfContextException
-from lavague.core.logger import AgentLogger
-from lavague.core.base_engine import BaseEngine, ActionResult
-from lavague.core.base_driver import BaseDriver
-from llama_index.core import QueryBundle, PromptTemplate
-from PIL import Image
+
+from llama_index.core import PromptTemplate, QueryBundle
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
+from PIL import Image
+
+from lavague.core.action_template import ActionTemplate
+from lavague.core.base_driver import BaseDriver
+from lavague.core.base_engine import ActionResult, BaseEngine
+from lavague.core.context import Context, get_default_context
+from lavague.core.exceptions import ElementOutOfContextException, HallucinatedException, NavigationException
+from lavague.core.extractors import BaseExtractor, DynamicExtractor, YamlFromMarkdownExtractor, extract_xpaths_from_html
+from lavague.core.logger import AgentLogger
+from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
 from lavague.core.utilities.profiling import time_profiler
+from lavague.core.utilities.web_utils import display_screenshot, sort_files_by_creation
 
 NAVIGATION_ENGINE_PROMPT_TEMPLATE = ActionTemplate(
     """

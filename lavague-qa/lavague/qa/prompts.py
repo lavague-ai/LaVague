@@ -1,6 +1,5 @@
 from llama_index.core import PromptTemplate
 
-
 PYTEST_HEADER_TEMPLATE = PromptTemplate(
     """
 import pytest

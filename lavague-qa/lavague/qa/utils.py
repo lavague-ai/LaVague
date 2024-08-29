@@ -1,6 +1,6 @@
 import re
-from lavague.core.utilities.pricing_util import build_summary_table
 
+from lavague.core.utilities.pricing_util import build_summary_table
 
 INDENT = "    "
 INDENT_PASS = INDENT + "pass"

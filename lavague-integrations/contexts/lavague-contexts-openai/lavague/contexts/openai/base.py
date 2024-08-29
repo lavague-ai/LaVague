@@ -1,12 +1,14 @@
+import os
 from typing import Optional
-from llama_index.llms.openai import OpenAI
-from llama_index.llms.azure_openai import AzureOpenAI
+
 from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.llms.openai import OpenAI
 from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
-import os
-from lavague.core.context import Context, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+
+from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, Context
 
 
 class OpenaiContext(Context):

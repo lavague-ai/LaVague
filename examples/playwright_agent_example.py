@@ -1,6 +1,7 @@
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
 from lavague.drivers.playwright import PlaywrightDriver
+
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
 
 playwright_driver = PlaywrightDriver(headless=False)
 world_model = WorldModel()

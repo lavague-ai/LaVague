@@ -1,7 +1,7 @@
-from typing import Callable, List
+import ast
 import inspect
 import re
-import ast
+from typing import Callable, List
 
 DEFAULT_ENGINES: List[str] = [
     "Navigation Controls",

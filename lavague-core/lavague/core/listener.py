@@ -1,6 +1,7 @@
-from selenium.common.exceptions import TimeoutException
-from typing import Callable, Any, List, Dict, Literal, Optional
 import threading
+from typing import Any, Callable, Dict, List, Literal, Optional
+
+from selenium.common.exceptions import TimeoutException
 
 JS_LISTEN_ACTION = """
 function getElementXPath(element) {

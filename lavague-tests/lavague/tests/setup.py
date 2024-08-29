@@ -1,8 +1,8 @@
-from typing import Dict
 import http.server
+import os
 import socketserver
 import threading
-import os
+from typing import Dict
 
 
 class Setup:

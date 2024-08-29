@@ -1,9 +1,11 @@
-from typing import Optional
-from llama_index.llms.anthropic import Anthropic
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.multi_modal_llms.anthropic import AnthropicMultiModal
 import os
-from lavague.core.context import Context, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
+from typing import Optional
+
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.llms.anthropic import Anthropic
+from llama_index.multi_modal_llms.anthropic import AnthropicMultiModal
+
+from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, Context
 
 
 class AnthropicContext(Context):

@@ -1,11 +1,12 @@
 import logging
 import os
-from typing import Any, Dict
-from pandas import DataFrame
 import uuid
+from typing import Any, Dict
+
 import msgpack
 import numpy as np
 import requests
+from pandas import DataFrame
 
 from .version_checker import get_installed_version
 

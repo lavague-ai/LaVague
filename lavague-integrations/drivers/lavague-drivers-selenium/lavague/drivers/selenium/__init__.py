@@ -1,2 +1,1 @@
-from lavague.drivers.selenium.base import SeleniumDriver
-from lavague.drivers.selenium.base import BrowserbaseRemoteConnection
+from lavague.drivers.selenium.base import BrowserbaseRemoteConnection, SeleniumDriver
