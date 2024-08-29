@@ -208,6 +208,8 @@ class NavigationEngineEvaluator(Evaluator):
                     print("ERROR: ", i)
                     traceback.print_exc()
                     test_action = FAIL_ACTION
+                if driver:
+                    driver.destroy()
                 results.at[i, "correct_action"] = action["name"] == test_action["name"]
                 results.at[i, "correct_xpath"] = (
                     normalize_xpath(action["args"]["xpath"])
