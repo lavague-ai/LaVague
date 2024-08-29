@@ -589,6 +589,28 @@ class SyntaxicRetriever(BaseHtmlRetriever):
         )
         results = retriever.retrieve(query)
         return get_nodes_text(results)
+    
+
+class CleanHTMLRetriever(BaseHtmlRetriever):
+
+    def __init__(self, drop_base_64: bool = True,
+                 drop_svg: bool = True) -> None:
+        self.drop_base_64 = drop_base_64
+        self.drop_svg = drop_svg
+
+    def _clean_chunk(self, html: str) -> str:
+        if self.drop_base_64:
+            html = re.sub('base64([^"]*)"', '', html)
+        if self.drop_svg:
+            html = re.sub('<svg.*?>(.+?)</svg>', '', html)
+        return html
+
+    def retrieve(
+        self, query: QueryBundle, html_nodes: List[str], viewport_only=True
+    ) -> List[str]:
+
+        return [self._clean_chunk(html) for html in html_nodes]
+
 
 
 def filter_for_xpathed_nodes(nodes: List):
