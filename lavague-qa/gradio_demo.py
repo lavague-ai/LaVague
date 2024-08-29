@@ -1,18 +1,20 @@
-from io import BytesIO
 import os
+from io import BytesIO
 from typing import List, Optional, Tuple
-from lavague.contexts.openai.base import OpenaiContext
-from lavague.core.agents import WebAgent
+from urllib.parse import urlparse
+
 import gradio as gr
+from gherkin.parser import Parser
+from lavague.contexts.openai.base import OpenaiContext
+from lavague.drivers.selenium import BrowserbaseRemoteConnection, SeleniumDriver
+from lavague.qa.generator import Scenario, TestGenerator
+from PIL import Image
+
+from lavague.core.action_engine import ActionEngine
+from lavague.core.agents import WebAgent
 from lavague.core.memory import ShortTermMemory
 from lavague.core.retrievers import SemanticRetriever
 from lavague.core.world_model import WorldModel
-from lavague.qa.generator import Scenario, TestGenerator
-from lavague.drivers.selenium import SeleniumDriver, BrowserbaseRemoteConnection
-from lavague.core.action_engine import ActionEngine
-from PIL import Image
-from gherkin.parser import Parser
-from urllib.parse import urlparse
 
 
 def uri_validator(x):

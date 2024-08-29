@@ -1,17 +1,18 @@
+from typing import Any, Dict, Optional, Sequence
+
+import imagehash
 from lavague.contexts.cache.prompts_store import PromptsStore, YamlPromptsStore
-from llama_index.core.multi_modal_llms import MultiModalLLM, MultiModalLLMMetadata
-from llama_index.core.schema import ImageDocument
 from llama_index.core.base.llms.types import (
-    CompletionResponse,
-    CompletionResponseGen,
     ChatMessage,
     ChatResponse,
-    ChatResponseGen,
-    CompletionResponseAsyncGen,
     ChatResponseAsyncGen,
+    ChatResponseGen,
+    CompletionResponse,
+    CompletionResponseAsyncGen,
+    CompletionResponseGen,
 )
-from typing import Optional, Dict, Sequence, Any
-import imagehash
+from llama_index.core.multi_modal_llms import MultiModalLLM, MultiModalLLMMetadata
+from llama_index.core.schema import ImageDocument
 from PIL import Image
 
 

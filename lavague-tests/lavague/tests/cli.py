@@ -1,7 +1,8 @@
-import click
 import os
 from pathlib import Path
 from typing import List
+
+import click
 from lavague.tests.config import TestConfig
 from lavague.tests.runner import TestRunner
 

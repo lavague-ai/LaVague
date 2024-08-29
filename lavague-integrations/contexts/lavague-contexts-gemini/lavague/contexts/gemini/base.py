@@ -1,9 +1,11 @@
-from typing import Optional
-from llama_index.llms.gemini import Gemini
-from llama_index.embeddings.gemini import GeminiEmbedding
-from llama_index.multi_modal_llms.gemini import GeminiMultiModal
 import os
-from lavague.core.context import Context, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE
+from typing import Optional
+
+from llama_index.embeddings.gemini import GeminiEmbedding
+from llama_index.llms.gemini import Gemini
+from llama_index.multi_modal_llms.gemini import GeminiMultiModal
+
+from lavague.core.context import DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, Context
 
 
 class GeminiContext(Context):

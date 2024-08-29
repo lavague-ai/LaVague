@@ -1,16 +1,19 @@
 from __future__ import annotations
+
 import os
+import time
 from abc import ABC
+from functools import lru_cache
+
+import yaml
 from llama_index.core import PromptTemplate
 from llama_index.core.multi_modal_llms import MultiModalLLM
 from llama_index.legacy.readers.file.base import SimpleDirectoryReader
+from PIL import Image
+
 from lavague.core.context import Context, get_default_context
 from lavague.core.logger import AgentLogger, Loggable
-from functools import lru_cache
-from PIL import Image
 from lavague.core.utilities.model_utils import get_model_name
-import time
-import yaml
 from lavague.core.utilities.profiling import time_profiler
 
 WORLD_MODEL_GENERAL_EXAMPLES = """

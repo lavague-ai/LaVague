@@ -1,14 +1,15 @@
 import logging
+from typing import Any, List, Optional, Tuple
+
 import tiktoken
-from llama_index.core.callbacks.schema import CBEventType
-from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 from llama_index.core import Settings
-from typing import Tuple, List, Any, Optional
-from lavague.core.utilities.pricing_util import get_pricing_data
-from lavague.core.world_model import WorldModel
+from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
+from llama_index.core.callbacks.schema import CBEventType
+
 from lavague.core.action_engine import ActionEngine
 from lavague.core.base_engine import ActionResult
-from lavague.core.world_model import WORLD_MODEL_PROMPT_TEMPLATE
+from lavague.core.utilities.pricing_util import get_pricing_data
+from lavague.core.world_model import WORLD_MODEL_PROMPT_TEMPLATE, WorldModel
 
 # used by gpt-4* models
 DEFAULT_TOKENIZER = "o200k_base"

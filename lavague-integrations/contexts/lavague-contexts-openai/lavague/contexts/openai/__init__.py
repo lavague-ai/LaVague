@@ -1,1 +1,1 @@
-from lavague.contexts.openai.base import OpenaiContext, AzureOpenaiContext
+from lavague.contexts.openai.base import AzureOpenaiContext, OpenaiContext

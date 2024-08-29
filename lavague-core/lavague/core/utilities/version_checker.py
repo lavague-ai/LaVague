@@ -1,6 +1,7 @@
-import requests
-import pkg_resources
 import warnings
+
+import pkg_resources
+import requests
 
 YELLOW = "\033[93m"
 RESET = "\033[0m"

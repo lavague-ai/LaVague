@@ -1,5 +1,6 @@
-import click
 import os
+
+import click
 from lavague.qa.generator import TestGenerator
 from lavague.tests.cli import _load_context
 

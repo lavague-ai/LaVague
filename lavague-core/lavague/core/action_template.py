@@ -1,4 +1,5 @@
 from llama_index.core import PromptTemplate
+
 from lavague.core.extractors import BaseExtractor
 
 

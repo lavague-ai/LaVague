@@ -1,5 +1,6 @@
-import yaml
 import os
+
+import yaml
 
 
 def load_yaml_file(file_path):

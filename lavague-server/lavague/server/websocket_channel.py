@@ -1,8 +1,9 @@
 import asyncio
-import websockets
-from websockets.exceptions import ConnectionClosed
-from lavague.server.channel import AgentSession, CommunicationChannel
 import json
+
+import websockets
+from lavague.server.channel import AgentSession, CommunicationChannel
+from websockets.exceptions import ConnectionClosed
 
 
 class WebSocketSession(AgentSession):

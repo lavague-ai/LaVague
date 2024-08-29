@@ -1,7 +1,8 @@
-from IPython.display import display, clear_output
-from PIL.PngImagePlugin import PngImageFile
 import base64
 import os
+
+from IPython.display import clear_output, display
+from PIL.PngImagePlugin import PngImageFile
 
 
 def sort_files_by_creation(directory):

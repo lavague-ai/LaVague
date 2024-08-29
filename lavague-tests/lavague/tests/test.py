@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
 import re
-from typing import Callable, Dict, Any, Union, Optional
-from operator import eq, ne, contains, lt, gt
+from abc import ABC, abstractmethod
+from operator import contains, eq, gt, lt, ne
+from typing import Any, Callable, Dict, Optional, Union
 
 OperatorFunction = Callable[[Any, Any], bool]
 

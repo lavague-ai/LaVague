@@ -1,21 +1,15 @@
-from llama_index.multi_modal_llms.openai import OpenAIMultiModal
-from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
-
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.contexts.openai import AzureOpenaiContext
-from lavague.drivers.selenium import SeleniumDriver
 import os
 
+from lavague.contexts.openai import AzureOpenaiContext
+from lavague.drivers.selenium import SeleniumDriver
+from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
 from llama_index.llms.azure_openai import AzureOpenAI
 from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
-from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
-from lavague.core.context import Context
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.drivers.selenium import SeleniumDriver
-from lavague.contexts.openai import AzureOpenaiContext
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
+from lavague.core.context import Context
 
 # Initialize context with our custom elements
 context = AzureOpenaiContext(

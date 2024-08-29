@@ -1,52 +1,43 @@
-from typing import Any, Optional, Callable, Mapping, Dict, List
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+import json
+import os
+import time
+from io import BytesIO
+from typing import Any, Callable, Dict, List, Mapping, Optional
+
+import requests
+import yaml
+from lavague.drivers.selenium.javascript import ATTACH_MOVE_LISTENER, REMOVE_HIGHLIGHT, get_highlighter_style
+from PIL import Image
 from selenium.common.exceptions import (
-    NoSuchElementException,
-    WebDriverException,
     ElementClickInterceptedException,
+    NoSuchElementException,
     StaleElementReferenceException,
     TimeoutException,
+    WebDriverException,
 )
-from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.remote_connection import RemoteConnection
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.ui import Select, WebDriverWait
+
 from lavague.core.base_driver import (
-    BaseDriver,
     JS_GET_INTERACTIVES,
     JS_GET_INTERACTIVES_IN_VIEWPORT,
-    JS_WAIT_DOM_IDLE,
     JS_GET_SCROLLABLE_PARENT,
+    JS_WAIT_DOM_IDLE,
+    BaseDriver,
+    DOMNode,
+    InteractionType,
     PossibleInteractionsByXpath,
     ScrollDirection,
-    InteractionType,
-    DOMNode,
 )
-from lavague.core.exceptions import (
-    CannotBackException,
-    NoElementException,
-    AmbiguousException,
-)
-from PIL import Image
-from io import BytesIO
-from selenium.webdriver.chrome.options import Options
-from lavague.core.utilities.format_utils import (
-    extract_code_from_funct,
-    quote_numeric_yaml_values,
-)
-from selenium.webdriver.common.action_chains import ActionChains
-import time
-import yaml
-import json
-from selenium.webdriver.remote.remote_connection import RemoteConnection
-import requests
-import os
-from lavague.drivers.selenium.javascript import (
-    ATTACH_MOVE_LISTENER,
-    get_highlighter_style,
-    REMOVE_HIGHLIGHT,
-)
+from lavague.core.exceptions import AmbiguousException, CannotBackException, NoElementException
+from lavague.core.utilities.format_utils import extract_code_from_funct, quote_numeric_yaml_values
 
 
 class SeleniumDriver(BaseDriver):
@@ -83,10 +74,11 @@ class SeleniumDriver(BaseDriver):
     #   These imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Any:
         from selenium import webdriver
-        from selenium.webdriver.common.by import By
         from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.common.action_chains import ActionChains
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.common.keys import Keys
+
         from lavague.core.base_driver import JS_SETUP_GET_EVENTS
 
         if self.options:

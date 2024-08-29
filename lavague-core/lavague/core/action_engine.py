@@ -1,17 +1,19 @@
 from __future__ import annotations
+
 from typing import Dict, Optional
+
 from llama_index.core import PromptTemplate
-from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from lavague.core.extractors import BaseExtractor, DynamicExtractor
-from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
+from llama_index.core.base.llms.base import BaseLLM
+
 from lavague.core.base_driver import BaseDriver
+from lavague.core.base_engine import ActionResult, BaseEngine
 from lavague.core.context import Context, get_default_context
+from lavague.core.extractors import BaseExtractor, DynamicExtractor
 from lavague.core.logger import AgentLogger
-from lavague.core.base_engine import BaseEngine, ActionResult
-from lavague.core.navigation import NAVIGATION_ENGINE_PROMPT_TEMPLATE
-from lavague.core.navigation import NavigationControl, NavigationEngine
+from lavague.core.navigation import NAVIGATION_ENGINE_PROMPT_TEMPLATE, NavigationControl, NavigationEngine
 from lavague.core.python_engine import PythonEngine
+from lavague.core.retrievers import BaseHtmlRetriever, get_default_retriever
 from lavague.core.utilities.model_utils import get_model_name
 
 
@@ -194,6 +196,7 @@ class ActionEngine:
         """
 
         from io import BytesIO
+
         from PIL import Image
 
         next_engine = self.engines[next_engine_name]

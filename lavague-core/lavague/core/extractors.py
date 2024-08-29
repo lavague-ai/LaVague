@@ -1,9 +1,10 @@
-from abc import ABC, abstractmethod
-import re
-from jsonschema import validate, ValidationError
-import yaml
 import json
+import re
+from abc import ABC, abstractmethod
 from typing import Any, Dict, Tuple
+
+import yaml
+from jsonschema import ValidationError, validate
 
 
 def extract_xpaths_from_html(html):

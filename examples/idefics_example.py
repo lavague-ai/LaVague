@@ -1,5 +1,6 @@
-import os
 import argparse
+import os
+
 import yaml
 from text_generation import Client
 
@@ -101,8 +102,9 @@ def main():
     if not args.file_path and not args.url:
         raise ValueError("Either file_path or url must be provided")
 
-    from llama_index.embeddings.openai import OpenAIEmbedding
     from lavague.drivers.selenium import SeleniumDriver
+    from llama_index.embeddings.openai import OpenAIEmbedding
+
     from lavague.core import ActionEngine, WorldModel
     from lavague.core.agents import WebAgent
 

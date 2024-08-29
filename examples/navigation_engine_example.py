@@ -1,4 +1,5 @@
 from lavague.drivers.selenium import SeleniumDriver
+
 from lavague.core import ActionEngine
 
 # Don't forget to export OPENAI_API_KEY

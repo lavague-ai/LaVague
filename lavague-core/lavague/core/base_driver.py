@@ -1,16 +1,15 @@
-from PIL import Image
-import os
-from pathlib import Path
-import re
-from typing import Any, Callable, Optional, Mapping, Dict, Set, List, Tuple, Union
-from abc import ABC, abstractmethod
-from lavague.core.utilities.format_utils import (
-    extract_code_from_funct,
-    extract_imports_from_lines,
-)
-from enum import Enum
-from datetime import datetime
 import hashlib
+import os
+import re
+from abc import ABC, abstractmethod
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Union
+
+from PIL import Image
+
+from lavague.core.utilities.format_utils import extract_code_from_funct, extract_imports_from_lines
 
 
 class InteractionType(Enum):

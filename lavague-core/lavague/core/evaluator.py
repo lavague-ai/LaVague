@@ -1,20 +1,22 @@
-from abc import ABC, abstractmethod
-import pandas as pd
-from typing import Dict
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.figure import Figure
-from lavague.core.retrievers import BaseHtmlRetriever
-from lavague.core.navigation import NavigationEngine
-from lavague.drivers.selenium import SeleniumDriver
-from tqdm import tqdm
-from datetime import datetime
-import yaml
-from llama_index.core import QueryBundle
-import traceback
-import base64
 import ast
+import base64
+import traceback
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import Dict
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import yaml
 from bs4 import BeautifulSoup
+from lavague.drivers.selenium import SeleniumDriver
+from llama_index.core import QueryBundle
+from matplotlib.figure import Figure
+from tqdm import tqdm
+
+from lavague.core.navigation import NavigationEngine
+from lavague.core.retrievers import BaseHtmlRetriever
 
 
 class Evaluator(ABC):

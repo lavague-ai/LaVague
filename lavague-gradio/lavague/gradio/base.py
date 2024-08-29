@@ -1,9 +1,11 @@
-from io import BytesIO
 import queue
+from io import BytesIO
 from typing import List, Optional
-from lavague.core.agents import WebAgent
+
 import gradio as gr
 from PIL import Image
+
+from lavague.core.agents import WebAgent
 
 
 class GradioAgentDemo:

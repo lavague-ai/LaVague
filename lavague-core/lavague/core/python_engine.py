@@ -1,25 +1,23 @@
 import shutil
 import time
 from io import BytesIO
-from typing import Callable, Optional
 from pathlib import Path
+from typing import Callable, Optional
 
-from PIL import Image
 import trafilatura
-
-
-from lavague.core.context import Context, get_default_context
-from lavague.core.utilities.web_utils import display_screenshot
-from lavague.core.base_driver import BaseDriver
-from lavague.core.logger import AgentLogger
-from lavague.core.base_engine import BaseEngine, ActionResult
-
-from llama_index.legacy.readers.file.base import SimpleDirectoryReader
-from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.core import Document, VectorStoreIndex
 from llama_index.core.base.llms.base import BaseLLM
 from llama_index.core.embeddings import BaseEmbedding
+from llama_index.legacy.readers.file.base import SimpleDirectoryReader
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from PIL import Image
+
+from lavague.core.base_driver import BaseDriver
+from lavague.core.base_engine import ActionResult, BaseEngine
+from lavague.core.context import Context, get_default_context
 from lavague.core.extractors import DynamicExtractor
+from lavague.core.logger import AgentLogger
+from lavague.core.utilities.web_utils import display_screenshot
 
 DEFAULT_TEMPERATURE = 0.0
 

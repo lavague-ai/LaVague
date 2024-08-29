@@ -1,4 +1,5 @@
-from typing import Any, List, Dict
+from typing import Any, Dict, List
+
 import yaml
 from lavague.tests.setup import Setup
 from lavague.tests.test import ExpectTest, TaskTest

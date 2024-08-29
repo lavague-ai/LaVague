@@ -1,40 +1,41 @@
 import os
-from typing import List, Tuple
-import yaml
 import time
-from yaspin import yaspin
-from yaspin.spinners import Spinners
-from gherkin.parser import Parser
-from selenium.webdriver.chrome.webdriver import WebDriver
+from typing import List, Tuple
 
-from llama_index.llms.openai import OpenAI
-from llama_index.multi_modal_llms.openai import OpenAIMultiModal
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.legacy.readers.file.base import SimpleDirectoryReader
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.core.context import Context
-from lavague.core.token_counter import TokenCounter
-from lavague.core.retrievers import SemanticRetriever
+import yaml
+from gherkin.parser import Parser
 from lavague.drivers.selenium import SeleniumDriver
+from lavague.qa.prompts import (
+    ASSERT_ONLY_PROMPT_TEMPLATE,
+    FULL_PROMPT_TEMPLATE,
+    PYTEST_GIVEN_TEMPLATE,
+    PYTEST_HEADER_TEMPLATE,
+    PYTEST_THEN_TEMPLATE,
+    PYTEST_WHEN_TEMPLATE,
+)
 from lavague.qa.utils import (
-    remove_comments,
-    clean_llm_output,
-    build_run_summary,
-    to_snake_case,
-    get_nav_action_code,
-    get_nav_control_code,
     INDENT,
     INDENT_PASS,
+    build_run_summary,
+    clean_llm_output,
+    get_nav_action_code,
+    get_nav_control_code,
+    remove_comments,
+    to_snake_case,
 )
-from lavague.qa.prompts import (
-    FULL_PROMPT_TEMPLATE,
-    ASSERT_ONLY_PROMPT_TEMPLATE,
-    PYTEST_HEADER_TEMPLATE,
-    PYTEST_GIVEN_TEMPLATE,
-    PYTEST_WHEN_TEMPLATE,
-    PYTEST_THEN_TEMPLATE,
-)
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.legacy.readers.file.base import SimpleDirectoryReader
+from llama_index.llms.openai import OpenAI
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from selenium.webdriver.chrome.webdriver import WebDriver
+from yaspin import yaspin
+from yaspin.spinners import Spinners
+
+from lavague.core import ActionEngine, WorldModel
+from lavague.core.agents import WebAgent
+from lavague.core.context import Context
+from lavague.core.retrievers import SemanticRetriever
+from lavague.core.token_counter import TokenCounter
 
 
 class Scenario:

@@ -1,4 +1,5 @@
 import unittest
+
 from lavague.core.utilities.format_utils import extract_and_eval
 
 

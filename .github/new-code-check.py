@@ -1,4 +1,5 @@
 from lavague.drivers.selenium import SeleniumDriver
+
 from lavague.core import ActionEngine, WorldModel
 from lavague.core.agents import WebAgent
 
