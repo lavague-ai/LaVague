@@ -49,7 +49,6 @@ class ActionEngine:
         python_engine: BaseEngine = None,
         navigation_control: BaseEngine = None,
         llm: BaseLLM = None,
-        extraction_llm: Optional[BaseLLM] = None,
         embedding: BaseEmbedding = None,
         retriever: BaseHtmlRetriever = None,
         prompt_template: PromptTemplate = NAVIGATION_ENGINE_PROMPT_TEMPLATE.prompt_template,
@@ -57,6 +56,7 @@ class ActionEngine:
         time_between_actions: float = 1.5,
         n_attempts: int = 5,
         logger: AgentLogger = None,
+        extraction_llm: Optional[BaseLLM] = None,
     ):
         if llm is None:
             llm = get_default_context().llm
