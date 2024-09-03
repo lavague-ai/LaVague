@@ -458,6 +458,9 @@ driver.set_window_size({width}, {height} + height_difference)
                         f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
                     )
             except Exception as e:
+                import traceback
+
+                traceback.print_exc()
                 raise Exception(
                     f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
                 )
