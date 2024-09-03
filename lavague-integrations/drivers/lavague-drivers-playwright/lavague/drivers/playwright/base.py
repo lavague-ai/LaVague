@@ -8,7 +8,6 @@ from playwright.sync_api import Page, Locator
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
-    JS_GET_INTERACTIVES_IN_VIEWPORT,
     JS_WAIT_DOM_IDLE,
     PossibleInteractionsByXpath,
     InteractionType,
@@ -312,7 +311,8 @@ class PlaywrightDriver(BaseDriver):
         self, in_viewport=True, foreground_only=True
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.execute_script(
-            JS_GET_INTERACTIVES_IN_VIEWPORT if in_viewport else JS_GET_INTERACTIVES,
+            JS_GET_INTERACTIVES,
+            in_viewport,
             foreground_only,
         )
         res = dict()

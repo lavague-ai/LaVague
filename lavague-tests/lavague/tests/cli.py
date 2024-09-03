@@ -62,7 +62,7 @@ def cli(
 
 
 def _load_sites(directory, site):
-    sites_to_test: List[Path] = []
+    sites_to_test: List[TestConfig] = []
     try:
         for item in os.listdir(directory):
             if (len(site) == 0 or item in site) and os.path.isfile(

@@ -119,12 +119,9 @@ class TestRunner:
     def run(self) -> RunnerResult:
         results: List[RunResults] = []
         for site in self.sites:
-            try:
-                site.setup.start()
+            with site.setup:
                 task_results = self._run_tasks(site.tasks)
                 results.append(RunResults(site, task_results))
-            finally:
-                site.setup.stop()
 
         return RunnerResult(results)
 
