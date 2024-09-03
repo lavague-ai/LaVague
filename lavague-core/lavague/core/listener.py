@@ -1,10 +1,11 @@
 from selenium.common.exceptions import TimeoutException
-from typing import Callable, Any, List, Dict, Literal
+from typing import Callable, Any, List, Dict, Literal, Optional
 import threading
 
 JS_LISTEN_ACTION = """
 function getElementXPath(element) {
     if (element === document.body) return '/html/body';
+    if (!element.parentNode) return '';
     for (let i = 0, ix = 0; i < element.parentNode.childNodes.length; i++) {
         const sibling = element.parentNode.childNodes[i];
         if (sibling === element) {
@@ -16,14 +17,16 @@ function getElementXPath(element) {
         if (sibling.nodeType === 1 && sibling.tagName === element.tagName) ix++;
     }
 }
-const listenFor = Array.isArray(arguments?.[0]) ? arguments[0] : null;
+const preventAction = arguments?.[0];
+const listenFor = Array.isArray(arguments?.[1]) ? arguments[1] : null;
 const callback = arguments[arguments.length - 1];
 function handleEvent(event) {
     const xpath = getElementXPath(event.target);
     if (listenFor && !listenFor.includes(xpath)) return true;
-    event.preventDefault();
-    event.stopPropagation();
-    console.log(xpath, event);
+    if (preventAction) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     callback({eventType: event.type, key: event.key, button: event.button, xpath, element: event.target});
     return false;
 }
@@ -39,12 +42,12 @@ class EventListener:
     identified by their XPath and execute a callback function upon detection.
     """
 
-    def __init__(self, executor: Callable[[str, Any], Any]):
+    def __init__(self, executor: Callable[[str, bool, Any], Any]):
         self.executor = executor
         self._destructors = []
 
     def listen_next_action(
-        self, xpaths: List[str] = None, no_timeout=False
+        self, xpaths: Optional[List[str]] = None, no_timeout=False, prevent_action=False
     ) -> Dict[Literal["eventType", "key", "button", "xpath", "element"], Any]:
         """
         Listens for the next user action (such as a click) on elements that match the given xpaths, and prevent default behaviour.
@@ -53,27 +56,41 @@ class EventListener:
         Returns a dictionary containing information about the detected action.
         """
         try:
-            event_data = self.executor(JS_LISTEN_ACTION, xpaths)
+            event_data = self.executor(JS_LISTEN_ACTION, prevent_action, xpaths)
             return event_data
         except TimeoutException as e:
             if no_timeout:
-                return self.listen_next_action(xpaths, no_timeout)
+                return self.listen_next_action(
+                    xpaths=xpaths, no_timeout=no_timeout, prevent_action=prevent_action
+                )
             raise e
 
     def listen_next_action_async(
-        self, callback: Callable, xpaths: List[str] = None, no_timeout=False
+        self,
+        callback: Callable,
+        xpaths: Optional[List[str]] = None,
+        no_timeout=False,
+        prevent_action=False,
     ):
         """
         Same as listen_next_action but async with a callback.
         """
         thread = threading.Thread(
             target=lambda: callback(
-                self.listen_next_action(xpaths=xpaths, no_timeout=no_timeout)
+                self.listen_next_action(
+                    xpaths=xpaths, no_timeout=no_timeout, prevent_action=prevent_action
+                )
             )
         )
         thread.start()
 
-    def listen(self, callback: Callable[[Any], bool]):
+    def listen(
+        self,
+        callback: Callable[[Any], Any],
+        xpaths: Optional[List[str]] = None,
+        no_timeout=False,
+        prevent_action=False,
+    ) -> Callable:
         """
         Listen for user actions and execute the provided callback until the listener is stopped.
         Returns a destructor function that can be used to stop listening for events.
@@ -87,11 +104,18 @@ class EventListener:
         def loop():
             while active:
                 try:
-                    next = self.listen_next_action()
+                    next = self.listen_next_action(
+                        xpaths=xpaths,
+                        no_timeout=no_timeout,
+                        prevent_action=prevent_action,
+                    )
                     if active:
                         callback(next)
                 except TimeoutException:
                     continue
+                except Exception as e:
+                    if active:
+                        raise e
             self._destructors.remove(destructor)
 
         thread = threading.Thread(target=loop)

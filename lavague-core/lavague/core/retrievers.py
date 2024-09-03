@@ -25,6 +25,12 @@ def get_default_retriever(
     )
 
 
+def get_trivial_retriever(
+    driver: BaseDriver, embedding: Optional[BaseEmbedding] = None
+) -> BaseHtmlRetriever:
+    return InteractiveXPathRetriever(driver)
+
+
 class BaseHtmlRetriever(ABC):
     @abstractmethod
     def retrieve(
@@ -99,25 +105,29 @@ class UniqueXPathRetriever(BaseHtmlRetriever):
 class BM25HtmlRetriever(BaseHtmlRetriever):
     """Mainly for benchmarks, do not use it as the performances are not up to par with the other retrievers"""
 
-    def __init__(self, top_k=3) -> None:
+    def __init__(self, top_k=10, xpathed_only=True) -> None:
         self.top_k = top_k
+        self.xpathed_only = xpathed_only
 
     def retrieve(
         self, query: QueryBundle, html_chunks: List[str], viewport_only=True
     ) -> List[str]:
-        html = clean_html(merge_html_chunks(html_chunks))
-        cleaned_html = clean_html(html)
-
         splitter = LangchainNodeParser(
             lc_splitter=RecursiveCharacterTextSplitter.from_language(
                 language="html",
             )
         )
-        nodes = splitter.get_nodes_from_documents([Document(text=cleaned_html)])
+        nodes = splitter.get_nodes_from_documents(
+            [Document(text=merge_html_chunks(html_chunks))]
+        )
+
+        if self.xpathed_only:
+            nodes = filter_for_xpathed_nodes(nodes)
 
         retriever = BM25Retriever.from_defaults(
             nodes=nodes, similarity_top_k=self.top_k
         )
+
         nodes = retriever.retrieve(query)
         return get_nodes_text(nodes)
 
@@ -584,6 +594,24 @@ class SyntaxicRetriever(BaseHtmlRetriever):
         )
         results = retriever.retrieve(query)
         return get_nodes_text(results)
+
+
+class CleanHTMLRetriever(BaseHtmlRetriever):
+    def __init__(self, drop_base_64: bool = True, drop_svg: bool = True) -> None:
+        self.drop_base_64 = drop_base_64
+        self.drop_svg = drop_svg
+
+    def _clean_chunk(self, html: str) -> str:
+        if self.drop_base_64:
+            html = re.sub('src="data:image/png;base64,([^"]*?)"', "", html)
+        if self.drop_svg:
+            html = re.sub("<svg.*?>(.+?)</svg>", "", html)
+        return html
+
+    def retrieve(
+        self, query: QueryBundle, html_nodes: List[str], viewport_only=True
+    ) -> List[str]:
+        return [self._clean_chunk(html) for html in html_nodes]
 
 
 def filter_for_xpathed_nodes(nodes: List):

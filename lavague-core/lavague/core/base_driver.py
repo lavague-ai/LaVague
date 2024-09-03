@@ -485,8 +485,8 @@ const windowWidth = (window.innerWidth || document.documentElement.clientWidth);
 return (function() {
     function getInteractions(e, in_viewport, foreground_only) {
         const tag = e.tagName.toLowerCase();
-        if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly') || e.getAttribute('aria-hidden') === 'true'
-          || e.getAttribute('aria-disabled') === 'true' || (tag === 'input' && e.getAttribute('type') === 'hidden') || tag === 'body') {
+        if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly')
+          || (tag === 'input' && e.getAttribute('type') === 'hidden') || tag === 'body') {
             return [];
         }
         const rect = e.getBoundingClientRect();

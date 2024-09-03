@@ -30,6 +30,12 @@ class OpenaiContext(Context):
             ),
             OpenAIMultiModal(api_key=api_key, model=mm_llm),
             OpenAIEmbedding(api_key=api_key, model=embedding),
+            OpenAI(
+                api_key=api_key,
+                model=llm,
+                max_tokens=4096,
+                temperature=DEFAULT_TEMPERATURE,
+            ),
         )
 
 
