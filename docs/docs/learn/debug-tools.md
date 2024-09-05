@@ -31,10 +31,13 @@ selenium_driver = SeleniumDriver(headless=False, options=chrome_options)
 
 ## Run your agent in step by step mode
 
-The `step_by_step` parameter can be used to enable step-by-step execution of the `WebAgent`. When set to `True`, it pauses at each step and enables the user to agree whether to continue or not. This is best used in a Python script where interactive step-by-step control is required.
+The `step_by_step` option can be set when using the `agent.run()` method to enable step-by-step execution of the `WebAgent`.
+
+When set to `True`, it pauses at each step and enables the user to agree whether to continue or not. This is best used in a Python script where interactive step-by-step control is required.
 
 ```py
-agent = WebAgent(world_model, action_engine, step_by_step=True)
+agent = WebAgent(world_model, action_engine) 
+agent.run(objective=obj, step_by_step=True)
 ```
 
 ## Run one agent step
