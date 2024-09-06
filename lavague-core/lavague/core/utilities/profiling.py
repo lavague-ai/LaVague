@@ -61,6 +61,8 @@ def time_profiler(
         if full_step_profiling:
             agent_steps.append(record)
         else:
+            if len(agent_events) == 0:
+                start_new_step()
             agent_events[-1].append(record)
 
 
