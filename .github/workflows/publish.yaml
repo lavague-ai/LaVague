@@ -60,9 +60,8 @@ jobs:
                 # Sleep to allow some time for pypi package to upload
                 echo "Waiting for version to update..."
                 sleep 60
-                
-                echo "Package updated!"
-                fi
+                              
+                echo "Package updated"
 
                 # Return to the root of the repository
                 cd - > /dev/null
