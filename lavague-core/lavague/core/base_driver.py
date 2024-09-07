@@ -482,8 +482,8 @@ JS_GET_INTERACTIVES = """
 const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
 const windowWidth = (window.innerWidth || document.documentElement.clientWidth);
 
-return (function() {
-    function getInteractions(e, in_viewport, foreground_only) {
+return (function(inViewport, foregroundOnly) {
+    function getInteractions(e) {
         const tag = e.tagName.toLowerCase();
         if (!e.checkVisibility() || e.hasAttribute('disabled') || e.hasAttribute('readonly')
           || (tag === 'input' && e.getAttribute('type') === 'hidden') || tag === 'body') {
@@ -524,7 +524,7 @@ return (function() {
             //evts.push('SCROLL');
         }
 
-        if (in_viewport == true) {
+        if (inViewport) {
             const rect = e.getBoundingClientRect();
             let iframe = e.ownerDocument.defaultView.frameElement;
             while (iframe) {
@@ -543,10 +543,10 @@ return (function() {
             if (elemCenter.x > windowWidth) return [];
             if (elemCenter.y < 0) return [];
             if (elemCenter.y > windowHeight) return [];
-            if (foreground_only !== true) return evts; // whenever to check for elements above
+            if (!foregroundOnly) return evts; // whenever to check for elements above
             let pointContainer = document.elementFromPoint(elemCenter.x, elemCenter.y);
             do {
-                if (pointContainer === element) return evts;
+                if (pointContainer === e) return evts;
                 if (pointContainer == null) return evts;
             } while (pointContainer = pointContainer.parentNode);
             return [];
@@ -558,7 +558,7 @@ return (function() {
     const results = {};
     function traverse(node, xpath) {
         if (node.nodeType === Node.ELEMENT_NODE) {
-            const interactions = getInteractions(node, arguments?.[0], arguments?.[1]);
+            const interactions = getInteractions(node);
             if (interactions.length > 0) {
                 results[xpath] = interactions;
             }
@@ -589,7 +589,7 @@ return (function() {
     }
     traverse(document.body, '/html/body');
     return results;
-})();
+})(arguments?.[0], arguments?.[1]);
 """
 
 JS_WAIT_DOM_IDLE = """
