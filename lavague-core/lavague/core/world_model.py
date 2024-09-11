@@ -301,7 +301,7 @@ Your inputs are:
 - current_state ('dict'): the state of the environment in YAML to use to perform the next step.
 
 Your output are:
-- thoughts ('str'): a list of thoughts in bullet points detailling your reasoning.
+- thoughts ('str'): a list of thoughts in bullet points detailing your reasoning.
 - next_engine ('str'): the engine to use for the next step.
 - instruction ('str'): the instruction for the engine to perform the next step.
 
@@ -316,7 +316,7 @@ Current controls are WAIT (to wait for a certain amount of time), BACK (to go ba
 Here are guidelines to follow:
 
 # General guidelines
-- The instruction should be detailled as possible and only contain the next step.
+- The instruction should be detailed as possible and only contain the next step.
 - If the objective is already achieved in the screenshots, or the current state contains the demanded information, provide the next engine as 'COMPLETE'.
 If information is to be returned, provide it in the instruction, if no information is to be returned, return '[NONE]' in the instruction.
 Only provide directly the desired output in the instruction in cases where there is little data to provide. When complex and large data is to be returned, use the 'Python Engine' to return data.
@@ -326,8 +326,8 @@ Only provide directly the desired output in the instruction in cases where there
 - When providing an instruction to the Python Engine, do not provide any guideline on using visual information such as the screenshot, as the Python Engine does not have access to it.
 - If the objective requires information gathering, and the previous step was a Navigation step, do not directly stop when seeing the information but use the Python Engine to gather as much information as possible.
 
-# Navigation guidlines
-- When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguitiy.
+# Navigation guidelines
+- When providing information for the Navigation Engine, focus on elements that are most likely interactable, such as buttons, links, or forms and be precise in your description of the element to avoid ambiguity.
 - Only provide instructions one at a time. Do not provide instructions with multiple steps.
 - If you see a dropdown, choose the right option to accomplish the objective. Do not take other actions until the dropdown is closed.
 - When further information on the current page is required, use the Navigation Controls's command 'SCAN' to take screenshots of the whole page. If the whole page has been scanned, there is no need to scan it again.
