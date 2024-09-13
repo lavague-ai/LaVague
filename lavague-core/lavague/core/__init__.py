@@ -1,14 +1,7 @@
-from lavague.core.python_engine import PythonEngine
-from lavague.core.context import Context, get_default_context
-from lavague.core.extractors import (
-    PythonFromMarkdownExtractor,
-    JsonFromMarkdownExtractor,
-)
-from lavague.core.retrievers import OpsmSplitRetriever
-from lavague.core.world_model import WorldModel
 from lavague.core.utilities.version_checker import check_latest_version
-from lavague.core.action_engine import ActionEngine
-from lavague.core.agents import WebAgent
+
+from lavague.core.agent import WebAgent
+from lavague.core.trajectory import Trajectory
 
 import os
 import warnings

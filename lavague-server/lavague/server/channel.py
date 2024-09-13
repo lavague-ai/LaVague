@@ -4,7 +4,7 @@ import json
 import threading
 from typing import Callable
 import uuid
-from lavague.core.agents import WebAgent
+from lavague.core.agent import WebAgent
 from lavague.core.extractors import YamlFromMarkdownExtractor
 from llama_index.core import QueryBundle
 from lavague.core.retrievers import (

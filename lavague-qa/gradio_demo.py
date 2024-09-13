@@ -2,7 +2,7 @@ from io import BytesIO
 import os
 from typing import List, Optional, Tuple
 from lavague.contexts.openai.base import OpenaiContext
-from lavague.core.agents import WebAgent
+from lavague.core.agent import WebAgent
 import gradio as gr
 from lavague.core.memory import ShortTermMemory
 from lavague.core.retrievers import SemanticRetriever

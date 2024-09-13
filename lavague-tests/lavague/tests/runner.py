@@ -1,6 +1,6 @@
 from typing import List, Dict
 from lavague.core.context import Context
-from lavague.core.agents import WebAgent
+from lavague.core.agent import WebAgent
 from lavague.core.world_model import WorldModel
 from lavague.core.action_engine import ActionEngine
 from lavague.drivers.selenium.base import SeleniumDriver

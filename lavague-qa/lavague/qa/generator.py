@@ -12,7 +12,7 @@ from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.legacy.readers.file.base import SimpleDirectoryReader
 from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
+from lavague.core.agent import WebAgent
 from lavague.core.context import Context
 from lavague.core.token_counter import TokenCounter
 from lavague.core.retrievers import SemanticRetriever
