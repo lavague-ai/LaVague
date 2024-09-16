@@ -1,7 +1,6 @@
-from lavague.core.action import Action
+from lavague.core.action import Action, UnhandledTypeException
 from enum import Enum
-from typing import Any, ClassVar, Dict, Type, Optional
-from pydantic import BaseModel
+from typing import ClassVar, Dict, Type, Optional
 
 
 class NavigationActionType(Enum):
@@ -12,27 +11,29 @@ class NavigationActionType(Enum):
     SET_VALUE_AND_ENTER = "setValueAndEnter"
     DROPDOWN_SELECT = "dropdownSelect"
     HOVER = "hover"
+    SCROLL_DOWN = "scroll_down"
+    SCROLL_UP = "scroll_up"
+    BACK = "back"
 
 
-class NavigationActionArgs(BaseModel):
-    """Arguments for navigation action."""
-
-    xpath: str
-    name: NavigationActionType
-    value: Optional[str] = None
-
-
-class NavigationAction(Action[NavigationActionArgs]):
+class NavigationAction(Action):
     """Navigation action performed by the agent."""
 
     subtypes: ClassVar[Dict[str, Type["NavigationAction"]]] = {}
 
-    args: NavigationActionArgs
+    xpath: str
+    action: NavigationActionType
+    value: Optional[str] = None
 
     @classmethod
-    def parse(cls, action_dict: Any) -> "NavigationAction":
-        subtype = action_dict.get("args", {}).get("name")
-        target_type = cls.subtypes.get(subtype, NavigationAction)
+    def parse(cls, action_dict: Dict) -> "NavigationAction":
+        action_name = action_dict.get("action")
+        try:
+            NavigationActionType(action_name)
+        except ValueError:
+            raise UnhandledTypeException(f"Unhandled action type: {action_name}")
+
+        target_type = cls.subtypes.get(action_name, NavigationAction)
         return target_type(**action_dict)
 
     @classmethod
@@ -45,16 +46,10 @@ def register_navigation(name: str):
     return lambda cls: NavigationAction.register_subtype(name, cls)
 
 
-class NavigationWithValueActionArgs(NavigationActionArgs):
-    """Arguments for navigation action with a value."""
-
-    value: str
-
-
 class NavigationWithValueAction(NavigationAction):
     """Navigation action performed by the agent with a value."""
 
-    args: NavigationWithValueActionArgs
+    value: str
 
 
 @register_navigation(NavigationActionType.CLICK.value)
@@ -79,4 +74,19 @@ class SetValueAndEnterAction(SetValueAction):
 
 @register_navigation(NavigationActionType.DROPDOWN_SELECT.value)
 class DropdownSelectAction(NavigationWithValueAction):
+    pass
+
+
+@register_navigation(NavigationActionType.SCROLL_DOWN.value)
+class ScrollDownAction(NavigationAction):
+    pass
+
+
+@register_navigation(NavigationActionType.SCROLL_UP.value)
+class ScrollUpAction(NavigationAction):
+    pass
+
+
+@register_navigation(NavigationActionType.BACK.value)
+class BackAction(NavigationAction):
     pass

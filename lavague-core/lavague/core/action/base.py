@@ -1,18 +1,23 @@
 from PIL import Image
 import base64
 import os
-from typing import TypeVar, Generic, Dict, Type, Optional
+from typing import Dict, Type, Optional
 from pydantic import BaseModel, validate_call
 import time
+from enum import Enum
 
-T = TypeVar("T")
+
+class ActionStatus(Enum):
+    COMPLETED = "completed"
+    FAILED = "failed"
 
 
-class Action(BaseModel, Generic[T]):
+class Action(BaseModel):
     """Action performed by the agent."""
 
     engine: str
-    args: T
+    action: str
+    status: ActionStatus
     preaction_screenshot: Optional[str] = None
     postaction_screenshot: Optional[str] = None
 
@@ -65,8 +70,11 @@ class ActionParser(BaseModel):
                 action_dict.get("postaction_screenshot")
             )
 
-        target_type = self.engine_action_builders.get(engine, Action)
-        return target_type.parse(action_dict)
+        target_type: Type[Action] = self.engine_action_builders.get(engine, Action)
+        try:
+            return target_type.parse(action_dict)
+        except UnhandledTypeException:
+            return Action.parse(action_dict)
 
     def _store_image(self, image: str) -> str:
         """Store image on disk and return absolute path"""
@@ -87,6 +95,10 @@ class ActionParser(BaseModel):
         with open(image_path, "wb") as file:
             file.write(image_data)
         return os.path.abspath(image_path)
+
+
+class UnhandledTypeException(Exception):
+    pass
 
 
 DEFAULT_PARSER = ActionParser()

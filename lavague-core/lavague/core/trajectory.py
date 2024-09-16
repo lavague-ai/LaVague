@@ -1,6 +1,12 @@
 from typing import Optional, Generator, List
 from pydantic import BaseModel
 from lavague.core.action.base import Action
+from enum import Enum
+
+
+class TrajectoryStatus(Enum):
+    COMPLETED = "completed"
+    FAILED = "failed"
 
 
 class Trajectory(BaseModel):
@@ -9,7 +15,7 @@ class Trajectory(BaseModel):
     url: str
     objective: str
     actions: List[Action]
-    success: bool
+    status: TrajectoryStatus
     final_html: Optional[str]
     output: Optional[str]
 
