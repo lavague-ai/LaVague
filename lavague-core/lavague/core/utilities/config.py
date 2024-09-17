@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 
-LAVAGUE_API_BASE_URL = "https://api.lavague.ai"
+LAVAGUE_API_BASE_URL = "https://cloud.lavague.ai/api"
 
 
 def is_flag_true(flag_name: str) -> bool:
