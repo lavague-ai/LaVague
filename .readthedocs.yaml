@@ -10,9 +10,6 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
-  jobs:
-    post_install:
-    - bash docs/generate_api_reference.sh
 
 mkdocs:
   configuration: mkdocs.yml
