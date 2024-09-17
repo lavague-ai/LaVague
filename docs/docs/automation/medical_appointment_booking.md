@@ -1,4 +1,4 @@
-# Medical appointment booking
+<!-- # Medical appointment booking
 
 ## 🌊 Medical appointment booking with LaVague
 
@@ -183,4 +183,4 @@ If you find a relevant dermatologist, try to book an appointment in person as a 
 Don't use the Python Engine."""
 
 agent.demo(objective=objective)
-```
+``` -->

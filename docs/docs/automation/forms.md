@@ -1,4 +1,4 @@
-# Fill out forms
+<!-- # Fill out forms
 
 LaVague can be used to fill out simple forms automatically. You can provide the necessary information to complete the form and assign LaVague Agents with an objective to fill event registration forms, job applications, etc. 
 
@@ -38,4 +38,4 @@ img = Image.open(agent.screeshots["after"])
 img.show()
 ```
 ![after screenshot](../../assets/screenshot-form.png)
-
+ -->
