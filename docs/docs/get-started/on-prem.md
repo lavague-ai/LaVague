@@ -4,7 +4,7 @@ While LaVague Agents are provided by default via a public API, we can also deplo
 
 If you would like to deploy LaVague on-premise or find out more, please [get in touch](https://www.lavague.ai/contact).
 
-![LaVague Workflow](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/architecture-on-prem.png)
+![LaVague Workflow](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/architecture-on-prem.png)
 
 ## Definitions
 

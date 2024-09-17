@@ -17,10 +17,8 @@ LaVague is made up of:
     - Integrations for specific use cases, such as `exporters` which convert generated actions into `PyTest scripts` for web testing
     - Tooling for users
 
-!!! info "LaVague On-Premise"
-        While LaVague Agents are leveraged via a remote API by default. We can provide on-premise deployment of the LaVague for entreprise users.
-
-        Find out more [here](./docs/get-started/on-prem.md)
+> While LaVague Agents are leveraged via a remote API by default, we can provide on-premise deploymentmfor entreprise users.
+Find out more [here](./docs/get-started/on-prem.md)
 
 ## Getting Started
 
@@ -61,7 +59,7 @@ img.show()
 $ mattshumer/Reflection-Llama-3.1-70B, black-forest-labs/FLUX.1-dev, openbmb/MiniCPM3-4B, deepseek-ai/DeepSeek-V2.5, Qwen/Qwen2-VL-7B-Instruct
 ```
 
-![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/after-screenshot.png)
+![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/after-screenshot.png)
 
 For more information on how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
@@ -84,9 +82,9 @@ If you're experiencing any issues getting started with LaVague, you can:
 
 ## LaVague Legacy
 
-As of the 12/09/2024 we have made significant changes to the LaVague project, including moving a large part of the project to an API.
+As of September 2024, we have made significant changes to the LaVague project, including moving Web Agent logic to a remote API.
 
-If you want to access and use the legacy and fully open-source LaVague project , this is still available [here]().
+If you want to access the legacy and fully open-source LaVague project, you can do so [here]().
 
 The corresponding PyPi package is available as `lavague-legacy` which you can install by running:
 

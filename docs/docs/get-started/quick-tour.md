@@ -27,7 +27,7 @@ pip install lavague
 
 Let's see how we can use LaVague Web Agent's to automate filling in the following [sample job application form](https://form.jotform.com/241472287797370).
 
-![form](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/form.png)
+![form](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/form.png)
 
 ```python
 from lavague.core.agents import WebAgent
@@ -78,7 +78,7 @@ last_action = ret.results[-1:]
 img = Image.open(last_action["postaction_screenshot"])
 img.show()
 ```
-![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/screenshot-form.png)
+![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/screenshot-form.png)
 
 Feel free to try automating different actions on the web by using the above code and modifying the `url` and `objective` to any website and objective of your choice.
 

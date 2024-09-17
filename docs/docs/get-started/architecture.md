@@ -1,6 +1,6 @@
 # LaVague Architecture & Workflow
 
-![LaVague Workflow](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/architecture-default.png)
+![LaVague Workflow](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/architecture-default.png)
 
 ## Definitions
 
