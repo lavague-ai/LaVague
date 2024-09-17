@@ -1,11 +1,11 @@
 # Website Info
 site_name: LaVague
-site_url: https://docs.lavague.ai/en/latest/
+site_url: https://v1.docs.lavague.ai/en/latest/
 site_author: LaVague
 
 # Repository
-repo_name: lavague-ai/LaVague
-repo_url: https://github.com/lavague-ai/LaVague
+repo_name: lavague-ai/LaVaguePrivate
+repo_url: https://github.com/lavague-ai/LaVaguePrivate
 
 # Configuration
 theme:
@@ -91,69 +91,21 @@ markdown_extensions:
 
 # Documentation tree
 nav:
-  - 🏠 Home: "index.md"
+  - Home: "index.md"
 
-  - ⚡ Getting Started:
-      - Installation: "docs/get-started/installation.md"
-      - Quick tour: "docs/get-started/quick-tour.md"
-      - Changing models: "docs/get-started/customization.md"
-      - Tools & interfaces:
-          - Chrome Extension: "docs/get-started/docs-chrome.md"
-          - Gradio: "docs/get-started/gradio.md"
-          - TokenCounter tool: "docs/get-started/token-usage.md"
-          - Benchmarking tool: "docs/get-started/testing.md"
-          
-      - Support:
-          - Troubleshooting: "docs/get-started/troubleshoot.md"
-          - FAQs: "docs/get-started/FAQs.md"
+  - Getting Started:
+      - Quick Tour: "docs/get-started/quick-tour.md"
+      - Architecture: "docs/get-started/architecture.md"
+      - On-Prem Deployment: "docs/get-started/on-prem.md"
 
-  - LaVague QA:
-      - Quick tour: 'docs/lavague-qa/quick-tour.md'
-      - Installation and usage: 'docs/lavague-qa/usage.md'
-      - Examples: 'docs/lavague-qa/examples.md'
+  # - LaVague QA:
+  #     # - Integrations: 'docs/qa/integrations.md'
+  #     # - Examples: 'docs/lavague-qa/examples.md'
 
-  - 🤝 Integrations:
-      - Anthropic: "docs/integrations/anthropic.md"
-      - Azure: "docs/integrations/azure.md"
-      - Fireworks: "docs/integrations/fireworks.md"
-      - Gemini: "docs/integrations/gemini.md"
-      - Openai: "docs/integrations/openai.md"
-      - Contribute: "docs/integrations/contribute.md"
-
-  - 📚 Learn:
-      - Architecture: "docs/learn/architecture.md"
-      - Debugging agents:
-          - End-to-end debugging: "docs/learn/debugging.md"
-          - Debug tools: "docs/learn/debug-tools.md"
-      - Custom actions: "docs/learn/actions.md"
-
-  - ✅ Quick examples:
-      - Knowledge Retrieval:
-          - Navigate through Notion: "docs/use-cases/notion.md"
-      - Data Entry:
-          - Fill out forms: "docs/use-cases/forms.md"
-
-  - 📝 End to end examples:
-      - Knowledge Retrieval:
-          - HF papers retrieval: "docs/examples/hf-papers-retrieval.md"
-      - Data Entry:
-          - Automated job application: "docs/examples/job-application.md"
-          - Medical appointment booking: "docs/examples/medical_appointment_booking.md"
-
-  - 🧩 Module Guides:
-      - Web Agents: "docs/module-guides/agents.md"
-      - World Model: "docs/module-guides/world-model.md"
-      - Action Engine:
-          - Overview: "docs/module-guides/action-engine.md"
-          - Navigation Engine: "docs/module-guides/navigation-engine.md"
-      - Evaluator: "docs/module-guides/evaluation.md"
-      - Drivers: "docs/module-guides/browser-drivers.md"
-      - Logger: "docs/module-guides/local-log.md"
-
-  - 🤗 Contributing:
-      - Home: "docs/contributing/contributing.md"
-      - General guidelines: "docs/contributing/general.md"
-      - Documentation: "docs/contributing/documentation.md"
-
-  - 🛠️ API reference:
-      - API reference home: "docs/core/index.html"
+  # - Automation:
+      # - Examples:
+      #   - Knowledge Retrieval: "docs/automation/hf-papers-retrieval.md"
+      #   - Automated job application: "docs/automation/job-application.md"
+      #   - Medical appointment booking: "docs/automation/medical_appointment_booking.md"
+      #   - Fill out forms: "docs/automation/forms.md"
+      #   - Navigate through Notion: "docs/automation/notion.md"

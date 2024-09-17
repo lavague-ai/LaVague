@@ -1,184 +1,122 @@
 ---
-description: "The open-source Large Action Model framework for AI Web Agents"
+description: "An AI Web Agent API for automating web tasks"
 ---
 
-## LaVague: Web Agent framework for builders
+# LaVague
 
-LaVague is an open-source framework designed for developers who want to create AI Web Agents to automate processes for their end users.
+LaVague is an AI Web Agent framework to automate web interactions.
 
-Our Web Agents can take an objective, such as "Print installation steps for Hugging Face's Diffusers library," and generate and perform the actions required to achieve the objective.
+It can be used to offload tasks, from testing websites for QA engineers to automating information retrieval, through filling complex forms.
 
-LaVague Agents are made up of:
+LaVague is made up of:
 
-- A World Model that takes an objective and the current state (aka the current web page) and outputs an appropriate set of instructions.
-- An Action Engine which “compiles” these instructions into action code, e.g., Selenium or Playwright & executes them
+- The LaVague Agent API - leveraging LLMs to generate and execute multi-action trajectories to perform tasks on the web. 
+- A Python SDK including:
 
+    - Methods to faciliate usage of the LaVague API
+    - Integrations for specific use cases, such as `exporters` which convert generated actions into `PyTest scripts` for web testing
+    - Tooling for users
 
-### LaVague QA: Dedicated tooling for QA Engineers
-**🌊 Built on LaVague**
+!!! info "LaVague On-Premise"
+        While LaVague Agents are leveraged via a remote API by default. We can provide on-premise deployment of the LaVague for entreprise users.
 
-LaVague QA is a tool tailored for QA engineers leveraging our framework. 
+        Find out more [here](./docs/get-started/on-prem.md)
 
-It allows you to automate test writing by turning Gherkin specs into easy-to-integrate tests. LaVague QA is a project leveraging the LaVague framework behind the scenes to make web testing 10x more efficient.
+## Getting Started
 
-!!! tip "LaVague QA"
-    For detailed information and setup instructions, visit the [LaVague QA documentation](https://docs.lavague.ai/en/latest/docs/lavague-qa/quick-tour/).
+To use LaVague Web Agents, you'll need to:
 
-## 🚀 Getting Started
+1. Get a [LaVague API key]().
 
-### Demo
+2. Set your API key as a `LAVAGUE_API_KEY` in your working environment.
 
-Here is an example of how LaVague can take multiple steps to achieve the objective of "Go on the quicktour of PEFT":
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/lavague-ai/LaVague/main/docs/assets/demo_agent_hf.gif" alt="Demo for agent">
-</p>
-
-### Hands-on 
-
-You can do this with the following steps:
-
-1. Download LaVague with:
+3. Install the LaVague Client:
 
 ```bash
 pip install lavague
 ```
-2. Use our framework to build a Web Agent and implement the objective:
+
+You're now ready to start using LaVague Web Agents to perform tasks on the websites of your choice:
 
 ```python
-from lavague.core import  WorldModel, ActionEngine
 from lavague.core.agents import WebAgent
-from lavague.drivers.selenium import SeleniumDriver
 
-selenium_driver = SeleniumDriver(headless=False)
-world_model = WorldModel()
-action_engine = ActionEngine(selenium_driver)
-agent = WebAgent(world_model, action_engine)
-agent.get("https://huggingface.co/docs")
-agent.run("Go on the quicktour of PEFT")
+url = "https://huggingface.co/"
+objective = "Return a list of the top 5 trending models on HuggingFace"
+agent = WebAgent()
+ret = agent.run(url=url, objective=obj)
 
-# Launch Gradio Agent Demo
-agent.demo("Go on the quicktour of PEFT")
+# Print output
+print(ret.response)
+
+# Show screenshot of web page after running LaVague
+from PIL import Image
+last_action = ret.results[-1:]
+
+img = Image.open(last_result["postaction_screenshot"])
+img.show()
 ```
 
-For more information on this example and how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
+```bash
+$ mattshumer/Reflection-Llama-3.1-70B, black-forest-labs/FLUX.1-dev, openbmb/MiniCPM3-4B, deepseek-ai/DeepSeek-V2.5, Qwen/Qwen2-VL-7B-Instruct
+```
 
-> Note, these examples use our default OpenAI API configuration and you will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for these to work.
+![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/after-screenshot.png)
 
-For an end-to-end example of LaVague in a Google Colab, see our [quick-tour notebook](https://colab.research.google.com/github/lavague-ai/lavague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb)
+For more information on how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
-## Key Features
+## Roadmap
 
-- ✅ [Built-in Contexts](https://docs.lavague.ai/en/latest/docs/get-started/customization/) (aka. configurations)
-- ✅ [Customizable configuration](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
-- ✅ [A test runner](https://docs.lavague.ai/en/latest/docs/get-started/testing/) for testing and benchmarking the performance of LaVague
-- ✅ A [Token Counter](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) for estimating token usage and costs
-- ✅ [Logging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
-- ✅ An optional, interactive [Gradio interface](https://docs.lavague.ai/en/latest/docs/get-started/gradio/)
-- ✅ [Debugging tools](https://docs.lavague.ai/en/latest/docs/get-started/customization/)
-- ✅ [A Chrome Extension](https://docs.lavague.ai/en/latest/docs/get-started/docs-chrome/)
+The next features we are working on include:
 
-## Supported Drivers
+- Streaming option for live visualization of Agent progress
+- Local driver integration
+- Replay methods so you care store and replay your action trajectories
+- Methods to enable you to build replayable functions into your codebase with LaVague
+- More QA integrations for a variety of testing frameworks and languages
 
-We support three Driver options:
-
-- A Selenium Webdriver
-- A Playwright webdriver
-- A Chrome extension driver
-
-Note that not all drivers support all agent features:
-
-| Feature                  | Selenium  | Playwright       | Chrome Extension                     |
-|--------------------------|-----------|------------------|--------------------------------------|
-| Headless agents    | ✅ | ⏳ | N/A |
-| Handle iframes     | ✅ | ✅ | ❌ |
-| Open several tabs  | ✅ | ⏳ | ✅  |
-| Highlight elements | ✅ | ✅  | ✅ |
-
-
-!!! tip "keys"
-    ✅ supported  
-    ⏳ coming soon  
-    ❌ not supported 
-
-## 🔎 Support
+## Support
 
 If you're experiencing any issues getting started with LaVague, you can:
 
-- Check out our [troubleshooting guide](https://docs.lavague.ai/en/latest/docs/get-started/troubleshoot/) where we list information and fixes for common issues.
 - Opening a [GitHub issue](https://github.com/lavague-ai/LaVague/issues) describing your issue
 - Messaging us in the '#support` channel on our [Discord](https://discord.gg/SDxn9KpqX9") server
 
-## 🙋 Contributing
+## LaVague Legacy
 
-We would love your help and support on our quest to build a robust and reliable Large Action Model for web automation.
+As of the 12/09/2024 we have made significant changes to the LaVague project, including moving a large part of the project to an API.
 
-To avoid having multiple people working on the same things & being unable to merge your work, we have outlined the following contribution process:
+If you want to access and use the legacy and fully open-source LaVague project , this is still available [here]().
 
-1) 📢 We outline tasks using [`GitHub issues`](https://github.com/lavague-ai/LaVague/issues): we recommend checking out issues with the [`help-wanted`](https:/github.com/lavague-ai/LaVague/labels/help%20wanted) & [`good first issue`](https://github.com/lavague-ai/LaVague/labels/good%20first%20issue) labels
+The corresponding PyPi package is available as `lavague-legacy` which you can install by running:
 
-2) 🙋‍♀️ If you are interested in working on one of these tasks, comment on the issue! 
+```python
+pip install lavague-legacy
+```
+The corresponding legacy docs can be found [here]().
 
-3) 🤝 We will discuss with you and assign you the task with a [`community assigned`](https://github.com/lavague-ai/LaVague/labels/community-assigned) label 
-
-4) 💬 We will then be available to discuss this task with you
-
-5) ⬆️ You should submit your work as a PR
-
-6) ✅ We will review & merge your code or request changes/give feedback
-
-Please check out our [`contributing guide`](https://docs.lavague.ai/en/latest/docs/contributing/contributing/) for more details.
-
-If you want to ask questions, contribute, or have proposals, please come on our [`Discord`](https://discord.gg/SDxn9KpqX9) to chat!
-
-## 🗺️ Roadmap
-
-To keep up to date with our project backlog [here](https://github.com/orgs/lavague-ai/projects/1/views/2).
-
-## 💰 How much does it cost to run an agent?
-
-LaVague uses LLMs, (by default OpenAI's `gpt4-o` but this is completely customizable), under the hood.
-
-The cost of these LLM calls depends on:
-
-- the models chosen to run a given agent
-- the complexity of the objective
-- the website you're interacting with. 
-
-Please see our [dedicated documentation on token counting and cost estimations](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/) to learn how you can track all tokens and estimate costs for running your agents.
-
-## 📈 Data collection
+## Data collection
 
 !!! warning "Personal data" 
-    Be careful to NEVER includes personal information in your objectives and the extra used data. If you intend to includes personal information in your objectives/extra user data, it is HIGHLY recommended to turn off the telemetry.
+    Be careful to NEVER include personal information in your objectives or any extra `user_data` sent to Agents. 
+    
+    If you send personal information in your objectives/extra `user_data`, it is HIGHLY recommended to turn off all telemetry.
 
-We want to build a dataset that can be used by the AI community to build better Large Action Models for better Web Agents. You can see our work so far on building community datasets on our [BigAction HuggingFace page](https://huggingface.co/BigAction).
+    You can turn off all telemetry by setting the `LAVAGUE_TELEMETRY` environment variable to `"NONE"`.
 
-This is why LaVague collects the following user data telemetry by default:
+By default, LaVague collects the following user data to help us to improve our agents:
 
-- Version of LaVague installed
-- Code / List of actions generated for each web action step
-- The past actions
-- The "observations" (method used to check the current page)
-- LLM used (i.e GPT4)
-- Multi modal LLM used (i.e GPT4)
-- Randomly generated anonymous user ID
-- Whether you are using a CLI command (lavague-qa for example), the Gradio demo or our library directly.
-- The objective used 
-- The chain of thoughts on the agent
-- The interaction zone on the page (bounding box)
-- The viewport size of your browser
-- The current step
-- The instruction(s) generated & the current engine used
-- The token costs & usages
-- The URL you performed an action on
-- Whether the action failed or succeeded
-- The extra used data specified
-- Error message, where relevant
-- The source nodes (chunks of HTML code retrieved from the web page to perform this action)
-
-### 🚫 Turn off all telemetry
-
-If you want to turn off all telemetry, you should set the `LAVAGUE_TELEMETRY` environment variable to `"NONE"`.
-
-For guidance on how to set your `LAVAGUE_TELEMTRY` environment variable, see our guide [here](https://docs.lavague.ai/en/latest/docs/get-started/FAQs/#how-can-i-set-environment-variables).
+- A unique user ID
+- The URL a task is performed on
+- The objective
+- Any additional user data sent to agent via `user_data` option
+- Date & time of request
+- The response of the agent where relevant
+- Whether the action fails or succeeds & error message, where relevant
+- Version of LaVague used
+- The chunks of HTML code retrieved from the web page to perform actions
+- Actions generated per Agent step
+- Agent's chain of thoughts per step
+- The instruction generated & Agent sub-engine used per step
+- LLMs used by LaVague API (i.e GPT4), inference times & token consumption
+- The interaction zone on the page (bounding box) & viewport size of your browser

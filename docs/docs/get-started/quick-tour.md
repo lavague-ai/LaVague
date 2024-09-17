@@ -1,235 +1,269 @@
 # Quick Tour
 
-<a target="_blank" href="https://colab.research.google.com/github/lavague-ai/LaVague/blob/main/docs/docs/get-started/quick-tour-notebook/quick-tour.ipynb">
-<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
+LaVague is an AI Agent framework to automate web interactions. Our core technology leverages LLMs to understand and navigate the web to perform actions for the sake of users.
 
-!!! tips "Pre-requisites"
+LaVague can be used to offload many tasks, from testing websites for QA engineers to automating information retrieval on complex websites through filling complex forms automatically.
 
-    - We use OpenAI's models, for the embedding, LLM and Vision model. You will need to set the OPENAI_API_KEY variable in your local environment with a valid API key for this example to work.
+In this quick tour, we'll show how LaVague can be leveraged by:
 
-    If you don't have an OpenAI API key, please get one [here](https://platform.openai.com/docs/quickstart/developer-quickstart)
+- Builders to create custom automation pipelines
+- QA engineers to automate the writing, maintenance, and execution of web tests  
 
-    - Our package currently only supports python versions 3.10 or greater. Please upgrade your python version if you are using a version below this.
+## API key
+
+To use LaVague, you will need an LaVague API key. You can get yours [here](https://cloud.lavague.ai/keys).
+
+You will need to set your API key as a `LAVAGUE_API_KEY` environment variable in your working environment.
 
 ## Installation
 
-We start by downloading LaVague.
+We start by downloading the LaVague client SDK.
 
 ```bash
 pip install lavague
 ```
 
-!!! tip "OPENAI_API_KEY"
-    If you haven't already set a valid OpenAI API Key as the `OPENAI_API_KEY` environment variable in your local environment, you will need to do that now.
+## Automation
 
-## Full code example
+Let's see how we can use LaVague Web Agent's to automate filling in the following [sample job application form](https://form.jotform.com/241472287797370).
 
-Here is a full code example to create and run your agent using LaVague.
-
-We will go over what is happening in this code in the following sections below.
+![form](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/form.png)
 
 ```python
-# Install necessary elements
-from lavague.drivers.selenium import SeleniumDriver
-from lavague.core import ActionEngine, WorldModel
 from lavague.core.agents import WebAgent
-
-# Set up our three key components: Driver, Action Engine, World Model
-driver = SeleniumDriver(headless=False)
-action_engine = ActionEngine(driver)
-world_model = WorldModel()
 
 # Create Web Agent
 agent = WebAgent(world_model, action_engine)
 
-# Set URL
-agent.get("https://huggingface.co/docs")
+# Optional user data to be used to fill in form
+form_data = """
+- job: product lead
+- first name: John
+- last name: Doe
+- email: john.doe@gmail.com
+- phone: 555-123-4567
+- cover letter: Excited to work with you!
+"""
 
-# Run agent with a specific objective
-agent.run("Go on the quicktour of PEFT")
+# URL of form and objective to fill in form
+url = "https://form.jotform.com/241472287797370"
+obj = "Use the necessary data provided to fill in the form"
+
+# Run agent
+ret = agent.run(url=url, objective=obj, user_data=form_data)
 ```
 
-![qt_output](../../assets/demo_agent_hf.gif)
+Here, we:
 
-### Gradio interface
+- Initialize our LaVague agent option
+- Run our web task by using the Agent's `run` method, passing it the`url` of the form, our natural language `objective` to fill in the form, and the information to be used to fill in the form through the **optional** `user_data` attribute.
 
-You can also use LaVague to launch an interactive Gradio interface for using the agent with the `agent.demo()` method.
+LaVague's return object is called a Trajectory and contains the list of actions performed to achieve the objective and information relating to the run, including:
 
-```py
-driver = SeleniumDriver(headless=True)
-action_engine = ActionEngine(driver)
-world_model = WorldModel()
+- `results`: A list of actions and information relevant to individual actions.
+- `output`: A final text output from the agent, where relevant.
+- `status`: Where the Agent run was `completed` without an Exception being thrown or `failed`
+
+Each `action` in results contains a `preaction_screenshot` and `postaction_screenshot` with a screenshot taken before and after action is performed.
+
+> For full detailed on Trajectories & Actions, see our [Learn section]().
+
+Let's review the screenshot of the webpage after our task was ran.
+
+```python
+# Show screenshot of remote browser after running LaVague
+from PIL import Image
+
+last_action = ret.results[-1:]
+img = Image.open(last_action["postaction_screenshot"])
+img.show()
+```
+![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/draftin-some-docs/docs/assets/screenshot-form.png)
+
+Feel free to try automating different actions on the web by using the above code and modifying the `url` and `objective` to any website and objective of your choice.
+
+## QA
+
+We can use LaVague agent's to create tests for websites.
+
+If you prefer a quick no-code solution, you can use our [QA web interface] (https://qa.lavague.ai). If you prefer to work directly with the code behind our web interface, read on!
+
+Let's look at an example where we use LaVague to generate a `pytest` script checking the `add to cart` functionality of the `Amazon` website.
+
+First of all, we need to get our `trajectory`, or series of actions, corresponding to the actions we want to test.
+
+To do this, we initialize our agent and ask it to test a natural language `scenario`.
+
+```python
+from lavague.core.agents import WebAgent
 
 # Create Web Agent
 agent = WebAgent(world_model, action_engine)
 
-# Set URL
-agent.get("https://huggingface.co/docs")
+# Optional user data to be used to fill in form
+scenario = "Add the first product found when searching 'Nike SB-800 sneakers' to the basket."
 
-# Launch the agent in the Agent Gradio Demo mode
-agent.demo("Go on the quicktour of PEFT")
+# URL of form and objective to fill in form
+url = "https://amazon.com/"
+obj = "Test the following scenario + {scenario}"
+
+# Run agent
+ret = agent.run(url=url, objective=obj)
 ```
 
-You can take a quick look at the `demo` feature in the video below:
-
-<figure class="video_container">
-  <video controls="true" allowfullscreen="true">
-    <source src="https://github.com/lavague-ai/LaVague/blob/main/docs/assets/gradio.webm?raw=true" type="video/webm">
-  </video>
-</figure>
-
-### LaVague Chrome Extension
-
-You can also run LaVague in-browser with our LaVague Chrome Extension:
-
-<iframe width="560" height="315"  src="https://www.youtube.com/embed/f7-pRFtT6hY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-To learn how to install and get started with the Chrome extension, see our [LaVague extension docs](./docs-chrome.md)
-
-## Key features
-
-### Contexts
-
-By default, we use the OpenAI models defined in our `OpenaiContext` module, found in our `lavague-contexts-openai` package.
-
-We have several other built-in contexts that can be used to set your models to default models from other major AI Providers:
-
-- GeminiContext
-- AzureOpenaiContext (part of the lavague-contexts-openai package)
-- FireworksContext
-
-To use these, you first need to install the relevant context package:
-
-```bash
-pip install lavague-contexts-fireworks
-```
-
-> The packages are always named lavague-contexts-[name of context]
-
-Then you can initialize your context and pass it to your ActionEngine and WorldModel using the `from_context()` initialization methods:
+We can now use our `PyTestExporter` to convert the `trajectory` created by our Agent into a PyTest file that can be used for web testing.
 
 ```python
-from lavague.core import WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.drivers.selenium import SeleniumDriver
-from lavague.contexts.fireworks import FireworksContext
+from lavague.exporter.selenium import PyTestExporter
 
-# Initialize Context
-context = FireworksContext()
+# Detail test criteria
+criteria = "Check there is one item in the user cart"
 
-selenium_driver = SeleniumDriver()
+# Provide desired file name for test script
+file_name = "Amazon_cart_test.py"
 
-# Build AE and WM from Context
-action_engine = ActionEngine.from_context(context, selenium_driver)
-world_model = WorldModel.from_context(context)
-
-agent = WebAgent(world_model, action_engine)
-agent.get("https://huggingface.co/")
-agent.run("What is this week's top Space of the week?")
+# Export trajectory to pytest script
+exporter = PyTestExporter()
+exporter.export(trajectory=ret, assert_criteria=criteria, file_name=file_name)
 ```
 
-For more information about our Contexts, see our [customization guide](./customization.md).
+A replayable testing script for the Amazon cart feature will now be saved as `./Amazon_cart_test.py`.
 
-### Lavague-tests
+??? info "Generated Amazon_cart_test.py"
 
-We provide a test runner for benchmarking the performance of LaVague.
+    ```py
+    import pytest
+    from pytest_bdd import scenarios, given, when, then, parsers
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import ElementClickInterceptedException
+    import time
 
-For more information on how to use our test runner, see our [LaVague testing guide](https://docs.lavague.ai/en/latest/docs/get-started/testing/).
+    # Constants
+    BASE_URL = "https://www.amazon.fr/"
 
-### TokenCounter
+    # Scenarios
+    scenarios("demo_amazon.feature")
 
-We provide tooling to get token usage and cost estimations about your usage of LaVague.
 
-For more information about our TokenCounter, see our [TokenCounter guide](https://docs.lavague.ai/en/latest/docs/get-started/token-usage/).
+    # Fixtures
+    @pytest.fixture
+    def browser():
+        driver = webdriver.Chrome()
+        driver.implicitly_wait(10)
+        yield driver
+        driver.quit()
 
-### Logging
 
-We provide various loggers, allowing you to log information about your LaVague usage to a local file, a local database or to memory.
+    # Steps
+    @given("the user is on the homepage")
+    def user_on_homepage(browser):
+        browser.get(BASE_URL)
 
-To log to a local database, you can use the `log_to_db` option when calling the `agent.run` method:
 
-```py
-agent.run("Go to the first Model in the Models section", log_to_db=True)
-```
+    @when('the user clicks on "Accepter" to accept cookies')
+    def accept_cookies(browser):
+        accept_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "/html/body/div/span/form/div[2]/span/span/input")
+            )
+        )
+        accept_button.click()
 
-For more information about our loggers, see our [logging guide](../module-guides/local-log.md)
 
-### Debugging Tools
+    @when(
+        parsers.parse('the user enters "{search_term}" into the search bar and press Enter')
+    )
+    def enter_search_term(browser, search_term):
+        search_input = WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "/html/body/div/header/div/div/div[2]/div/form/div[3]/div/input")
+            )
+        )
+        search_input.send_keys(search_term)
+        search_input.submit()
 
-We also provide debugging tools, allowing you to enable step-by-step agent execution, run individual agent steps or view the web elements LaVague has sent to the LLM as context for generating the action. You can learn more about these [here](../learn/debug-tools.md)
 
-## Key components explained
+    @when("the user clicks on the first product in the search results")
+    def click_first_product(browser):
+        first_product_link = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    "/html/body/div/div/div/div/div/span/div/div[2]/div/div/span/div/div/div[2]/div/h2/a",
+                )
+            )
+        )
+        first_product_link.click()
 
-### Driver
 
-The Driver component is used to perform actions on web browsers and get information about our current web page.
+    @when('the user clicks on the "Ajouter au panier" button')
+    def add_to_cart(browser):
+        add_to_cart_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    "/html/body/div[2]/div/div[4]/div/div[5]/div[4]/div[4]/div/div/div/div/div/div/div/div/div[2]/div/form/div/div/div[23]/div/span/span/span/input",
+                )
+            )
+        )
+        add_to_cart_button.click()
 
-We currently provide a Selenium Driver component by default, as well as a Playwright Driver option. Feature support varies based on the driver used, learn more in our [Driver documentation](../module-guides/browser-drivers.md).
 
-!!! tip "Avoiding issues around pop ups, CAPTCHA, logins, etc."
-    You may experience difficulties using LaVague for logins due to bot protections.
+    @when("the confirmation message is displayed")
+    def confirm_message_displayed(browser):
+        time.sleep(3)  # Wait for the confirmation message to be displayed
 
-    Here are a couple of tips to avoid these issues when using LaVague:
 
-    ### Manual login
+    @when('the user clicks on "Aller au panier" under "Passer la commande"')
+    def go_to_cart(browser):
+        go_to_cart_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    "/html/body/div/div/div/div/div[2]/div/div[3]/div/div/span/span/a",
+                )
+            )
+        )
+        go_to_cart_button.click()
 
-    By creating a driver in non-headless mode, with the option `headless=False`, you can manually log into the website in your driver's browser window after launching it with the `agent.get(URL)` command.
 
-    You can enforce a delay before your program runs the next command by using `time.sleep()` with the `time` package.
+    @when('the user clicks on "Supprimer" from the cart page')
+    def remove_from_cart(browser):
+        remove_button = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    "/html/body/div/div/div[3]/div[5]/div/div[2]/div/div/form/div[2]/div[3]/div[4]/div/div[2]/div/span[2]/span/input",
+                )
+            )
+        )
+        remove_button.click()
 
-    Then you can continue using the session, now logged into your site, with the `agent.run(OBJECTIVE)` commands.
 
-    ### 🍪 Plugging in an existing browser session
+    @then("the cart should be empty")
+    def cart_should_be_empty(browser):
+        time.sleep(3)  # Wait for the cart update after removal
+        empty_cart_message = WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//h1[contains(text(), 'Your Amazon Cart is empty')]")
+            )
+        )
+        assert (
+            "Your Amazon Cart is empty" in empty_cart_message.text
+        ), "Cart is not empty"
+    ```
 
-    Alternatively, you can use LaVague with your usual browser session to leverage your session's remembered logins. To do this, you need to add the path to your Chrome profile directory as an argument to `user_data_dir` when initializing your browser. 
-    
-    If not supplied, Chrome starts a fresh session.
+If later changes to the original website lead to our test becoming invalid, we can simply regenerate our `pytest` script by re-running the code to generate our script.
 
-For more information on the Driver component see our [Driver module guide](../module-guides/browser-drivers.md)
+## Roadmap
 
-### Action Engine
+Currently, we only provide one `exporter` for LaVague trajectories, the `PyTestExporter` seen in the QA section of this quick tour, which converts trajectories into PyTest files to test a series of actions on a web page.
 
-Next up, let's consider the Action Engine component. This component receives a natural language text instruction and generates the action needed to carry out this instruction. 
+We are working on building more exporters, so keep an eye on our Discord and GitHub for the release of new `exporters`. We also want to encourage the community to help us to build and contribute new exporters for your use cases!
 
-In our example, the Action Engine will perform RAG and generates the code for the action using the default embedding and Large Language Models (OpenAI's text-embedding-3-large & GPT-4o). 
+## Get in touch
 
-To create an Action Engine with a different `LLM` and `embedding model` you can pass any any `LlamaIndex Embedding` or `LlamaINDEX llm` object` as arguments to your Action Engine, for example:
-
-```python
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.groq import Groq
-
-llm = Groq(model="mixtral-8x7b-32768")
-
-embedding = HuggingFaceEmbedding(
-    model_name="BAAI/bge-small-en-v1.5"
-)
-
-action_engine = ActionEngine(driver=driver, llm=llm, embedding=embedding)
-```
-
-To find out more about the Action Engine and how to use custom models see our [Action Engine guide](../module-guides/action-engine.md) or [customization guide](./customization.md).
-
-### World Model
-
-The World Model is responsible for converting the user's global objective into the next instruction for the Action Engine to carry out based on visual and textual information.
-
-The World Model uses a multi-modal model to do this conversion. We use GPT-4o by default, but you can replace the multi-modal LLM with any `LLamaIndex multi-modeal LLM` when initializing your World Model with the following code:
-
-```python
-from llama_index.multi_modal_llms.gemini import GeminiMultiModal
-
-mm_llm = GeminiMultiModal(model_name="models/gemini-1.5-pro-latest")
-
-world_model = WorldModel(mm_llm=mm_llm)
-```
-
-To find out more about the World Model, see our [World Model guide](../module-guides/world-model.md), and for more information on using custom models, see our [customization guide](./customization.md).
-
-### Web Agent
-
-The Web Agent brings all of these components together and can be used to perform tasks defined by our `objective` argument with the `run` method or to launch an interactive interface with Gradio with our `demo()` mode.
-
-## Learn
-
-To learn more about the LaVague architecture and workflow, head to the [learn section in our docs](../learn/architecture.md)!
+If you have any feedback or need any support getting started with LaVague, please [get in touch](https://www.lavague.ai/contact).
