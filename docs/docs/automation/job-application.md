@@ -1,4 +1,4 @@
-# Automated job application
+<!-- # Automated job application
 
 ## Automatic form filling with LaVague
 
@@ -184,4 +184,4 @@ objective = "Fill out this form. Do not provide a cover letter"
 
 agent.get(url)
 agent.run(objective, user_data=user_data, display=True)
-```
+``` -->

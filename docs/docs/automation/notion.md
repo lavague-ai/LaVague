@@ -1,4 +1,4 @@
-# Navigate through Notion
+<!-- # Navigate through Notion
 
 LaVague can be used to navigate your Notion spaces and answer questions. 
 
@@ -35,4 +35,4 @@ For now we suggest running this code in a Jupyter Notebook while we work on ways
 
 Discover community use cases and share yours on our [product feedback space](https://lavague.canny.io/lavague-use-cases). We review your ideas daily to continuously improve LaVague's performance and accuracy on a wide range of tasks.
 
-You can also drop a message on our [Discord](https://discord.gg/SDxn9KpqX9) to chat if you have any questions!
+You can also drop a message on our [Discord](https://discord.gg/SDxn9KpqX9) to chat if you have any questions! -->
