@@ -29,4 +29,4 @@ pydantic = "^2.9.1"
 pillow = "^10.4.0"
 
 [tool.poetry.scripts]
-lavague = "lavague.core.cli:run"
+lavague = "lavague.cli:cli_run"

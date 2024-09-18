@@ -1,9 +1,9 @@
 import logging
 from pydantic import BaseModel
 from typing import Optional
-from lavague.core.trajectory import Trajectory
-from lavague.core.client import LaVagueClient
-from lavague.core.utilities.config import get_config
+from lavague.trajectory import Trajectory
+from lavague.client import LaVagueClient
+from lavague.utilities.config import get_config
 
 logging_print = logging.getLogger(__name__)
 logging_print.setLevel(logging.INFO)
