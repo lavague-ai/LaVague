@@ -20,12 +20,12 @@ class TrajectoryExporter:
     def on_missing_action(self, action: Action, method_name: str) -> None:
         """Generate code for missing action"""
         raise NotImplementedError(
-            f"Action {action.action} translator is missing, please add a '{method_name}' method in {self.__class__.__name__} or attach it with {self.__class__.__name__}.add_action_translator('{action.action}', your_translator_function)"
+            f"Action {action.action} translator is missing, please add a '{method_name}' method in {self.__class__.__name__} or attach it with {self.__class__.__name__}.add_action_translator('{action.engine}_{action.action}', my_translator_function)"
         )
 
     def translate_action(self, action: Action) -> Optional[str]:
         """Translate a single action to target framework code"""
-        method_name = f"translate_{action.action}"
+        method_name = f"translate_{action.engine}_{action.action}"
 
         if hasattr(self, method_name):
             return getattr(self, method_name)(action)
