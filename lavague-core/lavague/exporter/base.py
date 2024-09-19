@@ -1,7 +1,6 @@
 from lavague.trajectory import Trajectory
 from lavague.action import Action, ActionTranslator
-from typing import List, Optional, Self, Protocol, TypeVar, Iterable
-from abc import ABC, abstractmethod
+from typing import Optional, Self, Protocol, TypeVar, Callable
 import copy
 
 
@@ -9,7 +8,7 @@ class ActionWrapper(Protocol):
     def __call__(self, action: Action, code: str) -> str: ...
 
 
-class TrajectoryExporter(ABC):
+class TrajectoryExporter:
     def generate_setup(self, trajectory: Trajectory) -> Optional[str]:
         """Generate setup code (imports, configurations, etc.)"""
         return None
@@ -18,10 +17,20 @@ class TrajectoryExporter(ABC):
         """Generate teardown code (cleanup, final assertions, etc.)"""
         return None
 
-    @abstractmethod
+    def on_missing_action(self, action: Action, method_name: str) -> None:
+        """Generate code for missing action"""
+        raise NotImplementedError(
+            f"Action {action.action} translator is missing, please add a '{method_name}' method in {self.__class__.__name__} or attach it with {self.__class__.__name__}.add_action_translator('{action.action}', your_translator_function)"
+        )
+
     def translate_action(self, action: Action) -> Optional[str]:
         """Translate a single action to target framework code"""
-        pass
+        method_name = f"translate_{action.action}"
+
+        if hasattr(self, method_name):
+            return getattr(self, method_name)(action)
+
+        self.on_missing_action(action, method_name)
 
     def merge_code(self, *codes: str | None) -> str:
         """Combine multiple strings into a single string"""
@@ -47,6 +56,13 @@ class TrajectoryExporter(ABC):
             self.translate_action, wrapper
         )(action)
         return instance
+
+    @classmethod
+    def add_action_translator(
+        cls, name: str, translator: Callable[[Self, Action], Optional[str]]
+    ) -> None:
+        """Add a new action translator to the exporter"""
+        setattr(cls, f"translate_{name}", translator)
 
     @classmethod
     def from_translator(
