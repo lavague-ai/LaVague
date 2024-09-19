@@ -14,7 +14,8 @@ class TrajectoryStatus(Enum):
 class Trajectory(BaseModel):
     """Observable trajectory of web interactions towards an objective."""
 
-    url: str
+    run_id: str
+    start_url: str
     objective: str
     status: TrajectoryStatus
     output: Optional[str]
@@ -32,6 +33,11 @@ class Trajectory(BaseModel):
         obj = from_json(data)
         obj["actions"] = [parser.parse(action) for action in obj.get("actions", [])]
         return cls.model_validate(obj)
+
+    @classmethod
+    def from_dict(cls, data: dict, parser: ActionParser = DEFAULT_PARSER):
+        data["actions"] = [parser.parse(action) for action in data.get("actions", [])]
+        return cls.model_validate(data)
 
     @classmethod
     def from_file(

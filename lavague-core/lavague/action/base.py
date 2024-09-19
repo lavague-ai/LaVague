@@ -1,4 +1,4 @@
-from typing import Dict, Type, Optional, Callable, TypeVar, Self
+from typing import Dict, Type
 from pydantic import BaseModel, validate_call
 from enum import Enum
 
@@ -11,17 +11,15 @@ class ActionStatus(Enum):
 class Action(BaseModel):
     """Action performed by the agent."""
 
-    engine: str
+    step_id: str
+    action_type: str
     action: str
+    url: str
     status: ActionStatus
 
     @classmethod
     def parse(cls, action_dict: Dict) -> "Action":
         return cls(**action_dict)
-
-    @classmethod
-    def add_translator(cls, name: str, translator: "ActionTranslator[Self]"):
-        setattr(cls, name, translator)
 
 
 class ActionParser(BaseModel):
@@ -39,7 +37,7 @@ class ActionParser(BaseModel):
             del self.engine_action_builders[engine]
 
     def parse(self, action_dict: Dict) -> Action:
-        engine = action_dict.get("engine", "")
+        engine = action_dict.get("action_type", "")
         target_type: Type[Action] = self.engine_action_builders.get(engine, Action)
         try:
             return target_type.parse(action_dict)
@@ -49,12 +47,6 @@ class ActionParser(BaseModel):
 
 class UnhandledTypeException(Exception):
     pass
-
-
-T = TypeVar("T", bound=Action)
-
-
-ActionTranslator = Callable[[T], Optional[str]]
 
 
 DEFAULT_PARSER = ActionParser()
