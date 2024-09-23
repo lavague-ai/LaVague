@@ -7,8 +7,7 @@ LaVague is made up of a:
 - A Python SDK including methods to:
     - Facilitate usage of the LaVague API
     - Exporters which convert generated actions into the format needed for specific use cases, such as PyTest scripts for web testing
-    - Tooling for users
-
+    
 !!! note "On-premise deployment"
     While LaVague Agents are leveraged via a remote API by default, we can provide on-premise deployment for entreprise users. Find out more [here].
 
@@ -30,10 +29,10 @@ Let's first define some key elements in our LaVague Agent architecture:
 
 Let's now take a look at the basic LaVague workflow.
 
-1. We use the `Python client SDK` to send an `objective` and `URL` to the LaVague API.
+1. We use the `Python client SDK` to send a text `objective` and `URL` to the LaVague API. We can also optionally send a `user_data` dictionary with key-value pairs of additional information to be taken into account by the agent.
 
 2. The API will leverage a Web Agent to generate and perform a series of actions needed to achieve this objective. Planning and the generation of actions is performed by LLMs under the hood, while managed or local drivers can be used to perform each action.
 
-3. The agent will return a `Trajectory` JSON object to the user.
+3. The agent will return a `Trajectory` JSON object to the user as well, as outputting a URL for the `Agent Studio` web interface where users can view the Web Agent's actions live or a posteriori. 
 
 4. The user can then optionally use this `Trajectory` object with additional integrations, such as converting the `trajectory` into code or a PyTest script that can be used for web testing.
