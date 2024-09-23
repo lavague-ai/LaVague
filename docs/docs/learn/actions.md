@@ -17,17 +17,16 @@ action:
 
 Here is a list of the current possible actions an agent can perform and the arguments required for this action:
 
-| Name              | Arguments                                  | Description                                                                                                      | Engine             |
-|-------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------|--------------------|
-| click             | xpath                            | Click on an element with a specific xpath.                                                                       | NavigationEngine   |
-| setValue          | xpath, value              | Focus on and set the value of an input element with a specific xpath.                                             | NavigationEngine   |
-| dropdownSelect    | xpath, value               | Select an option from a dropdown menu by its value.                                                              | NavigationEngine   |
-| setValueAndEnter  | xpath, value               | Sets a value and presses ENTER. Used to submit forms without a submit button.                                    | NavigationEngine   |
-| hover             | xpath                              | Moves the mouse cursor over an element identified by the xpath, useful for revealing dropdown menus.  | NavigationEngine   |
-| scroll            | xpath, value (UP/DOWN)     | Scrolls the container holding the element identified by the xpath, either up or down.                            | NavigationEngine   |
-| SCROLL_DOWN       |                                       | Scrolls the browser window down.                                                                                 | NavigationControl  |
-| SCROLL_UP         |                                        | Scrolls the browser window up.                                                                                   | NavigationControl  |
-| WAIT              |                                        | Pauses the operation for a set duration (e.g., 5 seconds).                                                       | NavigationControl  |
-| BACK              |                                        | Navigates back to the previous page.                                                                             | NavigationControl  |
-| MAXIMIZE_WINDOW   |                                        | Maximizes the browser window.                                                                                    | NavigationControl  |
-| SWITCH_TAB        | tab_id                            | Switches to a specific browser tab based on the tab_id provided.                                                 | NavigationControl  |
+| Name              | Arguments                                  | Description                                                                                                      | 
+|-------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| click             | xpath                            | Click on an element with a specific xpath.                                                                       | 
+| setValue          | xpath, value              | Focus on and set the value of an input element with a specific xpath.                                             | 
+| dropdownSelect    | xpath, value               | Select an option from a dropdown menu by its value.                                                              | 
+| send_keys  | xpath, value               | Sends value to element                                   | 
+| hover             | xpath                              | Moves the mouse cursor over an element identified by the xpath, useful for revealing dropdown menus.  | 
+| scroll            | xpath, value (UP/DOWN)     | Scrolls the container holding the element identified by the xpath, either up or down.                            | 
+| SCROLL_DOWN       |                                       | Scrolls the browser window down.                                                                                 |
+| SCROLL_UP         |                                        | Scrolls the browser window up.                                                                                   |
+| WAIT              |                                        | Pauses the operation for a set duration (e.g., 5 seconds).                                                       |
+| BACK              |                                        | Navigates back to the previous page.                                                                             |
+| SWITCH_TAB        | tab_id                            | Switches to a specific browser tab based on the tab_id provided.                                                 |
