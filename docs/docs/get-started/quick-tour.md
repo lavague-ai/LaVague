@@ -21,9 +21,9 @@ pip install lavague
 
 ## Automation
 
-Let's see how we can use LaVague Web Agent's to automate filling in the following [sample job application form](https://form.jotform.com/241472287797370).
-
 [⌛ GIF GOES HERE]
+
+Let's see how we can use LaVague Web Agent's to automate filling in the following [sample job application form](https://form.jotform.com/241472287797370).
 
 ```python
 from lavague.core.agents import WebAgent
@@ -60,15 +60,15 @@ We can then go to the visual web interface, or `Agent Studio`, by clicking on th
 
 ## QA
 
+[⌛ GIF GOES HERE]
+
 We can use LaVague agent's to create tests for websites.
-
-If you prefer a quick no-code solution, you can use our [QA web interface](https://qa.lavague.ai). 
-
-If you prefer to work directly with the code behind our web interface, read on!
 
 Let's look at an example where we use LaVague to generate a `pytest` script checking the `add to cart` functionality of the `Amazon` website.
 
-[⌛ GIF GOES HERE]
+!!! note "QA web interface"
+
+    If you would prefer to use a quick no-code solution, you can use our [QA web interface](https://qa.lavague.ai). 
 
 First of all, we need to get our `trajectory`, or series of actions, corresponding to the actions we want to test.
 
@@ -91,7 +91,7 @@ obj = "Test the following scenario + {scenario}"
 ret = agent.run(url=url, objective=obj)
 ```
 
-Again, a link will be output to review the trajectory generation in our `Agent Studio`.
+As seen in the previous example, a link will then be outputted to review the trajectory generation in our `Agent Studio`.
 
 Once we are happy with our trajectory, we can now use our `PyTestExporter` to convert the `trajectory` object returned from our WebAgent into a PyTest file that can be used for web testing.
 

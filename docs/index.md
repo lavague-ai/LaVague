@@ -6,14 +6,18 @@ description: "An AI Web Agent API for automating web tasks"
 
 ## What is LaVague?
 
-LaVague is an AI Web Agent framework for automating web tasks.
+LaVague is an AI Web Agent framework that revolutionizes web automation. Our mission is to empower developers to build intelligent, efficient, and reliable web automation solutions with ease.
 
-It can be used for web tasks such as:
+**Key features:**
 
-- ✅ Testing websites for QA engineers
-- ✅ Automating information retrieval
-- ✅ Filling complex forms
+- Powerful AI-driven **Web Agents** for effective automation.
+- An **Agent Studio** web interface to view and replay automated tasks.
+- **Exporters** to turn agent outpute into the desired replayable code format for your use cases.
 
+**Perfect for:**
+
+- 💻 **Builders**: Automatate repetitive tasks and improve workflow efficiency
+- 🕵️ **QA Engineers**: Streamline website testing and quality assurance
 
 Explore the sections below to get started with LaVague:
 
@@ -70,8 +74,38 @@ print(ret.response)
 ```bash
 $ mattshumer/Reflection-Llama-3.1-70B, black-forest-labs/FLUX.1-dev, openbmb/MiniCPM3-4B, deepseek-ai/DeepSeek-V2.5, Qwen/Qwen2-VL-7B-Instruct
 ```
-
 For more information on how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
+
+## Capabilities
+
+LaVague Agents takes the following inputs:
+
+- Text `objective`
+- A `user_data` key-value object
+
+They will:
+
+- Leverage AI to generate and execute a series of actions to complete the `objective` provided.
+
+They output:
+
+- A link to the Agent Studio web interface where you can view and replay the actions performed by LaVague
+- Text in the case of information retrieval
+- A trajectory object containing a list of actions that can be converted to various code formats with `exporters`
+
+## Limitations
+
+- **Bot protection**: Some websites may flag LaVague agents as bots and prevent LaVague form perfoming automated actions 
+- **AI-generated code:** LaVague actions are generated with AI - while we limit the scope of actions for security purposes, the actions should be verified and may need to be modified or re-generated for accuracy
+- **Web only**: We currently only support automating actions on websites. Automated actions for desktop or specific APIs are planned further along our roadmap.
+- **Integrations**: There are a vast number of potential use cases for LaVague and we cannot provide integrations for all potential exports of trajectories. You may need to build your own integrations for specific use cases. 
+
+!!! info "Community"
+    
+    We encourage our community to contribute their integrations to our open-source repo.
+
+    For more information on contributions, see our guide [here].
+
 
 ## Roadmap
 
