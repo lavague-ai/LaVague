@@ -1,9 +1,5 @@
 # Quick Tour
 
-LaVague is an AI Agent framework to automate web interactions. Our core technology leverages LLMs to understand and navigate the web to perform actions for the sake of users.
-
-LaVague can be used to offload many tasks, from testing websites for QA engineers to automating information retrieval on complex websites through filling complex forms automatically.
-
 In this quick tour, we'll show how LaVague can be leveraged by:
 
 - Builders to create custom automation pipelines
@@ -27,13 +23,13 @@ pip install lavague
 
 Let's see how we can use LaVague Web Agent's to automate filling in the following [sample job application form](https://form.jotform.com/241472287797370).
 
-![form](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/form.png)
+[⌛ GIF GOES HERE]
 
 ```python
 from lavague.core.agents import WebAgent
 
 # Create Web Agent
-agent = WebAgent(world_model, action_engine)
+agent = WebAgent(api_key="")
 
 # Optional user data to be used to fill in form
 form_data = """
@@ -53,52 +49,36 @@ obj = "Use the necessary data provided to fill in the form"
 ret = agent.run(url=url, objective=obj, user_data=form_data)
 ```
 
-Here, we:
+In this example, we firstly import and initialize a LaVague `WebAgent`. We can then run our web task by using the WebAgent's `run` method. We pass it the`url` of the form we want to fill in, our natural language `objective`, and the information to be used to fill in the form through the **optional** `user_data` attribute.
 
-- Initialize our LaVague agent option
-- Run our web task by using the Agent's `run` method, passing it the`url` of the form, our natural language `objective` to fill in the form, and the information to be used to fill in the form through the **optional** `user_data` attribute.
+LaVague's return object is called a `trajectory` and contains the list of actions performed to achieve the objective and information relating to the run.
 
-LaVague's return object is called a Trajectory and contains the list of actions performed to achieve the objective and information relating to the run, including:
+We can then go to the visual web interface, or `Agent Studio`, by clicking on the outputted link to watch the generation of our web task live or review it a posteriori.
 
-- `results`: A list of actions and information relevant to individual actions.
-- `output`: A final text output from the agent, where relevant.
-- `status`: Where the Agent run was `completed` without an Exception being thrown or `failed`
-
-Each `action` in results contains a `preaction_screenshot` and `postaction_screenshot` with a screenshot taken before and after action is performed.
-
-> For full detailed on Trajectories & Actions, see our [Learn section]().
-
-Let's review the screenshot of the webpage after our task was ran.
-
-```python
-# Show screenshot of remote browser after running LaVague
-from PIL import Image
-
-last_action = ret.results[-1:]
-img = Image.open(last_action["postaction_screenshot"])
-img.show()
-```
-![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/screenshot-form.png)
-
-Feel free to try automating different actions on the web by using the above code and modifying the `url` and `objective` to any website and objective of your choice.
+!!! info "Trajectory object"
+    For full detailed on Trajectories & Actions, see our [Learn section]().
 
 ## QA
 
 We can use LaVague agent's to create tests for websites.
 
-If you prefer a quick no-code solution, you can use our [QA web interface] (https://qa.lavague.ai). If you prefer to work directly with the code behind our web interface, read on!
+If you prefer a quick no-code solution, you can use our [QA web interface](https://qa.lavague.ai). 
+
+If you prefer to work directly with the code behind our web interface, read on!
 
 Let's look at an example where we use LaVague to generate a `pytest` script checking the `add to cart` functionality of the `Amazon` website.
 
+[⌛ GIF GOES HERE]
+
 First of all, we need to get our `trajectory`, or series of actions, corresponding to the actions we want to test.
 
-To do this, we initialize our agent and ask it to test a natural language `scenario`.
+To do this, we initialize a WebAgent and give it an objective of testing a natural language `scenario`.
 
 ```python
 from lavague.core.agents import WebAgent
 
 # Create Web Agent
-agent = WebAgent(world_model, action_engine)
+agent = WebAgent(api_key="")
 
 # Optional user data to be used to fill in form
 scenario = "Add the first product found when searching 'Nike SB-800 sneakers' to the basket."
@@ -111,7 +91,9 @@ obj = "Test the following scenario + {scenario}"
 ret = agent.run(url=url, objective=obj)
 ```
 
-We can now use our `PyTestExporter` to convert the `trajectory` created by our Agent into a PyTest file that can be used for web testing.
+Again, a link will be output to review the trajectory generation in our `Agent Studio`.
+
+Once we are happy with our trajectory, we can now use our `PyTestExporter` to convert the `trajectory` object returned from our WebAgent into a PyTest file that can be used for web testing.
 
 ```python
 from lavague.exporter.selenium import PyTestExporter
@@ -258,12 +240,8 @@ A replayable testing script for the Amazon cart feature will now be saved as `./
 
 If later changes to the original website lead to our test becoming invalid, we can simply regenerate our `pytest` script by re-running the code to generate our script.
 
-## Roadmap
+## Next steps
 
-Currently, we only provide one `exporter` for LaVague trajectories, the `PyTestExporter` seen in the QA section of this quick tour, which converts trajectories into PyTest files to test a series of actions on a web page.
+To understand the different components that make up LaVague, see our [architecture guide]().
 
-We are working on building more exporters, so keep an eye on our Discord and GitHub for the release of new `exporters`. We also want to encourage the community to help us to build and contribute new exporters for your use cases!
-
-## Get in touch
-
-If you have any feedback or need any support getting started with LaVague, please [get in touch](https://www.lavague.ai/contact).
+For more examples, see our dedicated [automation]() & [QA]() example pages.

@@ -117,7 +117,7 @@ If you want to use the previous version, you can:
         <p>Install the lavague-legacy PyPi package</p>
     </a>
     <a href="https://www.lavague.ai/contact" class="box">
-        <h3>docs</h3>
+        <h3>Docs</h3>
         <p>Consult the lavague-legacy docs</p>
     </a>
 </div>
