@@ -10,9 +10,9 @@ LaVague is an AI Web Agent framework that revolutionizes web automation. Our mis
 
 **Key features:**
 
-- Powerful AI-driven **Web Agents** for effective automation.
-- An **Agent Studio** web interface to view and replay automated tasks.
-- **Exporters** to turn agent output into the desired replayable code format for your use cases.
+- Powerful AI-driven **Web Agents** for effective automation
+- An **Agent Studio** web interface to view and replay automated tasks
+- **Exporters** to turn agent output into the desired replayable code format for your use cases
 
 **Perfect for:**
 
@@ -83,7 +83,7 @@ LaVague Agents takes the following inputs:
 - Text `objective`
 - A `user_data` key-value object
 
-They will:
+They will then:
 
 - Leverage AI to generate and execute a series of actions to complete the `objective` provided.
 
@@ -91,6 +91,9 @@ They output:
 
 - A link to the Agent Studio web interface where you can view and replay the actions performed by LaVague
 - Text in the case of information retrieval
+
+They return:
+
 - A trajectory object containing a list of actions that can be converted to various code formats with `exporters`
 
 ## Limitations
@@ -123,7 +126,7 @@ If you're experiencing any issues getting started with LaVague, you can:
 <div class="boxes-container">
     <a href="https://github.com/lavague-ai/LaVague/issues" class="box">
         <h3>Github</h3>
-        <p>Open a GitHub issue describing the problems you are facing</p>
+        <p>Open a GitHub issue</p>
     </a>
     <a href="https://discord.gg/SDxn9KpqX9" class="box">
         <h3>Discord</h3>

@@ -97,6 +97,10 @@ nav:
       - Quick Tour: "docs/get-started/quick-tour.md"
       - Architecture: "docs/get-started/architecture.md"
       - On-Prem Deployment: "docs/get-started/on-prem.md"
+  
+  - Learn:
+      - Trajectories: "docs/learn/trajectories.md"
+      - Actions: "docs/learn/actions.md" 
 
   # - LaVague QA:
   #     # - Integrations: 'docs/qa/integrations.md'
