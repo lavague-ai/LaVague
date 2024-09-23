@@ -60,11 +60,11 @@ pip install lavague
 You're now ready to start using LaVague Web Agents to perform tasks on the websites of your choice:
 
 ```python
-from lavague.core.agents import WebAgent
+from lavague import WebAgent
 
 url = "https://huggingface.co/"
-objective = "Return a list of the top 5 trending models on HuggingFace"
-agent = WebAgent()
+obj = "Return a list of the top 5 trending models on HuggingFace"
+agent = WebAgent(api_key="")
 ret = agent.run(url=url, objective=obj)
 
 # Print output

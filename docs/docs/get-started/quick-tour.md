@@ -77,7 +77,7 @@ First of all, we need to get our `trajectory`, or series of actions, correspondi
 To do this, we initialize a WebAgent and give it an objective of testing a natural language `scenario`.
 
 ```python
-from lavague.core.agents import WebAgent
+from lavague import WebAgent
 
 # Create Web Agent
 agent = WebAgent(api_key="")
