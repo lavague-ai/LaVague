@@ -5,11 +5,13 @@ In this quick tour, we'll show how LaVague can be leveraged by:
 - Builders to create custom automation pipelines
 - QA engineers to automate the writing, maintenance, and execution of web tests  
 
-## API key
+!!! note "API key"
 
-To use LaVague, you will need an LaVague API key. You can get yours [here](https://cloud.lavague.ai/keys).
+    To use LaVague, you will need an LaVague API key. You can get yours [here](https://cloud.lavague.ai/keys).
 
-You will need to set your API key as a `LAVAGUE_API_KEY` environment variable in your working environment.
+    You will need to set your API key as a `LAVAGUE_API_KEY` environment variable in your working environment.
+
+    When you create your LaVague Cloud account you will receive some free credits to try out LaVague. You can then contact us to increase your quota.
 
 ## Installation
 

@@ -12,11 +12,11 @@ LaVague is an AI Web Agent framework that revolutionizes web automation. Our mis
 
 - Powerful AI-driven **Web Agents** for effective automation.
 - An **Agent Studio** web interface to view and replay automated tasks.
-- **Exporters** to turn agent outpute into the desired replayable code format for your use cases.
+- **Exporters** to turn agent output into the desired replayable code format for your use cases.
 
 **Perfect for:**
 
-- 💻 **Builders**: Automatate repetitive tasks and improve workflow efficiency
+- 💻 **Builders**: Automate repetitive tasks and improve workflow efficiency
 - 🕵️ **QA Engineers**: Streamline website testing and quality assurance
 
 Explore the sections below to get started with LaVague:
@@ -37,7 +37,7 @@ Explore the sections below to get started with LaVague:
 </div>
 
 !!! note "On-premise"
-    While LaVague Agents are leveraged via a remote API by default, we can provide on-premise deploymentmfor entreprise users.
+    While LaVague Agents are leveraged via a remote API by default, we can provide on-premise deployment for entreprise users.
     
     Find out more [here](./docs/get-started/on-prem.md)
 
@@ -95,7 +95,7 @@ They output:
 
 ## Limitations
 
-- **Bot protection**: Some websites may flag LaVague agents as bots and prevent LaVague form perfoming automated actions 
+- **Bot protection**: Some websites may flag LaVague agents as bots and prevent LaVague form performing automated actions 
 - **AI-generated code:** LaVague actions are generated with AI - while we limit the scope of actions for security purposes, the actions should be verified and may need to be modified or re-generated for accuracy
 - **Web only**: We currently only support automating actions on websites. Automated actions for desktop or specific APIs are planned further along our roadmap.
 - **Integrations**: There are a vast number of potential use cases for LaVague and we cannot provide integrations for all potential exports of trajectories. You may need to build your own integrations for specific use cases. 

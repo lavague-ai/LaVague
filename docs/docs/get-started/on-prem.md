@@ -13,7 +13,7 @@ Let's first define some key elements in our LaVague Agent architecture:
 - `Objective`: The objective is the task the user wants the Web Agent to perform. For example: `"Log into my account and change my username to The WaveHunter."`
 - `Action`: A single step needed to move towards achieving the objective, such as `click on the 'username' field`. For security reasons amongst others, we provide a pre-defined list of actions our agents can perform on web elements, such as clicking, entering a text value, etc.
 - `Trajectory:` Once the agent has completed its run, it returns a trajectory object to the user which contains information about the run and the list of actions that were executed to reach the final objective. This list of actions could be converted to code and replayed in the future without needing an agent.
-- `Driver`: The webdriver is leveraged for the execution of the action code and can also provide information to the Agent such as screenshots and HTML code of the reflecting the webpage's latest state. For on-premise deployment, an on-premise web-driver will be used.
+- `Driver`: The webdriver is leveraged for the execution of the action code and can also provide information to the Agent such as screenshots and HTML code of the reflecting the web page's latest state. For on-premise deployment, an on-premise web-driver will be used.
 
 !!! info "More info"
     For a more detailed breakdown of Actions and the Trajectory items. See our [Learn section]().
