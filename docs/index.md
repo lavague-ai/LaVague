@@ -4,23 +4,42 @@ description: "An AI Web Agent API for automating web tasks"
 
 # LaVague
 
-LaVague is an AI Web Agent framework to automate web interactions.
+## What is LaVague?
 
-It can be used to offload tasks, from testing websites for QA engineers to automating information retrieval, through filling complex forms.
+LaVague is an AI Web Agent framework for automating web tasks.
 
-LaVague is made up of:
+It can be used for web tasks such as:
 
-- The LaVague Agent API - leveraging LLMs to generate and execute multi-action trajectories to perform tasks on the web. 
-- A Python SDK including:
+- ✅ Testing websites for QA engineers
+- ✅ Automating information retrieval
+- ✅ Filling complex forms
 
-    - Methods to faciliate usage of the LaVague API
-    - Integrations for specific use cases, such as `exporters` which convert generated actions into `PyTest scripts` for web testing
-    - Tooling for users
 
-> While LaVague Agents are leveraged via a remote API by default, we can provide on-premise deploymentmfor entreprise users.
-Find out more [here](./docs/get-started/on-prem.md)
+Explore the sections below to get started with LaVague:
+
+<div class="boxes-container">
+    <a href="quickstart" class="box">
+        <h3>Quick start</h3>
+        <p>Step-by-step guide on how to use LaVague</p>
+    </a>
+    <a href="automation" class="box">
+        <h3>Automation</h3>
+        <p>Explore examples for automating web tasks</p>
+    </a>
+    <a href="QA" class="box">
+        <h3>QA</h3>
+        <p>Explore examples for QA use cases</p>
+    </a>
+</div>
+
+!!! note "On-premise"
+    While LaVague Agents are leveraged via a remote API by default, we can provide on-premise deploymentmfor entreprise users.
+    
+    Find out more [here](./docs/get-started/on-prem.md)
 
 ## Getting Started
+
+[⌛ GIF GOES HERE]
 
 To use LaVague Web Agents, you'll need to:
 
@@ -46,20 +65,11 @@ ret = agent.run(url=url, objective=obj)
 
 # Print output
 print(ret.response)
-
-# Show screenshot of web page after running LaVague
-from PIL import Image
-last_action = ret.results[-1:]
-
-img = Image.open(last_result["postaction_screenshot"])
-img.show()
 ```
 
 ```bash
 $ mattshumer/Reflection-Llama-3.1-70B, black-forest-labs/FLUX.1-dev, openbmb/MiniCPM3-4B, deepseek-ai/DeepSeek-V2.5, Qwen/Qwen2-VL-7B-Instruct
 ```
-
-![after screenshot](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/after-screenshot.png)
 
 For more information on how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
 
@@ -67,54 +77,62 @@ For more information on how to use LaVague, see our [quick-tour](https://docs.la
 
 The next features we are working on include:
 
-- Streaming option for live visualization of Agent progress
 - Local driver integration
-- Replay methods so you care store and replay your action trajectories
-- Methods to enable you to build replayable functions into your codebase with LaVague
-- More QA integrations for a variety of testing frameworks and languages
+- Methods for building reusable Python functions from your LaVague automations
+- More QA integrations for a variety of testing frameworks
+- An agent hub for sharing use-case specific agent knowledge
 
 ## Support
 
 If you're experiencing any issues getting started with LaVague, you can:
 
-- Opening a [GitHub issue](https://github.com/lavague-ai/LaVague/issues) describing your issue
-- Messaging us in the '#support` channel on our [Discord](https://discord.gg/SDxn9KpqX9") server
+<div class="boxes-container">
+    <a href="https://github.com/lavague-ai/LaVague/issues" class="box">
+        <h3>Github</h3>
+        <p>Open a GitHub issue describing the problems you are facing</p>
+    </a>
+    <a href="https://discord.gg/SDxn9KpqX9" class="box">
+        <h3>Discord</h3>
+        <p>Use the `#support` channel to get help from our team</p>
+    </a>
+    <a href="https://www.lavague.ai/contact" class="box">
+        <h3>Email</h3>
+        <p>Fill in our website contact form</p>
+    </a>
+</div>
 
 ## LaVague Legacy
 
-As of September 2024, we have made significant changes to the LaVague project, including moving Web Agent logic to a remote API.
+As of September 2024, we have made significant changes to the LaVague project, notably moving the Agent to being fully managed for a more optimized experience.
 
-If you want to access the legacy and fully open-source LaVague project, you can do so [here]().
+If you want to use the previous version, you can:
 
-The corresponding PyPi package is available as `lavague-legacy` which you can install by running:
-
-```python
-pip install lavague-legacy
-```
-The corresponding legacy docs can be found [here]().
+<div class="boxes-container">
+    <a href="https://github.com/lavague-ai/LaVague/issues" class="box">
+        <h3>Github</h3>
+        <p>Access the lavague-legacy repo</p>
+    </a>
+    <a href="https://discord.gg/SDxn9KpqX9" class="box">
+        <h3>PyPi</h3>
+        <p>Install the lavague-legacy PyPi package</p>
+    </a>
+    <a href="https://www.lavague.ai/contact" class="box">
+        <h3>docs</h3>
+        <p>Consult the lavague-legacy docs</p>
+    </a>
+</div>
 
 ## Data collection
 
+By default, LaVague collects some telemetry data to help us improve agent performance.
+
+To find a comprehensive list of all data collected by LaVague, see [our Terms of Service]().
+
+To reduce data collection to the minimum collection required to run LaVague which will not be used for improving our agents, set your `LAVAGUE_TELEMETRY` environment variable to `LOW`.
+
+To remove all need for data collection, contact us about [on-premise deployment]().
+
 !!! warning "Personal data" 
-    Be careful to NEVER include personal information in your objectives or any extra `user_data` sent to Agents. 
+    Be careful to NEVER include personal information in your objectives or any extra `user_data` sent to Agents.
     
-    If you send personal information in your objectives/extra `user_data`, it is HIGHLY recommended to turn off all telemetry.
-
-    You can turn off all telemetry by setting the `LAVAGUE_TELEMETRY` environment variable to `"NONE"`.
-
-By default, LaVague collects the following user data to help us to improve our agents:
-
-- A unique user ID
-- The URL a task is performed on
-- The objective
-- Any additional user data sent to agent via `user_data` option
-- Date & time of request
-- The response of the agent where relevant
-- Whether the action fails or succeeds & error message, where relevant
-- Version of LaVague used
-- The chunks of HTML code retrieved from the web page to perform actions
-- Actions generated per Agent step
-- Agent's chain of thoughts per step
-- The instruction generated & Agent sub-engine used per step
-- LLMs used by LaVague API (i.e GPT4), inference times & token consumption
-- The interaction zone on the page (bounding box) & viewport size of your browser
+    If you send personal information in your objectives/extra `user_data`, it is HIGHLY recommended to set telemetry to `LOW`.
