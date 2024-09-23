@@ -22,7 +22,7 @@ LaVague is an AI Web Agent framework that revolutionizes web automation. Our mis
 Explore the sections below to get started with LaVague:
 
 <div class="boxes-container">
-    <a href="quickstart" class="box">
+    <a href="https://docs.lavague.ai/en/drafting-some-docs/docs/get-started/quick-tour/" class="box">
         <h3>Quick start</h3>
         <p>Step-by-step guide on how to use LaVague</p>
     </a>
