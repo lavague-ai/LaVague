@@ -99,7 +99,7 @@ nav:
       - On-Prem Deployment: "docs/get-started/on-prem.md"
   
   - Learn:
-      - Trajectories: "docs/learn/trajectories.md"
+      - Trajectories: "docs/learn/trajectory.md"
       - Actions: "docs/learn/actions.md" 
 
   # - LaVague QA:
