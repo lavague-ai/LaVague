@@ -112,8 +112,8 @@
 [data-md-color-scheme="default"] .box {
 	text-align: center;
 	text-decoration: none;
-	background-color: #f8f9fa; /* Light background */
-	border: 1px solid #ddd;
+	background-color: #fff; /* Light background */
+	border: 1px solid #448aff; 
 	border-radius: 8px;
 	padding: 30px 20px;
 	width: 30%;
@@ -133,7 +133,7 @@
 
 /* Hover effect for light mode */
 [data-md-color-scheme="default"] .box:hover {
-	background-color: #e9ecef;
+	background-color: #ecf3ff;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
