@@ -19,11 +19,11 @@ Here is a list of the current possible actions an agent can perform and the argu
 
 | Name              | Arguments                                  | Description                                                                                                      | 
 |-------------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| click             | xpath                            | Click on an element with a specific xpath.                                                                       | 
-| setValue          | xpath, value              | Focus on and set the value of an input element with a specific xpath.                                             | 
-| dropdownSelect    | xpath, value               | Select an option from a dropdown menu by its value.                                                              | 
+| click             | xpath                            | Click on an element with a specific xpath                                                                   | 
+| setValue          | xpath, value              | Focus on and set the value of an input element with a specific xpath                                          | 
+| dropdownSelect    | xpath, value               | Select an option from a dropdown menu by its value                                                           | 
 | sendKeys  | xpath, value               | Sends value to element                                   | 
-| hover             | xpath                              | Moves the mouse cursor over an element identified by the xpath, useful for revealing dropdown menus.  | 
-| scroll            | xpath, value (UP/DOWN)     | Scrolls the container holding the element identified by the xpath, either up or down.                            | 
-| back              | xpath                                       | Navigates back to the previous page.                                                                             |
-| switchTab        | value                           | Switches to a specific browser tab based on the tab_id value provided.                                                 |
+| hover             | xpath                              | Moves the mouse cursor over an element identified by the xpath, useful for revealing dropdown menus  | 
+| scroll            | xpath, value (UP/DOWN)     | Scrolls the container holding the element identified by the xpath, either up or down                    | 
+| back              | xpath                                       | Navigates back to the previous page                                   |
+| switchTab        | value                           | Switches to a specific browser tab based on the tab_id value provided                              |
