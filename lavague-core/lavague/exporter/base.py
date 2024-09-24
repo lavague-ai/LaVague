@@ -35,6 +35,8 @@ class TrajectoryExporter:
                             output = self.translate_hover(action_output)
                         case NavigationCommand.SET_VALUE:
                             output = self.translate_set_value(action_output)
+                        case NavigationCommand.SET_VALUE_AND_ENTER:
+                            output = self.translate_set_value_and_enter(action_output)
                         case NavigationCommand.TYPE_KEY:
                             output = self.translate_type_key(action_output)
                         case NavigationCommand.SCROLL:
@@ -63,6 +65,9 @@ class TrajectoryExporter:
 
     def translate_set_value(self, action_output: NavigationOutput) -> Optional[str]:
         raise NotImplementedError("translate_set_value is not implemented")
+    
+    def translate_set_value_and_enter(self, action_output: NavigationOutput) -> Optional[str]:
+        raise NotImplementedError("translate_set_value_and_enter is not implemented")
 
     def translate_type_key(self, action_output: NavigationOutput) -> Optional[str]:
         raise NotImplementedError("translate_type_key is not implemented")
