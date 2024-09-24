@@ -22,6 +22,7 @@ class TrajectoryExporter:
 
     def translate_action(self, action: Action) -> Optional[str]:
         """Translate a single action to target framework code"""
+        instruction = action.instruction
 
         match action.action_type:
             case ActionType.NAVIGATION:
@@ -47,6 +48,7 @@ class TrajectoryExporter:
             case _:
                 self.on_missing_action(action)
 
+        output = f"# {instruction}\n{output}\n"
         return output
 
     def translate_click(self, action_output: NavigationOutput) -> Optional[str]:

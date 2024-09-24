@@ -1,7 +1,5 @@
-from contextlib import contextmanager
 import inspect
 import re
-from functools import wraps
 from typing import Callable, Optional, List
 from lavague.exporter.base import TrajectoryExporter
 from lavague.action.base import ActionType
@@ -36,7 +34,7 @@ class PythonExporter(TrajectoryExporter):
     """
 
     @classmethod
-    def translate(cls, method: Callable, output: NavigationOutput, string_only: bool = True) -> Optional[str]:
+    def translate(cls, method: Callable, output: NavigationOutput | ExtractionOutput, string_only: bool = True) -> Optional[str]:
         """Takes the code of method, replace each use of the 'action' parameter with the actual action attributes.
         Replacement is done only on attributes of the action used in the method.
         """
@@ -168,6 +166,10 @@ class PythonSeleniumExporter(PythonExporter):
     def hover(self, action: NavigationOutput) -> Optional[str]:
         driver = self.get_driver()
         driver.find_element(By.XPATH, action.xpath).hover()
+
+    def set_value(self, action: NavigationOutput) -> Optional[str]:
+        driver = self.get_driver()
+        driver.find_element(By.XPATH, action.xpath).send_keys(action.value)
 
     def extract(self, action: ExtractionOutput) -> Optional[str]:
         
