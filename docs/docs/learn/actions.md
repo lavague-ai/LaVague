@@ -22,11 +22,8 @@ Here is a list of the current possible actions an agent can perform and the argu
 | click             | xpath                            | Click on an element with a specific xpath.                                                                       | 
 | setValue          | xpath, value              | Focus on and set the value of an input element with a specific xpath.                                             | 
 | dropdownSelect    | xpath, value               | Select an option from a dropdown menu by its value.                                                              | 
-| send_keys  | xpath, value               | Sends value to element                                   | 
+| sendKeys  | xpath, value               | Sends value to element                                   | 
 | hover             | xpath                              | Moves the mouse cursor over an element identified by the xpath, useful for revealing dropdown menus.  | 
 | scroll            | xpath, value (UP/DOWN)     | Scrolls the container holding the element identified by the xpath, either up or down.                            | 
-| SCROLL_DOWN       |                                       | Scrolls the browser window down.                                                                                 |
-| SCROLL_UP         |                                        | Scrolls the browser window up.                                                                                   |
-| WAIT              |                                        | Pauses the operation for a set duration (e.g., 5 seconds).                                                       |
-| BACK              |                                        | Navigates back to the previous page.                                                                             |
-| SWITCH_TAB        | tab_id                            | Switches to a specific browser tab based on the tab_id provided.                                                 |
+| back              | xpath                                       | Navigates back to the previous page.                                                                             |
+| switchTab        | value                           | Switches to a specific browser tab based on the tab_id value provided.                                                 |
