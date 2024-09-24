@@ -134,7 +134,7 @@ If you're experiencing any issues getting started with LaVague, you can:
     </a>
     <a href="https://discord.gg/SDxn9KpqX9" class="box">
         <h3>Discord</h3>
-        <p>Use the `#support` channel to get help from our team</p>
+        <p>Use the `#support` channel</p>
     </a>
     <a href="https://www.lavague.ai/contact" class="box">
         <h3>Email</h3>
