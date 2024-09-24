@@ -141,39 +141,39 @@
 [data-md-color-scheme="slate"] .box {
 	text-align: center;
 	text-decoration: none;
-	background-color: white !important; /* Light gray background for dark mode */
-	border: 1px solid #aaa; /* Darker gray border */
+	background-color: #1e2129 !important; /* Light gray background for dark mode */
+	border: 1px solid #4051b5; /* Darker gray border */
 	border-radius: 8px;
 	padding: 30px 20px;
 	width: 30%;
-	color: #000 !important; /* Black text */
+	color: white !important; /* Black text */
 }
 
 [data-md-color-scheme="slate"] .box h3 {
 	margin-top: 0;
-	color: #000 !important; /* Black heading text */
-	background-color: white !important;
+	color: white !important; /* Black heading text */
+	background-color: #1e2129 !important;
 }
 
 [data-md-color-scheme="slate"] .box p {
-	color: #333 !important; /* Darker gray text for paragraphs */
+	color: white !important; /* Darker gray text for paragraphs */
 	font-size: 0.7rem;
-	background-color: white !important;
+	background-color: #1e2129 !important;
 
 }
 
 /* Hover effect for dark mode */
 [data-md-color-scheme="slate"] .box:hover {
-	background-color: #e2dede !important; /* Slightly darker gray on hover */
+	background-color: #4051b5 !important; /* Slightly darker gray on hover */
 }
 
 /* Hover effect for dark mode */
 [data-md-color-scheme="slate"] .box:hover h3 {
-	background-color: #e2dede !important; /* Slightly darker gray on hover */
+	background-color: #4051b5 !important; /* Slightly darker gray on hover */
 }
 
 /* Hover effect for dark mode */
 [data-md-color-scheme="slate"] .box:hover p {
-	background-color: #e2dede !important; /* Slightly darker gray on hover */
+	background-color: #4051b5 !important; /* Slightly darker gray on hover */
 }
 
