@@ -78,10 +78,13 @@ For more information on how to use LaVague, see our [quick-tour](https://docs.la
 
 ## Capabilities
 
+![capabilities](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/capabilities.png)
+
 LaVague Agents takes the following inputs:
 
-- Text `objective`
-- A `user_data` key-value object
+- A text `objective`
+- An **optional** `user_data` dictionary for additional structured data
+- A text `url`
 
 They will then:
 
@@ -99,7 +102,7 @@ They return:
 ## Limitations
 
 - **Bot protection**: Some websites may flag LaVague agents as bots and prevent LaVague form performing automated actions 
-- **AI-generated code:** LaVague actions are generated with AI - while we limit the scope of actions for security purposes, the actions should be verified and may need to be modified or re-generated for accuracy
+- **AI-generated code:** LaVague actions are generated with AI - our agents can make mistakes.
 - **Web only**: We currently only support automating actions on websites. Automated actions for desktop or specific APIs are planned further along our roadmap.
 - **Integrations**: There are a vast number of potential use cases for LaVague and we cannot provide integrations for all potential exports of trajectories. You may need to build your own integrations for specific use cases. 
 
@@ -167,7 +170,7 @@ To find a comprehensive list of all data collected by LaVague, see [our Terms of
 
 To reduce data collection to the minimum collection required to run LaVague which will not be used for improving our agents, set your `LAVAGUE_TELEMETRY` environment variable to `LOW`.
 
-To remove all need for data collection, contact us about [on-premise deployment]().
+If you want full control over your data flow and to remove the need for an external API, [contact us]() about on-premise deployment.
 
 !!! warning "Personal data" 
     Be careful to NEVER include personal information in your objectives or any extra `user_data` sent to Agents.
