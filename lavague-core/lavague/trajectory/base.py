@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from pydantic import BaseModel, SerializeAsAny
 from lavague.action import Action, WebExtractionAction, WebNavigationAction
 from enum import Enum
@@ -14,9 +14,9 @@ class Trajectory(BaseModel):
 
     run_id: str
     start_url: str
+    viewport_size: Tuple[int, int]
     objective: str
     status: TrajectoryStatus
-    output: Optional[str]
     actions: List[SerializeAsAny[Action]]
 
     def write_to_file(self, file_path: str):
