@@ -3,6 +3,7 @@
 Trajectories are classes returned by LaVague agents containing information about an agent run and the list of actions performed.
 
 They contain the following attributes:
+
 - `start_url`: The URL provided as input for this run
 - `objective`: The text objective that was given as input for this run
 - `run_id`: A unique run id
