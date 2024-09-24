@@ -1,15 +1,13 @@
 from typing import Optional, List
 from pydantic import BaseModel, SerializeAsAny
-from lavague.action import Action
+from lavague.action import Action, WebExtractionAction, WebNavigationAction
 from enum import Enum
 from pydantic_core import from_json
 from lavague.action import ActionParser, DEFAULT_PARSER
 
-
 class TrajectoryStatus(Enum):
     COMPLETED = "completed"
     FAILED = "failed"
-
 
 class Trajectory(BaseModel):
     """Observable trajectory of web interactions towards an objective."""
@@ -35,9 +33,23 @@ class Trajectory(BaseModel):
         return cls.model_validate(obj)
 
     @classmethod
-    def from_dict(cls, data: dict, parser: ActionParser = DEFAULT_PARSER):
-        data["actions"] = [parser.parse(action) for action in data.get("actions", [])]
-        return cls.model_validate(data)
+    # TODO: This code is a fix from this code
+    # def from_dict(cls, data: dict, parser: ActionParser = DEFAULT_PARSER):
+    #     data["actions"] = [parser.parse(action) for action in data.get("actions", [])]
+    #     return cls.model_validate(data)
+    def from_dict(cls, data: dict):
+        actions = []
+        for action in data.get("actions", []):
+            action_type = action.get("action_type")
+            if action_type == "web_navigation":
+                actions.append(WebNavigationAction.parse(action ))
+            elif action_type == "web_extraction":
+                actions.append(WebExtractionAction.parse(action))
+            else:
+                # Fallback to generic Action if type is unknown
+                actions.append(Action.parse(action))
+        data["actions"] = actions
+        return cls(**data)
 
     @classmethod
     def from_file(

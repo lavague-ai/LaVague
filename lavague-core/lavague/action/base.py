@@ -1,26 +1,30 @@
-from typing import Dict, Type
+from typing import Dict, List, Type, Generic, TypeVar
 from pydantic import BaseModel, validate_call
 from enum import Enum
-
 
 class ActionStatus(Enum):
     COMPLETED = "completed"
     FAILED = "failed"
 
+class ActionType(Enum):
+    NAVIGATION = "web_navigation"
+    EXTRACTION = "web_extraction"
 
-class Action(BaseModel):
+T = TypeVar("T")
+
+class Action(BaseModel, Generic[T]):
     """Action performed by the agent."""
 
     step_id: str
-    action_type: str
-    action: str
+    action_type: ActionType
+    action_output: List[T]
     url: str
     status: ActionStatus
+    instruction: str
 
     @classmethod
     def parse(cls, action_dict: Dict) -> "Action":
         return cls(**action_dict)
-
 
 class ActionParser(BaseModel):
     engine_action_builders: Dict[str, Type[Action]]

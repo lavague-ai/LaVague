@@ -1,7 +1,9 @@
+from abc import ABC, abstractmethod
 from lavague.trajectory import Trajectory
-from lavague.action import Action
-from typing import Optional, Callable, Self
-
+from lavague.action import Action, ActionType, WebNavigationAction, WebExtractionAction
+from lavague.action.navigation import NavigationCommand, NavigationOutput
+from lavague.action.extraction import ExtractionOutput
+from typing import List, Optional, Callable, Self
 
 class TrajectoryExporter:
     def generate_setup(self, trajectory: Trajectory) -> Optional[str]:
@@ -12,24 +14,63 @@ class TrajectoryExporter:
         """Generate teardown code (cleanup, final assertions, etc.)"""
         return None
 
-    def on_missing_action(self, action: Action, method_name: str) -> None:
+    def on_missing_action(self, action: Action) -> None:
         """Generate code for missing action"""
         raise NotImplementedError(
-            f"Action {action.action} translator is missing, please add a '{method_name}' method in {self.__class__.__name__} or attach it with {self.__class__.__name__}.add_action_translator('{action.action_type}', '{action.action}', my_translator_function)"
+            f"Action tpye {action.action_type} has unhandled output {action.action_output}"
         )
 
     def translate_action(self, action: Action) -> Optional[str]:
         """Translate a single action to target framework code"""
-        method_name = f"translate_{action.action_type}_{action.action}"
 
-        if hasattr(self, method_name):
-            return getattr(self, method_name)(action)
+        match action.action_type:
+            case ActionType.NAVIGATION:
+                for action_output in action.action_output:
+                    action_output: NavigationOutput
+                    match action_output.navigation_command:
+                        case NavigationCommand.CLICK:
+                            output = self.translate_click(action_output)
+                        case NavigationCommand.HOVER:
+                            output = self.translate_hover(action_output)
+                        case NavigationCommand.SET_VALUE:
+                            output = self.translate_set_value(action_output)
+                        case NavigationCommand.TYPE_KEY:
+                            output = self.translate_type_key(action_output)
+                        case NavigationCommand.SCROLL:
+                            output = self.translate_scroll(action_output)
+                        case _:
+                            self.on_missing_action(action)
+            case ActionType.EXTRACTION:
+                for action_output in action.action_output:
+                    action_output: ExtractionOutput
+                    output = self.translate_extract(action_output)
+            case _:
+                self.on_missing_action(action)
 
-        self.on_missing_action(action, method_name)
+        return output
+
+    def translate_click(self, action_output: NavigationOutput) -> Optional[str]:
+        """Translates a click action into re usable code"""
+        raise NotImplementedError("translate_click is not implemented")
+
+    def translate_hover(self, action_output: NavigationOutput) -> Optional[str]:
+        raise NotImplementedError("translate_hover is not implemented")
+    
+    def translate_extract(self, action_output: ExtractionOutput) -> Optional[str]:
+        raise NotImplementedError("translate_extract is not implemented")
+
+    def translate_set_value(self, action_output: NavigationOutput) -> Optional[str]:
+        raise NotImplementedError("translate_set_value is not implemented")
+
+    def translate_type_key(self, action_output: NavigationOutput) -> Optional[str]:
+        raise NotImplementedError("translate_type_key is not implemented")
+
+    def translate_scroll(self, action_output: NavigationOutput) -> Optional[str]:
+        raise NotImplementedError("translate_scroll is not implemented")
 
     def merge_code(self, *codes: str | None) -> str:
         """Combine multiple strings into a single string"""
-        return "".join(list(map(lambda x: x or "", codes)))
+        return "\n".join(list(map(lambda x: x or "", codes)))
 
     def export(self, trajectory: Trajectory) -> str:
         setup = self.generate_setup(trajectory)
@@ -41,13 +82,3 @@ class TrajectoryExporter:
         exported = self.export(trajectory)
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(exported)
-
-    @classmethod
-    def add_action_translator(
-        cls,
-        action_type: str,
-        action: str,
-        translator: Callable[[Self, Action], Optional[str]],
-    ) -> None:
-        """Add a new action translator to the exporter"""
-        setattr(cls, f"translate_{action_type}_{action}", translator)
