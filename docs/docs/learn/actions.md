@@ -2,7 +2,8 @@
 
 Trajectories objects will always contain a list of `Action objects`, which provide information about each action generated and executed by an agent, as well as all the information needed to replay these actions.
 
-![action chain](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/actions.png)
+![LaVague capabilities light](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/capabilities.png#only-light)
+![LaVague capabilities dark](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/capabilities-dark.png#only-dark)
 
 ## Navigation actions
 

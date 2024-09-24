@@ -11,7 +11,8 @@ LaVague is made up of a:
 !!! note "On-premise deployment"
     While LaVague Agents are leveraged via a remote API by default, we can provide on-premise deployment for entreprise users. Find out more [here].
 
-![LaVague Workflow](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/architecture-default.png)
+![LaVague Workflow light](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/architecture-default.png#only-light)
+![Trajectory dark](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/architecture-default-dark.png#only-dark)
 
 ## Definitions
 

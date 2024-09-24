@@ -78,7 +78,8 @@ For more information on how to use LaVague, see our [quick-tour](https://docs.la
 
 ## Capabilities
 
-![capabilities](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/capabilities.png)
+![LaVague capabilities light](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/capabilities.png#only-light)
+![LaVague capabilities dark](https://raw.githubusercontent.com/lavague-ai/LaVague/drafting-some-docs/docs/assets/capabilities-dark.png#only-dark)
 
 LaVague Agents takes the following inputs:
 
