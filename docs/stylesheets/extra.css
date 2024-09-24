@@ -108,48 +108,72 @@
 	margin: 20px 0;
 }
 
-/* Style for each box */
-/* Style for the container */
-.boxes-container {
-	display: flex;
-	justify-content: space-around;
-	margin: 20px 0;
-	font-family: 'Styrene Display', sans-serif; /* Updated font family */
-}
-
-/* Style for each box */
-/* Style for the container */
-.boxes-container {
-	display: flex;
-	justify-content: space-around;
-	margin: 20px 0;
-	font-family: 'Sora', sans-serif; /* Updated font family */
-}
-
-/* Style for each box */
-.box {
+/******* Light mode box styling *******/
+[data-md-color-scheme="default"] .box {
 	text-align: center;
 	text-decoration: none;
-	background-color: #f8f9fa;
+	background-color: #f8f9fa; /* Light background */
 	border: 1px solid #ddd;
 	border-radius: 8px;
-	padding: 30px 20px; /* Increased padding for more space around the text */
+	padding: 30px 20px;
 	width: 30%;
 	transition: background-color 0.3s, box-shadow 0.3s;
+	color: #000; /* Black text */
 }
 
-.box h3 {
+[data-md-color-scheme="default"] .box h3 {
 	margin-top: 0;
-	color: #000;
+	color: #000; /* Black heading text */
 }
 
-.box p {
-	color: #666;
-	font-size: 0.7rem; /* Smaller text size under the heading */
+[data-md-color-scheme="default"] .box p {
+	color: #666; /* Gray text for paragraphs */
+	font-size: 0.7rem;
 }
 
-/* Hover effect */
-.box:hover {
+/* Hover effect for light mode */
+[data-md-color-scheme="default"] .box:hover {
 	background-color: #e9ecef;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+/******* Dark mode box styling *******/
+[data-md-color-scheme="slate"] .box {
+	text-align: center;
+	text-decoration: none;
+	background-color: white !important; /* Light gray background for dark mode */
+	border: 1px solid #aaa; /* Darker gray border */
+	border-radius: 8px;
+	padding: 30px 20px;
+	width: 30%;
+	color: #000 !important; /* Black text */
+}
+
+[data-md-color-scheme="slate"] .box h3 {
+	margin-top: 0;
+	color: #000 !important; /* Black heading text */
+	background-color: white !important;
+}
+
+[data-md-color-scheme="slate"] .box p {
+	color: #333 !important; /* Darker gray text for paragraphs */
+	font-size: 0.7rem;
+	background-color: white !important;
+
+}
+
+/* Hover effect for dark mode */
+[data-md-color-scheme="slate"] .box:hover {
+	background-color: #e2dede !important; /* Slightly darker gray on hover */
+}
+
+/* Hover effect for dark mode */
+[data-md-color-scheme="slate"] .box:hover h3 {
+	background-color: #e2dede !important; /* Slightly darker gray on hover */
+}
+
+/* Hover effect for dark mode */
+[data-md-color-scheme="slate"] .box:hover p {
+	background-color: #e2dede !important; /* Slightly darker gray on hover */
+}
+
