@@ -1,1 +1,1 @@
-from lavague.trajectory.base import Trajectory, TrajectoryStatus
+from lavague.trajectory.base import RunnableTrajectory, Trajectory, RunStatus

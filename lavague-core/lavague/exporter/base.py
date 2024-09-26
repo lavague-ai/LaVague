@@ -1,9 +1,13 @@
-from abc import ABC, abstractmethod
 from lavague.trajectory import Trajectory
-from lavague.action import Action, ActionType, WebNavigationAction, WebExtractionAction
-from lavague.action.navigation import NavigationCommand, NavigationOutput
-from lavague.action.extraction import ExtractionOutput
-from typing import List, Optional, Callable, Self
+from lavague.action import Action, ActionType
+from lavague.action.navigation import (
+    NavigationCommand,
+    NavigationOutput,
+    WebNavigationAction,
+)
+from lavague.action.extraction import ExtractionOutput, WebExtractionAction
+from typing import Optional, cast
+
 
 class TrajectoryExporter:
     def generate_setup(self, trajectory: Trajectory) -> Optional[str]:
@@ -23,11 +27,12 @@ class TrajectoryExporter:
     def translate_action(self, action: Action) -> Optional[str]:
         """Translate a single action to target framework code"""
         instruction = action.instruction
+        output = ""
 
         match action.action_type:
             case ActionType.NAVIGATION:
+                action = cast(WebNavigationAction, action)
                 for action_output in action.action_output:
-                    action_output: NavigationOutput
                     match action_output.navigation_command:
                         case NavigationCommand.CLICK:
                             output = self.translate_click(action_output)
@@ -43,10 +48,12 @@ class TrajectoryExporter:
                             output = self.translate_scroll(action_output)
                         case _:
                             self.on_missing_action(action)
+
             case ActionType.EXTRACTION:
-                for action_output in action.action_output:
-                    action_output: ExtractionOutput
-                    output = self.translate_extract(action_output)
+                action = cast(WebExtractionAction, action)
+                for extraction_output in action.action_output:
+                    output = self.translate_extract(extraction_output)
+
             case _:
                 self.on_missing_action(action)
 
@@ -59,14 +66,16 @@ class TrajectoryExporter:
 
     def translate_hover(self, action_output: NavigationOutput) -> Optional[str]:
         raise NotImplementedError("translate_hover is not implemented")
-    
+
     def translate_extract(self, action_output: ExtractionOutput) -> Optional[str]:
         raise NotImplementedError("translate_extract is not implemented")
 
     def translate_set_value(self, action_output: NavigationOutput) -> Optional[str]:
         raise NotImplementedError("translate_set_value is not implemented")
-    
-    def translate_set_value_and_enter(self, action_output: NavigationOutput) -> Optional[str]:
+
+    def translate_set_value_and_enter(
+        self, action_output: NavigationOutput
+    ) -> Optional[str]:
         raise NotImplementedError("translate_set_value_and_enter is not implemented")
 
     def translate_type_key(self, action_output: NavigationOutput) -> Optional[str]:

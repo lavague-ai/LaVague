@@ -27,6 +27,7 @@ packages = [{include = "lavague/"}]
 python = "^3.10.0"
 pydantic = "^2.9.1"
 pillow = "^10.4.0"
+astor = "^0.8.1"
 
 [tool.poetry.scripts]
 lavague = "lavague.cli:cli_run"
