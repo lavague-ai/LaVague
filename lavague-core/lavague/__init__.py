@@ -1,7 +1,7 @@
 from lavague.utilities.version_checker import check_latest_version
 
 from lavague.agent import WebAgent
-from lavague.trajectory import RunnableTrajectory
+from lavague.trajectory import Trajectory, TrajectoryData
 
 import os
 import warnings

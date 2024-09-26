@@ -1,5 +1,5 @@
 from typing import Optional
-from lavague.trajectory import RunnableTrajectory
+from lavague.trajectory import Trajectory
 from lavague.client import LaVagueClient
 from lavague.utilities.config import get_config
 
@@ -22,7 +22,7 @@ class WebAgent:
             client = LaVagueClient(api_key=api_key)
         self.client = client
 
-    def run(self, url: str, objective: str, async_run=False) -> RunnableTrajectory:
+    def run(self, url: str, objective: str, async_run=False) -> Trajectory:
         trajectory = self.client.create_run(url, objective, step_by_step=True)
         if not async_run:
             trajectory.run_to_completion()

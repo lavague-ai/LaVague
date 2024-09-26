@@ -13,7 +13,7 @@ class RunStatus(Enum):
     TIMED_OUT = "timed_out"
 
 
-class Trajectory(BaseModel):
+class TrajectoryData(BaseModel):
     """Trajectory of web interactions towards an objective."""
 
     run_id: str

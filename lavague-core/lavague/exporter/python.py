@@ -5,7 +5,7 @@ from lavague.exporter.base import TrajectoryExporter
 from lavague.action.base import ActionType
 from lavague.action.navigation import NavigationOutput
 from lavague.action.extraction import ExtractionOutput
-from lavague.trajectory import Trajectory
+from lavague.trajectory import TrajectoryData
 
 import ast
 import astor
@@ -117,7 +117,7 @@ class PythonExporter(TrajectoryExporter):
         return filtered_source.strip() or None
 
     def translate_boilerplate(
-        cls, method: Callable, trajectory: Trajectory, string_only: bool = True
+        cls, method: Callable, trajectory: TrajectoryData, string_only: bool = True
     ) -> str:
         """
         Translates the boilerplate code in the source code.
@@ -182,10 +182,10 @@ class PythonExporter(TrajectoryExporter):
 
         return source
 
-    def setup(self, trajectory: Trajectory):
+    def setup(self, trajectory: TrajectoryData):
         raise NotImplementedError("setup is not implemented")
 
-    def teardown(self, trajectory: Trajectory):
+    def teardown(self, trajectory: TrajectoryData):
         raise NotImplementedError("teardown is not implemented")
 
     def click(self, action: NavigationOutput) -> Optional[str]:
@@ -209,10 +209,10 @@ class PythonExporter(TrajectoryExporter):
     def scroll(self, action: NavigationOutput) -> Optional[str]:
         raise NotImplementedError("scroll is not implemented")
 
-    def generate_setup(self, trajectory: Trajectory) -> str | None:
+    def generate_setup(self, trajectory: TrajectoryData) -> str | None:
         return self.translate_boilerplate(self.setup, trajectory)
 
-    def generate_teardown(self, trajectory: Trajectory) -> str | None:
+    def generate_teardown(self, trajectory: TrajectoryData) -> str | None:
         return self.translate_boilerplate(self.teardown, trajectory)
 
     def translate_click(self, action: NavigationOutput) -> Optional[str]:
@@ -249,7 +249,7 @@ SCREEN_SCROLL_PERCENTAGE = 0.75
 
 
 class PythonSeleniumExporter(PythonExporter):
-    def setup(self, trajectory: Trajectory):
+    def setup(self, trajectory: TrajectoryData):
         # Setup of the driver
         from selenium.webdriver.chrome.options import Options
         from selenium import webdriver
@@ -279,7 +279,7 @@ class PythonSeleniumExporter(PythonExporter):
 
         driver.get(trajectory.start_url)
 
-    def teardown(self, trajectory: Trajectory):
+    def teardown(self, trajectory: TrajectoryData):
         # We destroy the driver
         with exclude_from_export():
             driver = self.get_driver()
@@ -422,7 +422,7 @@ class QASeleniumExporter(PythonSeleniumExporter):
             driver = self.get_driver()
         element = driver.find_element(By.XPATH, action_output.xpath)
 
-    def export(self, trajectory: Trajectory, scenario: str) -> str:
+    def export(self, trajectory: TrajectoryData, scenario: str) -> str:
         setup: Optional[str] = self.generate_setup(trajectory)
         teardown: Optional[str] = self.generate_teardown(trajectory)
         translated_actions: List[Optional[str]] = []

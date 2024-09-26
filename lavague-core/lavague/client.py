@@ -1,7 +1,7 @@
 from lavague.trajectory.model import StepCompletion
 from lavague.utilities.config import get_config, is_flag_true, LAVAGUE_API_BASE_URL
 from lavague.action import ActionParser, DEFAULT_PARSER
-from lavague.trajectory import RunnableTrajectory
+from lavague.trajectory import Trajectory
 from lavague.trajectory.controller import TrajectoryController
 from typing import Any, Optional
 import requests
@@ -42,15 +42,13 @@ class LaVagueClient(TrajectoryController):
             raise ApiException(response.text)
         return response.content
 
-    def create_run(
-        self, url: str, objective: str, step_by_step=False
-    ) -> RunnableTrajectory:
+    def create_run(self, url: str, objective: str, step_by_step=False) -> Trajectory:
         content = self.request_api(
             "/runs",
             "POST",
             {"url": url, "objective": objective, "step_by_step": step_by_step},
         )
-        return RunnableTrajectory.from_data(content, self.parser)
+        return Trajectory.from_data(content, self.parser)
 
     def next_step(self, run_id: str) -> StepCompletion:
         content = self.request_api(

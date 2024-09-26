@@ -1,4 +1,4 @@
-from lavague.trajectory import Trajectory
+from lavague.trajectory import TrajectoryData
 from lavague.action import Action, ActionType
 from lavague.action.navigation import (
     NavigationCommand,
@@ -10,11 +10,11 @@ from typing import Optional, cast
 
 
 class TrajectoryExporter:
-    def generate_setup(self, trajectory: Trajectory) -> Optional[str]:
+    def generate_setup(self, trajectory: TrajectoryData) -> Optional[str]:
         """Generate setup code (imports, configurations, etc.)"""
         return None
 
-    def generate_teardown(self, trajectory: Trajectory) -> Optional[str]:
+    def generate_teardown(self, trajectory: TrajectoryData) -> Optional[str]:
         """Generate teardown code (cleanup, final assertions, etc.)"""
         return None
 
@@ -88,13 +88,13 @@ class TrajectoryExporter:
         """Combine multiple strings into a single string"""
         return "\n".join(list(map(lambda x: x or "", codes)))
 
-    def export(self, trajectory: Trajectory) -> str:
+    def export(self, trajectory: TrajectoryData) -> str:
         setup = self.generate_setup(trajectory)
         teardown = self.generate_teardown(trajectory)
         actions = [self.translate_action(action) for action in trajectory.actions]
         return self.merge_code(setup, *actions, teardown)
 
-    def export_to_file(self, trajectory: Trajectory, file_path: str):
+    def export_to_file(self, trajectory: TrajectoryData, file_path: str):
         exported = self.export(trajectory)
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(exported)

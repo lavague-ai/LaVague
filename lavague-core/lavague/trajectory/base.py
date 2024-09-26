@@ -2,10 +2,10 @@ from typing import Dict, Optional, Iterator
 from pydantic_core import from_json
 from lavague.action import ActionParser, DEFAULT_PARSER
 from lavague.trajectory.controller import TrajectoryController
-from lavague.trajectory.model import Trajectory, RunStatus
+from lavague.trajectory.model import TrajectoryData, RunStatus
 
 
-class RunnableTrajectory(Trajectory):
+class Trajectory(TrajectoryData):
     """Trajectory of web interactions towards an objective."""
 
     _controller: TrajectoryController
@@ -59,8 +59,8 @@ class RunnableTrajectory(Trajectory):
         parser: ActionParser = DEFAULT_PARSER,
         controller: Optional[TrajectoryController] = None,
     ):
-        data["actions"] = [parser.parse(action) for action in data.get("actions", [])]
-        trajectory = cls.model_validate(data)
+        actions = [parser.parse(action) for action in data.get("actions", [])]
+        trajectory = cls.model_validate({**data, "actions": actions})
         if controller is not None:
             trajectory._controller = controller
         return trajectory
