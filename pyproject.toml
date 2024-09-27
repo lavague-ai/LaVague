@@ -25,7 +25,7 @@ packages = [{from = "_lavague", include = "lavague"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.31"
+lavague-core = "^0.2.35"
 
 [tool.poetry.dev-dependencies]
 ruff = "^0.6.8"
