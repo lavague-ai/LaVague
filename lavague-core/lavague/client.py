@@ -4,6 +4,8 @@ from lavague.action import ActionParser, DEFAULT_PARSER
 from lavague.trajectory import Trajectory
 from lavague.trajectory.controller import TrajectoryController
 from typing import Any, Optional
+from PIL import Image, ImageFile
+from io import BytesIO
 import requests
 
 
@@ -48,7 +50,11 @@ class LaVagueClient(TrajectoryController):
             "POST",
             {"url": url, "objective": objective, "step_by_step": step_by_step},
         )
-        return Trajectory.from_data(content, self.parser)
+        return Trajectory.from_data(content, self.parser, self)
+
+    def load_run(self, run_id: str) -> Trajectory:
+        content = self.request_api(f"/runs/{run_id}", "GET")
+        return Trajectory.from_data(content, self.parser, self)
 
     def next_step(self, run_id: str) -> StepCompletion:
         content = self.request_api(
@@ -62,6 +68,21 @@ class LaVagueClient(TrajectoryController):
             f"/runs/{run_id}/stop",
             "POST",
         )
+
+    def get_preaction_screenshot(self, step_id: str) -> ImageFile.ImageFile:
+        content = self.request_api(f"/steps/{step_id}/screenshot/preaction", "GET")
+        return Image.open(BytesIO(content))
+
+    def get_postaction_screenshot(self, step_id: str) -> ImageFile.ImageFile:
+        content = self.request_api(f"/steps/{step_id}/screenshot/preaction", "GET")
+        return Image.open(BytesIO(content))
+
+    def get_run_screenshot(self, run_id: str) -> ImageFile.ImageFile:
+        content = self.request_api(f"/runs/{run_id}/screenshot", "GET")
+        return Image.open(BytesIO(content))
+
+    def get_run_view_url(self, run_id: str) -> str:
+        return f"{self.api_base_url}/runs/{run_id}/view"
 
 
 class ApiException(Exception):

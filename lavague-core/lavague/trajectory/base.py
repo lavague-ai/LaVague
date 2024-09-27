@@ -3,6 +3,7 @@ from pydantic_core import from_json
 from lavague.action import ActionParser, DEFAULT_PARSER
 from lavague.trajectory.controller import TrajectoryController
 from lavague.trajectory.model import TrajectoryData, RunStatus
+from lavague.action import Action
 
 
 class Trajectory(TrajectoryData):
@@ -33,14 +34,10 @@ class Trajectory(TrajectoryData):
         self._controller.stop_run(self.run_id)
         self.status = RunStatus.CANCELLED
 
-    def iter(self) -> Iterator:
+    def iter_actions(self) -> Iterator[Action]:
+        yield from self.actions
         while self.is_running:
             yield self.next_action()
-
-    def __next__(self):
-        if not self.is_running:
-            raise StopIteration
-        return self.next_action()
 
     @classmethod
     def from_data(

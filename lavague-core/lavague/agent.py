@@ -27,3 +27,6 @@ class WebAgent:
         if not async_run:
             trajectory.run_to_completion()
         return trajectory
+
+    def load(self, run_id: str) -> Trajectory:
+        return self.client.load_run(run_id)
