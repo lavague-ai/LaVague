@@ -1,1 +1,0 @@
-# Fireworks integration for lavague

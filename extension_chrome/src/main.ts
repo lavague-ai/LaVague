@@ -1,1 +1,0 @@
-import('./inject_main');

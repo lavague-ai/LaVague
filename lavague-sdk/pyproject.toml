@@ -1,7 +1,11 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
 [tool.poetry]
-name = "lavague-drivers-selenium"
-version = "0.2.14"
-description = "Selenium integration for lavague"
+name = "lavague-sdk"
+version = "0.1.0"
+description = "automation code generation from text instructions"
 authors = ["lavague-ai"]
 readme = "README.md"
 license = "Apache-2.0"
@@ -13,7 +17,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "License :: OSI Approved :: Apache Software License",
 ]
-keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "selenium"]
+keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
 homepage = "https://lavague.ai"
 repository = "https://github.com/lavague-ai/LaVague/"
 documentation = "https://docs.lavague.ai/en/latest/"
@@ -21,10 +25,6 @@ packages = [{include = "lavague/"}]
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
-lavague-core = "^0.2.26"
-selenium = "^4.18.1"
-PyYAML = ">=5.3"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+pydantic = "^2.9.1"
+pillow = "^10.4.0"
+astor = "^0.8.1"

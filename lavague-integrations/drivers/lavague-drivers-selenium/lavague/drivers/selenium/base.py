@@ -1,13 +1,13 @@
-from abc import ABC
+import re
 from typing import Any, Optional, Callable, Mapping, Dict, List
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.shadowroot import ShadowRoot
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import (
     NoSuchElementException,
     WebDriverException,
     ElementClickInterceptedException,
-    StaleElementReferenceException,
     TimeoutException,
 )
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -18,6 +18,7 @@ from lavague.core.base_driver import (
     JS_GET_INTERACTIVES,
     JS_WAIT_DOM_IDLE,
     JS_GET_SCROLLABLE_PARENT,
+    JS_GET_SHADOW_ROOTS,
     PossibleInteractionsByXpath,
     ScrollDirection,
     InteractionType,
@@ -47,20 +48,6 @@ from lavague.drivers.selenium.javascript import (
     get_highlighter_style,
     REMOVE_HIGHLIGHT,
 )
-
-
-class XPathResolved(ABC):
-    def __init__(self, xpath: str, driver: any, element: WebElement) -> None:
-        self.xpath = xpath
-        self._driver = driver
-        self.element = element
-        super().__init__()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._driver.switch_default_frame()
 
 
 class SeleniumDriver(BaseDriver):
@@ -232,6 +219,12 @@ driver.set_window_size({width}, {height} + height_difference)
         except:
             return False
 
+    def get_viewport_size(self) -> dict:
+        viewport_size = {}
+        viewport_size["width"] = self.execute_script("return window.innerWidth;")
+        viewport_size["height"] = self.execute_script("return window.innerHeight;")
+        return viewport_size
+
     def get_highlighted_element(self, generated_code: str):
         elements = []
 
@@ -255,7 +248,6 @@ driver.set_window_size({width}, {height} + height_difference)
             element: WebElement
 
             bounding_box = {}
-            viewport_size = {}
 
             self.execute_script(
                 "arguments[0].setAttribute('style', arguments[1]);",
@@ -272,14 +264,12 @@ driver.set_window_size({width}, {height} + height_difference)
             bounding_box["x2"] = bounding_box["x1"] + element.size["width"]
             bounding_box["y2"] = bounding_box["y1"] + element.size["height"]
 
-            viewport_size["width"] = self.execute_script("return window.innerWidth;")
-            viewport_size["height"] = self.execute_script("return window.innerHeight;")
             screenshot = BytesIO(screenshot)
             screenshot = Image.open(screenshot)
             output = {
                 "screenshot": screenshot,
                 "bounding_box": bounding_box,
-                "viewport_size": viewport_size,
+                "viewport_size": self.get_viewport_size(),
             }
             outputs.append(output)
         return outputs
@@ -294,19 +284,8 @@ driver.set_window_size({width}, {height} + height_difference)
     def switch_parent_frame(self) -> None:
         self.driver.switch_to.parent_frame()
 
-    def resolve_xpath(self, xpath: Optional[str]) -> XPathResolved:
-        if not xpath:
-            raise NoSuchElementException("xpath is missing")
-        before, sep, after = xpath.partition("iframe")
-        if len(before) == 0:
-            return None
-        if len(sep) == 0:
-            res = self.driver.find_element(By.XPATH, before)
-            res = XPathResolved(xpath, self, res)
-            return res
-        self.switch_frame(before + sep)
-        element = self.resolve_xpath(after)
-        return element
+    def resolve_xpath(self, xpath: Optional[str]) -> "SeleniumNode":
+        return SeleniumNode(xpath, self)
 
     def exec_code(
         self,
@@ -411,12 +390,14 @@ driver.set_window_size({width}, {height} + height_difference)
     ) -> bool:
         try:
             scroll_anchor = self.get_scroll_anchor(xpath_anchor)
-            return self.driver.execute_script(
-                direction.get_script_element_is_scrollable(),
-                scroll_anchor,
-            )
+            if scroll_anchor:
+                return self.driver.execute_script(
+                    direction.get_script_element_is_scrollable(),
+                    scroll_anchor,
+                )
         except NoSuchElementException:
-            return self.driver.execute_script(direction.get_script_page_is_scrollable())
+            pass
+        return self.driver.execute_script(direction.get_script_page_is_scrollable())
 
     def scroll(
         self,
@@ -426,6 +407,9 @@ driver.set_window_size({width}, {height} + height_difference)
     ):
         try:
             scroll_anchor = self.get_scroll_anchor(xpath_anchor)
+            if not scroll_anchor:
+                self.scroll_page(direction)
+                return
             size, is_container = self.get_scroll_container_size(scroll_anchor)
             scroll_xy = direction.get_scroll_xy(size, scroll_factor)
             if is_container:
@@ -550,7 +534,7 @@ driver.set_window_size({width}, {height} + height_difference)
 
         return len(request_ids) == 0 and active <= 0
 
-    def wait_for_dom_stable(self, timeout=10):
+    def wait_for_dom_stable(self, timeout: float = 10):
         self.driver.execute_script(JS_WAIT_DOM_IDLE, max(0, round(timeout * 1000)))
 
     def wait_for_idle(self):
@@ -676,22 +660,45 @@ driver.set_window_size({width}, {height} + height_difference)
             res[k] = set(InteractionType[i] for i in v)
         return res
 
+    def get_in_viewport(self):
+        res: Dict[str, List[str]] = self.driver.execute_script(
+            JS_GET_INTERACTIVES,
+            True,
+            True,
+            True,
+        )
+        return list(res.keys())
+
+    def get_shadow_roots(self) -> Dict[str, str]:
+        return self.driver.execute_script(JS_GET_SHADOW_ROOTS)
+
 
 class SeleniumNode(DOMNode):
-    def __init__(self, xpath: str, driver: SeleniumDriver) -> None:
+    def __init__(
+        self,
+        xpath: Optional[str],
+        driver: SeleniumDriver,
+        element: Optional[WebElement] = None,
+    ) -> None:
+        if not xpath:
+            raise NoSuchElementException("xpath is missing")
         self.xpath = xpath
         self._driver = driver
+        if element:
+            self._element = element
         super().__init__()
 
     @property
-    def element(self):
-        if hasattr(self, "_element"):
-            return self._element
-        try:
-            self._element = self._driver.resolve_xpath(self.xpath).element
-        except StaleElementReferenceException:
-            self._element = None
+    def element(self) -> Optional[WebElement]:
+        if not hasattr(self, "_element"):
+            print("WARN: DOMNode context manager missing")
+            self.__enter__()
         return self._element
+
+    @property
+    def value(self) -> Any:
+        elem = self.element
+        return elem.get_attribute("value") if elem else None
 
     def highlight(self, color: str = "red", bounding_box=True):
         self._driver.highlight_nodes([self.xpath], color, bounding_box)
@@ -702,17 +709,68 @@ class SeleniumNode(DOMNode):
         return self
 
     def take_screenshot(self):
-        if self.element:
-            try:
-                return Image.open(BytesIO(self.element.screenshot_as_png))
-            except WebDriverException:
-                pass
+        with self:
+            if self.element:
+                try:
+                    return Image.open(BytesIO(self.element.screenshot_as_png))
+                except WebDriverException:
+                    pass
         return Image.new("RGB", (0, 0))
 
     def get_html(self):
-        return self._driver.driver.execute_script(
-            "return arguments[0].outerHTML", self.element
-        )
+        with self:
+            return self._driver.driver.execute_script(
+                "return arguments[0].outerHTML", self.element
+            )
+
+    def __enter__(self):
+        if hasattr(self, "_element"):
+            return self
+
+        self._element = None
+        if not self.xpath:
+            return self
+
+        root = self._driver.driver
+        local_xpath = self.xpath
+
+        def find_element(xpath):
+            try:
+                if isinstance(root, ShadowRoot):
+                    # Shadow root does not support find_element with xpath
+                    css_selector = re.sub(
+                        r"\[([0-9]+)\]",
+                        r":nth-of-type(\1)",
+                        xpath[1:].replace("/", " > "),
+                    )
+                    return root.find_element(By.CSS_SELECTOR, css_selector)
+                return root.find_element(By.XPATH, xpath)
+            except Exception:
+                return None
+
+        while local_xpath:
+            match = re.search(r"/iframe|//", local_xpath)
+
+            if match:
+                before, sep, local_xpath = local_xpath.partition(match.group())
+                if sep == "/iframe":
+                    self._driver.switch_frame(before + sep)
+                elif sep == "//":
+                    custom_element = find_element(before)
+                    if not custom_element:
+                        break
+                    root = custom_element.shadow_root
+                    local_xpath = "/" + local_xpath
+            else:
+                break
+
+        self._element = find_element(local_xpath)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if hasattr(self, "_element"):
+            self._driver.switch_default_frame()
+            del self._element
 
 
 class BrowserbaseRemoteConnection(RemoteConnection):
