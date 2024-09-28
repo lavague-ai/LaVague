@@ -11,6 +11,9 @@ class NavigationCommand(str, Enum):
     SET_VALUE_AND_ENTER = "set_value_and_enter"
     TYPE_KEY = "type_key"
     SCROLL = "scroll"
+    SWITCH_TAB = "switch_tab"
+    BACK = "back"
+    PASS = "pass"
 
 
 class NavigationOutput(BaseModel):

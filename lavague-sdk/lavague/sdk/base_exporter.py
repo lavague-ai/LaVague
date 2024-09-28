@@ -1,14 +1,11 @@
-from abc import ABC, abstractmethod
 from lavague.sdk.trajectory import Trajectory
 from lavague.sdk.action import (
     Action,
     ActionType,
-    WebNavigationAction,
-    WebExtractionAction,
 )
 from lavague.sdk.action.navigation import NavigationCommand, NavigationOutput
 from lavague.sdk.action.extraction import ExtractionOutput
-from typing import List, Optional, Callable, Self
+from typing import Optional
 
 
 class TrajectoryExporter:
