@@ -5,7 +5,7 @@ from PIL import Image
 from typing import Callable, Optional, Any, Mapping, Dict, List
 from lavague.core.utilities.format_utils import extract_code_from_funct
 from playwright.sync_api import Page, Locator
-from lavague.core.base_driver import (
+from lavague.sdk.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     JS_WAIT_DOM_IDLE,
@@ -47,7 +47,7 @@ class PlaywrightDriver(BaseDriver):
     # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
     # these imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Page:
-        from lavague.core.base_driver import JS_SETUP_GET_EVENTS
+        from lavague.sdk.base_driver import JS_SETUP_GET_EVENTS
 
         try:
             from playwright.sync_api import sync_playwright

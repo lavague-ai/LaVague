@@ -1,5 +1,5 @@
 from lavague.sdk.client import LaVagueClient
-from lavague.sdk.driver import BaseDriver
+from lavague.sdk.base_driver import BaseDriver
 
 
 class CloudDriver(BaseDriver):

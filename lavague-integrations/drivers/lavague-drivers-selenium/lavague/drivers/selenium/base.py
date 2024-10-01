@@ -13,7 +13,7 @@ from selenium.common.exceptions import (
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
-from lavague.core.base_driver import (
+from lavague.sdk.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
     JS_WAIT_DOM_IDLE,
@@ -88,7 +88,7 @@ class SeleniumDriver(BaseDriver):
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.common.action_chains import ActionChains
-        from lavague.core.base_driver import JS_SETUP_GET_EVENTS
+        from lavague.sdk.base_driver import JS_SETUP_GET_EVENTS
 
         if self.options:
             chrome_options = self.options
