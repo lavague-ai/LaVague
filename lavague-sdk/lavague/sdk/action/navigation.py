@@ -19,7 +19,7 @@ class NavigationCommand(str, Enum):
 class NavigationOutput(BaseModel):
     navigation_command: NavigationCommand
     xpath: str
-    value: Optional[str]
+    value: Optional[str] = None
 
 
 class WebNavigationAction(Action[NavigationOutput]):
