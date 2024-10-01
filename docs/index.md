@@ -46,19 +46,10 @@ pip install lavague
 2. Use our framework to build a Web Agent and implement the objective:
 
 ```python
-from lavague.core import  WorldModel, ActionEngine
-from lavague.core.agents import WebAgent
-from lavague.drivers.selenium import SeleniumDriver
+from lavague.sdk import WebAgent
 
-selenium_driver = SeleniumDriver(headless=False)
-world_model = WorldModel()
-action_engine = ActionEngine(selenium_driver)
-agent = WebAgent(world_model, action_engine)
-agent.get("https://huggingface.co/docs")
-agent.run("Go on the quicktour of PEFT")
-
-# Launch Gradio Agent Demo
-agent.demo("Go on the quicktour of PEFT")
+agent = WebAgent()
+trajectory = agent.run("https://huggingface.co/docs", "Go on the quicktour of PEFT")
 ```
 
 For more information on this example and how to use LaVague, see our [quick-tour](https://docs.lavague.ai/en/latest/docs/get-started/quick-tour/).
