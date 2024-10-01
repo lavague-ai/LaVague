@@ -33,3 +33,5 @@ ruff = "^0.2.2"
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.4"
 
+[tool.ruff.format]
+exclude = ["*.ipynb"]
