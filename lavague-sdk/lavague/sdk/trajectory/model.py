@@ -9,8 +9,7 @@ class RunStatus(str, Enum):
     RUNNING = "running"
     SUCCESS = "success"
     FAILED = "failed"
-    CANCELLED = "cancelled"
-    TIMED_OUT = "timed_out"
+    INTERRUPTED = "interrupted"
 
 
 class TrajectoryData(BaseModel):
