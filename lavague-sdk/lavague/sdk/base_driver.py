@@ -192,7 +192,14 @@ class BaseDriver(ABC):
 
     @abstractmethod
     def get_possible_interactions(
-        self, in_viewport=True, foreground_only=True
+        self,
+        in_viewport=True,
+        foreground_only=True,
+        types: List[InteractionType] = [
+            InteractionType.CLICK,
+            InteractionType.TYPE,
+            InteractionType.HOVER,
+        ],
     ) -> PossibleInteractionsByXpath:
         """Get elements that can be interacted with as a dictionary mapped by xpath"""
         pass
@@ -314,8 +321,9 @@ class BaseDriver(ABC):
     def get_screenshot_as_png(self) -> bytes:
         pass
 
+    @abstractmethod
     def get_shadow_roots(self) -> Dict[str, str]:
-        return {}
+        pass
 
     def get_nodes(self, xpaths: List[str]) -> List["DOMNode"]:
         raise NotImplementedError("get_nodes not implemented")
@@ -515,7 +523,7 @@ JS_GET_INTERACTIVES = """
 const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
 const windowWidth = (window.innerWidth || document.documentElement.clientWidth);
 
-return (function(inViewport, foregroundOnly, nonInteractives) {
+return (function(inViewport, foregroundOnly, nonInteractives, filterTypes) {
     function getInteractions(e) {
         const tag = e.tagName.toLowerCase();
         if (!e.checkVisibility() || (e.hasAttribute('disabled') && !nonInteractives) || e.hasAttribute('readonly')
@@ -536,7 +544,7 @@ return (function(inViewport, foregroundOnly, nonInteractives) {
         function hasEvent(n) {
             return events[n]?.length || e.hasAttribute('on' + n);
         }
-        const evts = [];
+        let evts = [];
         if (hasEvent('keydown') || hasEvent('keyup') || hasEvent('keypress') || hasEvent('keydown') || hasEvent('input') || e.isContentEditable
           || (
             (tag === 'input' || tag === 'textarea' || role === 'searchbox' || role === 'input')
@@ -553,8 +561,13 @@ return (function(inViewport, foregroundOnly, nonInteractives) {
         ) {
             evts.push('CLICK');
         }
-        if (hasEvent('scroll') || hasEvent('wheel')|| e.scrollHeight > e.clientHeight || e.scrollWidth > e.clientWidth) {
-            //evts.push('SCROLL');
+        if (
+            (hasEvent('scroll') || hasEvent('wheel') || style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll')
+            && (e.scrollHeight > e.clientHeight || e.scrollWidth > e.clientWidth)) {
+            evts.push('SCROLL');
+        }
+        if (filterTypes && evts.length) {
+            evts = evts.filter(t => filterTypes.includes(t));
         }
         if (nonInteractives && evts.length === 0) {
             evts.push('NONE');
@@ -600,7 +613,6 @@ return (function(inViewport, foregroundOnly, nonInteractives) {
             } while (pointContainer = pointContainer.parentNode);
             return [];
         }
-
         return evts;
     }
 
@@ -641,7 +653,7 @@ return (function(inViewport, foregroundOnly, nonInteractives) {
     }
     traverse(document.body, '/html/body');
     return results;
-})(arguments?.[0], arguments?.[1], arguments?.[2]);
+})(arguments?.[0], arguments?.[1], arguments?.[2], arguments?.[3]);
 """
 
 JS_WAIT_DOM_IDLE = """

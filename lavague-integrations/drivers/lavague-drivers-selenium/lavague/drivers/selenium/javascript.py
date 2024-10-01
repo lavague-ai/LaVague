@@ -51,12 +51,13 @@ def get_highlighter_style(color: str = "red", label: bool = False):
         label.style.position = 'absolute';
         label.style.backgroundColor = 'red';
         label.style.color = 'white';
-        label.style.padding = '0 4px';
+        label.style.padding = '0px 6px 2px 4px';
         label.style.top = '-12px';
         label.style.left = '-12px';
-        label.style['font-size'] = '13px';
+        label.style['font-size'] = '13pt';
+        label.style['font-weight'] = 'bold';
         label.style['border-bottom-right-radius'] = '13px';
-        label.textContent = i;
+        label.textContent = i + 1;
         bb.appendChild(label);
         """
     return set_style

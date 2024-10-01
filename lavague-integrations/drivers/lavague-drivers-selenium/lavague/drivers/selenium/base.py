@@ -60,8 +60,8 @@ class SeleniumDriver(BaseDriver):
         get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
         headless: bool = True,
         user_data_dir: Optional[str] = None,
-        width: Optional[int] = 1080,
-        height: Optional[int] = 1080,
+        width: Optional[int] = 1096,
+        height: Optional[int] = 1096,
         options: Optional[Options] = None,
         driver: Optional[WebDriver] = None,
         log_waiting_time=False,
@@ -650,12 +650,21 @@ driver.set_window_size({width}, {height} + height_difference)
         )
 
     def get_possible_interactions(
-        self, in_viewport=True, foreground_only=True
+        self,
+        in_viewport=True,
+        foreground_only=True,
+        types: List[InteractionType] = [
+            InteractionType.CLICK,
+            InteractionType.TYPE,
+            InteractionType.HOVER,
+        ],
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.driver.execute_script(
             JS_GET_INTERACTIVES,
             in_viewport,
             foreground_only,
+            False,
+            [t.name for t in types],
         )
         res = dict()
         for k, v in exe.items():

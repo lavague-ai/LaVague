@@ -308,17 +308,35 @@ class PlaywrightDriver(BaseDriver):
         self.execute_script("window.scrollBy(0, window.innerHeight);")
 
     def get_possible_interactions(
-        self, in_viewport=True, foreground_only=True
+        self,
+        in_viewport=True,
+        foreground_only=True,
+        types: List[InteractionType] = [
+            InteractionType.CLICK,
+            InteractionType.TYPE,
+            InteractionType.HOVER,
+        ],
     ) -> PossibleInteractionsByXpath:
         exe: Dict[str, List[str]] = self.execute_script(
             JS_GET_INTERACTIVES,
             in_viewport,
             foreground_only,
+            False,
+            [t.name for t in types],
         )
         res = dict()
         for k, v in exe.items():
             res[k] = set(InteractionType[i] for i in v)
         return res
+
+    def get_in_viewport(self):
+        res: Dict[str, List[str]] = self.driver.execute_script(
+            JS_GET_INTERACTIVES,
+            True,
+            True,
+            True,
+        )
+        return list(res.keys())
 
     def get_capability(self) -> str:
         return """
