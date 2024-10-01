@@ -38,14 +38,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install ./lavague-core
-        pip install ./lavague-integrations/contexts/lavague-contexts-gemini
-        pip install ./lavague-integrations/contexts/lavague-contexts-openai
-        pip install ./lavague-integrations/drivers/lavague-drivers-selenium
+        pip install ./lavague-sdk
         sudo apt-get install -y jq
         pip freeze | grep lavague
         git log | head -1
-        export DISABLE_LAVAGUE_ANIMATION=1
+        export LAVAGUE_TELEMETRY=NONE
 
     - name: Check code consistency with docs/index.md
       run: |
