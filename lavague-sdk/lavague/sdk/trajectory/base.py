@@ -17,8 +17,9 @@ class Trajectory(TrajectoryData):
 
     def next_action(self):
         ret = self._controller.next_step(self.run_id)
-        self.actions.append(ret.action)
         self.status = ret.run_status
+        if ret.action:
+            self.actions.append(ret.action)
         return ret.action
 
     def run_to_completion(self):

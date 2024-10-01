@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from pydantic import BaseModel, SerializeAsAny
 from lavague.sdk.action import Action
 
@@ -31,4 +31,4 @@ class TrajectoryData(BaseModel):
 
 class StepCompletion(BaseModel):
     run_status: RunStatus
-    action: Action
+    action: Optional[Action]
