@@ -9,7 +9,7 @@ from io import BytesIO
 import requests
 
 
-class LaVagueClient(TrajectoryController):
+class LaVague(TrajectoryController):
     """Client to interact with the LaVague API."""
 
     def __init__(
@@ -44,7 +44,7 @@ class LaVagueClient(TrajectoryController):
             raise ApiException(response.text)
         return response.content
 
-    def create_run(self, url: str, objective: str, step_by_step=False) -> Trajectory:
+    def run(self, url: str, objective: str, step_by_step=False) -> Trajectory:
         content = self.request_api(
             "/runs",
             "POST",
@@ -52,7 +52,7 @@ class LaVagueClient(TrajectoryController):
         )
         return Trajectory.from_data(content, self.parser, self)
 
-    def load_run(self, run_id: str) -> Trajectory:
+    def load(self, run_id: str) -> Trajectory:
         content = self.request_api(f"/runs/{run_id}", "GET")
         return Trajectory.from_data(content, self.parser, self)
 
@@ -63,7 +63,7 @@ class LaVagueClient(TrajectoryController):
         )
         return StepCompletion.model_validate_json(content)
 
-    def stop_run(self, run_id: str) -> None:
+    def stop(self, run_id: str) -> None:
         self.request_api(
             f"/runs/{run_id}/stop",
             "POST",
@@ -77,7 +77,7 @@ class LaVagueClient(TrajectoryController):
         content = self.request_api(f"/steps/{step_id}/screenshot/preaction", "GET")
         return Image.open(BytesIO(content))
 
-    def get_run_screenshot(self, run_id: str) -> ImageFile.ImageFile:
+    def get_screenshot(self, run_id: str) -> ImageFile.ImageFile:
         content = self.request_api(f"/runs/{run_id}/screenshot", "GET")
         return Image.open(BytesIO(content))
 

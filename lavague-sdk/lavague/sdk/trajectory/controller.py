@@ -8,5 +8,5 @@ class TrajectoryController(ABC):
         pass
 
     @abstractmethod
-    def stop_run(self, run_id: str) -> None:
+    def stop(self, run_id: str) -> None:
         pass

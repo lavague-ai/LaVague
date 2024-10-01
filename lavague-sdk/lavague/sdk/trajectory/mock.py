@@ -28,7 +28,7 @@ class MockTrajectoryController(TrajectoryController):
             else RunStatus.FAILED
         )
 
-    def stop_run(self, run_id: str):
+    def stop(self, run_id: str):
         pass
 
     @classmethod

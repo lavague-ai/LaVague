@@ -31,7 +31,7 @@ class Trajectory(TrajectoryData):
             return self.status
 
     def stop_run(self):
-        self._controller.stop_run(self.run_id)
+        self._controller.stop(self.run_id)
         self.status = RunStatus.CANCELLED
 
     def iter_actions(self) -> Iterator[Action]:
