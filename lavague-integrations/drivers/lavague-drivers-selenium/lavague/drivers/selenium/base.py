@@ -24,7 +24,7 @@ from lavague.sdk.base_driver import (
     InteractionType,
     DOMNode,
 )
-from lavague.core.exceptions import (
+from lavague.sdk.exceptions import (
     CannotBackException,
     NoElementException,
     AmbiguousException,
@@ -32,10 +32,6 @@ from lavague.core.exceptions import (
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
-from lavague.core.utilities.format_utils import (
-    extract_code_from_funct,
-    quote_numeric_yaml_values,
-)
 from selenium.webdriver.common.action_chains import ActionChains
 import time
 import yaml
@@ -126,28 +122,6 @@ class SeleniumDriver(BaseDriver):
             )
         self.resize_driver(self.width, self.height)
         return self.driver
-
-    def code_for_init(self) -> str:
-        init_lines = extract_code_from_funct(self.init_function)
-        code_lines = []
-        keep_next = True
-        for line in init_lines:
-            if "--user-data-dir" in line:
-                line = line.replace(
-                    f"{{self.user_data_dir}}", f'"{self.user_data_dir}"'
-                )
-            if "if" in line:
-                if ("headless" in line and not self.headless) or (
-                    "user_data_dir" in line and self.user_data_dir is None
-                ):
-                    keep_next = False
-            elif keep_next:
-                if "self" not in line:
-                    code_lines.append(line.strip())
-            else:
-                keep_next = True
-        code_lines.append(self.code_for_resize(self.width, self.height))
-        return "\n".join(code_lines) + "\n"
 
     def __enter__(self):
         return self

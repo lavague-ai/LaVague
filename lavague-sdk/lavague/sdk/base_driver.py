@@ -4,10 +4,6 @@ from pathlib import Path
 import re
 from typing import Any, Callable, Optional, Mapping, Dict, Set, List, Tuple, Union
 from abc import ABC, abstractmethod
-from lavague.core.utilities.format_utils import (
-    extract_code_from_funct,
-    extract_imports_from_lines,
-)
 from enum import Enum
 from datetime import datetime
 import hashlib
@@ -36,10 +32,6 @@ class BaseDriver(ABC):
         # Flag to check if the page has been previously scanned to avoid erasing screenshots from previous scan
         self.previously_scanned = False
 
-        # extract import lines for later exec of generated code
-        init_lines = extract_code_from_funct(self.init_function)
-        self.import_lines = extract_imports_from_lines(init_lines)
-
         if url is not None:
             self.get(url)
 
@@ -50,11 +42,6 @@ class BaseDriver(ABC):
     @abstractmethod
     def default_init_code(self) -> Any:
         """Init the driver, with the imports, since it will be pasted to the beginning of the output"""
-        pass
-
-    @abstractmethod
-    def code_for_init(self) -> str:
-        """Extract the code to past to the begining of the final script from the init code"""
         pass
 
     @abstractmethod

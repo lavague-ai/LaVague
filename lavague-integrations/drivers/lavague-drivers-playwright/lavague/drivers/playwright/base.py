@@ -3,7 +3,6 @@ import json
 import os
 from PIL import Image
 from typing import Callable, Optional, Any, Mapping, Dict, List
-from lavague.core.utilities.format_utils import extract_code_from_funct
 from playwright.sync_api import Page, Locator
 from lavague.sdk.base_driver import (
     BaseDriver,
@@ -12,7 +11,7 @@ from lavague.sdk.base_driver import (
     PossibleInteractionsByXpath,
     InteractionType,
 )
-from lavague.core.exceptions import (
+from lavague.sdk.exceptions import (
     NoElementException,
     AmbiguousException,
 )
@@ -81,39 +80,6 @@ class PlaywrightDriver(BaseDriver):
         self.page = page
         self.resize_driver(self.width, self.height)
         return self.page
-
-    def code_for_init(self) -> str:
-        init_lines = extract_code_from_funct(self.init_function)
-        code_lines = [
-            "from playwright.sync_api import sync_playwright",
-            "",
-        ]
-        ignore_next = 0
-        keep_else = False
-        start = False
-        for line in init_lines:
-            if "__enter__()" in line:
-                start = True
-            elif not start:
-                continue
-            if "self.headless" in line:
-                line = line.replace("self.headless", str(self.headless))
-            if "self.user_data_dir" in line:
-                line = line.replace("self.user_data_dir", f'"{self.user_data_dir}"')
-            if "if" in line:
-                if self.user_data_dir is not None:
-                    ignore_next = 1
-                    keep_else = True
-            elif "else" in line:
-                if not keep_else:
-                    ignore_next = 3
-            elif ignore_next <= 0:
-                if "self" not in line:
-                    code_lines.append(line.strip())
-            else:
-                ignore_next -= 1
-        code_lines.append(self.code_for_resize(self.width, self.height))
-        return "\n".join(code_lines) + "\n"
 
     def get_driver(self) -> Page:
         return self.page
