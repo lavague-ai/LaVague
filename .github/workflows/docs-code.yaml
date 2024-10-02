@@ -17,6 +17,8 @@ jobs:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      LAVAGUE_API_KEY: ${{ secrets.LAVAGUE_API_KEY }}
+      LAVAGUE_TELEMETRY: NONE
 
     steps:
     - name: Checkout Repository
@@ -41,8 +43,6 @@ jobs:
         sudo apt-get install -y jq
         pip freeze | grep lavague
         git log | head -1
-        export LAVAGUE_TELEMETRY=NONE
-        export LAVAGUE_API_KEY=${{ secrets.LAVAGUE_API_KEY }}
 
     - name: Check code consistency with docs/index.md
       run: |
