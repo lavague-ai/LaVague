@@ -42,6 +42,7 @@ jobs:
         pip freeze | grep lavague
         git log | head -1
         export LAVAGUE_TELEMETRY=NONE
+        export LAVAGUE_API_KEY=${{ secrets.LAVAGUE_API_KEY }}
 
     - name: Check code consistency with docs/index.md
       run: |
