@@ -1,339 +1,261 @@
-import re
-from typing import Any, Optional, Callable, Mapping, Dict, List
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.remote.shadowroot import ShadowRoot
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import (
-    NoSuchElementException,
-    WebDriverException,
-    ElementClickInterceptedException,
-    TimeoutException,
-)
-from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
-from lavague.sdk.base_driver import (
-    BaseDriver,
-    JS_GET_INTERACTIVES,
-    JS_WAIT_DOM_IDLE,
-    JS_GET_SCROLLABLE_PARENT,
-    JS_GET_SHADOW_ROOTS,
+import json
+import time
+from typing import Callable, Dict, List, Optional
+
+from lavague.drivers.selenium.node import SeleniumNode
+from lavague.sdk.action.navigation import NavigationOutput
+from lavague.sdk.base_driver import BaseDriver
+from lavague.sdk.base_driver.interaction import (
+    InteractionType,
     PossibleInteractionsByXpath,
     ScrollDirection,
-    InteractionType,
-    DOMNode,
+)
+from lavague.sdk.base_driver.javascript import (
+    ATTACH_MOVE_LISTENER,
+    JS_GET_INTERACTIVES,
+    JS_GET_SCROLLABLE_PARENT,
+    JS_GET_SHADOW_ROOTS,
+    JS_SETUP_GET_EVENTS,
+    JS_WAIT_DOM_IDLE,
+    REMOVE_HIGHLIGHT,
+    get_highlighter_style,
 )
 from lavague.sdk.exceptions import (
     CannotBackException,
-    NoElementException,
-    AmbiguousException,
+    NoPageException,
 )
-from PIL import Image
-from io import BytesIO
+
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    TimeoutException,
+)
+from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
-import time
-import yaml
-import json
-from selenium.webdriver.remote.remote_connection import RemoteConnection
-import requests
-import os
-from lavague.drivers.selenium.javascript import (
-    ATTACH_MOVE_LISTENER,
-    get_highlighter_style,
-    REMOVE_HIGHLIGHT,
-)
+from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.ui import Select, WebDriverWait
 
 
-class SeleniumDriver(BaseDriver):
+class SeleniumDriver(BaseDriver[SeleniumNode]):
     driver: WebDriver
-    last_hover_xpath: Optional[str] = None
 
     def __init__(
         self,
-        url: Optional[str] = None,
-        get_selenium_driver: Optional[Callable[[], WebDriver]] = None,
+        options: Optional[Options] = None,
         headless: bool = True,
         user_data_dir: Optional[str] = None,
-        width: Optional[int] = 1096,
-        height: Optional[int] = 1096,
-        options: Optional[Options] = None,
-        driver: Optional[WebDriver] = None,
-        log_waiting_time=False,
         waiting_completion_timeout=10,
-        remote_connection: Optional["BrowserbaseRemoteConnection"] = None,
-    ):
-        self.headless = headless
-        self.user_data_dir = user_data_dir
-        self.width = width
-        self.height = height
-        self.options = options
-        self.driver = driver
-        self.log_waiting_time = log_waiting_time
+        log_waiting_time=False,
+        user_agent="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
+        auto_init=True,
+    ) -> None:
         self.waiting_completion_timeout = waiting_completion_timeout
-        self.remote_connection = remote_connection
-        super().__init__(url, get_selenium_driver)
-
-    #   Default code to init the driver.
-    #   Before making any change to this, make sure it is compatible with code_for_init, which parses the code of this function
-    #   These imports are necessary as they will be pasted to the output
-    def default_init_code(self) -> Any:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.common.keys import Keys
-        from selenium.webdriver.common.action_chains import ActionChains
-        from lavague.sdk.base_driver import JS_SETUP_GET_EVENTS
-
-        if self.options:
-            chrome_options = self.options
+        self.log_waiting_time = log_waiting_time
+        if options:
+            self.options = options
         else:
-            chrome_options = Options()
-            if self.headless:
-                chrome_options.add_argument("--headless=new")
-            if self.user_data_dir:
-                chrome_options.add_argument(f"--user-data-dir={self.user_data_dir}")
-            else:
-                chrome_options.add_argument("--lang=en")
-                user_agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
-                chrome_options.add_argument(f"user-agent={user_agent}")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.page_load_strategy = "normal"
-        # allow access to cross origin iframes
-        chrome_options.add_argument("--disable-web-security")
-        chrome_options.add_argument("--disable-site-isolation-trials")
-        chrome_options.add_argument("--disable-notifications")
-        chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+            self.options = Options()
+            if headless:
+                self.options.add_argument("--headless=new")
+            self.options.add_argument("--lang=en")
+            self.options.add_argument(f"user-agent={user_agent}")
+            self.options.add_argument("--disable-notifications")
+        if user_data_dir:
+            self.options.add_argument(f"--user-data-dir={user_data_dir}")
+        self.options.page_load_strategy = "normal"
+        self.options.add_argument("--no-sandbox")
+        self.options.add_argument("--disable-web-security")
+        self.options.add_argument("--disable-site-isolation-trials")
+        self.options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+        if auto_init:
+            self.init()
 
-        if self.remote_connection:
-            chrome_options.add_experimental_option("debuggerAddress", "localhost:9223")
-            self.driver = webdriver.Remote(
-                self.remote_connection, options=chrome_options
-            )
-        elif self.driver is None:
-            self.driver = webdriver.Chrome(options=chrome_options)
+    def init(self) -> None:
+        self.driver = Chrome(options=self.options)
+        self.driver.execute_cdp_cmd(
+            "Page.addScriptToEvaluateOnNewDocument",
+            {"source": JS_SETUP_GET_EVENTS},
+        )
 
-            # 538: browserbase implementation - move execute_cdp_cmd to inner block to avoid error
-            # AttributeError: 'WebDriver' object has no attribute 'execute_cdp_cmd'
-            self.driver.execute_cdp_cmd(
-                "Page.addScriptToEvaluateOnNewDocument",
-                {"source": JS_SETUP_GET_EVENTS},
-            )
-        self.resize_driver(self.width, self.height)
-        return self.driver
+    def execute(self, action: NavigationOutput) -> None:
+        """Execute an action"""
+        with self.resolve_xpath(action.xpath) as node:
+            match action.navigation_command:
+                case InteractionType.CLICK:
+                    node.element.click()
 
-    def __enter__(self):
-        return self
+                case InteractionType.TYPE:
+                    value = action.value or ""
+                    if node.element.tag_name == "input":
+                        node.element.clear()
+                    if node.element.tag_name == "select":
+                        select = Select(node.element)
+                        try:
+                            select.select_by_value(value)
+                        except NoSuchElementException:
+                            select.select_by_visible_text(value)
+                    else:
+                        node.element.send_keys(value)
 
-    def __exit__(self, *args):
-        self.destroy()
+                case InteractionType.HOVER:
+                    ActionChains(self.driver).move_to_element(node.element).perform()
 
-    def get_driver(self) -> WebDriver:
-        return self.driver
+                case InteractionType.SCROLL:
+                    direction = ScrollDirection.from_string(action.value or "DOWN")
+                    self.scroll(action.xpath, direction)
 
-    def resize_driver(self, width, height) -> None:
-        if width is None and height is None:
-            return None
-        # Selenium is only being able to set window size and not viewport size
+    def destroy(self) -> None:
+        """Cleanly destroy the underlying driver"""
+        self.driver.quit()
+
+    def resize_driver(self, width: int, height: int):
+        """Resize the viewport to a targeted height and width"""
         self.driver.set_window_size(width, height)
         viewport_height = self.driver.execute_script("return window.innerHeight;")
-
         height_difference = height - viewport_height
         self.driver.set_window_size(width, height + height_difference)
-        self.width = width
-        self.height = height
 
-    def code_for_resize(self, width, height) -> str:
-        return f"""
-driver.set_window_size({width}, {height})
-viewport_height = driver.execute_script("return window.innerHeight;")
-height_difference = {height} - viewport_height
-driver.set_window_size({width}, {height} + height_difference)
-"""
-
-    def get_url(self) -> Optional[str]:
+    def get_url(self) -> str:
+        """Get the url of the current page, raise NoPageException if no page is loaded"""
         if self.driver.current_url == "data:,":
-            return None
+            raise NoPageException()
         return self.driver.current_url
 
-    def code_for_get(self, url: str) -> str:
-        return f'driver.get("{url}")'
-
     def get(self, url: str) -> None:
+        """Navigate to the url"""
         self.driver.get(url)
 
     def back(self) -> None:
-        if self.driver.execute_script("return !document.referrer"):
+        """Navigate back, raise CannotBackException if history root is reached"""
+        if self.driver.execute_script("return !document.referrer;"):
             raise CannotBackException()
         self.driver.back()
 
-    def code_for_back(self) -> None:
-        return "driver.back()"
-
     def get_html(self) -> str:
+        """
+        Returns the HTML of the current page.
+        If clean is True, We remove unnecessary tags and attributes from the HTML.
+        Clean HTMLs are easier to process for the LLM.
+        """
         return self.driver.page_source
 
-    def get_screenshot_as_png(self) -> bytes:
-        return self.driver.get_screenshot_as_png()
+    def get_tabs(self) -> str:
+        """Return description of the tabs opened with the current tab being focused.
 
-    def destroy(self) -> None:
-        self.driver.quit()
+        Example of output:
+        Tabs opened:
+        0 - Overview - OpenAI API
+        1 - [CURRENT] Nos destinations Train - SNCF Connect
+        """
+        window_handles = self.driver.window_handles
+        # Store the current window handle (focused tab)
+        current_handle = self.driver.current_window_handle
+        tab_info = []
+        tab_id = 0
 
-    def maximize_window(self) -> None:
-        self.driver.maximize_window()
+        for handle in window_handles:
+            # Switch to each tab
+            self.driver.switch_to.window(handle)
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            # Done manually here to avoid issues
-            element = self.resolve_xpath(xpath).element
-            res = (
-                element is not None and element.is_displayed() and element.is_enabled()
-            )
-            self.switch_default_frame()
-            return res
-        except:
-            return False
+            # Get the title of the current tab
+            title = self.driver.title
+
+            # Check if this is the focused tab
+            if handle == current_handle:
+                tab_info.append(f"{tab_id} - [CURRENT] {title}")
+            else:
+                tab_info.append(f"{tab_id} - {title}")
+
+            tab_id += 1
+
+        # Switch back to the original tab
+        self.driver.switch_to.window(current_handle)
+
+        tab_info = "\n".join(tab_info)
+        tab_info = "Tabs opened:\n" + tab_info
+        return tab_info
+
+    def switch_tab(self, tab_id: int) -> None:
+        """Switch to the tab with the given id"""
+        window_handles = self.driver.window_handles
+        self.driver.switch_to.window(window_handles[tab_id])
+
+    def resolve_xpath(self, xpath: str):
+        """
+        Return the element for the corresponding xpath, the underlying driver may switch iframe if necessary
+        """
+        return SeleniumNode(self.driver, xpath)
 
     def get_viewport_size(self) -> dict:
+        """Return viewport size as {"width": int, "height": int}"""
         viewport_size = {}
-        viewport_size["width"] = self.execute_script("return window.innerWidth;")
-        viewport_size["height"] = self.execute_script("return window.innerHeight;")
+        viewport_size["width"] = self.driver.execute_script("return window.innerWidth;")
+        viewport_size["height"] = self.driver.execute_script(
+            "return window.innerHeight;"
+        )
         return viewport_size
 
-    def get_highlighted_element(self, generated_code: str):
-        elements = []
-
-        # Ensures that numeric values are quoted
-        generated_code = quote_numeric_yaml_values(generated_code)
-
-        data = yaml.safe_load(generated_code)
-        if not isinstance(data, List):
-            data = [data]
-        for item in data:
-            for action in item["actions"]:
-                try:
-                    xpath = action["action"]["args"]["xpath"]
-                    elem = self.driver.find_element(By.XPATH, xpath)
-                    elements.append(elem)
-                except:
-                    pass
-
-        outputs = []
-        for element in elements:
-            element: WebElement
-
-            bounding_box = {}
-
-            self.execute_script(
-                "arguments[0].setAttribute('style', arguments[1]);",
-                element,
-                "border: 2px solid red;",
-            )
-            self.execute_script(
-                "arguments[0].scrollIntoView({block: 'center'});", element
-            )
-            screenshot = self.get_screenshot_as_png()
-
-            bounding_box["x1"] = element.location["x"]
-            bounding_box["y1"] = element.location["y"]
-            bounding_box["x2"] = bounding_box["x1"] + element.size["width"]
-            bounding_box["y2"] = bounding_box["y1"] + element.size["height"]
-
-            screenshot = BytesIO(screenshot)
-            screenshot = Image.open(screenshot)
-            output = {
-                "screenshot": screenshot,
-                "bounding_box": bounding_box,
-                "viewport_size": self.get_viewport_size(),
-            }
-            outputs.append(output)
-        return outputs
-
-    def switch_frame(self, xpath):
-        iframe = self.driver.find_element(By.XPATH, xpath)
-        self.driver.switch_to.frame(iframe)
-
-    def switch_default_frame(self) -> None:
-        self.driver.switch_to.default_content()
-
-    def switch_parent_frame(self) -> None:
-        self.driver.switch_to.parent_frame()
-
-    def resolve_xpath(self, xpath: Optional[str]) -> "SeleniumNode":
-        return SeleniumNode(xpath, self)
-
-    def exec_code(
+    def get_possible_interactions(
         self,
-        code: str,
-        globals: dict[str, Any] = None,
-        locals: Mapping[str, object] = None,
-    ):
-        # Ensures that numeric values are quoted to avoid issues with YAML parsing
-        code = quote_numeric_yaml_values(code)
-
-        data = yaml.safe_load(code)
-        if not isinstance(data, List):
-            data = [data]
-        for item in data:
-            for action in item["actions"]:
-                action_name = action["action"]["name"]
-                args = action["action"]["args"]
-                xpath = args.get("xpath", None)
-
-                match action_name:
-                    case "click":
-                        self.click(xpath)
-                    case "setValue":
-                        self.set_value(xpath, args["value"])
-                    case "setValueAndEnter":
-                        self.set_value(xpath, args["value"], True)
-                    case "dropdownSelect":
-                        self.dropdown_select(xpath, args["value"])
-                    case "hover":
-                        self.hover(xpath)
-                    case "scroll":
-                        self.scroll(
-                            xpath,
-                            ScrollDirection.from_string(args.get("value", "DOWN")),
-                        )
-                    case "failNoElement":
-                        raise NoElementException("No element: " + args["value"])
-                    case "failAmbiguous":
-                        raise AmbiguousException("Ambiguous: " + args["value"])
-                    case _:
-                        raise ValueError(f"Unknown action: {action_name}")
-
-                self.wait_for_idle()
-
-    def execute_script(self, js_code: str, *args) -> Any:
-        return self.driver.execute_script(js_code, *args)
-
-    def scroll_up(self):
-        self.scroll(direction=ScrollDirection.UP)
-
-    def scroll_down(self):
-        self.scroll(direction=ScrollDirection.DOWN)
-
-    def code_for_execute_script(self, js_code: str, *args) -> str:
-        return (
-            f"driver.execute_script({js_code}, {', '.join(str(arg) for arg in args)})"
+        in_viewport=True,
+        foreground_only=True,
+        types: List[InteractionType] = [
+            InteractionType.CLICK,
+            InteractionType.TYPE,
+            InteractionType.HOVER,
+        ],
+    ) -> PossibleInteractionsByXpath:
+        """Get elements that can be interacted with as a dictionary mapped by xpath"""
+        exe: Dict[str, List[str]] = self.driver.execute_script(
+            JS_GET_INTERACTIVES,
+            in_viewport,
+            foreground_only,
+            False,
+            [t.name for t in types],
         )
+        res = dict()
+        for k, v in exe.items():
+            res[k] = set(InteractionType[i] for i in v)
+        return res
 
-    def hover(self, xpath: str):
-        with self.resolve_xpath(xpath) as element_resolved:
-            self.last_hover_xpath = xpath
-            ActionChains(self.driver).move_to_element(
-                element_resolved.element
-            ).perform()
+    def scroll_into_view(self, xpath: str):
+        with self.resolve_xpath(xpath) as node:
+            self.driver.execute_script("arguments[0].scrollIntoView()", node.element)
+
+    def scroll(
+        self,
+        xpath_anchor: Optional[str] = "/html/body",
+        direction: ScrollDirection = ScrollDirection.DOWN,
+        scroll_factor=0.75,
+    ):
+        try:
+            scroll_anchor = self.get_scroll_anchor(xpath_anchor)
+            if not scroll_anchor:
+                self.scroll_page(direction)
+                return
+            size, is_container = self.get_scroll_container_size(scroll_anchor)
+            scroll_xy = direction.get_scroll_xy(size, scroll_factor)
+            if is_container:
+                ActionChains(self.driver).move_to_element(
+                    scroll_anchor
+                ).scroll_from_origin(
+                    ScrollOrigin(scroll_anchor, 0, 0), scroll_xy[0], scroll_xy[1]
+                ).perform()
+            else:
+                ActionChains(self.driver).scroll_by_amount(
+                    scroll_xy[0], scroll_xy[1]
+                ).perform()
+        except NoSuchElementException:
+            self.scroll_page(direction)
 
     def scroll_page(self, direction: ScrollDirection = ScrollDirection.DOWN):
         self.driver.execute_script(direction.get_page_script())
 
     def get_scroll_anchor(self, xpath_anchor: Optional[str] = None) -> WebElement:
-        with self.resolve_xpath(
-            xpath_anchor or self.last_hover_xpath
-        ) as element_resolved:
+        with self.resolve_xpath(xpath_anchor or "/html/body") as element_resolved:
             element = element_resolved.element
             parent = self.driver.execute_script(JS_GET_SCROLLABLE_PARENT, element)
             scroll_anchor = parent or element
@@ -356,133 +278,8 @@ driver.set_window_size({width}, {height} + height_difference)
             False,
         )
 
-    def is_bottom_of_page(self) -> bool:
-        return not self.can_scroll(direction=ScrollDirection.DOWN)
-
-    def can_scroll(
-        self,
-        xpath_anchor: Optional[str] = None,
-        direction: ScrollDirection = ScrollDirection.DOWN,
-    ) -> bool:
-        try:
-            scroll_anchor = self.get_scroll_anchor(xpath_anchor)
-            if scroll_anchor:
-                return self.driver.execute_script(
-                    direction.get_script_element_is_scrollable(),
-                    scroll_anchor,
-                )
-        except NoSuchElementException:
-            pass
-        return self.driver.execute_script(direction.get_script_page_is_scrollable())
-
-    def scroll(
-        self,
-        xpath_anchor: Optional[str] = None,
-        direction: ScrollDirection = ScrollDirection.DOWN,
-        scroll_factor=0.75,
-    ):
-        try:
-            scroll_anchor = self.get_scroll_anchor(xpath_anchor)
-            if not scroll_anchor:
-                self.scroll_page(direction)
-                return
-            size, is_container = self.get_scroll_container_size(scroll_anchor)
-            scroll_xy = direction.get_scroll_xy(size, scroll_factor)
-            if is_container:
-                ActionChains(self.driver).move_to_element(
-                    scroll_anchor
-                ).scroll_from_origin(
-                    ScrollOrigin(scroll_anchor, 0, 0), scroll_xy[0], scroll_xy[1]
-                ).perform()
-            else:
-                ActionChains(self.driver).scroll_by_amount(
-                    scroll_xy[0], scroll_xy[1]
-                ).perform()
-            if xpath_anchor:
-                self.last_hover_xpath = xpath_anchor
-        except NoSuchElementException:
-            self.scroll_page(direction)
-
-    def click(self, xpath: str):
-        with self.resolve_xpath(xpath) as element_resolved:
-            element = element_resolved.element
-            self.last_hover_xpath = xpath
-            try:
-                element.click()
-            except ElementClickInterceptedException:
-                try:
-                    # Move to the element and click at its position
-                    ActionChains(self.driver).move_to_element(element).click().perform()
-                except WebDriverException as click_error:
-                    raise Exception(
-                        f"Failed to click at element coordinates of {xpath} : {str(click_error)}"
-                    )
-            except Exception as e:
-                import traceback
-
-                traceback.print_exc()
-                raise Exception(
-                    f"An unexpected error occurred when trying to click on {xpath}: {str(e)}"
-                )
-
-    def set_value(self, xpath: str, value: str, enter: bool = False):
-        with self.resolve_xpath(xpath) as element_resolved:
-            elem = element_resolved.element
-            try:
-                self.last_hover_xpath = xpath
-                if elem.tag_name == "select":
-                    # use the dropdown_select to set the value of a select
-                    return self.dropdown_select(xpath, value)
-                if elem.tag_name == "input" and elem.get_attribute("type") == "file":
-                    # set the value of a file input
-                    return self.upload_file(xpath, value)
-
-                elem.clear()
-            except:
-                # might not be a clearable element, but global click + send keys can still success
-                pass
-
-        self.click(xpath)
-
-        (
-            ActionChains(self.driver)
-            .key_down(Keys.CONTROL)
-            .send_keys("a")
-            .key_up(Keys.CONTROL)
-            .send_keys(Keys.DELETE)  # clear the input field
-            .send_keys(value)
-            .perform()
-        )
-        if enter:
-            ActionChains(self.driver).send_keys(Keys.ENTER).perform()
-
-    def dropdown_select(self, xpath: str, value: str):
-        with self.resolve_xpath(xpath) as element_resolved:
-            element = element_resolved.element
-            self.last_hover_xpath = xpath
-
-            if element.tag_name != "select":
-                print(
-                    f"Cannot use dropdown_select on {element.tag_name}, falling back to simple click on {xpath}"
-                )
-                return self.click(xpath)
-
-            select = Select(element)
-            try:
-                select.select_by_value(value)
-            except NoSuchElementException:
-                select.select_by_visible_text(value)
-
-    def upload_file(self, xpath: str, file_path: str):
-        with self.resolve_xpath(xpath) as element_resolved:
-            element = element_resolved.element
-            self.last_hover_xpath = xpath
-            element.send_keys(file_path)
-
-    def perform_wait(self, duration: float):
-        import time
-
-        time.sleep(duration)
+    def wait_for_dom_stable(self, timeout: float = 10):
+        self.driver.execute_script(JS_WAIT_DOM_IDLE, max(0, round(timeout * 1000)))
 
     def is_idle(self):
         active = 0
@@ -510,9 +307,6 @@ driver.set_window_size({width}, {height} + height_difference)
 
         return len(request_ids) == 0 and active <= 0
 
-    def wait_for_dom_stable(self, timeout: float = 10):
-        self.driver.execute_script(JS_WAIT_DOM_IDLE, max(0, round(timeout * 1000)))
-
     def wait_for_idle(self):
         t = time.time()
         elapsed = 0
@@ -532,49 +326,39 @@ driver.set_window_size({width}, {height} + height_difference)
             )
 
     def get_capability(self) -> str:
+        """Prompt to explain the llm which style of code he should output and which variables and imports he should expect"""
         return SELENIUM_PROMPT_TEMPLATE
 
-    def get_tabs(self):
-        driver = self.driver
-        window_handles = driver.window_handles
-        # Store the current window handle (focused tab)
-        current_handle = driver.current_window_handle
-        tab_info = []
-        tab_id = 0
+    def get_screenshot_as_png(self) -> bytes:
+        return self.driver.get_screenshot_as_png()
 
-        for handle in window_handles:
-            # Switch to each tab
-            driver.switch_to.window(handle)
+    def get_shadow_roots(self) -> Dict[str, str]:
+        """Return a dictionary of shadow roots HTML by xpath"""
+        return self.driver.execute_script(JS_GET_SHADOW_ROOTS)
 
-            # Get the title of the current tab
-            title = driver.title
+    def get_nodes(self, xpaths: List[str]) -> List[SeleniumNode]:
+        return [SeleniumNode(self.driver, xpath) for xpath in xpaths]
 
-            # Check if this is the focused tab
-            if handle == current_handle:
-                tab_info.append(f"{tab_id} - [CURRENT] {title}")
-            else:
-                tab_info.append(f"{tab_id} - {title}")
+    def highlight_nodes(
+        self, xpaths: List[str], color: str = "red", label=False
+    ) -> Callable:
+        nodes = self.get_nodes(xpaths)
+        self.driver.execute_script(ATTACH_MOVE_LISTENER)
+        set_style = get_highlighter_style(color, label)
+        self.exec_script_for_nodes(
+            nodes, "arguments[0].forEach((a, i) => { " + set_style + "})"
+        )
+        return self._add_highlighted_destructors(
+            lambda: self.remove_nodes_highlight(xpaths)
+        )
 
-            tab_id += 1
+    def remove_nodes_highlight(self, xpaths: List[str]):
+        self.exec_script_for_nodes(
+            self.get_nodes(xpaths),
+            REMOVE_HIGHLIGHT,
+        )
 
-        # Switch back to the original tab
-        driver.switch_to.window(current_handle)
-
-        tab_info = "\n".join(tab_info)
-        tab_info = "Tabs opened:\n" + tab_info
-        return tab_info
-
-    def switch_tab(self, tab_id: int):
-        driver = self.driver
-        window_handles = driver.window_handles
-
-        # Switch to the tab with the given id
-        driver.switch_to.window(window_handles[tab_id])
-
-    def get_nodes(self, xpaths: List[str]) -> List["SeleniumNode"]:
-        return [SeleniumNode(xpath, self) for xpath in xpaths]
-
-    def exec_script_for_nodes(self, nodes: List["SeleniumNode"], script: str):
+    def exec_script_for_nodes(self, nodes: List[SeleniumNode], script: str):
         standard_nodes: List[SeleniumNode] = []
         special_nodes: List[SeleniumNode] = []
 
@@ -602,190 +386,14 @@ driver.set_window_size({width}, {height} + height_difference)
                         script,
                         [n.element],
                     )
-                    self.switch_default_frame()
+                    self.driver.switch_to.default_content()
 
-    def remove_nodes_highlight(self, xpaths: List[str]):
-        self.exec_script_for_nodes(
-            self.get_nodes(xpaths),
-            REMOVE_HIGHLIGHT,
-        )
+    def switch_frame(self, xpath: str) -> None:
+        iframe = self.driver.find_element(By.XPATH, xpath)
+        self.driver.switch_to.frame(iframe)
 
-    def highlight_nodes(
-        self, xpaths: List[str], color: str = "red", label=False
-    ) -> Callable:
-        nodes = self.get_nodes(xpaths)
-        self.driver.execute_script(ATTACH_MOVE_LISTENER)
-        set_style = get_highlighter_style(color, label)
-        self.exec_script_for_nodes(
-            nodes, "arguments[0].forEach((a, i) => { " + set_style + "})"
-        )
-        return self._add_highlighted_destructors(
-            lambda: self.remove_nodes_highlight(xpaths)
-        )
-
-    def get_possible_interactions(
-        self,
-        in_viewport=True,
-        foreground_only=True,
-        types: List[InteractionType] = [
-            InteractionType.CLICK,
-            InteractionType.TYPE,
-            InteractionType.HOVER,
-        ],
-    ) -> PossibleInteractionsByXpath:
-        exe: Dict[str, List[str]] = self.driver.execute_script(
-            JS_GET_INTERACTIVES,
-            in_viewport,
-            foreground_only,
-            False,
-            [t.name for t in types],
-        )
-        res = dict()
-        for k, v in exe.items():
-            res[k] = set(InteractionType[i] for i in v)
-        return res
-
-    def get_in_viewport(self):
-        res: Dict[str, List[str]] = self.driver.execute_script(
-            JS_GET_INTERACTIVES,
-            True,
-            True,
-            True,
-        )
-        return list(res.keys())
-
-    def get_shadow_roots(self) -> Dict[str, str]:
-        return self.driver.execute_script(JS_GET_SHADOW_ROOTS)
-
-
-class SeleniumNode(DOMNode):
-    def __init__(
-        self,
-        xpath: Optional[str],
-        driver: SeleniumDriver,
-        element: Optional[WebElement] = None,
-    ) -> None:
-        if not xpath:
-            raise NoSuchElementException("xpath is missing")
-        self.xpath = xpath
-        self._driver = driver
-        if element:
-            self._element = element
-        super().__init__()
-
-    @property
-    def element(self) -> Optional[WebElement]:
-        if not hasattr(self, "_element"):
-            print("WARN: DOMNode context manager missing")
-            self.__enter__()
-        return self._element
-
-    @property
-    def value(self) -> Any:
-        elem = self.element
-        return elem.get_attribute("value") if elem else None
-
-    def highlight(self, color: str = "red", bounding_box=True):
-        self._driver.highlight_nodes([self.xpath], color, bounding_box)
-        return self
-
-    def clear(self):
-        self._driver.remove_nodes_highlight([self.xpath])
-        return self
-
-    def take_screenshot(self):
-        with self:
-            if self.element:
-                try:
-                    return Image.open(BytesIO(self.element.screenshot_as_png))
-                except WebDriverException:
-                    pass
-        return Image.new("RGB", (0, 0))
-
-    def get_html(self):
-        with self:
-            return self._driver.driver.execute_script(
-                "return arguments[0].outerHTML", self.element
-            )
-
-    def __enter__(self):
-        if hasattr(self, "_element"):
-            return self
-
-        self._element = None
-        if not self.xpath:
-            return self
-
-        root = self._driver.driver
-        local_xpath = self.xpath
-
-        def find_element(xpath):
-            try:
-                if isinstance(root, ShadowRoot):
-                    # Shadow root does not support find_element with xpath
-                    css_selector = re.sub(
-                        r"\[([0-9]+)\]",
-                        r":nth-of-type(\1)",
-                        xpath[1:].replace("/", " > "),
-                    )
-                    return root.find_element(By.CSS_SELECTOR, css_selector)
-                return root.find_element(By.XPATH, xpath)
-            except Exception:
-                return None
-
-        while local_xpath:
-            match = re.search(r"/iframe|//", local_xpath)
-
-            if match:
-                before, sep, local_xpath = local_xpath.partition(match.group())
-                if sep == "/iframe":
-                    self._driver.switch_frame(before + sep)
-                elif sep == "//":
-                    custom_element = find_element(before)
-                    if not custom_element:
-                        break
-                    root = custom_element.shadow_root
-                    local_xpath = "/" + local_xpath
-            else:
-                break
-
-        self._element = find_element(local_xpath)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if hasattr(self, "_element"):
-            self._driver.switch_default_frame()
-            del self._element
-
-
-class BrowserbaseRemoteConnection(RemoteConnection):
-    _session_id = None
-
-    def __init__(
-        self,
-        remote_server_addr: str,
-        api_key: Optional[str] = None,
-        project_id: Optional[str] = None,
-    ):
-        super().__init__(remote_server_addr)
-        self.api_key = api_key or os.environ["BROWSERBASE_API_KEY"]
-        self.project_id = project_id or os.environ["BROWSERBASE_PROJECT_ID"]
-
-    def get_remote_connection_headers(self, parsed_url, keep_alive=False):
-        if self._session_id is None:
-            self._session_id = self._create_session()
-        headers = super().get_remote_connection_headers(parsed_url, keep_alive)
-        headers.update({"x-bb-api-key": self.api_key})
-        headers.update({"session-id": self._session_id})
-        return headers
-
-    def _create_session(self):
-        url = "https://www.browserbase.com/v1/sessions"
-        headers = {"Content-Type": "application/json", "x-bb-api-key": self.api_key}
-        response = requests.post(
-            url, json={"projectId": self.project_id}, headers=headers
-        )
-        return response.json()["id"]
+    def switch_parent_frame(self) -> None:
+        self.driver.switch_to.parent_frame()
 
 
 SELENIUM_PROMPT_TEMPLATE = """

@@ -1,12 +1,29 @@
-from lavague.sdk.trajectory.model import StepCompletion
-from lavague.sdk.utilities.config import get_config, is_flag_true, LAVAGUE_API_BASE_URL
-from lavague.sdk.action import ActionParser, DEFAULT_PARSER
+from io import BytesIO
+from typing import Any, Optional, Tuple
+
+import requests
+from lavague.sdk.action import DEFAULT_PARSER, ActionParser
 from lavague.sdk.trajectory import Trajectory
 from lavague.sdk.trajectory.controller import TrajectoryController
-from typing import Any, Optional
+from lavague.sdk.trajectory.model import StepCompletion
+from lavague.sdk.utilities.config import LAVAGUE_API_BASE_URL, get_config, is_flag_true
 from PIL import Image, ImageFile
-from io import BytesIO
-import requests
+from pydantic import BaseModel
+
+
+class RunRequest(BaseModel):
+    url: str
+    objective: str
+    step_by_step: Optional[bool] = False
+    cloud_driver: Optional[bool] = True
+    await_completion: Optional[bool] = False
+    is_public: Optional[bool] = False
+    viewport_size: Optional[Tuple[int, int]] = None
+
+
+class RunUpdate(BaseModel):
+    objective: Optional[str] = None
+    is_public: Optional[bool] = False
 
 
 class LaVague(TrajectoryController):
@@ -44,11 +61,19 @@ class LaVague(TrajectoryController):
             raise ApiException(response.text)
         return response.content
 
-    def run(self, url: str, objective: str, step_by_step=False) -> Trajectory:
+    def run(self, request: RunRequest) -> Trajectory:
         content = self.request_api(
             "/runs",
             "POST",
-            {"url": url, "objective": objective, "step_by_step": step_by_step},
+            request.model_dump(),
+        )
+        return Trajectory.from_data(content, self.parser, self)
+
+    def update(self, run_id: str, request: RunUpdate) -> Trajectory:
+        content = self.request_api(
+            f"/runs/{run_id}",
+            "PATCH",
+            request.model_dump(),
         )
         return Trajectory.from_data(content, self.parser, self)
 

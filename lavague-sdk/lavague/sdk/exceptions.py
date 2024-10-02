@@ -14,6 +14,11 @@ class CannotBackException(NavigationException):
         super().__init__(message)
 
 
+class NoPageException(NavigationException):
+    def __init__(self, message="No page loaded"):
+        super().__init__(message)
+
+
 class RetrievalException(NavigationException):
     pass
 

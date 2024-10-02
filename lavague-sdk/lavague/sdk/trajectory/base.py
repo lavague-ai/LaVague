@@ -33,12 +33,15 @@ class Trajectory(TrajectoryData):
 
     def stop_run(self):
         self._controller.stop(self.run_id)
-        self.status = RunStatus.CANCELLED
+        self.status = RunStatus.INTERRUPTED
+        self.error_msg = "Run interrupted by user"
 
     def iter_actions(self) -> Iterator[Action]:
         yield from self.actions
         while self.is_running:
-            yield self.next_action()
+            action = self.next_action()
+            if action is not None:
+                yield action
 
     @classmethod
     def from_data(

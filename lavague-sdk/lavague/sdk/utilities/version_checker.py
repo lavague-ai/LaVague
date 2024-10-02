@@ -41,6 +41,8 @@ def check_latest_version():
     url = "https://pypi.org/pypi/lavague-sdk/json"
     response = requests.get(url)
     data = response.json()
+    if data.get("message") == "Not Found":
+        return
     latest_version = data["info"]["version"]
     if compare_versions(package_version, latest_version) < 0:
         warnings.warn(

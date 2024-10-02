@@ -21,6 +21,7 @@ class TrajectoryData(BaseModel):
     viewport_size: Tuple[int, int]
     status: RunStatus
     actions: List[SerializeAsAny[Action]]
+    error_msg: Optional[str] = None
 
     def write_to_file(self, file_path: str):
         json_model = self.model_dump_json(indent=2)
