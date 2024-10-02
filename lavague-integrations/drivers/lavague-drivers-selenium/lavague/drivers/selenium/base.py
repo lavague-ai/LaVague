@@ -13,6 +13,7 @@ from selenium.common.exceptions import (
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
+from lavague.sdk.utilities.format_utils import quote_numeric_yaml_values
 from lavague.sdk.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
