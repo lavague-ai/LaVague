@@ -20,6 +20,7 @@ PossibleInteractionsByXpath = Dict[str, Set[InteractionType]]
 
 r_get_xpaths_from_html = r'xpath=["\'](.*?)["\']'
 
+
 class ScrollDirection(Enum):
     """Enum for the different scroll directions. Value is (x, y, dimension_index)"""
 
@@ -277,7 +278,7 @@ class BaseDriver(ABC):
         scroll_factor=0.75,
     ):
         pass
-    
+
     # TODO: Remove these methods as they are not used
     @abstractmethod
     def scroll_up(self):
@@ -487,8 +488,6 @@ class DOMNode(ABC):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
-
-
 
 
 def js_wrap_function_call(fn: str):
