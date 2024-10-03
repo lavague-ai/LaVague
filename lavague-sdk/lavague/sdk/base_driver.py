@@ -6,7 +6,8 @@ from typing import Any, Callable, Optional, Mapping, Dict, Set, List, Tuple, Uni
 from abc import ABC, abstractmethod
 from enum import Enum
 from datetime import datetime
-import hashlib
+import glob
+from pathlib import Path
 
 
 class InteractionType(Enum):
@@ -19,7 +20,6 @@ class InteractionType(Enum):
 PossibleInteractionsByXpath = Dict[str, Set[InteractionType]]
 
 r_get_xpaths_from_html = r'xpath=["\'](.*?)["\']'
-
 
 class ScrollDirection(Enum):
     """Enum for the different scroll directions. Value is (x, y, dimension_index)"""
@@ -184,45 +184,28 @@ class BaseDriver(ABC):
         """
         pass
 
-    def save_screenshot(self, current_screenshot_folder: Path) -> str:
-        """Save the screenshot data to a file and return the path. If the screenshot already exists, return the path. If not save it to the folder."""
+    def save_screenshot(self, screenshot_folder: Path = Path("./screenshots")) -> str:
+        """Save the screenshot data to a file and return the filename."""
+        from datetime import datetime
 
-        new_screenshot = self.get_screenshot_as_png()
-        hasher = hashlib.md5()
-        hasher.update(new_screenshot)
-        new_hash = hasher.hexdigest()
-        new_screenshot_name = f"{new_hash}.png"
-        new_screenshot_full_path = current_screenshot_folder / new_screenshot_name
+        # Get current date and time
+        now = datetime.now()
+        new_screenshot_name  = now.strftime("%Y%m%d%H%M%S") + ".png"
+        new_screenshot_full_path = screenshot_folder / new_screenshot_name
+        # Get the screenshot
+        screenshot = self.get_screenshot_as_png()
 
-        # If the screenshot does not exist, save it
-        if not new_screenshot_full_path.exists():
-            with open(new_screenshot_full_path, "wb") as f:
-                f.write(new_screenshot)
+        if not screenshot_folder.exists():
+            screenshot_folder.mkdir()
+
+        with open(new_screenshot_full_path, "wb") as f:
+            f.write(screenshot)
         return str(new_screenshot_full_path)
 
     def is_bottom_of_page(self) -> bool:
         return self.execute_script(
             "return (window.innerHeight + window.scrollY + 1) >= document.body.scrollHeight;"
         )
-
-    def get_screenshots_whole_page(self, max_screenshots=30) -> list[str]:
-        """Take screenshots of the whole page"""
-        screenshot_paths = []
-
-        current_screenshot_folder = self.get_current_screenshot_folder()
-
-        for i in range(max_screenshots):
-            # Saves a screenshot
-            screenshot_path = self.save_screenshot(current_screenshot_folder)
-            screenshot_paths.append(screenshot_path)
-            self.scroll_down()
-            self.wait_for_idle()
-
-            if self.is_bottom_of_page():
-                break
-
-        self.previously_scanned = True
-        return screenshot_paths
 
     @abstractmethod
     def get_possible_interactions(
@@ -278,7 +261,7 @@ class BaseDriver(ABC):
         scroll_factor=0.75,
     ):
         pass
-
+    
     # TODO: Remove these methods as they are not used
     @abstractmethod
     def scroll_up(self):
@@ -300,27 +283,6 @@ class BaseDriver(ABC):
 
     def get_obs(self) -> dict:
         """Get the current observation of the driver"""
-        current_screenshot_folder = self.get_current_screenshot_folder()
-
-        if not self.previously_scanned:
-            # If the last operation was not to scan the whole page, we clear the screenshot folder
-            try:
-                if os.path.isdir(current_screenshot_folder):
-                    for filename in os.listdir(current_screenshot_folder):
-                        file_path = os.path.join(current_screenshot_folder, filename)
-                        try:
-                            # Check if it's a file and then delete it
-                            if os.path.isfile(file_path) or os.path.islink(file_path):
-                                os.remove(file_path)
-                        except Exception as e:
-                            print(f"Failed to delete {file_path}. Reason: {e}")
-
-            except Exception as e:
-                raise Exception(f"Error while clearing screenshot folder: {e}")
-        else:
-            # If the last operation was to scan the whole page, we reset the flag
-            self.previously_scanned = False
-
         # We add labels to the scrollable elements
         i_scroll = self.get_possible_interactions(types=[InteractionType.SCROLL])
         scrollables_xpaths = list(i_scroll.keys())
@@ -329,14 +291,25 @@ class BaseDriver(ABC):
         self.highlight_nodes(scrollables_xpaths, label=True)
 
         # We take a screenshot and computes its hash to see if it already exists
-        self.save_screenshot(current_screenshot_folder)
+        self.save_screenshot()
+
+        # Delete the oldest screenshot if there are more than 2 to always keep 2 screenshots at most
+        screenshots_dir = Path("screenshots")
+        screenshot_files = glob.glob(str(screenshots_dir / "*.png"))
+        
+        # Delete the oldest screenshot if there are more than 2 to always keep 2 screenshots at most
+        if len(screenshot_files) >= 3:
+            # Sort files by modification time (oldest first)
+            screenshot_files.sort(key=os.path.getmtime)
+            # Delete the oldest file
+            os.remove(screenshot_files[0])
         self.remove_highlight()
 
         url = self.get_url()
         html = self.get_html()
         obs = {
             "html": html,
-            "screenshots_path": str(current_screenshot_folder),
+            "screenshots_path": str(screenshots_dir),
             "url": url,
             "date": datetime.now().isoformat(),
             "tab_info": self.get_tabs(),
@@ -351,23 +324,6 @@ class BaseDriver(ABC):
 
     def wait_for_idle(self):
         pass
-
-    def get_current_screenshot_folder(self) -> Path:
-        url = self.get_url()
-
-        if url is None:
-            url = "blank"
-
-        screenshots_path = Path("./screenshots")
-        screenshots_path.mkdir(exist_ok=True)
-
-        current_url = url.replace("://", "_").replace("/", "_")
-        hasher = hashlib.md5()
-        hasher.update(current_url.encode("utf-8"))
-
-        current_screenshot_folder = screenshots_path / hasher.hexdigest()
-        current_screenshot_folder.mkdir(exist_ok=True)
-        return current_screenshot_folder
 
     @abstractmethod
     def get_screenshot_as_png(self) -> bytes:
@@ -488,6 +444,8 @@ class DOMNode(ABC):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+
 
 
 def js_wrap_function_call(fn: str):
