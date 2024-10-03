@@ -14,10 +14,6 @@ from lavague.sdk.base_driver.javascript import (
     JS_GET_INTERACTIVES,
     JS_WAIT_DOM_IDLE,
 )
-from lavague.sdk.exceptions import (
-    NoElementException,
-    AmbiguousException,
-)
 import time
 
 
@@ -147,14 +143,6 @@ class PlaywrightDriver(BaseDriver):
                 )
             elif action_name == "wait":
                 self.perform_wait(item["action"]["args"]["duration"])
-            elif action_name == "failNoElement":
-                raise NoElementException(
-                    "No element: " + item["action"]["args"]["value"]
-                )
-            elif action_name == "failAmbiguous":
-                raise AmbiguousException(
-                    "Ambiguous: " + item["action"]["args"]["value"]
-                )
 
             self.wait_for_idle()
 
