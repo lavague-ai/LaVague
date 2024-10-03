@@ -24,11 +24,7 @@ from lavague.sdk.base_driver import (
     InteractionType,
     DOMNode,
 )
-from lavague.sdk.exceptions import (
-    CannotBackException,
-    NoElementException,
-    AmbiguousException,
-)
+from lavague.sdk.exceptions import CannotBackException
 from PIL import Image
 from io import BytesIO
 from selenium.webdriver.chrome.options import Options
@@ -297,10 +293,6 @@ driver.set_window_size({width}, {height} + height_difference)
                             xpath,
                             ScrollDirection.from_string(args.get("value", "DOWN")),
                         )
-                    case "failNoElement":
-                        raise NoElementException("No element: " + args["value"])
-                    case "failAmbiguous":
-                        raise AmbiguousException("Ambiguous: " + args["value"])
                     case _:
                         raise ValueError(f"Unknown action: {action_name}")
 
