@@ -13,6 +13,9 @@ class ActionType(str, Enum):
     NAVIGATION = "web_navigation"
     EXTRACTION = "web_extraction"
 
+class Tab(BaseModel):
+    url: str
+    title: str
 
 T = TypeVar("T")
 
@@ -23,7 +26,8 @@ class Action(BaseModel, Generic[T]):
     step_id: str = Field(default_factory=lambda: str(uuid4()))
     action_type: ActionType
     action_output: List[T]
-    url: str
+    tabs: List[Tab]
+    focused_tab: int
     status: ActionStatus
     instruction: str
 

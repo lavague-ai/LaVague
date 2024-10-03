@@ -5,6 +5,7 @@ from lavague.sdk.action.base import (
     ActionParser,
     DEFAULT_PARSER,
     UnhandledTypeException,
+    Tab,
 )
 
 from lavague.sdk.action.navigation import WebNavigationAction
