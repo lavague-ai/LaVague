@@ -1,6 +1,6 @@
 from typing import Optional
 from lavague.sdk.trajectory import Trajectory
-from lavague.sdk.client import LaVague
+from lavague.sdk.client import LaVague, RunRequest
 from lavague.sdk.utilities.config import get_config
 
 
@@ -15,15 +15,26 @@ class WebAgent:
         self,
         api_key: Optional[str] = None,
         client: Optional[LaVague] = None,
+        create_public_runs: bool = False,
     ):
         if client is None:
             if api_key is None:
                 api_key = get_config("LAVAGUE_API_KEY")
             client = LaVague(api_key=api_key)
         self.client = client
+        self.create_public_runs = create_public_runs
 
-    def run(self, url: str, objective: str, async_run=False) -> Trajectory:
-        trajectory = self.client.run(url, objective, step_by_step=True)
+    def run(
+        self, url: str, objective: str, async_run=False, viewport_size=(1096, 1096)
+    ) -> Trajectory:
+        request = RunRequest(
+            url=url,
+            objective=objective,
+            step_by_step=True,
+            is_public=self.create_public_runs,
+            viewport_size=viewport_size,
+        )
+        trajectory = self.client.run(request)
         if not async_run:
             trajectory.run_to_completion()
         return trajectory

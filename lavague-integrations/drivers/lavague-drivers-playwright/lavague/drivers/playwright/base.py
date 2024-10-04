@@ -1,15 +1,16 @@
-from io import BytesIO
 import json
 import os
-from PIL import Image
 from typing import Callable, Optional, Any, Mapping, Dict, List
 from playwright.sync_api import Page, Locator
-from lavague.sdk.base_driver import (
-    BaseDriver,
+from lavague.sdk.base_driver import BaseDriver
+from lavague.sdk.base_driver.interaction import (
+    InteractionType,
+    PossibleInteractionsByXpath,
+)
+
+from lavague.sdk.base_driver.javascript import (
     JS_GET_INTERACTIVES,
     JS_WAIT_DOM_IDLE,
-    PossibleInteractionsByXpath,
-    InteractionType,
 )
 import time
 
@@ -42,7 +43,7 @@ class PlaywrightDriver(BaseDriver):
     # Before modifying this function, check if your changes are compatible with code_for_init which parses this code
     # these imports are necessary as they will be pasted to the output
     def default_init_code(self) -> Page:
-        from lavague.sdk.base_driver import JS_SETUP_GET_EVENTS
+        from lavague.sdk.base_driver.javascript import JS_SETUP_GET_EVENTS
 
         try:
             from playwright.sync_api import sync_playwright
@@ -114,71 +115,8 @@ class PlaywrightDriver(BaseDriver):
     def destroy(self) -> None:
         self.page.close()
 
-    def check_visibility(self, xpath: str) -> bool:
-        try:
-            locator = self.page.locator(f"xpath={xpath}")
-            return locator.is_visible() and locator.is_enabled()
-        except:
-            return False
-
     def resolve_xpath(self, xpath) -> Locator:
         return self.page.locator(f"xpath={xpath}")
-
-    def get_highlighted_element(self, generated_code: str):
-        elements = []
-
-        data = json.loads(generated_code)
-        if not isinstance(data, List):
-            data = [data]
-        for item in data:
-            action_name = item["action"]["name"]
-            if action_name != "fail":
-                xpath = item["action"]["args"]["xpath"]
-                try:
-                    elem = self.page.locator(f"xpath={xpath}")
-                    elements.append(elem)
-                except:
-                    pass
-
-        if len(elements) == 0:
-            raise ValueError("No element found.")
-
-        outputs = []
-        for element in elements:
-            element: Locator
-
-            bounding_box = {}
-            viewport_size = {}
-
-            self.execute_script(
-                "arguments[0].setAttribute('style', arguments[1]);",
-                element,
-                "border: 2px solid red;",
-            )
-            self.execute_script(
-                "arguments[0].scrollIntoView({block: 'center'});", element
-            )
-            screenshot = self.get_screenshot_as_png()
-
-            bounding_box["x1"] = element.bounding_box()["x"]
-            bounding_box["y1"] = element.bounding_box()["y"]
-            bounding_box["x2"] = bounding_box["x1"] + element.bounding_box()["width"]
-            bounding_box["y2"] = bounding_box["y1"] + element.bounding_box()["height"]
-
-            viewport_size["width"] = self.execute_script("return window.innerWidth;")
-            viewport_size["height"] = self.execute_script("return window.innerHeight;")
-            screenshot = BytesIO(screenshot)
-            screenshot = Image.open(screenshot)
-            output = {
-                "screenshot": screenshot,
-                "bounding_box": bounding_box,
-                "viewport_size": viewport_size,
-            }
-            outputs.append(output)
-        return outputs
-
-    def maximize_window(self) -> None:
-        pass
 
     def exec_code(
         self,

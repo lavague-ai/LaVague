@@ -1,5 +1,6 @@
 import re
 
+
 def quote_numeric_yaml_values(yaml_string: str) -> str:
     """Wrap numeric values in quotes in a YAML string.
 
