@@ -48,7 +48,9 @@ class SeleniumNode(DOMNode[WebElement]):
 
     @property
     def text(self) -> str:
-        return self.element.text
+        return self.driver.execute_script(
+            "return arguments[0].textContent", self.element
+        )
 
     @property
     def outer_html(self) -> str:
