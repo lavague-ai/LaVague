@@ -3,14 +3,21 @@ from io import BytesIO
 from typing import Optional
 
 from lavague.sdk.base_driver import DOMNode
-from lavague.sdk.exceptions import NoElementException
+from lavague.sdk.exceptions import ElementNotFoundException
 from PIL import Image
 
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    WebDriverException,
+)
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.shadowroot import ShadowRoot
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.ui import Select
 
 
 class SeleniumNode(DOMNode[WebElement]):
@@ -32,7 +39,7 @@ class SeleniumNode(DOMNode[WebElement]):
             print("WARN: DOMNode context manager missing")
             self.__enter__()
         if self._element is None:
-            raise NoElementException()
+            raise ElementNotFoundException(self.xpath)
         return self._element
 
     @property
@@ -59,6 +66,49 @@ class SeleniumNode(DOMNode[WebElement]):
                 except WebDriverException:
                     pass
         return Image.new("RGB", (0, 0))
+
+    def click(self):
+        with self:
+            try:
+                self.element.click()
+            except ElementClickInterceptedException:
+                try:
+                    # Move to the element and click at its position
+                    ActionChains(self.driver).move_to_element(
+                        self.element
+                    ).click().perform()
+                except Exception as click_error:
+                    raise Exception(
+                        f"Failed to click at element coordinates of {self.xpath} : {str(click_error)}"
+                    )
+
+    def set_value(self, value: str):
+        with self:
+            if self.element.tag_name == "input":
+                try:
+                    self.element.clear()
+                except WebDriverException:
+                    pass
+            if self.element.tag_name == "select":
+                select = Select(self.element)
+                try:
+                    select.select_by_value(value)
+                except NoSuchElementException:
+                    select.select_by_visible_text(value)
+            else:
+                (
+                    ActionChains(self.driver)
+                    .key_down(Keys.CONTROL)
+                    .send_keys("a")
+                    .key_up(Keys.CONTROL)
+                    .send_keys(Keys.DELETE)  # clear the input field
+                    .send_keys(value)
+                    .perform()
+                )
+
+    def hover(self):
+        with self:
+            ActionChains(self.driver).move_to_element(self.element).perform()
 
     def enter_context(self):
         if hasattr(self, "_element"):

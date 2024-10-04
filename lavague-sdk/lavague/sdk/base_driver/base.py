@@ -31,10 +31,27 @@ class BaseDriver(ABC, Generic[T]):
         """Init the underlying driver"""
         pass
 
-    @abstractmethod
     def execute(self, action: NavigationOutput) -> None:
         """Execute an action"""
-        pass
+        with self.resolve_xpath(action.xpath) as node:
+            match action.navigation_command:
+                case InteractionType.CLICK:
+                    node.click()
+
+                case InteractionType.TYPE:
+                    node.set_value(action.value or "")
+
+                case InteractionType.HOVER:
+                    node.hover()
+
+                case InteractionType.SCROLL:
+                    direction = ScrollDirection.from_string(action.value or "DOWN")
+                    self.scroll(action.xpath, direction)
+
+                case _:
+                    raise NotImplementedError(
+                        f"Action {action.navigation_command} not implemented"
+                    )
 
     @abstractmethod
     def destroy(self) -> None:

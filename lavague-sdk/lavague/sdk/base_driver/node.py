@@ -38,6 +38,18 @@ class DOMNode(ABC, Generic[T]):
         pass
 
     @abstractmethod
+    def click(self):
+        pass
+
+    @abstractmethod
+    def hover(self):
+        pass
+
+    @abstractmethod
+    def set_value(self, value: str):
+        pass
+
+    @abstractmethod
     def enter_context(self):
         pass
 

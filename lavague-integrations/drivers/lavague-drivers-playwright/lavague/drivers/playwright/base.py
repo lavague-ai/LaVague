@@ -1,7 +1,5 @@
-from io import BytesIO
 import json
 import os
-from PIL import Image
 from typing import Callable, Optional, Any, Mapping, Dict, List
 from playwright.sync_api import Page, Locator
 from lavague.sdk.base_driver import BaseDriver
