@@ -161,6 +161,10 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
         window_handles = self.driver.window_handles
         self.driver.switch_to.window(window_handles[tab_id])
 
+    def type_key(self, key: str) -> None:
+        """Type a key"""
+        ActionChains(self.driver).send_keys(key).perform()
+
     def resolve_xpath(self, xpath: str):
         """
         Return the element for the corresponding xpath, the underlying driver may switch iframe if necessary

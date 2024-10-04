@@ -2,16 +2,16 @@ import re
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Callable, Dict, List, Optional, Union, TypeVar, Generic
-from pydantic import BaseModel
-from lavague.sdk.action.navigation import NavigationOutput
+from typing import Callable, Dict, Generic, List, Optional, TypeVar, Union
 
+from lavague.sdk.action.navigation import NavigationCommand, NavigationOutput
 from lavague.sdk.base_driver.interaction import (
     InteractionType,
     PossibleInteractionsByXpath,
     ScrollDirection,
 )
 from lavague.sdk.base_driver.node import DOMNode
+from pydantic import BaseModel
 
 
 class DriverObservation(BaseModel):
@@ -35,18 +35,33 @@ class BaseDriver(ABC, Generic[T]):
         """Execute an action"""
         with self.resolve_xpath(action.xpath) as node:
             match action.navigation_command:
-                case InteractionType.CLICK:
+                case NavigationCommand.CLICK:
                     node.click()
 
-                case InteractionType.TYPE:
+                case NavigationCommand.SET_VALUE:
                     node.set_value(action.value or "")
 
-                case InteractionType.HOVER:
+                case NavigationCommand.SET_VALUE_AND_ENTER:
+                    node.set_value((action.value or "") + "\ue007")
+
+                case NavigationCommand.TYPE_KEY:
+                    self.type_key(action.value or "")
+
+                case NavigationCommand.HOVER:
                     node.hover()
 
-                case InteractionType.SCROLL:
+                case NavigationCommand.BACK:
+                    self.back()
+
+                case NavigationCommand.PASS:
+                    pass
+
+                case NavigationCommand.SCROLL:
                     direction = ScrollDirection.from_string(action.value or "DOWN")
                     self.scroll(action.xpath, direction)
+
+                case NavigationCommand.SWITCH_TAB:
+                    self.switch_tab(int(action.value or "0"))
 
                 case _:
                     raise NotImplementedError(
@@ -100,6 +115,11 @@ class BaseDriver(ABC, Generic[T]):
     @abstractmethod
     def switch_tab(self, tab_id: int) -> None:
         """Switch to the tab with the given id"""
+        pass
+
+    @abstractmethod
+    def type_key(self, key: str) -> None:
+        """Type a key"""
         pass
 
     @abstractmethod
