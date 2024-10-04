@@ -150,6 +150,9 @@ class SeleniumNode(DOMNode[WebElement]):
 
         self._element = find_element(local_xpath)
 
+        if not self._element:
+            raise ElementNotFoundException(self.xpath)
+
     def exit_context(self):
         if hasattr(self, "_element"):
             self.driver.switch_to.default_content()

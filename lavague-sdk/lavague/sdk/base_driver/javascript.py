@@ -79,7 +79,7 @@ return (function(inViewport, foregroundOnly, nonInteractives, filterTypes) {
             && (e.scrollHeight > e.clientHeight || e.scrollWidth > e.clientWidth)) {
             evts.push('SCROLL');
         }
-        if (filterTypes && evts.length) {
+        if (filterTypes && filterTypes.length) {
             evts = evts.filter(t => filterTypes.includes(t));
         }
         if (nonInteractives && evts.length === 0) {
