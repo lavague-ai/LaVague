@@ -51,9 +51,13 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
         log_waiting_time=False,
         user_agent="Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
         auto_init=True,
+        width: int = 1096,
+        height: int = 1096,
     ) -> None:
         self.waiting_completion_timeout = waiting_completion_timeout
         self.log_waiting_time = log_waiting_time
+        self.width = width
+        self.height = height
         if options:
             self.options = options
         else:
@@ -75,6 +79,7 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
 
     def init(self) -> None:
         self.driver = Chrome(options=self.options)
+        self.resize_driver(self.width, self.height)
         self.driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
             {"source": JS_SETUP_GET_EVENTS},

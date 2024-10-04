@@ -290,5 +290,5 @@ class BaseDriver(ABC, Generic[T]):
         self.driver_ready = False
 
     def __del__(self):
-        if self.driver_ready:
+        if getattr(self, "driver_ready", False):
             self.__exit__()
