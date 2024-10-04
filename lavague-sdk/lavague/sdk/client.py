@@ -57,7 +57,7 @@ class LaVague(TrajectoryController):
             json=json,
             headers=headers,
         )
-        if response.status_code > 299:
+        if response.status_code >= 400:
             raise ApiException(response.text)
         return response.content
 
