@@ -98,6 +98,7 @@ class SeleniumNode(DOMNode[WebElement]):
                 except NoSuchElementException:
                     select.select_by_visible_text(value)
             else:
+                self.click()
                 (
                     ActionChains(self.driver)
                     .key_down(Keys.CONTROL)
