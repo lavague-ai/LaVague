@@ -37,7 +37,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
-
+from selenium.webdriver.chrome.service import Service
 
 class SeleniumDriver(BaseDriver[SeleniumNode]):
     driver: WebDriver
@@ -45,6 +45,7 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
     def __init__(
         self,
         options: Optional[Options] = None,
+        service: Optional[Service] = None,
         headless: bool = True,
         user_data_dir: Optional[str] = None,
         waiting_completion_timeout=10,
@@ -74,11 +75,12 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
         self.options.add_argument("--disable-web-security")
         self.options.add_argument("--disable-site-isolation-trials")
         self.options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+        self.service = service
         if auto_init:
             self.init()
 
     def init(self) -> None:
-        self.driver = Chrome(options=self.options)
+        self.driver = Chrome(options=self.options, service=self.service)
         self.resize_driver(self.width, self.height)
         self.driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
