@@ -325,22 +325,16 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
 
     def highlight_nodes(
         self, xpaths: List[str], color: str = "red", label=False
-    ) -> Callable:
+    ) -> None:
         nodes = self.get_nodes(xpaths)
         self.driver.execute_script(ATTACH_MOVE_LISTENER)
         set_style = get_highlighter_style(color, label)
         self.exec_script_for_nodes(
             nodes, "arguments[0].forEach((a, i) => { " + set_style + "})"
         )
-        return self._add_highlighted_destructors(
-            lambda: self.remove_nodes_highlight(xpaths)
-        )
 
-    def remove_nodes_highlight(self, xpaths: List[str]):
-        self.exec_script_for_nodes(
-            self.get_nodes(xpaths),
-            REMOVE_HIGHLIGHT,
-        )
+    def remove_highlight(self):
+        self.driver.execute_script(REMOVE_HIGHLIGHT)
 
     def exec_script_for_nodes(self, nodes: List[SeleniumNode], script: str):
         standard_nodes: List[SeleniumNode] = []
@@ -365,12 +359,11 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
         if len(special_nodes) > 0:
             # iframe and shadow DOM must use the resolve_xpath method
             for n in special_nodes:
-                if n.element:
+                with n as node:
                     self.driver.execute_script(
                         script,
                         [n.element],
                     )
-                    self.driver.switch_to.default_content()
 
     def switch_frame(self, xpath: str) -> None:
         iframe = self.driver.find_element(By.XPATH, xpath)

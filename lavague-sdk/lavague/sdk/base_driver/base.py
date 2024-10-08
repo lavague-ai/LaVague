@@ -186,7 +186,11 @@ class BaseDriver(ABC, Generic[T]):
     @abstractmethod
     def highlight_nodes(
         self, xpaths: List[str], color: str = "red", label=False
-    ) -> Callable:
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def remove_highlight(self):
         pass
 
     @abstractmethod
@@ -202,9 +206,9 @@ class BaseDriver(ABC, Generic[T]):
     @contextmanager
     def nodes_highlighter(self, nodes: List[str], color: str = "red", label=False):
         """Highlight nodes for a context manager"""
-        remove_highlight = self.highlight_nodes(nodes, color, label)
+        self.highlight_nodes(nodes, color, label)
         yield
-        remove_highlight()
+        self.remove_highlight()
 
     def get_obs(self) -> DriverObservation:
         """Get the current observation of the driver"""
@@ -241,33 +245,13 @@ class BaseDriver(ABC, Generic[T]):
 
     def highlight_node_from_xpath(
         self, xpath: str, color: str = "red", label=False
-    ) -> Callable:
-        return self.highlight_nodes([xpath], color, label)
+    ) -> None:
+        self.highlight_nodes([xpath], color, label)
 
     def highlight_nodes_from_html(
         self, html: str, color: str = "blue", label=False
-    ) -> Callable:
-        return self.highlight_nodes(
-            re.findall(r"xpath=[\"'](.*?)[\"']", html), color, label
-        )
-
-    def remove_highlight(self):
-        if hasattr(self, "_highlight_destructors"):
-            for destructor in self._highlight_destructors:
-                destructor()
-            delattr(self, "_highlight_destructors")
-
-    def _add_highlighted_destructors(
-        self, destructors: Union[List[Callable], Callable]
-    ) -> Callable:
-        if not hasattr(self, "_highlight_destructors"):
-            self._highlight_destructors = []
-        if isinstance(destructors, Callable):
-            self._highlight_destructors.append(destructors)
-            return destructors
-
-        self._highlight_destructors.extend(destructors)
-        return lambda: [d() for d in destructors]
+    ) -> None:
+        self.highlight_nodes(re.findall(r"xpath=[\"'](.*?)[\"']", html), color, label)
 
     def highlight_interactive_nodes(
         self,
@@ -278,7 +262,7 @@ class BaseDriver(ABC, Generic[T]):
         label=False,
     ):
         if with_interactions is None or len(with_interactions) == 0:
-            return self.highlight_nodes(
+            self.highlight_nodes(
                 list(
                     self.get_possible_interactions(
                         in_viewport=in_viewport, foreground_only=foreground_only
@@ -288,17 +272,18 @@ class BaseDriver(ABC, Generic[T]):
                 label,
             )
 
-        return self.highlight_nodes(
-            [
-                xpath
-                for xpath, interactions in self.get_possible_interactions(
-                    in_viewport=in_viewport, foreground_only=foreground_only
-                ).items()
-                if set(interactions) & set(with_interactions)
-            ],
-            color,
-            label,
-        )
+        else:
+            self.highlight_nodes(
+                [
+                    xpath
+                    for xpath, interactions in self.get_possible_interactions(
+                        in_viewport=in_viewport, foreground_only=foreground_only
+                    ).items()
+                    if set(interactions) & set(with_interactions)
+                ],
+                color,
+                label,
+            )
 
     def __enter__(self):
         self.init()

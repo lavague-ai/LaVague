@@ -257,8 +257,7 @@ return results;
 ATTACH_MOVE_LISTENER = """
 if (!window._lavague_move_listener) {
     window._lavague_move_listener = function() {
-        const bbs = document.querySelectorAll('.lavague-highlight');
-        bbs.forEach(bb => {
+        document.querySelectorAll('.lavague-highlight').forEach(bb => {
             const rect = bb._tracking.getBoundingClientRect();
             bb.style.top = rect.top + 'px';
             bb.style.left = rect.left + 'px';
@@ -277,7 +276,6 @@ if (window._lavague_move_listener) {
     window.removeEventListener('resize', window._lavague_move_listener);
     delete window._lavague_move_listener;
 }
-arguments[0].filter(a => a).forEach(a => a.style.cssText = a.dataset.originalStyle || '');
 document.querySelectorAll('.lavague-highlight').forEach(a => a.remove());
 """
 
