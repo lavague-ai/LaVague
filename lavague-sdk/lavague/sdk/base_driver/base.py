@@ -139,6 +139,7 @@ class BaseDriver(ABC, Generic[T]):
         self,
         in_viewport=True,
         foreground_only=True,
+        include_non_interactives=False,
         types: List[InteractionType] = [
             InteractionType.CLICK,
             InteractionType.TYPE,
@@ -232,7 +233,9 @@ class BaseDriver(ABC, Generic[T]):
 
     def get_in_viewport(self) -> List[str]:
         """Get xpath of elements in the viewport"""
-        interactions = self.get_possible_interactions(in_viewport=True, types=[])
+        interactions = self.get_possible_interactions(
+            include_non_interactives=True, types=[]
+        )
         return list(interactions.keys())
 
     def get_scroll_containers(self) -> List[str]:

@@ -39,6 +39,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 
+
 class SeleniumDriver(BaseDriver[SeleniumNode]):
     driver: WebDriver
 
@@ -186,6 +187,7 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
         self,
         in_viewport=True,
         foreground_only=True,
+        include_non_interactives=False,
         types: List[InteractionType] = [
             InteractionType.CLICK,
             InteractionType.TYPE,
@@ -197,12 +199,14 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
             JS_GET_INTERACTIVES,
             in_viewport,
             foreground_only,
-            False,
+            include_non_interactives,
             [t.name for t in types],
         )
         res = dict()
         for k, v in exe.items():
-            res[k] = set(InteractionType[i] for i in v)
+            res[k] = set(
+                InteractionType[i] for i in v if i in InteractionType.__members__
+            )
         return res
 
     def scroll_into_view(self, xpath: str):
