@@ -30,8 +30,8 @@ class PlaywrightDriver(BaseDriver):
         width: int = 1080,
         height: int = 1080,
         user_data_dir: Optional[str] = None,
-        log_waiting_time=False,
-        waiting_completion_timeout=10,
+        log_waiting_time: bool = False,
+        waiting_completion_timeout: int = 10,  # seconds
     ):
         os.environ["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = (
             "1"  # Allow playwright to take a screenshots even if the fonts won't load in head mode.
@@ -284,7 +284,7 @@ class PlaywrightDriver(BaseDriver):
         t = time.time()
         try:
             self.page.wait_for_load_state(
-                "networkidle", timeout=self.waiting_completion_timeout
+                "networkidle", timeout=self.waiting_completion_timeout * 1000
             )
         except:
             # timeout occurred
@@ -380,7 +380,7 @@ HTML:
 <tab class="devsite-active" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[1]">
 <a aria-label="Gemini API, selected" class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Gemini API" href="https://ai.google.dev/gemini-api" track-metadata-eventdetail="https://ai.google.dev/gemini-api" track-metadata-module="primary nav" track-metadata-position="nav - gemini api" track-name="gemini api" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[1]/a">
     Gemini API
-  
+
     </a>
 </tab>
 <tab class="devsite-overflow-tab" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]"><!-- -->
@@ -389,12 +389,12 @@ HTML:
 <tab xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]">
 <a class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Gemma" href="https://ai.google.dev/gemma" track-metadata-eventdetail="https://ai.google.dev/gemma" track-metadata-module="primary nav" track-metadata-position="nav - gemma" track-name="gemma" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[1]/a">
     Gemma
-  
+
     </a>
 </tab><tab xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[2]">
 <a class="devsite-tabs-content gc-analytics-event" data-category="Site-Wide Custom Events" data-label="Tab: Google AI Edge" href="https://ai.google.dev/edge" track-metadata-eventdetail="https://ai.google.dev/edge" track-metadata-module="primary nav" track-metadata-position="nav - google ai edge" track-name="google ai edge" track-type="nav" xpath="/html/body/section/devsite-header/div/div[1]/div/div/div[2]/div[1]/devsite-tabs/nav/tab[2]/div/tab[2]/a">
     Google AI Edge
-  
+
 
 Query: Click on "Gemma" under the "More" dropdown menu.
 Completion:
