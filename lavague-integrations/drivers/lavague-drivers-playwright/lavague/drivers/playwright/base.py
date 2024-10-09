@@ -4,7 +4,7 @@ import os
 from PIL import Image
 from typing import Callable, Optional, Any, Mapping, Dict, List
 from lavague.core.utilities.format_utils import extract_code_from_funct
-from playwright.sync_api import Page, Locator
+from playwright.sync_api import Page, Locator, TimeoutError
 from lavague.core.base_driver import (
     BaseDriver,
     JS_GET_INTERACTIVES,
@@ -286,8 +286,7 @@ class PlaywrightDriver(BaseDriver):
             self.page.wait_for_load_state(
                 "networkidle", timeout=self.waiting_completion_timeout * 1000
             )
-        except:
-            # timeout occurred
+        except TimeoutError:
             pass
         elapsed = time.time() - t
         self.wait_for_dom_stable(self.waiting_completion_timeout - elapsed)
