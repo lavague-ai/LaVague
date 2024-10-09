@@ -226,7 +226,7 @@ JS_GET_SHADOW_ROOTS = """
 const results = {};
 function traverse(node, xpath) {
     if (node.shadowRoot) {
-        results[xpath] = node.shadowRoot.getHTML();
+        results[xpath] = node.shadowRoot.innerHTML;
     }
     const countByTag = {};
     for (let child = node.firstChild; child; child = child.nextSibling) {
