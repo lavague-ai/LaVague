@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Callable, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from lavague.drivers.selenium.node import SeleniumNode
 from lavague.drivers.selenium.prompt import SELENIUM_PROMPT_TEMPLATE

@@ -15,6 +15,15 @@ class Trajectory(TrajectoryData):
     def is_running(self):
         return self.status in (RunStatus.STARTING, RunStatus.RUNNING)
 
+    @property
+    def studio_url(self):
+        return f"https://cloud.lavague.ai/studioRun?run_id={self.run_id}"
+
+    def open_in_studio(self):
+        import webbrowser
+
+        webbrowser.open(self.studio_url)
+
     def next_action(self):
         ret = self._controller.next_step(self.run_id)
         self.status = ret.run_status

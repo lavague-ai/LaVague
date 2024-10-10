@@ -13,6 +13,12 @@ class RunStatus(str, Enum):
     INTERRUPTED = "interrupted"
 
 
+class RunMode(str, Enum):
+    LIVE = "live"
+    STEP_BY_STEP = "step_by_step"
+    INACTIVE = "inactive"
+
+
 class TrajectoryData(BaseModel):
     """Trajectory of web interactions towards an objective."""
 
@@ -21,6 +27,7 @@ class TrajectoryData(BaseModel):
     objective: str
     viewport_size: Tuple[int, int]
     status: RunStatus
+    run_mode: RunMode = RunMode.INACTIVE
     actions: List[SerializeAsAny[Action]]
     error_msg: Optional[str] = None
 
