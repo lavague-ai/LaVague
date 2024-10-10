@@ -59,3 +59,4 @@ class TrajectoryData(BaseModel):
 class StepCompletion(BaseModel):
     run_status: RunStatus
     action: Optional[Action]
+    run_mode: RunMode

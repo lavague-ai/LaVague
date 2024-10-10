@@ -1,6 +1,6 @@
 from lavague.sdk.trajectory.controller import TrajectoryController
 from lavague.sdk.action import Action, ActionParser, DEFAULT_PARSER, ActionStatus
-from lavague.sdk.trajectory.model import StepCompletion, RunStatus
+from lavague.sdk.trajectory.model import StepCompletion, RunStatus, RunMode
 from typing import List, Dict
 
 
@@ -15,7 +15,11 @@ class MockTrajectoryController(TrajectoryController):
         run_status = (
             RunStatus.RUNNING if self.has_next_step() else self.get_completion_status()
         )
-        return StepCompletion(action=action, run_status=run_status)
+        return StepCompletion(
+            action=action,
+            run_status=run_status,
+            run_mode=RunMode.STEP_BY_STEP if self.has_next_step() else RunMode.INACTIVE,
+        )
 
     def has_next_step(self):
         return self.current_action_index < len(self.next_actions) - 1
