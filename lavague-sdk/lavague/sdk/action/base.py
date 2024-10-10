@@ -1,5 +1,5 @@
 from typing import Dict, List, Type, Generic, TypeVar
-from pydantic import BaseModel, validate_call, Field
+from pydantic import BaseModel, validate_call, Field, SerializeAsAny
 from enum import Enum
 from uuid import uuid4
 
@@ -22,7 +22,7 @@ class Action(BaseModel, Generic[T]):
 
     step_id: str = Field(default_factory=lambda: str(uuid4()))
     action_type: ActionType
-    action_output: List[T]
+    action_output: List[SerializeAsAny[T]]
     url: str
     status: ActionStatus
     instruction: str
