@@ -38,6 +38,9 @@ class TrajectoryData(BaseModel):
             actions = values['actions']
             deserialized_actions = []
             for action_data in actions:
+                if isinstance(action_data, Action):
+                    deserialized_actions.append(action_data)
+                    continue
                 action_type = action_data.get('action_type')
                 if action_type:
                     action_class = DEFAULT_PARSER.engine_action_builders.get(action_type, Action)
