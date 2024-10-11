@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Tuple, Optional
 from pydantic import BaseModel, SerializeAsAny
-from lavague.sdk.action import Action, ActionParser
+from lavague.sdk.action import Action, ActionParser, Instruction
 from lavague.sdk.action.base import DEFAULT_PARSER
 from pydantic import model_validator
 from pydantic_core import from_json
@@ -61,10 +61,8 @@ class TrajectoryData(BaseModel):
             file.write(json_model)
 
 
-class StepCompletion(BaseModel):
-    run_status: RunStatus
+class ActionWrapper(BaseModel):
     action: Optional[Action]
-    run_mode: RunMode
 
     @classmethod
     def from_data(
@@ -84,3 +82,25 @@ class StepCompletion(BaseModel):
         action = data.get("action")
         action = parser.parse(action) if action else None
         return cls.model_validate({**data, "action": action})
+
+    @model_validator(mode="before")
+    @classmethod
+    def deserialize_action(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        if "action" in values:
+            action_data = values["action"]
+            if not isinstance(action_data, Action) and "action_type" in action_data:
+                action_class = DEFAULT_PARSER.engine_action_builders.get(
+                    action_data["action_type"], Action
+                )
+                deserialized_action = action_class.parse(action_data)
+                values["action"] = deserialized_action
+        return values
+
+
+class StepCompletion(ActionWrapper):
+    run_status: RunStatus
+    run_mode: RunMode
+
+
+class StepKnowledge(ActionWrapper):
+    instruction: Instruction
