@@ -92,6 +92,7 @@ Element text: {text}
 Element outer HTML: {outer_html}
 Test:"""
 
+
 class QASeleniumExporter(PythonSeleniumExporter):
     def __init__(self, model: str = "gpt-4o", time_between_actions: float = 2.5):
         self.model = model
@@ -128,19 +129,23 @@ class QASeleniumExporter(PythonSeleniumExporter):
                     outer_html: str = output.outer_html
 
                     prompt = PROMPT_TEMPLATE.format(
-                        test_specs=scenario, 
+                        test_specs=scenario,
                         context=context,
                         description=description,
                         text=text,
                         outer_html=outer_html,
                     )
-                    test_response = completion(
-                        model = self.model,
-                        messages = [
-                            {"role": "system", "content": SYSTEM_PROMPT},
-                            {"role": "user", "content": prompt}
-                        ]
-                    ).choices[0].message.content           
+                    test_response = (
+                        completion(
+                            model=self.model,
+                            messages=[
+                                {"role": "system", "content": SYSTEM_PROMPT},
+                                {"role": "user", "content": prompt},
+                            ],
+                        )
+                        .choices[0]
+                        .message.content
+                    )
 
                     generated_asserts: str = extract_code_block(test_response)
                     translated_action_lines.append(generated_asserts)
@@ -153,6 +158,7 @@ class QASeleniumExporter(PythonSeleniumExporter):
 
         translated_actions_str: str = self.merge_code(*translated_actions)
         return self.merge_code(setup, translated_actions_str, teardown)
+
 
 def extract_code_block(code_block):
     pattern = r"```(?:python)?\n(.*?)\n```"
