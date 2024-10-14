@@ -101,10 +101,13 @@ class ActionWrapper(BaseModel):
         return values
 
 
+class StepKnowledge(ActionWrapper):
+    instruction: Instruction
+
+
 class StepCompletion(ActionWrapper):
     run_status: RunStatus
     run_mode: RunMode
 
-
-class StepKnowledge(ActionWrapper):
-    instruction: Instruction
+    def to_knowledge(self, instruction: Instruction) -> StepKnowledge:
+        return StepKnowledge(instruction=instruction, action=self.action)
