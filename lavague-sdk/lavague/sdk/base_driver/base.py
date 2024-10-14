@@ -67,6 +67,7 @@ class BaseDriver(ABC, Generic[T]):
                     raise NotImplementedError(
                         f"Action {action.navigation_command} not implemented"
                     )
+        self.wait_for_idle()
 
     @abstractmethod
     def destroy(self) -> None:

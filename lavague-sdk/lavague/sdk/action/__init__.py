@@ -1,5 +1,7 @@
 from lavague.sdk.action.base import (
     Action,
+    Instruction,
+    EngineType,
     ActionType,
     ActionStatus,
     ActionParser,

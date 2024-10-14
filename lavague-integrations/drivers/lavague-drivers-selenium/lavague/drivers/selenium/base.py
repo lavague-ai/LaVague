@@ -25,6 +25,8 @@ from lavague.sdk.exceptions import (
     NoPageException,
 )
 
+from lavague.sdk.action.navigation import WebNavigationAction, NavigationCommand
+from lavague.sdk.action import ActionStatus
 from selenium.common.exceptions import (
     NoSuchElementException,
     TimeoutException,

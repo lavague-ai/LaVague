@@ -14,6 +14,13 @@ class ActionType(str, Enum):
     EXTRACTION = "web_extraction"
 
 
+class EngineType(str, Enum):
+    NAVIGATION = "Navigation Engine"
+    EXTRACTION = "Element Extraction Engine"
+    CONTROLS = "Navigation Controls"
+    COMPLETE = "COMPLETE"
+
+
 T = TypeVar("T")
 
 
@@ -53,6 +60,12 @@ class ActionParser(BaseModel):
             return target_type.parse(action_dict)
         except UnhandledTypeException:
             return Action.parse(action_dict)
+
+
+class Instruction(BaseModel):
+    chain_of_toughts: str
+    engine: EngineType
+    engine_instruction: str
 
 
 class UnhandledTypeException(Exception):
