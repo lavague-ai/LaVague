@@ -88,7 +88,11 @@ class ActionWrapper(BaseModel):
     def deserialize_action(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         if "action" in values:
             action_data = values["action"]
-            if not isinstance(action_data, Action) and "action_type" in action_data:
+            if (
+                action_data
+                and not isinstance(action_data, Action)
+                and "action_type" in action_data
+            ):
                 action_class = DEFAULT_PARSER.engine_action_builders.get(
                     action_data["action_type"], Action
                 )
