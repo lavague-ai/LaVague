@@ -254,7 +254,7 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
         if container:
             return (
                 self.driver.execute_script(
-                    "const r = arguments[0].getBoundingClientRect(); return [r.width, r.height]",
+                    "const r = arguments[0].getBoundingClientRect(); return [Math.min(r.width, window.innerWidth), Math.min(r.height, window.innerHeight)]",
                     scroll_anchor,
                 ),
                 True,
