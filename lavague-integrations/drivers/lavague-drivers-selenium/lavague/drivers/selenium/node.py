@@ -135,13 +135,15 @@ class SeleniumNode(DOMNode[WebElement]):
                 return None
 
         while local_xpath:
-            match = re.search(r"/iframe|//", local_xpath)
+            match = re.search(r"/iframe\[[0-9]+\]|/iframe|//", local_xpath)
 
             if match:
                 before, sep, local_xpath = local_xpath.partition(match.group())
-                if sep == "/iframe":
+
+                if sep.startswith("/iframe"):
                     iframe = self.driver.find_element(By.XPATH, before + sep)
                     self.driver.switch_to.frame(iframe)
+
                 elif sep == "//":
                     custom_element = find_element(before)
                     if not custom_element:
