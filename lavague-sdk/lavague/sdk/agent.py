@@ -25,7 +25,12 @@ class WebAgent:
         self.create_public_runs = create_public_runs
 
     def run(
-        self, url: str, objective: str, async_run=False, viewport_size=(1096, 1096)
+        self,
+        url: str,
+        objective: str,
+        async_run=False,
+        viewport_size=(1096, 1096),
+        open_in_studio=False,
     ) -> Trajectory:
         request = RunRequest(
             url=url,
@@ -35,6 +40,8 @@ class WebAgent:
             viewport_size=viewport_size,
         )
         trajectory = self.client.run(request)
+        if open_in_studio:
+            trajectory.open_in_studio()
         if not async_run:
             trajectory.run_to_completion()
         return trajectory

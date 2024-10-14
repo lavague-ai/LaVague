@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Callable, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from lavague.drivers.selenium.node import SeleniumNode
 from lavague.drivers.selenium.prompt import SELENIUM_PROMPT_TEMPLATE
@@ -25,6 +25,8 @@ from lavague.sdk.exceptions import (
     NoPageException,
 )
 
+from lavague.sdk.action.navigation import WebNavigationAction, NavigationCommand
+from lavague.sdk.action import ActionStatus
 from selenium.common.exceptions import (
     NoSuchElementException,
     TimeoutException,
@@ -254,7 +256,7 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
         if container:
             return (
                 self.driver.execute_script(
-                    "const r = arguments[0].getBoundingClientRect(); return [r.width, r.height]",
+                    "const r = arguments[0].getBoundingClientRect(); return [Math.min(r.width, window.innerWidth), Math.min(r.height, window.innerHeight)]",
                     scroll_anchor,
                 ),
                 True,

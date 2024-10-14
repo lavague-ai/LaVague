@@ -1,4 +1,4 @@
-from llama_index.core.base.llms.base import BaseLLM
+from litellm import completion
 import re
 from typing import Optional, List
 from lavague.sdk.action.base import ActionType
@@ -8,10 +8,94 @@ from lavague.exporters.python_selenium import PythonSeleniumExporter
 from lavague.exporters.python import exclude_from_export
 from selenium.webdriver.common.by import By
 
+SYSTEM_PROMPT = """You are an AI system specialized in generating web tests from specs.
+You are povided with:
+- some test specs about a whole scenario
+- an element extracted from the current page to be tested
+You can assume that the provided element is relevant to the test scenario and that we are on the right page.
+Only focus on assertions that concern the current element, do not extrapolate asserts that rely on other elements. 
+Your output must contain only code for the assertions, there is no need for boilerplate code. You can assume that the element has been resolved already and is called `element`.
+
+Your goal is to generate Python assertions to be used in a test script to test the extracted element.
+Be concise: only provide necessary and sufficient assertions for the purpose of the test.
+
+Here are previous examples:
+---
+Specs: When a user logs in successfully, they should see a welcome message with their username on the dashboard.
+Context: 
+```python
+import re
+element = driver.find_element(By.XPATH, "//div[@id='welcome-message' and @class='dashboard-header']")
+```
+Element description: Welcome message displayed on the dashboard after successful login
+Element text: Welcome back, JohnDoe! Your last login was on 2024-09-20 at 15:30.
+Element outer HTML: <div id="welcome-message" class="dashboard-header">Welcome back, JohnDoe! Your last login was on 2024-09-20 at 15:30.</div>
+Test:```python
+# Let's think step by step
+
+# Verify the greeting and personalization
+assert element.text.startswith("Welcome back, JohnDoe"), f"Greeting should be personalized. Found: {element.text[:30]}..."
+
+# Validate the presence of login information
+assert "last login was on" in element.text, f"Login info should be present. Text: {element.text}"
+
+# Ensure the welcome message is visible
+assert element.is_displayed(), "Welcome message should be visible on the dashboard"
+```
+Specs:
+Feature: Product Search and Filtering
+  As a customer
+  I want to search for products and apply filters
+  So that I can find the items I'm interested in quickly
+
+Scenario: Search for laptops and filter by price range
+  Given I am on the electronics category page
+  When I search for "laptop" in the search bar
+  And I apply a price filter for items between $500 and $1000
+  Then I should see a list of laptop products
+  And all displayed products should be within the specified price range
+  And the active filter should be visible
+
+Context:
+element = driver.find_element(By.XPATH, "/html/body/div[@id='main-content']/div[@class='search-results-container']/div[@class='sidebar']/div[@id='active-filters']")
+Element description: Active filter display showing the current price range filter applied to the search results
+Element text: Price: $500 - $1000
+Element outer HTML: 
+<div id="active-filters" class="filter-tags">
+  <span class="filter-tag">Price: $500 - $1000 <button class="remove-filter" aria-label="Remove price filter">×</button></span>
+</div>
+Test:
+```python
+# Let's think step by step
+
+# Verify the presence and correctness of the price filter
+assert "Price: $500 - $1000" in element.text, f"Price filter should be visible and correct. Found: {element.text}"
+
+# Ensure the filter tag is displayed
+assert element.is_displayed(), "Active filter should be visible on the page"
+
+# Check for the presence of a remove button to ensure filter can be cleared
+remove_button = element.find_element(By.CLASS_NAME, "remove-filter")
+assert remove_button.is_displayed(), "Remove filter button should be present"
+
+# Validate the accessibility label of the remove button
+assert remove_button.get_attribute("aria-label") == "Remove price filter", f"Remove button should have correct aria-label. Found: {remove_button.get_attribute('aria-label')}"
+```
+---
+"""
+
+PROMPT_TEMPLATE = """Here is the next example to complete:
+Specs: {test_specs}
+Context: {context}
+Element description: {description}
+Element text: {text}
+Element outer HTML: {outer_html}
+Test:"""
+
 
 class QASeleniumExporter(PythonSeleniumExporter):
-    def __init__(self, llm: BaseLLM, time_between_actions: float = 2.5):
-        self.llm = llm
+    def __init__(self, model: str = "gpt-4o", time_between_actions: float = 2.5):
+        self.model = model
         self.time_between_actions = time_between_actions
 
     def extract(self, action_output: ExtractionOutput) -> Optional[str]:
@@ -19,7 +103,7 @@ class QASeleniumExporter(PythonSeleniumExporter):
             driver = self.get_driver()
         element = driver.find_element(By.XPATH, action_output.xpath)
 
-    def export(self, trajectory: TrajectoryData) -> str:
+    def export(self, trajectory: TrajectoryData, scenario: str) -> str:
         setup: Optional[str] = self.generate_setup(trajectory)
         teardown: Optional[str] = self.generate_teardown(trajectory)
         translated_actions: List[Optional[str]] = []
@@ -36,20 +120,33 @@ class QASeleniumExporter(PythonSeleniumExporter):
                     # First we get the element
                     translated_action_lines.append(self.translate_extract(output) or "")
                     # Then we generate asserts for it
-                    xpath: str = output.xpath
+                    import_context = self.translate_boilerplate(self.setup, trajectory)
+                    element_context = self.translate(self.extract, output)
+                    context = "\n".join([import_context, element_context])
+
                     description: str = output.description
                     text: str = output.text
                     outer_html: str = output.outer_html
 
-                    test_prompt = TEST_PROMPT_TEMPLATE.format(
-                        test_specs=trajectory.objective,
-                        xpath=xpath,
+                    prompt = PROMPT_TEMPLATE.format(
+                        test_specs=scenario,
+                        context=context,
                         description=description,
                         text=text,
                         outer_html=outer_html,
                     )
+                    test_response = (
+                        completion(
+                            model=self.model,
+                            messages=[
+                                {"role": "system", "content": SYSTEM_PROMPT},
+                                {"role": "user", "content": prompt},
+                            ],
+                        )
+                        .choices[0]
+                        .message.content
+                    )
 
-                    test_response = self.llm.complete(test_prompt).text
                     generated_asserts: str = extract_code_block(test_response)
                     translated_action_lines.append(generated_asserts)
                     translated_action_lines.append(
@@ -57,7 +154,6 @@ class QASeleniumExporter(PythonSeleniumExporter):
                     )
 
                 translated_action: str = self.merge_code(*translated_action_lines)
-
                 translated_actions.append(translated_action)
 
         translated_actions_str: str = self.merge_code(*translated_actions)
@@ -72,64 +168,3 @@ def extract_code_block(code_block):
         return match.group(1).strip()
     else:
         return "No code block found"
-
-
-TEST_PROMPT_TEMPLATE = """
-You are an AI system specialized in generating web tests from specs.
-You are povided with:
-- some test specs about a whole scenario
-- an element extracted from the current page to be tested
-You can assume that the provided element is relevant to the test scenario and that we are on the right page.
-Only focus on assertions that concern the current element, do not extrapolate asserts that rely on other elements. 
-Your output must contain only code for the assertions, there is no need for boilerplate code. You can assume that the element has been resolved already and is called `element`.
-
-Your goal is to generate Python assertions to be used in a test script to test the extracted element.
-
-Here are previous examples:
----
-Specs: When a user logs in successfully, they should see a welcome message with their username on the dashboard.
-Xpath: //*[@id="welcome-message"]
-Description: Welcome message displayed on the dashboard after successful login
-Text: Welcome back, JohnDoe! Your last login was on 2024-09-20 at 15:30.
-Outer HTML: <div id="welcome-message" class="dashboard-header">Welcome back, JohnDoe! Your last login was on 2024-09-20 at 15:30.</div>
-Test:```python
-# Let's think step by step
-
-# 1. The welcome message should contain the user's name
-# 2. The message should start with a greeting
-# 3. It should include the last login date and time
-# 4. The element should have the correct ID
-# 5. The element should have the expected class
-# 6. The element should be visible on the page
-
-# Assert that the welcome message contains the user's name
-assert "JohnDoe" in element.text, f"User's name not found in welcome message. Actual text: {{element.text}}"
-
-# Assert that the welcome message starts with the expected greeting
-assert element.text.startswith("Welcome back"), f"Welcome message doesn't start with expected greeting. Actual text: {{element.text}}"
-
-# Assert that the welcome message contains a date and time
-import re
-date_time_pattern = r'\d{{4}}-\d{{2}}-\d{{2}} at \d{{2}}:\d{{2}}'
-assert re.search(date_time_pattern, element.text), f"Date and time not found in expected format. Actual text: {{element.text}}"
-
-# Assert that the element has the correct ID
-assert element.get_attribute("id") == "welcome-message", f"Element ID is incorrect. Expected 'welcome-message', got '{{element.get_attribute('id')}}'"
-
-# Assert that the element has the expected class
-assert "dashboard-header" in element.get_attribute("class"), f"Element doesn't have expected class 'dashboard-header'. Actual classes: {{element.get_attribute('class')}}"
-
-# Assert that the element is visible
-assert element.is_displayed(), "Welcome message element is not visible on the page"
-```
----
-
-Here is the next example to complete:
-Specs: {test_specs}
-Xpath: {xpath}
-Description: {description}
-Text: {text}
-Outer HTML: {outer_html}
-Test:
-```python
-"""

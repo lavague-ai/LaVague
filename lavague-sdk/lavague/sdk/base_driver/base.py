@@ -2,7 +2,7 @@ import re
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Callable, Dict, Generic, List, Optional, TypeVar, Union
+from typing import Dict, Generic, List, Optional, TypeVar
 
 from lavague.sdk.action.navigation import NavigationCommand, NavigationOutput
 from lavague.sdk.base_driver.interaction import (
@@ -67,6 +67,7 @@ class BaseDriver(ABC, Generic[T]):
                     raise NotImplementedError(
                         f"Action {action.navigation_command} not implemented"
                     )
+        self.wait_for_idle()
 
     @abstractmethod
     def destroy(self) -> None:

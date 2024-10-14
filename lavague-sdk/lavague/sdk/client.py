@@ -2,10 +2,10 @@ from io import BytesIO
 from typing import Any, Optional, Tuple
 
 import requests
-from lavague.sdk.action import DEFAULT_PARSER, ActionParser
+from lavague.sdk.action import DEFAULT_PARSER, ActionParser, Instruction
 from lavague.sdk.trajectory import Trajectory
 from lavague.sdk.trajectory.controller import TrajectoryController
-from lavague.sdk.trajectory.model import StepCompletion
+from lavague.sdk.trajectory.model import StepCompletion, StepKnowledge
 from lavague.sdk.utilities.config import LAVAGUE_API_BASE_URL, get_config, is_flag_true
 from PIL import Image, ImageFile
 from pydantic import BaseModel
@@ -86,7 +86,30 @@ class LaVague(TrajectoryController):
             f"/runs/{run_id}/step",
             "POST",
         )
-        return StepCompletion.model_validate_json(content)
+        return StepCompletion.from_data(content)
+
+    def generate_instruction(self, run_id: str) -> Instruction:
+        content = self.request_api(
+            f"/runs/{run_id}/step/instruction",
+            "POST",
+        )
+        return Instruction.model_validate_json(content)
+
+    def generate_action(self, run_id: str, instruction: Instruction) -> StepCompletion:
+        content = self.request_api(
+            f"/runs/{run_id}/step/action",
+            "POST",
+            instruction.model_dump(),
+        )
+        return StepCompletion.from_data(content)
+
+    def execute_action(self, run_id: str, action: StepKnowledge) -> StepCompletion:
+        content = self.request_api(
+            f"/runs/{run_id}/step/execution",
+            "POST",
+            action.model_dump(),
+        )
+        return StepCompletion.from_data(content)
 
     def stop(self, run_id: str) -> None:
         self.request_api(
