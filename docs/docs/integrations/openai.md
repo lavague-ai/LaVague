@@ -27,7 +27,7 @@ You can find a list of OpenAI models currently available and their names [here](
 from lavague.contexts.openai import OpenaiContext
 
 # Initialize Context
-context = OpenaiContext(llm="GPT-4o mini", mm_llm="GPT-4o mini")
+context = OpenaiContext(llm="gpt-4o-mini", mm_llm="gpt-4o-mini")
 ```
 Once we have defined our OpenaiContext, we can use it by passing it to our ActionEngine and WorldModel when initializing them with the `from_context()` method.
 
