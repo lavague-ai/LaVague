@@ -52,5 +52,5 @@ You can find a list of Gemini models currently available and their names [here](
 from lavague.contexts.gemini import GeminiContext
 
 # Initialize Context
-context = GeminiContext(llm="gemini-1.5-pro", mm_llm="gemini-1.5-flash")
+context = GeminiContext(llm="model/gemini-1.5-pro", mm_llm="model/gemini-1.5-flash")
 ```
