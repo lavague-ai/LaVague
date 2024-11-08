@@ -352,6 +352,29 @@ Thought:
 """
 )
 
+SCORE_PROMPT_TEMPLATE = PromptTemplate(
+    """
+You are an expert in evaluating the performance of a web navigation agent. The agent is designed to help a
+human user navigate a website to complete a task.
+Given the user’s intent, the agent’s action history, the final state of the webpage, and the agent’s response to the user,
+your goal is to decide whether the agent is on the right track towards success.
+
+Your output are:
+- on the right track to success ('str'): YES if the agent is on the right track towards the objective, NO if it is not
+Return YES or NO and NOTHING ELSE.
+
+Here is the next objective:
+Objective: {objective}
+Previous instructions:
+{previous_instructions}
+Last engine: {last_engine}
+Current state:
+{current_state}
+{tab_info}
+
+"""
+)
+
 
 def clean_directory(path):
     # Get all the file names in the directory
@@ -371,6 +394,7 @@ class WorldModel(ABC, Loggable):
         self,
         mm_llm: MultiModalLLM = None,
         prompt_template: PromptTemplate = WORLD_MODEL_PROMPT_TEMPLATE,
+        score_prompt_template: PromptTemplate = SCORE_PROMPT_TEMPLATE,
         examples: str = WORLD_MODEL_GENERAL_EXAMPLES,
         logger: AgentLogger = None,
     ):
@@ -380,6 +404,7 @@ class WorldModel(ABC, Loggable):
         self.prompt_template: PromptTemplate = prompt_template.partial_format(
             examples=examples
         )
+        self.score_prompt_template: PromptTemplate = score_prompt_template
         self.logger: AgentLogger = logger
 
     @classmethod
@@ -434,7 +459,10 @@ class WorldModel(ABC, Loggable):
 
         with time_profiler("World Model Inference", prompt_size=len(prompt)):
             mm_llm_output = mm_llm.complete(
-                prompt, image_documents=image_documents
+                prompt,
+                image_documents=image_documents,
+                temperature=1.,
+                n=2,
             ).text
 
         end = time.time()
@@ -453,6 +481,136 @@ class WorldModel(ABC, Loggable):
             logger.add_log(log)
 
         return mm_llm_output
+
+    def get_instructions(
+        self,
+        objective: str,
+        current_state: dict,
+        past: dict,
+        observations: dict,
+        n: int = 1,
+        temperature: float = 1.,
+        top_p: float = 1.,
+    ) -> list[str]:
+        """Use GPT*V to generate instruction from the current state and objective."""
+
+        mm_llm = self.mm_llm
+        logger = self.logger
+
+        previous_instructions = past["previous_instructions"]
+        last_engine = past["last_engine"]
+
+        tab_info = observations["tab_info"]
+
+        try:
+            current_state_str = yaml.dump(current_state, default_flow_style=False)
+        except:
+            raise Exception("Could not convert current state to YAML")
+
+        screenshots_path: str = observations["screenshots_path"]
+        image_documents = SimpleDirectoryReader(screenshots_path).load_data()
+
+        prompt = self.prompt_template.format(
+            objective=objective,
+            previous_instructions=previous_instructions,
+            last_engine=last_engine,
+            current_state=current_state_str,
+            tab_info=tab_info,
+        )
+
+        start = time.time()
+
+        with time_profiler("World Model Inference", prompt_size=len(prompt)):
+            mm_llm_outputs = mm_llm.complete(
+                prompt,
+                image_documents=image_documents,
+                temperature=temperature,
+                top_p=top_p,
+                n=n,
+            )
+            mm_llm_outputs = [choice.message.content for choice in mm_llm_outputs.raw["choices"]]
+
+        end = time.time()
+        world_model_inference_time = end - start
+
+        if logger:
+            log = {
+                "world_model_prompt": prompt,
+                "world_model_output": mm_llm_outputs,
+                "world_model_inference_time": world_model_inference_time,
+                "screenshots": [
+                    Image.open(image_document.image_path)
+                    for image_document in image_documents
+                ],
+            }
+            logger.add_log(log)
+
+        return mm_llm_outputs
+
+    def get_scores(
+        self,
+        objective: str,
+        current_state: dict,
+        past: dict,
+        observations: dict,
+        n: int = 1,
+        temperature: float = 1.,
+        top_p: float = 1.,
+    ) -> list[str]:
+        """Use GPT*V to generate instruction from the current state and objective."""
+
+        mm_llm = self.mm_llm
+        logger = self.logger
+
+        previous_instructions = past["previous_instructions"]
+        last_engine = past["last_engine"]
+
+        tab_info = observations["tab_info"]
+
+        try:
+            current_state_str = yaml.dump(current_state, default_flow_style=False)
+        except:
+            raise Exception("Could not convert current state to YAML")
+
+        screenshots_path: str = observations["screenshots_path"]
+        image_documents = SimpleDirectoryReader(screenshots_path).load_data()
+
+        prompt = self.score_prompt_template.format(
+            objective=objective,
+            previous_instructions=previous_instructions,
+            last_engine=last_engine,
+            current_state=current_state_str,
+            tab_info=tab_info,
+        )
+
+        start = time.time()
+
+        with time_profiler("World Model Inference", prompt_size=len(prompt)):
+            mm_llm_outputs = mm_llm.complete(
+                prompt,
+                image_documents=image_documents,
+                temperature=temperature,
+                top_p=top_p,
+                n=n,
+            )
+            mm_llm_outputs = [choice.message.content for choice in mm_llm_outputs.raw["choices"]]
+
+        end = time.time()
+        world_model_inference_time = end - start
+
+        if logger:
+            log = {
+                "world_model_prompt": prompt,
+                "world_model_output": mm_llm_outputs,
+                "world_model_inference_time": world_model_inference_time,
+                "screenshots": [
+                    Image.open(image_document.image_path)
+                    for image_document in image_documents
+                ],
+            }
+            logger.add_log(log)
+
+        return mm_llm_outputs
 
     def get_mm_llm_name(self):
         return get_model_name(self.mm_llm)

@@ -1,8 +1,14 @@
+from abc import ABC, abstractmethod
+from copy import deepcopy
+from difflib import SequenceMatcher
+
+from anytree import Node
+import heapq
 from io import BytesIO
 import logging
 import os
 import shutil
-from typing import Any, Optional
+from typing import Annotated, Any, Optional
 
 from lavague.core.action_engine import ActionEngine
 from lavague.core.world_model import WorldModel
@@ -39,7 +45,13 @@ logging_print.addHandler(ch)
 logging_print.propagate = False
 
 
-class WebAgent:
+class BaseAgent(ABC):
+    @abstractmethod
+    def run_step(self, instruction: str) -> ActionResult:
+        pass
+
+
+class WebAgent(BaseAgent):
     """
     Web agent class, for now only works with selenium.
     """
@@ -620,3 +632,293 @@ class WebAgent:
         clear_profiling_data()
 
         return plot, table
+
+
+Action = Annotated[tuple[str, str], "Engine name and instruction"]
+
+
+class State(Node):
+    """
+    State class for tree search.
+    """
+
+    def __init__(self, url, parent = None):
+
+        super().__init__(name=url, parent=parent)
+
+        self.url = self.name
+        self.score = None
+        self.observations = None
+
+        # the children node inherits his parent's memory
+        if parent is None:
+            self.memory = ShortTermMemory()
+        else:
+            self.memory = deepcopy(parent.memory)
+
+        self.result = ActionResult(
+            instruction=None,
+            code="",
+            success=False,
+            output=None,
+            total_estimated_tokens=0,
+            total_estimated_cost=0.0,
+        )
+
+    def __gt__(self, other):
+        """Comparison method for states.
+
+        Used to sort states in the priority queue when they have the same score.
+        """
+        return (self.score, self.depth, self.url) > (other.score, other.depth, other.url)
+
+    def __repr__(self):
+        return f"State(depth={self.depth}, url={self.url}, score={self.score})"
+
+
+class TreeSearchWebAgent(WebAgent):
+    """
+    Web agent implementing Tree Search algorithm.
+    """
+
+    def __init__(
+        self,
+        world_model: WorldModel,
+        action_engine: ActionEngine,
+        token_counter: Optional[TokenCounter] = None,
+        n_steps: int = 5,
+        max_depth: int = 5,
+        branching_factor: int = 5,
+        sample_size: int = 10,
+        clean_screenshot_folder: bool = True,
+        logger: AgentLogger = None,
+    ):
+
+        super().__init__(
+            world_model,
+            action_engine,
+            token_counter,
+            n_steps,
+            clean_screenshot_folder,
+            logger,
+        )
+
+        # memory will be carried by states rather than agent so we reset it
+        self.st_memory = None
+
+        # search hyperparameters
+        self.max_depth = max_depth
+        self.branching_factor = branching_factor
+        self.sample_size = sample_size
+
+        # search data structures
+        self._queue = []
+        self._visited = set()
+        self._best: State | None = None
+
+    def _update_observations(self, state: State):
+        """Updates the state with new observations."""
+
+        state.observations = self.driver.get_obs()
+
+    def _init_queue(self) -> None:
+        """Initializes the priority queue with the initial state."""
+
+        self._update_queue(0.0, State(url=self.driver.get_url()))
+
+    def _update_queue(self, score: float, state: State) -> None:
+        """Updates the priority queue with a new state."""
+
+        # score is negated to use the priority queue as a max-heap
+        heapq.heappush(self._queue, (-score, state))
+
+    def _get_next_state_from_queue(self) -> State:
+        """Gets the next state to explore."""
+
+        # score is negated to use the priority queue as a max-heap
+        _, state = heapq.heappop(self._queue)
+        logging.info(f"Current queue: {[s for _, s in self._queue]}")
+        logging_print.info(f"Exploring state: {state}")
+
+        return state
+
+    def _update_best(self, candidate: State) -> None:
+        """Updates the best state found so far."""
+
+        if self._best is None or candidate.score > self._best.score:
+            self._best = candidate
+            logging_print.info(f"New best state found: {self._best.url}")
+
+    def _score(self, objective: str, state: State) -> None:
+        """State scoring function.
+
+        Obtained by sampling completions from the model
+        and averaging the scores.
+        """
+
+        def score(text: str) -> float:
+            if text.lower() == "yes":
+                return 1.0
+            elif text.lower() == "no":
+                return 0.0
+            return 0.5
+
+        # get completions from the LLM
+        current_state, past = state.memory.get_state()
+        obs = state.observations
+        world_model_outputs = self.world_model.get_scores(
+            objective, current_state, past, obs, temperature=1.0, top_p=0.95, n=self.sample_size,
+        )
+
+        # final score is the mean of the samples
+        scores = [score(o) for o in world_model_outputs]
+        score = sum(scores) / self.sample_size
+
+        state.score = score
+        logging_print.info(f"Score is: {state.score} (samples: {scores}) for URL {state.url}")
+
+    def _backtrack(self, state: State):
+        """Backtracks to the input state."""
+
+        logging_print.info(f"Backtracking to {state.url}")
+
+        # NOTE: backtracking based on URL is a huge simplification and won't work with all websites (e.g. SPAs)
+        self.get(state.url)
+        self._visited.add(state.url)
+
+    def _remove_duplicates(self, actions: list[Action]) -> list[Action]:
+        """Removes duplicate actions from the list.
+
+        Based on the similarity of the instructions.
+        """
+
+        def remove_duplicates(strings: list[str], threshold=0.80) -> list[str]:
+            """Removes duplicates from a list of strings  using a similarity threshold."""
+            unique_strings = []
+            for s in strings:
+                if not any(SequenceMatcher(None, s, u).ratio() > threshold for u in unique_strings):
+                    unique_strings.append(s)
+            return unique_strings
+
+        # first group them by engine
+        action_groups = {}
+        for action in actions:
+            engine_name = action[0]
+            action_groups.setdefault(engine_name, [])
+            action_groups[engine_name].append(action[1])
+
+        # then remove duplicates instructions
+        unique_actions = []
+        for engine, instructions in action_groups.items():
+            unique_instructions = remove_duplicates(instructions)
+            unique_actions.extend([(engine, i) for i in unique_instructions])
+
+        return unique_actions
+
+    def _sample_children_actions(self, objective: str, state: State, n: int) -> list[Action]:
+        """Samples children actions from the world model."""
+
+        current_state, past = state.memory.get_state()
+        obs = state.observations
+        world_model_outputs = self.world_model.get_instructions(
+            objective, current_state, past, obs, temperature=1.0, top_p=0.95, n=n,
+        )
+
+        logging_print.info(f"\n{'='*80}\n".join(world_model_outputs))
+
+        next_engine_names = [extract_next_engine(o) for o in world_model_outputs]
+        instructions = [extract_world_model_instruction(o) for o in world_model_outputs]
+        actions = [(n, i) for n, i in zip(next_engine_names, instructions)]
+
+        # remove duplicates
+        actions = self._remove_duplicates(actions)
+
+        logging_print.info("Actions sampled: \n" + "\n".join([str(a) for a in actions]))
+
+        return actions
+
+    @staticmethod
+    def _reached_objective(action: Action) -> bool:
+        engine_name = action[0]
+        return engine_name == "COMPLETE" or engine_name == "SUCCESS"
+
+    def _update_successful_result(self, action: Action, state: State) -> None:
+        self.result.success = True
+        self.result.output = action[1]
+        logging_print.info("Objective reached. Stopping...")
+        self.logger.add_log(state.observations)
+
+        self.process_token_usage()
+        self.logger.end_step()
+
+    def _perform_action(self, action: Action, state: State) -> ActionResult:
+        next_engine_name, instruction = action
+        action_result = self.action_engine.dispatch_instruction(
+            next_engine_name, instruction
+        )
+
+        logging_print.info(
+            f"Performed action: [{next_engine_name}] <{instruction}> and reached URL: {self.driver.get_url()}"
+        )
+
+        if action_result.success:
+            logging_print.info(f"Performed action successfully")
+            self.result.code += action_result.code
+            self.result.output = action_result.output
+        else:
+            logging_print.info(f"Failed to perform action")
+        state.memory.update_state(
+            instruction,
+            next_engine_name,
+            action_result.success,
+            action_result.output,
+        )
+        self.logger.add_log(state.observations)
+
+        self.process_token_usage()
+        self.logger.end_step()
+
+        return action_result
+
+    def run(
+        self,
+        objective: str,
+        user_data=None,
+        display: bool = False,
+        log_to_db: bool = is_flag_true("LAVAGUE_LOG_TO_DB"),
+        step_by_step=False,
+    ) -> ActionResult:
+        # we need to initialize the queue at the beginning of each run
+        self._init_queue()
+        return super().run(objective, user_data, display, log_to_db, step_by_step)
+
+    def run_step(self, objective: str) -> Optional[ActionResult]:
+
+        # go to most urgent state
+        state = self._get_next_state_from_queue()
+        self._backtrack(state)
+        self._update_observations(state)
+
+        # score it and update best result
+        self._score(objective, state)
+        self._update_best(state)
+
+        # explore children states
+        if state.depth < self.max_depth:
+
+            actions = self._sample_children_actions(objective, state, n=self.branching_factor)
+
+            for action in actions:
+
+                # check if we reached the objective
+                if self._reached_objective(action):
+                    self._update_successful_result(action, state)
+                    return self.result
+
+                # otherwise get child state
+                self._backtrack(state)
+                action_result = self._perform_action(action, state)
+
+                if action_result.success:
+                    child = State(url=self.driver.get_url(), parent=state)
+                    self._update_queue(state.score, child)
