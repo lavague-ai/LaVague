@@ -10,6 +10,13 @@ DEFAULT_ENGINES: List[str] = [
     "COMPLETE",
 ]
 
+NEXT_ENGINE_PATTERNS = [
+    r"Next engine:?\s*(.*)",
+    r"next_engine:?\s*(.*)",
+    r"##?#? Next Engine:?\s*(.*)",
+    r"\*\*Next Engine:?\*\*\s*(.*)",
+]
+
 
 class VariableVisitor(ast.NodeVisitor):
     """Helper class to visit AST nodes and extract variables assigned in the code."""
@@ -103,14 +110,15 @@ import re
 def extract_world_model_instruction(text):
     # Use a regular expression to find the content after "Instruction:"
     instruction_patterns = [
-        r"Instruction:\s*((?:- .*\n?)+)",  # For multi-line hyphenated instructions
-        r"### Instruction:\s*((?:- .*\n?)+)",  # For multi-line hyphenated instructions with ### prefix
-        r"Instruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions
-        r"### Instruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions with ### prefix
-        r"Instruction:\s*```(.*?)```",  # For block of text within triple backticks
-        r"### Instruction:\s*```(.*?)```",  # For block of text within triple backticks with ### prefix
-        r"Instruction:\s*(.*)",  # For single-line instructions
-        r"### Instruction:\s*(.*)",  # For single-line instructions with ### prefix
+        r"[Ii]nstruction:\s*((?:- .*\n?)+)",  # For multi-line hyphenated instructions
+        r"### [Ii]nstruction:\s*((?:- .*\n?)+)",  # For multi-line hyphenated instructions with ### prefix
+        r"[Ii]nstruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions
+        r"### [Ii]nstruction:\s*((?:\d+\.\s.*\n?)+)",  # For multi-line numbered instructions with ### prefix
+        r"[Ii]nstruction:\s*```(.*?)```",  # For block of text within triple backticks
+        r"### [Ii]nstruction:\s*```(.*?)```",  # For block of text within triple backticks with ### prefix
+        r"[Ii]nstruction:\s*(.*)",  # For single-line instructions
+        r"### [Ii]nstruction:\s*(.*)",  # For single-line instructions with ### prefix
+        r"- [Ii]nstruction:\s*(.*)",  # For single-line instructions with ### prefix
     ]
 
     longest_instruction = ""
@@ -143,11 +151,9 @@ def replace_hyphens(text: str, replacement_char="•"):
 
 
 def extract_before_next_engine(text: str) -> str:
-    # Define the patterns for "Next engine:" and similar patterns
-    next_engine_patterns = [r"Next engine:\s*", r"### Next Engine:\s*"]
 
     # Split the text using the "Next engine:" patterns
-    for pattern in next_engine_patterns:
+    for pattern in NEXT_ENGINE_PATTERNS:
         split_text = re.split(pattern, text, maxsplit=1)
         if len(split_text) > 1:
             result = split_text[0].strip()
@@ -164,9 +170,7 @@ def extract_before_next_engine(text: str) -> str:
 def extract_next_engine(text: str, next_engines: List[str] = DEFAULT_ENGINES) -> str:
     # Use a regular expression to find the content after "Next engine:"
 
-    next_engine_patterns = [r"Next engine:\s*(.*)", r"### Next Engine:\s*(.*)"]
-
-    for pattern in next_engine_patterns:
+    for pattern in NEXT_ENGINE_PATTERNS:
         next_engine_match = re.search(pattern, text)
         if next_engine_match:
             extracted_text = next_engine_match.group(1).strip()
