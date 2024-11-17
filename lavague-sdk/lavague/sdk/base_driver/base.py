@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Dict, Generic, List, Optional, TypeVar
 
+from lavague.core.types import RemoteMethodCall
 from lavague.sdk.action.navigation import NavigationCommand, NavigationOutput
 from lavague.sdk.base_driver.interaction import (
     InteractionType,
@@ -70,6 +71,11 @@ class BaseDriver(ABC, Generic[T]):
         self.wait_for_idle()
 
     @abstractmethod
+    def execute_element_method(self, remote_call: RemoteMethodCall) -> None:
+        """Execute a method on an element"""
+        pass
+
+    @abstractmethod
     def destroy(self) -> None:
         """Cleanly destroy the underlying driver"""
         pass
@@ -86,6 +92,11 @@ class BaseDriver(ABC, Generic[T]):
     @abstractmethod
     def get(self, url: str) -> None:
         """Navigate to the url"""
+        pass
+
+    @abstractmethod
+    def get_current_tab_title(self) -> str:
+        """Get the title of the current tab"""
         pass
 
     @abstractmethod

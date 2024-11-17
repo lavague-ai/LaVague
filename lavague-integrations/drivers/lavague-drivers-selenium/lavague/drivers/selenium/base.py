@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from lavague.drivers.selenium.node import SeleniumNode
 from lavague.drivers.selenium.prompt import SELENIUM_PROMPT_TEMPLATE
@@ -40,7 +40,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
-
+from lavague.core.types import RemoteMethodCall, ElementMethod
 
 class SeleniumDriver(BaseDriver[SeleniumNode]):
     driver: WebDriver
@@ -315,6 +315,10 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
                 f"Waited {total_elapsed}s for browser being idle ({elapsed} for network + {total_elapsed - elapsed} for DOM)"
             )
 
+    def get_current_tab_title(self) -> str:
+        """Get the title of the current tab"""
+        return self.driver.title
+
     def get_capability(self) -> str:
         """Prompt to explain the llm which style of code he should output and which variables and imports he should expect"""
         return SELENIUM_PROMPT_TEMPLATE
@@ -377,3 +381,64 @@ class SeleniumDriver(BaseDriver[SeleniumNode]):
 
     def switch_parent_frame(self) -> None:
         self.driver.switch_to.parent_frame()
+
+    def execute_element_method(self, remote_call: RemoteMethodCall) -> Any:
+        """Execute a remote method call on a WebElement"""
+        xpath = remote_call.xpath
+        element: WebElement = self.resolve_xpath(xpath).element
+        args = remote_call.args
+        
+        match remote_call.method:
+            case ElementMethod.CLICK:
+                return element.click()
+                
+            case ElementMethod.CLEAR:
+                return element.clear()
+                
+            case ElementMethod.GET_ATTRIBUTE:
+                return element.get_attribute(args["name"])
+                
+            case ElementMethod.GET_PROPERTY:
+                return element.get_property(args["name"])
+                
+            case ElementMethod.IS_DISPLAYED:
+                return element.is_displayed()
+                
+            case ElementMethod.IS_ENABLED:
+                return element.is_enabled()
+                
+            case ElementMethod.IS_SELECTED:
+                return element.is_selected()
+                
+            case ElementMethod.SCREENSHOT:
+                return element.screenshot(args["filename"])
+                
+            case ElementMethod.SEND_KEYS:
+                return element.send_keys(*args["value"])
+                
+            case ElementMethod.SUBMIT:
+                return element.submit()
+                
+            case ElementMethod.VALUE_OF_CSS_PROPERTY:
+                return element.value_of_css_property(args["property_name"])
+                
+            case ElementMethod.GET_TEXT:
+                return element.text
+                
+            case ElementMethod.GET_TAG_NAME:
+                return element.tag_name
+                
+            case ElementMethod.GET_RECT:
+                return element.rect
+                
+            case ElementMethod.GET_ID:
+                return element.id
+                
+            case ElementMethod.GET_LOCATION:
+                return element.location
+                
+            case ElementMethod.GET_SIZE:
+                return element.size
+                
+            case _:
+                raise NotImplementedError(f"Method {remote_call.method} not implemented")
