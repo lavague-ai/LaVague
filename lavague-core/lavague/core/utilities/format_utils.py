@@ -164,7 +164,7 @@ def extract_before_next_engine(text: str) -> str:
 def extract_next_engine(text: str, next_engines: List[str] = DEFAULT_ENGINES) -> str:
     # Use a regular expression to find the content after "Next engine:"
 
-    next_engine_patterns = [r"Next engine:\s*(.*)", r"### Next Engine:\s*(.*)"]
+    next_engine_patterns = [r"Next engine:\s*(.*)", r"### Next Engine:\s*(.*)", r"\*\*Next Engine:\*\*\s*(.*)"]
 
     for pattern in next_engine_patterns:
         next_engine_match = re.search(pattern, text)
