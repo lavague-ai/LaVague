@@ -15,7 +15,7 @@ classifiers = [
 ]
 keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
 homepage = "https://lavague.ai"
-repository = "https://github.com/lavague-ai/LaVague/"
+repository = "https://github.com/aabdullah-bos/LaVague.git"
 documentation = "https://docs.lavague.ai/en/latest/"
 packages = [{include = "lavague/"}]
 

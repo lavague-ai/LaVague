@@ -19,12 +19,12 @@ classifiers = [
 ]
 keywords = ["LAM", "action", "automation", "LLM", "NLP", "RAG", "selenium", "playwright"]
 homepage = "https://mithrilsecurity.io"
-repository = "https://github.com/lavague-ai/LaVague/"
+repository = "https://github.com/aabdullah-bos/LaVague.git"
 documentation = "https://docs.lavague.ai/en/latest/"
 packages = [{from = "_lavague", include = "lavague"}]
 
 [tool.poetry.dependencies]
-python = "^3.10.0"
+python = "^3.11.9"
 lavague-core = "^0.2.31"
 lavague-drivers-selenium = "^0.2.12"
 lavague-contexts-openai = "^0.2.0"
