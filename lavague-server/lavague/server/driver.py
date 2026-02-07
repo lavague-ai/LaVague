@@ -153,7 +153,7 @@ class DriverServer(BaseDriver):
                         outputs.append(output)
                     except Exception as e:
                         logging_print.error(
-                            f"An error occured while rendering the highlighted element: {e}"
+                            f"An error occurred while rendering the highlighted element: {e}"
                         )
         return outputs
 
