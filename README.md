@@ -147,7 +147,7 @@ To keep up to date with our project backlog [here](https://github.com/orgs/lavag
 
 ## 💰 How much does it cost to run an agent?
 
-LaVague uses LLMs, (by default OpenAI's `gpt4-o` but this is completely customizable), under the hood.
+LaVague uses LLMs, (by default OpenAI's `gpt4-o` but this is completely customizable), under the hood. We support multiple LLM providers through built-in contexts: [OpenAI](lavague-integrations/contexts/lavague-contexts-openai), [Anthropic](lavague-integrations/contexts/lavague-contexts-anthropic), [Gemini](lavague-integrations/contexts/lavague-contexts-gemini), [Fireworks](lavague-integrations/contexts/lavague-contexts-fireworks), and [MiniMax](lavague-integrations/contexts/lavague-contexts-minimax).
 
 The cost of these LLM calls depends on: 
 - the models chosen to run a given agent
