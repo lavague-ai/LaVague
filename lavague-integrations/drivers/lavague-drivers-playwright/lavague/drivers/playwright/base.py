@@ -1,6 +1,8 @@
 from io import BytesIO
 import json
 import os
+import shutil
+import tempfile
 from PIL import Image
 from typing import Callable, Optional, Any, Mapping, Dict, List
 from lavague.core.utilities.format_utils import extract_code_from_funct
@@ -151,6 +153,53 @@ class PlaywrightDriver(BaseDriver):
 
     def destroy(self) -> None:
         self.page.close()
+
+    def start_recording(self) -> None:
+        """Start recording by creating a new browser context with video recording enabled."""
+        from lavague.core.base_driver import JS_SETUP_GET_EVENTS
+
+        self._video_tmp_dir = tempfile.mkdtemp()
+        context = self.page.context
+        browser = context.browser
+
+        new_context = browser.new_context(
+            record_video_dir=self._video_tmp_dir,
+            record_video_size={"width": self.width, "height": self.height},
+        )
+        new_context.add_init_script(JS_SETUP_GET_EVENTS)
+
+        # Preserve the current URL before switching contexts
+        current_url = self.page.url
+
+        # Close old page and switch to new context
+        self.page.close()
+        self.page = new_context.new_page()
+        self.driver = self.page
+        self.resize_driver(self.width, self.height)
+
+        if current_url and current_url != "about:blank":
+            self.page.goto(current_url)
+            self.wait_for_idle()
+
+    def stop_recording(self, output_path: str) -> None:
+        """Stop recording and save the video to the specified output path."""
+        # Close the page to finalize the video
+        self.page.close()
+
+        # Find the recorded video file in the temp directory
+        video_files = [
+            f for f in os.listdir(self._video_tmp_dir)
+            if f.endswith(".webm")
+        ]
+
+        if not video_files:
+            raise FileNotFoundError(
+                "No video file was produced by the recording session."
+            )
+
+        recorded_video = os.path.join(self._video_tmp_dir, video_files[0])
+        shutil.move(recorded_video, output_path)
+        shutil.rmtree(self._video_tmp_dir, ignore_errors=True)
 
     def check_visibility(self, xpath: str) -> bool:
         try:

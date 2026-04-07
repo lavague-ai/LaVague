@@ -504,9 +504,13 @@ class WebAgent:
         display: bool = False,
         log_to_db: bool = is_flag_true("LAVAGUE_LOG_TO_DB"),
         step_by_step=False,
+        record_output: Optional[str] = None,
     ) -> ActionResult:
         self.interrupted = False
         self.prepare_run(display=display, user_data=user_data)
+
+        if record_output is not None:
+            self.driver.start_recording()
 
         try:
             for _ in range(self.n_steps):
@@ -529,6 +533,11 @@ class WebAgent:
             self.interrupted = True
             raise e
         finally:
+            if record_output is not None:
+                try:
+                    self.driver.stop_recording(record_output)
+                except Exception as rec_err:
+                    logging.warning(f"Failed to save recording: {rec_err}")
             origin = self.origin if hasattr(self, "origin") else "lavague"
             send_telemetry(self.logger.return_pandas(), origin=origin)
             if log_to_db:
