@@ -217,6 +217,22 @@ driver.set_window_size({width}, {height} + height_difference)
     def destroy(self) -> None:
         self.driver.quit()
 
+    def start_recording(self) -> None:
+        """Video recording is not natively supported by Selenium."""
+        raise NotImplementedError(
+            "SeleniumDriver does not support built-in video recording. "
+            "Consider using PlaywrightDriver for this feature, or use an "
+            "external screen recording tool such as ffmpeg."
+        )
+
+    def stop_recording(self, output_path: str) -> None:
+        """Video recording is not natively supported by Selenium."""
+        raise NotImplementedError(
+            "SeleniumDriver does not support built-in video recording. "
+            "Consider using PlaywrightDriver for this feature, or use an "
+            "external screen recording tool such as ffmpeg."
+        )
+
     def maximize_window(self) -> None:
         self.driver.maximize_window()
 

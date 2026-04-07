@@ -296,6 +296,20 @@ class BaseDriver(ABC):
         current_screenshot_folder.mkdir(exist_ok=True)
         return current_screenshot_folder
 
+    def start_recording(self) -> None:
+        """Start recording the browser session. Driver-specific implementation required."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support video recording. "
+            "Please use a driver that supports recording, such as PlaywrightDriver."
+        )
+
+    def stop_recording(self, output_path: str) -> None:
+        """Stop recording and save the video to the specified path."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support video recording. "
+            "Please use a driver that supports recording, such as PlaywrightDriver."
+        )
+
     @abstractmethod
     def get_screenshot_as_png(self) -> bytes:
         pass
