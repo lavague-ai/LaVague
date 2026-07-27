@@ -1,3 +1,4 @@
+import ast
 from abc import ABC, abstractmethod
 import re
 from jsonschema import validate, ValidationError
@@ -137,7 +138,8 @@ class PythonFromMarkdownExtractor(BaseExtractor):
             return None
 
     def extract_as_object(self, text: str):
-        return eval(self.extract(text))
+        # Model output can be influenced by page content, so only parse literals.
+        return ast.literal_eval(self.extract(text))
 
 
 class UntilEndOfMarkdownExtractor(BaseExtractor):
