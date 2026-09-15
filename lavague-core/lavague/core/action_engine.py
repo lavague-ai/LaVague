@@ -138,6 +138,7 @@ class ActionEngine:
             time_between_actions,
             n_attempts,
             logger,
+            context.extraction_llm,
         )
 
     def set_gradio_mode_all(
