@@ -80,7 +80,7 @@ class WebAgent:
                 if os.path.isdir("screenshots"):
                     shutil.rmtree("screenshots")
                 logging_print.info("Screenshot folder cleared")
-            except:
+            except Exception:
                 pass
 
         self.result = ActionResult(
