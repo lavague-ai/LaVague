@@ -51,7 +51,7 @@ class Evaluator(ABC):
 def parse_yaml(action):
     try:
         return yaml.safe_load(action)[0]["actions"][0]["action"]
-    except:
+    except Exception:
         return None
 
 
